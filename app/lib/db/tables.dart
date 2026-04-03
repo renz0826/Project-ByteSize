@@ -10,15 +10,15 @@ class Patient extends Table { // patient entity
 }
 
 class Dentist extends Table { // dentist entity
-  IntColumn get dentistID => integer()(); // one dentist only
+  IntColumn get id => integer().autoIncrement()(); // pk 
+  TextColumn get name => text()();
 }
 
 class Appointment extends Table { // appointment entity
   IntColumn get id => integer().autoIncrement()(); //pk
   IntColumn get patientID => integer().references(Patient, #id)(); //fk
   IntColumn get dentistID => integer().references(Dentist, #id)(); //fk
-  DateTimeColumn get date => dateTime()();
-  DateTimeColumn get time => dateTime()();
+  DateTimeColumn get scheduledAt => dateTime()(); // MM/DD/YY + HR/MN/SEC
   TextColumn get status => text().withDefault(const Constant('pending'))(); // keep this pending first
 }
 
@@ -26,7 +26,7 @@ class Billing extends Table { // billing entity
   IntColumn get id => integer().autoIncrement()(); // pk
   IntColumn get appointmentID => integer().references(Appointment, #id)(); //fk
   RealColumn get totalAmount => real()(); 
-  RealColumn get realAmount => real()();  
+  RealColumn get amountPaid => real()();  
   TextColumn get paymentMethod => text()();
   TextColumn get paymentStatus => text().withDefault(const Constant('pending'))(); // default should be 'pending'
 }
@@ -43,7 +43,7 @@ class DentalChart extends Table { // dental chart entity
 class TreatmentRecord extends Table { // treatment record entity
   IntColumn get id => integer().autoIncrement()(); // pk
   IntColumn get appointmentID => integer().references(Appointment, #id)(); // fk
-  IntColumn get procedureCode => integer()();
+  IntColumn get procedureID => integer().references(ProcedureLookup, #id)(); // fk
   IntColumn get toothNumber => integer()();
   TextColumn get notes => text()();  
 }
