@@ -1,0 +1,67 @@
+import 'package:drift/drift.dart';
+
+class Patient extends Table { // patient entity
+  IntColumn get id => integer().autoIncrement()(); //pk
+  TextColumn get name => text()();
+  IntColumn get age => integer()();
+  TextColumn get sex => text().withLength(min: 1,max: 1)(); 
+  TextColumn get address => text()();
+  TextColumn get contactNumber => text().withLength(min: 10, max: 10)(); // ph numbers only
+}
+
+class Dentist extends Table { // dentist entity
+  IntColumn get id => integer()(); // one dentist only
+}
+
+class Appointment extends Table { // appointment entity
+  IntColumn get id => integer().autoIncrement()(); //pk
+  IntColumn get patientID => integer().references(Patient, #id)(); //fk
+  IntColumn get dentistID => integer().references(Dentist, #id)(); //fk
+  DateTimeColumn get date => dateTime()();
+  DateTimeColumn get time => dateTime()();
+  TextColumn get status => text().withDefault(const Constant('pending'))(); // keep this pending first
+}
+
+class Billing extends Table { // billing entity
+  IntColumn get id => integer().autoIncrement()(); // pk
+  IntColumn get appointmentID => integer().references(Appointment, #id)(); //fk
+  RealColumn get totalAmount => real()(); 
+  RealColumn get realAmount => real()();  
+  TextColumn get paymentMethod => text()();
+  TextColumn get paymentStatus => text().withDefault(const Constant('pending'))(); // default should be 'pending'
+}
+
+class DentalChart extends Table { // dental chart entity
+  IntColumn get id => integer().autoIncrement()(); // pk
+  IntColumn get patientID => integer().references(Patient, #id)(); // fk
+  IntColumn get toothNumber => integer()();
+  TextColumn get surface => text()();
+  TextColumn get condition => text()();
+  DateTimeColumn get lastUpdated => dateTime()(); 
+}
+
+class TreatmentRecord extends Table { // treatment record entity
+  IntColumn get id => integer().autoIncrement()(); // pk
+  IntColumn get appointmentID => integer().references(Appointment, #id)(); // fk
+  IntColumn get procedureCode => integer()();
+  IntColumn get toothNumber => integer()();
+  TextColumn get notes => text()();  
+}
+
+class ProcedureLookup extends Table { // procedurelookup entity (this is for the drop-down table soon)
+  IntColumn get id => integer().autoIncrement()(); // pk
+  TextColumn get description => text()();
+  RealColumn get baseCost => real()();
+}
+
+class PatientRecord extends Table {
+  IntColumn get id => integer().autoIncrement()(); // pk
+  IntColumn get patientID => integer().references(Patient, #id)(); // fk
+  TextColumn get allergies => text().withDefault(const Constant('none'))();
+  TextColumn get medicalConditions => text().withDefault(const Constant('none'))();
+  TextColumn get emergencyContactName => text()();
+  TextColumn get emergencyContactNo => text().withLength(min: 10, max: 10)();
+  TextColumn get emergencyContactRelation => text()();
+  DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
+}
