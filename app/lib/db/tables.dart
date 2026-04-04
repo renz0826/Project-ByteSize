@@ -53,3 +53,16 @@ class ProcedureLookup extends Table { // procedurelookup entity (this is for the
   TextColumn get description => text()();
   RealColumn get baseCost => real()();
 }
+
+class PatientRecord extends Table { // patient record per patient entity
+  IntColumn get id => integer().autoIncrement()(); // pk
+  IntColumn get patientId => integer().references(Patient, #id)(); //fk
+  TextColumn get allergies => text().withDefault(const Constant('none'))();
+  TextColumn get medicalConditions => text().withDefault(const Constant('none'))();
+  TextColumn get currentMedication => text()();
+  TextColumn get emergencyContactName => text()();
+  TextColumn get emergencyContactNumber => text().withLength(min: 10, max: 10)();
+  TextColumn get emergencyContactRelation => text()();
+  DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
+}

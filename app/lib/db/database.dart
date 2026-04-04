@@ -7,7 +7,7 @@ import 'tables.dart';
 
 part 'database.g.dart';
 
-@DriftDatabase(tables: [Patient, Dentist, Appointment, Billing, DentalChart, TreatmentRecord])
+@DriftDatabase(tables: [Patient, Dentist, Appointment, Billing, DentalChart, TreatmentRecord, PatientRecord])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
