@@ -4,7 +4,7 @@ import 'db/database.dart';
 
 final dbProvider = Provider<AppDatabase>((ref) => AppDatabase());
 
-void main() {
+void main() { // test code lang ni, just to check if shit is working
   runApp(const ProviderScope(child: MyApp()));
 }
 
@@ -16,9 +16,13 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'DentCity',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple), // ✅
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
       ),
-      home: const MyHomePage(title: 'DentCity'),
+      home: const Scaffold(
+        body: Center(
+          child: Text('DentCity is running!'),
+        ),
+      ),
     );
   }
 }

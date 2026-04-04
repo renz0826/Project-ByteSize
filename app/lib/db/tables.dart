@@ -10,7 +10,7 @@ class Patient extends Table { // patient entity
 }
 
 class Dentist extends Table { // dentist entity
-  IntColumn get dentistID => integer()(); // one dentist only
+  IntColumn get id => integer()(); // one dentist only
 }
 
 class Appointment extends Table { // appointment entity
@@ -52,4 +52,16 @@ class ProcedureLookup extends Table { // procedurelookup entity (this is for the
   IntColumn get id => integer().autoIncrement()(); // pk
   TextColumn get description => text()();
   RealColumn get baseCost => real()();
+}
+
+class PatientRecord extends Table {
+  IntColumn get id => integer().autoIncrement()(); // pk
+  IntColumn get patientID => integer().references(Patient, #id)(); // fk
+  TextColumn get allergies => text().withDefault(const Constant('none'))();
+  TextColumn get medicalConditions => text().withDefault(const Constant('none'))();
+  TextColumn get emergencyContactName => text()();
+  TextColumn get emergencyContactNo => text().withLength(min: 10, max: 10)();
+  TextColumn get emergencyContactRelation => text()();
+  DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
 }
