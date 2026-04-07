@@ -21,4 +21,18 @@ class AppTheme {
   static const Color red600 = Color(0xFFB50000);
   static const Color yellow200 = Color(0xFFFFF9C4);
   static const Color yellow600 = Color(0xFFFFC107);
+
+  // theme application
+  static ThemeData get lightTheme {
+    return ThemeData(
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: green500,
+          primary: green500,
+          onPrimary: white500,
+          surface: white500,
+          error: red600,
+        ),
+        scaffoldBackgroundColor: gray200);
+  }
 }
