@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
   // app color scheme
@@ -62,6 +63,7 @@ class AppTheme {
   static ThemeData get lightTheme {
     return ThemeData(
         useMaterial3: true,
+        fontFamily: GoogleFonts.beVietnamPro().fontFamily,
         colorScheme: ColorScheme.fromSeed(
           seedColor: green500,
           primary: green500,
