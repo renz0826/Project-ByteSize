@@ -1,28 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'db/database.dart';
+import 'pages/login_page.dart';
+import 'pages/dashboard_page.dart';
 
-final dbProvider = Provider<AppDatabase>((ref) => AppDatabase());
-
-void main() { // test code lang ni, just to check if shit is working
-  runApp(const ProviderScope(child: MyApp()));
+void main() {
+  runApp(
+    const ProviderScope(
+      child: DentalApp(),
+    ),
+  );
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class DentalApp extends StatelessWidget {
+  const DentalApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'DentCity',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-      ),
-      home: const Scaffold(
-        body: Center(
-          child: Text('DentCity is running!'),
-        ),
-      ),
+      debugShowCheckedModeBanner: false,
+      title: 'Dental Management System',
+      theme: ThemeData(primarySwatch: Colors.teal),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const LoginPage(),
+        '/dashboard': (context) => const DashboardPage(),
+      },
     );
   }
 }
