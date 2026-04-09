@@ -50,3 +50,104 @@ class _SidebarItem extends StatelessWidget {
     );
   }
 }
+
+// sidebar class
+class Sidebar extends StatefulWidget {
+  const Sidebar({super.key});
+
+  @override
+  State<Sidebar> createState() => _SidebarState();
+}
+
+// sidebar state class
+class _SidebarState extends State<Sidebar> {
+  // tracks the current selected page
+  int _selectedPage = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    // white bg container of sidebar
+    return Container(
+      width: 342,
+      padding: const EdgeInsets.symmetric(horizontal: 44, vertical: 32),
+      decoration: BoxDecoration(
+        color: AppTheme.white500,
+        borderRadius: const BorderRadius.only(
+          topRight: Radius.circular(24),
+          bottomRight: Radius.circular(24),
+        ),
+        boxShadow: AppTheme.shadow300,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              // add logo here (I added a temporary green circle so you can see it)
+              Container(
+                width: 44,
+                height: 44,
+                decoration: const BoxDecoration(
+                  color: AppTheme.green500,
+                  shape: BoxShape.circle,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                'DENTCITY',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      color: AppTheme.green500,
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+            ],
+          ),
+
+          // dashboard navbar item
+          const SizedBox(height: 48),
+          _SidebarItem(
+            icon: HeroIcons.home,
+            title: 'Dashboard',
+            isActive: _selectedPage == 0,
+            onTap: () => setState(() => _selectedPage = 0),
+          ),
+
+          // records navbar item
+          const SizedBox(height: 18),
+          _SidebarItem(
+            icon: HeroIcons.userGroup,
+            title: 'Records',
+            isActive: _selectedPage == 1,
+            onTap: () => setState(() => _selectedPage = 1),
+          ),
+
+          // billings navbar item
+          const SizedBox(height: 18),
+          _SidebarItem(
+            icon: HeroIcons.documentCurrencyDollar,
+            title: 'Billings',
+            isActive: _selectedPage == 2,
+            onTap: () => setState(() => _selectedPage = 2),
+          ),
+
+          // scheduling navbar item
+          const SizedBox(height: 18),
+          _SidebarItem(
+            icon: HeroIcons.calendar,
+            title: 'Scheduling',
+            isActive: _selectedPage == 3,
+            onTap: () => setState(() => _selectedPage = 3),
+          ),
+
+          const Spacer(),
+          _SidebarItem(
+              icon: HeroIcons.arrowRightStartOnRectangle,
+              title: 'Logout',
+              isActive: false,
+              onTap: () {
+                print('User has logged out.');
+              })
+        ],
+      ),
+    );
+  }
