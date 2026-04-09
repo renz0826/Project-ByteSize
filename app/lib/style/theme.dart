@@ -59,6 +59,37 @@ class AppTheme {
     ),
   );
 
+  // shadow styles
+  static List<BoxShadow> shadow100 = [
+    BoxShadow(
+      // ignore: deprecated_member_use
+      color: black500.withOpacity(0.08),
+      offset: const Offset(0, 4),
+      blurRadius: 8,
+      spreadRadius: 0,
+    )
+  ];
+
+  static List<BoxShadow> shadow200 = [
+    BoxShadow(
+      // ignore: deprecated_member_use
+      color: black500.withOpacity(0.20),
+      offset: const Offset(0, 4),
+      blurRadius: 18,
+      spreadRadius: 0,
+    )
+  ];
+
+  static List<BoxShadow> shadow300 = [
+    BoxShadow(
+      // ignore: deprecated_member_use
+      color: black500.withOpacity(0.08),
+      offset: const Offset(0, 4),
+      blurRadius: 50,
+      spreadRadius: 0,
+    )
+  ];
+
   // theme application
   static ThemeData get lightTheme {
     return ThemeData(
