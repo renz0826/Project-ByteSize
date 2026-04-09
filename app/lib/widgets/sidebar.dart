@@ -4,7 +4,7 @@ import 'package:heroicons/heroicons.dart';
 
 // sidebar item class
 class _SidebarItem extends StatelessWidget {
-  final HeroIcon icon;
+  final HeroIcons icon;
   final String title;
   final bool isActive;
   final VoidCallback onTap;
