@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import '../style/theme.dart';
+import 'package:heroicons/heroicons.dart';
 
 // sidebar item class
 class _SidebarItem extends StatelessWidget {
-  final IconData icon;
+  final HeroIcon icon;
   final String title;
   final bool isActive;
   final VoidCallback onTap;
 
-  // sidebar constructor
+  // sidebar item constructor
   const _SidebarItem({
     required this.icon,
     required this.title,
@@ -30,8 +31,9 @@ class _SidebarItem extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Icon(
+            HeroIcon(
               icon,
+              style: isActive ? HeroIconStyle.solid : HeroIconStyle.outline,
               color: isActive ? AppTheme.green700 : AppTheme.gray500,
               size: 24,
             ),
