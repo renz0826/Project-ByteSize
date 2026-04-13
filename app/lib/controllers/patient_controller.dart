@@ -7,8 +7,7 @@ class PatientController extends StateNotifier<AsyncValue<void>> {
 
   PatientController(this._database) : super(const AsyncValue.data(null));
 
-  Future<void> addPatient({
-    // Patient Entity
+  Future<void> addPatient({ // Patient Entity
 
     required String name,
     required int age,
