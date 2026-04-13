@@ -18,7 +18,7 @@ class PatientController extends StateNotifier<AsyncValue<void>> {
   }) async {
     state = const AsyncValue.loading();
 
-    List<String> errors = [];
+    List<String> errors = []; // gather all the mistakes at once 
 
     // Validate Name Attribute
     if (name.trim().isEmpty) {
@@ -47,7 +47,7 @@ class PatientController extends StateNotifier<AsyncValue<void>> {
 
     // Validate Contact Number
     if (contactNumber.length != 10 || // 10 for Philippine Standard
-        !RegExp(r'^\d{10}$').hasMatch(contactNumber)) {
+        !RegExp(r'^\d{10}$').hasMatch(contactNumber)) { // fancy for sure 10 characters
       errors.add('Contact number must be exactly 10 digits.');
     }
 
