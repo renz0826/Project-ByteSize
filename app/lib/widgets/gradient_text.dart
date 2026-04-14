@@ -7,14 +7,16 @@ class GradientText extends StatelessWidget {
     this.style,
     this.begin = Alignment.topCenter,
     this.end = Alignment.bottomCenter,
-    this.logoPath, // add this
+    this.logoPath,
+    this.logoHeight,
   });
 
   final String text;
   final TextStyle? style;
   final AlignmentGeometry begin;
   final AlignmentGeometry end;
-  final String? logoPath; // add this
+  final String? logoPath; 
+  final double? logoHeight;
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +24,10 @@ class GradientText extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         if (logoPath != null) ...[
-          Image.asset(logoPath!, height: style?.fontSize ?? 40),
+          Image.asset(
+            logoPath!, 
+            height: logoHeight ?? (style?.fontSize ?? 75), 
+          ),
           const SizedBox(width: 12),
         ],
         ShaderMask(
