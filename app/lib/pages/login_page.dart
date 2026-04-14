@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../controllers/auth_controller.dart';
 import '../widgets/gradient_text.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
@@ -34,10 +35,39 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       backgroundColor: Colors.white,
         body: Stack(
         children: [
-          Positioned(bottom: 0, left: 0, right: 0, child: Image.asset('assets/images/bg-login.png', 
-          fit: BoxFit.cover,
-          alignment: Alignment.bottomCenter,
+          Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Colors.white,
+                  const Color(0xFF388037), 
+                ],
+                stops: const [0.8, 1.0],
+              ),
+            ),
           ),
+
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: ShaderMask(
+              blendMode: BlendMode.dstIn, 
+              shaderCallback: (bounds) {
+                return LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.black.withValues(alpha: 0),
+                    Colors.black,
+                  ],
+                  stops: const [0.0, 0.8],
+                ).createShader(bounds);
+              },
+              child: const InfiniteScrollingIcons(svgPath: 'assets/icons/bg-icons.svg'),
+            ),
           ),
 
           Center(
@@ -49,11 +79,11 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Image.asset('assets/images/logo.png', height: 75),
                       const SizedBox(width: 12),
                       const GradientText(
                         'DENTCITY',
                         logoPath: 'assets/images/logo.png', //the logo path here
+                        logoHeight: 75, //input logoheight here, or it will default to the text size
                         style: TextStyle(
                           fontSize: 34,
                           fontWeight: FontWeight.bold,
@@ -64,7 +94,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   const SizedBox(height: 48),
 
                   Container(
-                    constraints: const BoxConstraints(maxWidth: 450),
+                    constraints: const BoxConstraints(maxWidth: 400),
                     padding: const EdgeInsets.all(32.0),
                     decoration: BoxDecoration(
                       color: Colors.white,
@@ -126,7 +156,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF388037),
                               foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(vertical: 20),
+                              padding: const EdgeInsets.symmetric(vertical: 18),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(30),
                               ),
@@ -135,7 +165,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                             child: isLoading
                                 ? const SizedBox(
                                     height: 20,
-                                    width: 20,
+                                    width: 10,
                                     child: CircularProgressIndicator(
                                       strokeWidth: 2,
                                       color: Colors.white,
@@ -154,6 +184,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                       ],
                     ),
                   ),
+                  SizedBox(height: 70),
                 ],
               ),
             ),
@@ -184,5 +215,76 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           enteredPin,
           () => Navigator.pushReplacementNamed(context, '/dashboard'),
         );
+  }
+}
+
+//for the icons animation & loop
+class InfiniteScrollingIcons extends StatefulWidget {
+  final String svgPath;
+  const InfiniteScrollingIcons({super.key, required this.svgPath});
+
+  @override
+  State<InfiniteScrollingIcons> createState() => _InfiniteScrollingIconsState();
+}
+
+class _InfiniteScrollingIconsState extends State<InfiniteScrollingIcons> {
+  late ScrollController _scrollController;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController(initialScrollOffset: 5000); //start at a high offset to allow scrolling left
+    WidgetsBinding.instance.addPostFrameCallback((_) => _scrollLoop());
+  }
+
+  void _scrollLoop() async {
+    //ensure the widget is still in the tree and controller is attached
+    if (!mounted || !_scrollController.hasClients) return;
+
+    final double currentOffset = _scrollController.offset;
+    final double targetOffset = currentOffset - 500; //subtract from offset to scroll left
+
+    await _scrollController.animateTo(
+      targetOffset,
+      duration: const Duration(seconds: 20), // slow efect
+      curve: Curves.linear,
+    );
+
+    if (mounted) {
+      //reset to a high offset to create an infinite loop effect
+      if (_scrollController.offset <= 1000) {
+        _scrollController.jumpTo(5000);
+      }
+      _scrollLoop();
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 200, 
+      child: ListView.builder(
+        controller: _scrollController,
+        scrollDirection: Axis.horizontal,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: 1000, //to ensure it scrolls indefinitely
+        itemBuilder: (context, index) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: SvgPicture.asset(
+              widget.svgPath,
+              height: 200,
+              fit: BoxFit.contain,
+            ),
+          );
+        },
+      ),
+    );
   }
 }
