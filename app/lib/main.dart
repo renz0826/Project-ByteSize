@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'pages/login_page.dart';
-import 'pages/dashboard_page.dart';
+import 'pages/main_dashboard/main_dashboard.dart';
 
 void main() {
   runApp(
