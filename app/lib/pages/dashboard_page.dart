@@ -12,7 +12,7 @@ class DashboardPage extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'Logged in successfully!',
+              'Logged in successfully!', 
               style: Theme.of(context).textTheme.titleLarge,
               textAlign: TextAlign.center,
             ),
