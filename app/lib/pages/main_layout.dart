@@ -113,30 +113,27 @@ class _SidebarState extends State<MainLayout> {
             footerBuilder: (context, extended) {
               return Padding(
                 padding: const EdgeInsets.all(16),
-                child: MouseRegion(
-                  cursor: SystemMouseCursors.basic,
-                  child: InkWell(
-                    onTap: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const LoginPage()),
-                      );
-                    },
-                    borderRadius: BorderRadius.circular(16),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.logout, color: AppTheme.gray500),
-                        const SizedBox(width: 18),
-                        Text(
-                          'Logout',
-                          style: Theme.of(context)
-                              .textTheme
-                              .labelMedium
-                              ?.copyWith(color: AppTheme.gray500),
-                        ),
-                      ],
-                    ),
+                child: InkWell(
+                  onTap: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const LoginPage()),
+                    );
+                  },
+                  borderRadius: BorderRadius.circular(16),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.logout, color: AppTheme.gray500),
+                      const SizedBox(width: 18),
+                      Text(
+                        'Logout',
+                        style: Theme.of(context)
+                            .textTheme
+                            .labelMedium
+                            ?.copyWith(color: AppTheme.gray500),
+                      ),
+                    ],
                   ),
                 ),
               );
