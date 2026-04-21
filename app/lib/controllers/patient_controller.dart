@@ -3,11 +3,12 @@ import 'package:drift/drift.dart';
 import 'package:dentcity_management_system/db/database.dart'; // import database file
 
 class PatientController extends StateNotifier<AsyncValue<void>> {
-  final AppDatabase _database; //
+  final AppDatabase _database; 
 
   PatientController(this._database) : super(const AsyncValue.data(null));
 
-  Future<void> addPatient({ // Patient Entity
+  Future<void> addPatient({
+    // Add patient entity
 
     required String name,
     required int age,
@@ -17,7 +18,7 @@ class PatientController extends StateNotifier<AsyncValue<void>> {
   }) async {
     state = const AsyncValue.loading();
 
-    List<String> errors = []; // gather all the mistakes at once 
+    List<String> errors = []; // gather all the mistakes at once
 
     // Validate Name Attribute
     if (name.trim().isEmpty) {
@@ -46,7 +47,8 @@ class PatientController extends StateNotifier<AsyncValue<void>> {
 
     // Validate Contact Number
     if (contactNumber.length != 10 || // 10 for Philippine Standard
-        !RegExp(r'^\d{10}$').hasMatch(contactNumber)) { // fancy for sure 10 characters
+        !RegExp(r'^\d{10}$').hasMatch(contactNumber)) {
+      // fancy for sure 10 characters
       errors.add('Contact number must be exactly 10 digits.');
     }
 
@@ -55,7 +57,7 @@ class PatientController extends StateNotifier<AsyncValue<void>> {
       return;
     }
 
-    try {
+    try { // create the companion
       await _database.into(_database.patient).insert(PatientCompanion(
             name: Value(name.trim()),
             age: Value(age),

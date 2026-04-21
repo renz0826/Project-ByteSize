@@ -11,6 +11,10 @@ part 'database.g.dart';
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
+ Stream<List<PatientData>> watchAllPatients() {
+  return select(patient).watch();
+ }
+
   @override
   int get schemaVersion => 1;
 }
