@@ -99,8 +99,11 @@ class _SidebarState extends State<MainLayout> {
               );
             },
             items: const [
-              SidebarXItem(icon: Icons.dashboard, label: 'Dashboard'),
-              SidebarXItem(icon: Icons.person, label: 'Records'),
+              SidebarXItem(icon: Icons.home_rounded, label: 'Dashboard'),
+              SidebarXItem(icon: Icons.group_rounded, label: 'Records'),
+              SidebarXItem(icon: Icons.receipt_rounded, label: 'Billings'),
+              SidebarXItem(
+                  icon: Icons.calendar_month_rounded, label: 'Scheduling'),
             ],
           ),
           Expanded(
