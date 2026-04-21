@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:sidebarx/sidebarx.dart';
 import '../style/theme.dart';
+import 'billing/billing_dashboard.dart';
+import 'main_dashboard.dart';
+import 'schedule/schedule_dashboard.dart';
+import 'patient_records/patient_dashboard.dart';
 
 class MainLayout extends StatefulWidget {
   const MainLayout({super.key});
@@ -112,13 +116,13 @@ class _SidebarState extends State<MainLayout> {
               builder: (context, child) {
                 switch (_controller.selectedIndex) {
                   case 0:
-                    return const Center(
-                        child: Text('Dashboard Page',
-                            style: TextStyle(fontSize: 24)));
+                    return DashboardPage();
                   case 1:
-                    return const Center(
-                        child: Text('Profile Page',
-                            style: TextStyle(fontSize: 24)));
+                    return PatientDashboard();
+                  case 2:
+                    return BillingDashboard();
+                  case 3:
+                    return ScheduleDashboard();
                   default:
                     return const Center(child: Text('Not Found'));
                 }
