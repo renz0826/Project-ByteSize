@@ -33,6 +33,7 @@ class _SidebarState extends State<MainLayout> {
         children: [
           SidebarX(
             controller: _controller,
+            showToggleButton: false,
             theme: SidebarXTheme(
               decoration: BoxDecoration(
                 color: AppTheme.white500,
@@ -66,7 +67,7 @@ class _SidebarState extends State<MainLayout> {
             ),
             extendedTheme: const SidebarXTheme(
               width: 342,
-              padding: EdgeInsets.symmetric(horizontal: 43, vertical: 32),
+              padding: EdgeInsets.symmetric(horizontal: 42, vertical: 32),
               decoration: BoxDecoration(
                 color: AppTheme.white500,
                 borderRadius: BorderRadius.only(
@@ -74,6 +75,29 @@ class _SidebarState extends State<MainLayout> {
                     bottomRight: Radius.circular(24)),
               ),
             ),
+            headerBuilder: (context, extended) {
+              return Column(
+                children: [
+                  Row(
+                    children: [
+                      Image.asset(
+                        'assets/images/logo.png',
+                        height: 44,
+                      ),
+                      SizedBox(width: 10),
+                      Text(
+                        "DENTCITY",
+                        style: Theme.of(context)
+                            .textTheme
+                            .labelMedium
+                            ?.copyWith(color: AppTheme.green500),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 28),
+                ],
+              );
+            },
             items: const [
               SidebarXItem(icon: Icons.dashboard, label: 'Dashboard'),
               SidebarXItem(icon: Icons.person, label: 'Records'),
