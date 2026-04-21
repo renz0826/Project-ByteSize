@@ -24,6 +24,7 @@ class DentalApp extends StatelessWidget {
       routes: {
         '/': (context) => const LoginPage(),
         '/dashboard': (context) => const DashboardPage(),
+
       },
     );
   }
