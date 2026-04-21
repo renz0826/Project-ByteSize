@@ -2,7 +2,7 @@ import '../../style/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'pages/login_page.dart';
-import 'pages/main_dashboard/main_dashboard.dart';
+import 'pages/main_layout.dart';
 
 void main() {
   runApp(
@@ -24,6 +24,7 @@ class DentalApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/': (context) => const LoginPage(),
+        '/MainPage': (context) => const MainLayout(),
       },
     );
   }
