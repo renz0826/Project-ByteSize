@@ -102,16 +102,17 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Text(
-                          'Login',
-                          style: TextStyle(
-                              fontSize: 30, fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(height: 8),
-                        const Text(
-                          'Enter your PIN to continue',
-                          style: TextStyle(fontSize: 20),
-                        ),
+                        Text('Login',
+                            style: Theme.of(context)
+                                .textTheme
+                                .headlineLarge
+                                ?.copyWith(fontWeight: FontWeight.bold)),
+                        const SizedBox(height: 24),
+                        Text('Enter your PIN to continue',
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleLarge
+                                ?.copyWith(fontWeight: FontWeight.normal)),
                         const SizedBox(height: 24),
 
                         TextField(
