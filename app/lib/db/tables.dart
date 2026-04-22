@@ -26,6 +26,9 @@ class Patient extends Table { // Patient Entity
   TextColumn get cityMunicipality => text()();
   TextColumn get province => text()();
   TextColumn get zipCode => text()();
+
+// flag
+BoolColumn get isArchived => boolean().withDefault(const Constant(false))();
 }
 
 class Dentist extends Table {// Dentist Entity
