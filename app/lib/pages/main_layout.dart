@@ -6,6 +6,7 @@ import 'billing/billing_dashboard.dart';
 import 'main_dashboard.dart';
 import 'schedule/schedule_dashboard.dart';
 import 'patient_records/patient_dashboard.dart';
+import '../widgets/horizontal_logo.dart';
 
 class MainLayout extends StatefulWidget {
   const MainLayout({super.key});
@@ -85,16 +86,11 @@ class _SidebarState extends State<MainLayout> {
                 children: [
                   Row(
                     children: [
-                      Image.asset(
-                        'assets/images/logo.png',
-                        height: 44,
-                      ),
-                      SizedBox(width: 10),
-                      Text(
-                        "DENTCITY",
-                        style: Theme.of(context)
+                      HorizontalLogo(
+                        logoHeight: 40,
+                        textStyle: Theme.of(context)
                             .textTheme
-                            .labelMedium
+                            .titleLarge
                             ?.copyWith(color: AppTheme.blue500),
                       ),
                     ],
