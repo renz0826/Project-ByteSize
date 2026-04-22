@@ -49,7 +49,7 @@ class _SidebarState extends State<MainLayout> {
               itemPadding: EdgeInsets.all(16),
               selectedItemPadding: EdgeInsets.all(16),
               selectedItemDecoration: BoxDecoration(
-                  color: AppTheme.green200,
+                  color: AppTheme.blue200,
                   borderRadius: BorderRadius.all(Radius.circular(16))),
               textStyle: Theme.of(context)
                   .textTheme
@@ -58,7 +58,7 @@ class _SidebarState extends State<MainLayout> {
               selectedTextStyle: Theme.of(context)
                   .textTheme
                   .labelMedium
-                  ?.copyWith(color: AppTheme.green700),
+                  ?.copyWith(color: AppTheme.blue500),
               hoverTextStyle: Theme.of(context)
                   .textTheme
                   .labelMedium
@@ -68,7 +68,7 @@ class _SidebarState extends State<MainLayout> {
               iconTheme: const IconThemeData(color: AppTheme.gray500, size: 24),
               hoverIconTheme: const IconThemeData(color: AppTheme.gray500),
               selectedIconTheme:
-                  const IconThemeData(color: AppTheme.green700, size: 24),
+                  const IconThemeData(color: AppTheme.blue500, size: 24),
             ),
             extendedTheme: const SidebarXTheme(
               width: 342,
@@ -95,7 +95,7 @@ class _SidebarState extends State<MainLayout> {
                         style: Theme.of(context)
                             .textTheme
                             .labelMedium
-                            ?.copyWith(color: AppTheme.green500),
+                            ?.copyWith(color: AppTheme.blue500),
                       ),
                     ],
                   ),
