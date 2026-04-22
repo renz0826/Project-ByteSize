@@ -15,10 +15,8 @@ class HorizontalLogo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Default theme
-    final defaultStyle = Theme.of(context)
-        .textTheme
-        .headlineLarge
-        ?.copyWith(color: AppTheme.blue500, fontWeight: FontWeight.bold);
+    final defaultStyle = Theme.of(context).textTheme.headlineLarge?.copyWith(
+        color: AppTheme.blue500, fontWeight: FontWeight.bold, fontSize: 36);
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
