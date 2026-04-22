@@ -1,7 +1,8 @@
+import '../../style/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'pages/login_page.dart';
-import 'pages/main_dashboard/main_dashboard.dart';
+import 'pages/main_layout.dart';
 
 void main() {
   runApp(
@@ -19,12 +20,11 @@ class DentalApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Dental Management System',
-      theme: ThemeData(primarySwatch: Colors.teal),
+      theme: AppTheme.lightTheme,
       initialRoute: '/',
       routes: {
         '/': (context) => const LoginPage(),
         '/dashboard': (context) => const DashboardPage(),
-
       },
     );
   }
