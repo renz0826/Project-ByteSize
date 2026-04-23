@@ -13,6 +13,7 @@ class Button extends StatelessWidget {
   final IconData? icon;
   final IconPlacement iconPlacement;
   final double width;
+  final bool isLoading;
 
   const Button({
     super.key,
@@ -21,7 +22,8 @@ class Button extends StatelessWidget {
     this.variant = ButtonVariant.primary,
     this.icon,
     this.iconPlacement = IconPlacement.left,
-    this.width = double.infinity,
+    this.width = 0,
+    this.isLoading = false,
   });
 
   @override
@@ -33,42 +35,53 @@ class Button extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
       children: [
-        // Places the icon on the left
-        if (icon != null && iconPlacement == IconPlacement.left) ...[
-          Icon(
-            icon,
-            size: 20,
+        // Loading state of button
+        if (isLoading) ...[
+          SizedBox(
+            width: 20,
+            height: 20,
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              color: AppTheme.white500,
+            ),
           ),
-          const SizedBox(
-            width: 12,
-          )
-        ],
+        ] else ...[
+          // Places the icon on the left
+          if (icon != null && iconPlacement == IconPlacement.left) ...[
+            Icon(
+              icon,
+              size: 20,
+            ),
+            const SizedBox(
+              width: 12,
+            )
+          ],
 
-        Text(
-          label,
-          style: Theme.of(context).textTheme.labelMedium,
-        ),
-
-        // Places the icon on the right
-        if (icon != null && iconPlacement == IconPlacement.right) ...[
-          Icon(
-            icon,
-            size: 20,
           ),
-          const SizedBox(
-            width: 12,
-          )
-        ],
+
+          // Places the icon on the right
+          if (icon != null && iconPlacement == IconPlacement.right) ...[
+            const SizedBox(
+              width: 12,
+            ),
+            Icon(
+              icon,
+              size: 20,
+            ),
+          ],
+        ]
       ],
     );
 
+    // Disables the button if it's loading.
+    final action = isLoading ? null : onPressed;
     Widget buttonWidget;
 
     switch (variant) {
       // Main button
       case ButtonVariant.primary:
         buttonWidget = ElevatedButton(
-            onPressed: onPressed,
+            onPressed: action,
             style: ElevatedButton.styleFrom(
                 backgroundColor: primaryColor,
                 foregroundColor: AppTheme.white500,
