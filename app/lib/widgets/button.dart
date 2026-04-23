@@ -94,10 +94,23 @@ class Button extends StatelessWidget {
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(24))),
             child: buttonContent);
+        break;
 
+      // Secondary Button
       case ButtonVariant.secondary:
-        buttonWidget =
-            ElevatedButton(onPressed: onPressed, child: buttonContent);
+        buttonWidget = ElevatedButton(
+            onPressed: action,
+            style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.white500,
+                foregroundColor: primaryColor,
+                side: BorderSide(color: primaryColor, width: 1),
+                elevation: 0,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(24))),
+            child: buttonContent);
+        break;
     }
 
     return SizedBox(
