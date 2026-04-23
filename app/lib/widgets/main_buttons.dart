@@ -2,7 +2,12 @@ import 'package:flutter/material.dart';
 import '../../style/theme.dart';
 
 // Define Button enums
-enum ButtonVariant { primary, secondary }
+enum ButtonVariant {
+  primary,
+  secondary,
+  smallPrimary,
+  smallSecondary,
+}
 
 enum IconPlacement { left, right }
 
@@ -18,7 +23,7 @@ class Button extends StatelessWidget {
   const Button({
     super.key,
     required this.onPressed,
-    required this.label,
+    this.label = "",
     this.variant = ButtonVariant.primary,
     this.icon,
     this.iconPlacement = IconPlacement.left,
@@ -81,7 +86,7 @@ class Button extends StatelessWidget {
     Widget buttonWidget;
 
     switch (variant) {
-      // Main button
+      // Primary button
       case ButtonVariant.primary:
         buttonWidget = ElevatedButton(
             onPressed: action,
@@ -107,6 +112,37 @@ class Button extends StatelessWidget {
                 elevation: 0,
                 padding:
                     const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(24))),
+            child: buttonContent);
+        break;
+
+      // Small Primary
+      case ButtonVariant.smallPrimary:
+        buttonWidget = ElevatedButton(
+            onPressed: action,
+            style: ElevatedButton.styleFrom(
+                backgroundColor: primaryColor,
+                foregroundColor: AppTheme.white500,
+                elevation: 0,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(24))),
+            child: buttonContent);
+        break;
+
+      // Small Secondary
+      case ButtonVariant.smallSecondary:
+        buttonWidget = ElevatedButton(
+            onPressed: action,
+            style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.white500,
+                foregroundColor: primaryColor,
+                side: BorderSide(color: primaryColor, width: 1),
+                elevation: 0,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(24))),
             child: buttonContent);
