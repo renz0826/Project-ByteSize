@@ -7,6 +7,8 @@ enum ButtonVariant {
   secondary,
   smallPrimary,
   smallSecondary,
+  danger,
+  revert,
 }
 
 enum IconPlacement { left, right }
@@ -86,7 +88,7 @@ class Button extends StatelessWidget {
     Widget buttonWidget;
 
     switch (variant) {
-      // Primary button
+      // Primary Button
       case ButtonVariant.primary:
         buttonWidget = ElevatedButton(
             onPressed: action,
@@ -117,7 +119,7 @@ class Button extends StatelessWidget {
             child: buttonContent);
         break;
 
-      // Small Primary
+      // Small Primary Button
       case ButtonVariant.smallPrimary:
         buttonWidget = ElevatedButton(
             onPressed: action,
@@ -132,7 +134,7 @@ class Button extends StatelessWidget {
             child: buttonContent);
         break;
 
-      // Small Secondary
+      // Small Secondary Button
       case ButtonVariant.smallSecondary:
         buttonWidget = ElevatedButton(
             onPressed: action,
@@ -143,6 +145,37 @@ class Button extends StatelessWidget {
                 elevation: 0,
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(24))),
+            child: buttonContent);
+        break;
+
+      // Danger Button
+      case ButtonVariant.danger:
+        buttonWidget = ElevatedButton(
+            onPressed: action,
+            style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.red600,
+                foregroundColor: AppTheme.white500,
+                elevation: 0,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(24))),
+            child: buttonContent);
+        break;
+
+      // Revert Button
+      case ButtonVariant.revert:
+        buttonWidget = ElevatedButton(
+            onPressed: action,
+            style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.white500,
+                foregroundColor: AppTheme.gray500,
+                side: BorderSide(color: AppTheme.gray500, width: 1),
+                elevation: 0,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(24))),
             child: buttonContent);
