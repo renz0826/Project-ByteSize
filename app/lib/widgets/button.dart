@@ -57,6 +57,9 @@ class Button extends StatelessWidget {
             )
           ],
 
+          Text(
+            label,
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
           ),
 
           // Places the icon on the right
