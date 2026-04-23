@@ -22,7 +22,7 @@ class IconButtons extends StatelessWidget {
         case IconButtonVariant.finish:
           return Icons.check;
         case IconButtonVariant.cancel:
-          return Icons.cancel;
+          return Icons.close;
         case IconButtonVariant.remove:
           return Icons.remove;
       }
@@ -41,6 +41,23 @@ class IconButtons extends StatelessWidget {
 
     final color = getColor();
 
-    return const Placeholder();
+    return OutlinedButton(
+      onPressed: onPressed,
+      style: OutlinedButton.styleFrom(
+        foregroundColor: color,
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+        minimumSize: Size.zero,
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        side: BorderSide(color: color, width: 2),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadiusGeometry.circular(8),
+        ),
+      ),
+      child: Icon(
+        getIcon(),
+        color: color,
+        size: 20,
+      ),
+    );
   }
 }
