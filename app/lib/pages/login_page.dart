@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../controllers/auth_controller.dart';
 import '../widgets/horizontal_logo.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import '../widgets/main_buttons.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
@@ -15,6 +16,7 @@ class LoginPage extends ConsumerStatefulWidget {
 
 class _LoginPageState extends ConsumerState<LoginPage> {
   final TextEditingController _pinController = TextEditingController();
+  bool _isNavigating = false;
 
   @override
   void dispose() {
@@ -26,6 +28,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   Widget build(BuildContext context) {
     final authState = ref.watch(authControllerProvider);
     final isLoading = authState.isLoading;
+    final showLoading = isLoading || _isNavigating;
     final errorMessage = authState.maybeWhen(
       error: (error, stack) => error.toString(),
       orElse: () => null,
@@ -150,40 +153,13 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         ],
                         const SizedBox(height: 24),
                         // login button
-                        SizedBox(
+                        Button(
+                          onPressed: isLoading ? null : _submitPin,
+                          label: "Login",
                           width: double.infinity,
-                          child: ElevatedButton(
-                            onPressed: isLoading ? null : _submitPin,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF388037),
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(vertical: 18),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(30),
-                              ),
-                              elevation: 0,
-                            ),
-                            child: isLoading
-                                ? const SizedBox(
-                                    height: 20,
-                                    width: 10,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      color: Colors.white,
-                                    ),
-                                  )
-                                : const Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Text('Login',
-                                          style: TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w600)),
-                                      SizedBox(width: 12),
-                                      Icon(Icons.arrow_forward, size: 18),
-                                    ],
-                                  ),
-                          ),
+                          icon: Icons.arrow_forward_rounded,
+                          iconPlacement: IconPlacement.right,
+                          isLoading: showLoading,
                         ),
                       ],
                     ),
@@ -215,10 +191,15 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     }
 
     ref.read(authControllerProvider.notifier).login(
-          // send pin to auth_controller
-          enteredPin,
-          () => Navigator.pushReplacementNamed(context, '/dashboard'),
-        );
+        // send pin to auth_controller
+        enteredPin, () {
+      if (mounted) {
+        setState(() {
+          _isNavigating = true; // Lock the button in the loading state!
+        });
+        Navigator.pushReplacementNamed(context, '/dashboard');
+      }
+    });
   }
 }
 
