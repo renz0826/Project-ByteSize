@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import '../../style/theme.dart';
 
 // Icon Buttons enums
-enum ButtonVariant { finish, cancel, remove }
+enum IconButtonVariant { finish, cancel, remove }
 
 class IconButtons extends StatelessWidget {
   final VoidCallback? onPressed;
-  final ButtonVariant variant;
+  final IconButtonVariant variant;
 
   const IconButtons({
     super.key,
@@ -19,11 +19,11 @@ class IconButtons extends StatelessWidget {
     // Icon mapping
     IconData getIcon() {
       switch (variant) {
-        case ButtonVariant.finish:
+        case IconButtonVariant.finish:
           return Icons.check;
-        case ButtonVariant.cancel:
+        case IconButtonVariant.cancel:
           return Icons.cancel;
-        case ButtonVariant.remove:
+        case IconButtonVariant.remove:
           return Icons.remove;
       }
     }
@@ -31,10 +31,10 @@ class IconButtons extends StatelessWidget {
     // Colors Mapping
     Color getColor() {
       switch (variant) {
-        case ButtonVariant.finish:
+        case IconButtonVariant.finish:
           return AppTheme.green300;
-        case ButtonVariant.cancel:
-        case ButtonVariant.remove:
+        case IconButtonVariant.cancel:
+        case IconButtonVariant.remove:
           return AppTheme.red600;
       }
     }
