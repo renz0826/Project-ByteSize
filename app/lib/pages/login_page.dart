@@ -1,4 +1,5 @@
-﻿import 'package:flutter/material.dart';
+﻿import 'package:dentcity_management_system/style/theme.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../controllers/auth_controller.dart';
@@ -94,13 +95,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(26),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
-                          blurRadius: 25,
-                          offset: const Offset(0, 10),
-                        ),
-                      ],
+                      boxShadow: AppTheme.floatShadow,
                     ),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
