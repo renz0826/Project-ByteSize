@@ -45,9 +45,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 end: Alignment.bottomCenter,
                 colors: [
                   Colors.white,
-                  const Color(0xFF388037),
+                  Color(0xFF01FF01),
                 ],
-                stops: const [0.8, 1.0],
+                stops: [0.8, 1.5],
               ),
             ),
           ),
