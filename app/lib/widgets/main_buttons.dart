@@ -9,6 +9,8 @@ enum ButtonVariant {
   smallSecondary,
   danger,
   revert,
+  text,
+  dangerText
 }
 
 enum IconPlacement { left, right }
@@ -37,10 +39,13 @@ class Button extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final primaryColor = theme.colorScheme.primary;
+    final isTextVariant =
+        variant == ButtonVariant.text || variant == ButtonVariant.dangerText;
 
     Widget buttonContent = Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment:
+          isTextVariant ? MainAxisAlignment.start : MainAxisAlignment.center,
+      mainAxisSize: isTextVariant ? MainAxisSize.max : MainAxisSize.min,
       children: [
         // Loading state of button
         if (isLoading) ...[
@@ -180,6 +185,30 @@ class Button extends StatelessWidget {
                     borderRadius: BorderRadius.circular(24))),
             child: buttonContent);
         break;
+
+      // Text Button
+      case ButtonVariant.text:
+        buttonWidget = ElevatedButton(
+            onPressed: action,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.white500,
+              foregroundColor: AppTheme.gray500,
+              elevation: 0,
+              padding: const EdgeInsets.all(0),
+            ),
+            child: buttonContent);
+        break;
+
+      // Danger Text Button
+      case ButtonVariant.dangerText:
+        buttonWidget = ElevatedButton(
+            onPressed: action,
+            style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.white500,
+                foregroundColor: AppTheme.red600,
+                elevation: 0,
+                padding: const EdgeInsets.all(0)),
+            child: buttonContent);
     }
 
     return SizedBox(
