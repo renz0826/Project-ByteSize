@@ -2,7 +2,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../db/database.dart';
 import '../db/database_provider.dart';
 import '../repositories/patient_repository.dart';
-import '../main.dart';
 
 // Repository Provider
 final patientRepositoryProvider = Provider <PatientRepository> ((ref){
