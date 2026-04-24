@@ -1,6 +1,38 @@
 import 'package:flutter/material.dart';
 import '../style/theme.dart';
 
+// usage (with filter and custom search button action):
+//   AppSearchBar(
+//     controller: _searchController,
+//     onChanged: _onSearch,
+//     hintText: 'Search for a Schedule...',
+//     onFilter: () {
+//       // e.g. show a bottom sheet with filter options
+//     },
+//     onSearch: () {
+//       // e.g. perform search immediately instead of waiting for text change
+//     },
+//   ),
+// to use in parent screen
+// 1. declare TextEditingController:
+//        final TextEditingController _searchController = TextEditingController();
+//
+//   2. declare filter function:
+//        void _onSearch(String query) {
+//          setState(() {
+//            _filteredList = _fullList
+//                .where((item) => item.name.toLowerCase().contains(query.toLowerCase()))
+//                .toList();
+//          });
+//        }
+//
+//   3. dispose the controller when the screen is destroyed:
+//        @override
+//        void dispose() {
+//          _searchController.dispose();
+//          super.dispose();
+//        }
+
 class AppSearchBar extends StatelessWidget {
   final TextEditingController controller;
   final ValueChanged<String> onChanged;
