@@ -7,9 +7,13 @@ import 'tables.dart';
 
 part 'database.g.dart';
 
-@DriftDatabase(tables: [Patient, Dentist, Appointment, Billing, DentalChart, TreatmentRecord, PatientRecord])
+@DriftDatabase(tables: [Patient, Dentist, Appointment, Billing, DentalChart, TreatmentRecord, ClinicalRecord])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
+
+ Stream<List<PatientData>> watchAllPatients() {
+  return select(patient).watch();
+ }
 
   @override
   int get schemaVersion => 1;
