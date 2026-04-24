@@ -4,12 +4,9 @@ import 'package:google_fonts/google_fonts.dart';
 class AppTheme {
   // app color scheme
 
-  // greens
-  static const Color green500 = Color(0xFF388037);
-  static const Color green400 = Color(0xFF48A447);
-  static const Color green300 = Color(0xFF4FB44E);
-  static const Color green700 = Color(0xFF214C21);
-  static const Color green200 = Color(0xFFC5FFC5);
+  // blues
+  static const Color blue500 = Color(0xFF3737EA);
+  static const Color blue200 = Color(0xFFE6E6FF);
 
   // neutrals
   static const Color white500 = Color(0xFFFFFFFF);
@@ -19,24 +16,25 @@ class AppTheme {
   static const Color black500 = Color(0xFF000000);
 
   // status
-  static const Color red600 = Color(0xFFB50000);
+  static const Color red600 = Color(0xFFF03737);
   static const Color yellow200 = Color(0xFFFFF9C4);
-  static const Color yellow600 = Color(0xFFFFC107);
+  static const Color green200 = Color(0xFFC5FFC5);
+  static const Color green300 = Color(0xFF4FB44E);
 
   // text styles
   static const TextTheme textTheme = TextTheme(
     displayLarge: TextStyle(
       fontSize: 60,
       fontWeight: FontWeight.w500,
-      color: green500,
+      color: blue500,
     ),
     headlineLarge: TextStyle(
-      fontSize: 32,
+      fontSize: 30,
       fontWeight: FontWeight.w500,
       color: black500,
     ),
     titleLarge: TextStyle(
-      fontSize: 24,
+      fontSize: 20,
       fontWeight: FontWeight.w600,
       color: black500,
     ),
@@ -59,14 +57,32 @@ class AppTheme {
     ),
   );
 
+  // shadows
+  static final List<BoxShadow> cardShadow = [
+    BoxShadow(
+      color: Colors.black.withOpacity(0.20),
+      blurRadius: 16,
+      spreadRadius: 0,
+      offset: const Offset(0, 4),
+    ),
+  ];
+
+  static final List<BoxShadow> floatShadow = [
+    BoxShadow(
+        color: black500.withOpacity(0.08),
+        blurRadius: 50,
+        spreadRadius: 0,
+        offset: const Offset(0, 4))
+  ];
+
   // theme application
   static ThemeData get lightTheme {
     return ThemeData(
         useMaterial3: true,
         fontFamily: GoogleFonts.beVietnamPro().fontFamily,
         colorScheme: ColorScheme.fromSeed(
-          seedColor: green500,
-          primary: green500,
+          seedColor: blue500,
+          primary: blue500,
           onPrimary: white500,
           surface: gray200,
           error: red600,
