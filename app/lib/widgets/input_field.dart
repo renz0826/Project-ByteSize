@@ -69,7 +69,7 @@ class InputField extends StatelessWidget {
 
       case InputVariant.dropdown:
         inputContent = DropdownButtonFormField<String>(
-          initialValue: dropdownValue,
+          value: dropdownValue,
           icon: Icon(
             Icons.keyboard_arrow_down,
             color: AppTheme.gray500,
@@ -83,5 +83,22 @@ class InputField extends StatelessWidget {
         );
         break;
     }
+
+    // Main input with label
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          label,
+          style: Theme.of(context)
+              .textTheme
+              .bodyLarge
+              ?.copyWith(color: AppTheme.gray500),
+        ),
+        SizedBox(height: 8),
+        inputContent,
+      ],
+    );
   }
 }
