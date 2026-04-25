@@ -63,7 +63,7 @@ class Billing extends Table { // Billing Entity (Summarized Data to be displayed
   TextColumn get status => text().withDefault(const Constant('Unpaid'))(); // The 3 statuses' in the main page
 }
 
-class BillingItems extends Table { // Billing Entity (Non-Summarized Data)
+class BillingItem extends Table { // Billing Entity (Non-Summarized Data)
 // Primary Key
   IntColumn get id => integer().autoIncrement()();
 
