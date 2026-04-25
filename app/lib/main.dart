@@ -11,7 +11,7 @@ void main() async {
 
   final database = AppDatabase(); // call database from the db file
 
-  try { // Poke Query, this is used to create the db file on your documents tab (gin ai ko lang ni for testing)
+  try { // Poke Query
     await database.customSelect('SELECT 1').getSingle();
     debugPrint("Database has been created");
   } catch (e) {
