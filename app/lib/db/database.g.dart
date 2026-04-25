@@ -112,6 +112,16 @@ class $PatientTable extends Patient with TableInfo<$PatientTable, PatientData> {
   late final GeneratedColumn<String> zipCode = GeneratedColumn<String>(
       'zip_code', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _isArchivedMeta =
+      const VerificationMeta('isArchived');
+  @override
+  late final GeneratedColumn<bool> isArchived = GeneratedColumn<bool>(
+      'is_archived', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_archived" IN (0, 1))'),
+      defaultValue: const Constant(false));
   @override
   List<GeneratedColumn> get $columns => [
         id,
@@ -129,7 +139,8 @@ class $PatientTable extends Patient with TableInfo<$PatientTable, PatientData> {
         barangay,
         cityMunicipality,
         province,
-        zipCode
+        zipCode,
+        isArchived
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -244,6 +255,12 @@ class $PatientTable extends Patient with TableInfo<$PatientTable, PatientData> {
     } else if (isInserting) {
       context.missing(_zipCodeMeta);
     }
+    if (data.containsKey('is_archived')) {
+      context.handle(
+          _isArchivedMeta,
+          isArchived.isAcceptableOrUnknown(
+              data['is_archived']!, _isArchivedMeta));
+    }
     return context;
   }
 
@@ -285,6 +302,8 @@ class $PatientTable extends Patient with TableInfo<$PatientTable, PatientData> {
           .read(DriftSqlType.string, data['${effectivePrefix}province'])!,
       zipCode: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}zip_code'])!,
+      isArchived: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_archived'])!,
     );
   }
 
@@ -311,6 +330,7 @@ class PatientData extends DataClass implements Insertable<PatientData> {
   final String cityMunicipality;
   final String province;
   final String zipCode;
+  final bool isArchived;
   const PatientData(
       {required this.id,
       required this.firstName,
@@ -327,7 +347,8 @@ class PatientData extends DataClass implements Insertable<PatientData> {
       required this.barangay,
       required this.cityMunicipality,
       required this.province,
-      required this.zipCode});
+      required this.zipCode,
+      required this.isArchived});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -353,6 +374,7 @@ class PatientData extends DataClass implements Insertable<PatientData> {
     map['city_municipality'] = Variable<String>(cityMunicipality);
     map['province'] = Variable<String>(province);
     map['zip_code'] = Variable<String>(zipCode);
+    map['is_archived'] = Variable<bool>(isArchived);
     return map;
   }
 
@@ -380,6 +402,7 @@ class PatientData extends DataClass implements Insertable<PatientData> {
       cityMunicipality: Value(cityMunicipality),
       province: Value(province),
       zipCode: Value(zipCode),
+      isArchived: Value(isArchived),
     );
   }
 
@@ -404,6 +427,7 @@ class PatientData extends DataClass implements Insertable<PatientData> {
       cityMunicipality: serializer.fromJson<String>(json['cityMunicipality']),
       province: serializer.fromJson<String>(json['province']),
       zipCode: serializer.fromJson<String>(json['zipCode']),
+      isArchived: serializer.fromJson<bool>(json['isArchived']),
     );
   }
   @override
@@ -426,6 +450,7 @@ class PatientData extends DataClass implements Insertable<PatientData> {
       'cityMunicipality': serializer.toJson<String>(cityMunicipality),
       'province': serializer.toJson<String>(province),
       'zipCode': serializer.toJson<String>(zipCode),
+      'isArchived': serializer.toJson<bool>(isArchived),
     };
   }
 
@@ -445,7 +470,8 @@ class PatientData extends DataClass implements Insertable<PatientData> {
           String? barangay,
           String? cityMunicipality,
           String? province,
-          String? zipCode}) =>
+          String? zipCode,
+          bool? isArchived}) =>
       PatientData(
         id: id ?? this.id,
         firstName: firstName ?? this.firstName,
@@ -466,6 +492,7 @@ class PatientData extends DataClass implements Insertable<PatientData> {
         cityMunicipality: cityMunicipality ?? this.cityMunicipality,
         province: province ?? this.province,
         zipCode: zipCode ?? this.zipCode,
+        isArchived: isArchived ?? this.isArchived,
       );
   PatientData copyWithCompanion(PatientCompanion data) {
     return PatientData(
@@ -498,6 +525,8 @@ class PatientData extends DataClass implements Insertable<PatientData> {
           : this.cityMunicipality,
       province: data.province.present ? data.province.value : this.province,
       zipCode: data.zipCode.present ? data.zipCode.value : this.zipCode,
+      isArchived:
+          data.isArchived.present ? data.isArchived.value : this.isArchived,
     );
   }
 
@@ -519,7 +548,8 @@ class PatientData extends DataClass implements Insertable<PatientData> {
           ..write('barangay: $barangay, ')
           ..write('cityMunicipality: $cityMunicipality, ')
           ..write('province: $province, ')
-          ..write('zipCode: $zipCode')
+          ..write('zipCode: $zipCode, ')
+          ..write('isArchived: $isArchived')
           ..write(')'))
         .toString();
   }
@@ -541,7 +571,8 @@ class PatientData extends DataClass implements Insertable<PatientData> {
       barangay,
       cityMunicipality,
       province,
-      zipCode);
+      zipCode,
+      isArchived);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -561,7 +592,8 @@ class PatientData extends DataClass implements Insertable<PatientData> {
           other.barangay == this.barangay &&
           other.cityMunicipality == this.cityMunicipality &&
           other.province == this.province &&
-          other.zipCode == this.zipCode);
+          other.zipCode == this.zipCode &&
+          other.isArchived == this.isArchived);
 }
 
 class PatientCompanion extends UpdateCompanion<PatientData> {
@@ -581,6 +613,7 @@ class PatientCompanion extends UpdateCompanion<PatientData> {
   final Value<String> cityMunicipality;
   final Value<String> province;
   final Value<String> zipCode;
+  final Value<bool> isArchived;
   const PatientCompanion({
     this.id = const Value.absent(),
     this.firstName = const Value.absent(),
@@ -598,6 +631,7 @@ class PatientCompanion extends UpdateCompanion<PatientData> {
     this.cityMunicipality = const Value.absent(),
     this.province = const Value.absent(),
     this.zipCode = const Value.absent(),
+    this.isArchived = const Value.absent(),
   });
   PatientCompanion.insert({
     this.id = const Value.absent(),
@@ -616,6 +650,7 @@ class PatientCompanion extends UpdateCompanion<PatientData> {
     required String cityMunicipality,
     required String province,
     required String zipCode,
+    this.isArchived = const Value.absent(),
   })  : firstName = Value(firstName),
         middleName = Value(middleName),
         lastName = Value(lastName),
@@ -645,6 +680,7 @@ class PatientCompanion extends UpdateCompanion<PatientData> {
     Expression<String>? cityMunicipality,
     Expression<String>? province,
     Expression<String>? zipCode,
+    Expression<bool>? isArchived,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -664,6 +700,7 @@ class PatientCompanion extends UpdateCompanion<PatientData> {
       if (cityMunicipality != null) 'city_municipality': cityMunicipality,
       if (province != null) 'province': province,
       if (zipCode != null) 'zip_code': zipCode,
+      if (isArchived != null) 'is_archived': isArchived,
     });
   }
 
@@ -683,7 +720,8 @@ class PatientCompanion extends UpdateCompanion<PatientData> {
       Value<String>? barangay,
       Value<String>? cityMunicipality,
       Value<String>? province,
-      Value<String>? zipCode}) {
+      Value<String>? zipCode,
+      Value<bool>? isArchived}) {
     return PatientCompanion(
       id: id ?? this.id,
       firstName: firstName ?? this.firstName,
@@ -701,6 +739,7 @@ class PatientCompanion extends UpdateCompanion<PatientData> {
       cityMunicipality: cityMunicipality ?? this.cityMunicipality,
       province: province ?? this.province,
       zipCode: zipCode ?? this.zipCode,
+      isArchived: isArchived ?? this.isArchived,
     );
   }
 
@@ -755,6 +794,9 @@ class PatientCompanion extends UpdateCompanion<PatientData> {
     if (zipCode.present) {
       map['zip_code'] = Variable<String>(zipCode.value);
     }
+    if (isArchived.present) {
+      map['is_archived'] = Variable<bool>(isArchived.value);
+    }
     return map;
   }
 
@@ -776,7 +818,8 @@ class PatientCompanion extends UpdateCompanion<PatientData> {
           ..write('barangay: $barangay, ')
           ..write('cityMunicipality: $cityMunicipality, ')
           ..write('province: $province, ')
-          ..write('zipCode: $zipCode')
+          ..write('zipCode: $zipCode, ')
+          ..write('isArchived: $isArchived')
           ..write(')'))
         .toString();
   }
@@ -3144,6 +3187,7 @@ typedef $$PatientTableCreateCompanionBuilder = PatientCompanion Function({
   required String cityMunicipality,
   required String province,
   required String zipCode,
+  Value<bool> isArchived,
 });
 typedef $$PatientTableUpdateCompanionBuilder = PatientCompanion Function({
   Value<int> id,
@@ -3162,6 +3206,7 @@ typedef $$PatientTableUpdateCompanionBuilder = PatientCompanion Function({
   Value<String> cityMunicipality,
   Value<String> province,
   Value<String> zipCode,
+  Value<bool> isArchived,
 });
 
 final class $$PatientTableReferences
@@ -3286,6 +3331,9 @@ class $$PatientTableFilterComposer
 
   ColumnFilters<String> get zipCode => $composableBuilder(
       column: $table.zipCode, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get isArchived => $composableBuilder(
+      column: $table.isArchived, builder: (column) => ColumnFilters(column));
 
   Expression<bool> appointmentRefs(
       Expression<bool> Function($$AppointmentTableFilterComposer f) f) {
@@ -3433,6 +3481,9 @@ class $$PatientTableOrderingComposer
 
   ColumnOrderings<String> get zipCode => $composableBuilder(
       column: $table.zipCode, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get isArchived => $composableBuilder(
+      column: $table.isArchived, builder: (column) => ColumnOrderings(column));
 }
 
 class $$PatientTableAnnotationComposer
@@ -3491,6 +3542,9 @@ class $$PatientTableAnnotationComposer
 
   GeneratedColumn<String> get zipCode =>
       $composableBuilder(column: $table.zipCode, builder: (column) => column);
+
+  GeneratedColumn<bool> get isArchived => $composableBuilder(
+      column: $table.isArchived, builder: (column) => column);
 
   Expression<T> appointmentRefs<T extends Object>(
       Expression<T> Function($$AppointmentTableAnnotationComposer a) f) {
@@ -3620,6 +3674,7 @@ class $$PatientTableTableManager extends RootTableManager<
             Value<String> cityMunicipality = const Value.absent(),
             Value<String> province = const Value.absent(),
             Value<String> zipCode = const Value.absent(),
+            Value<bool> isArchived = const Value.absent(),
           }) =>
               PatientCompanion(
             id: id,
@@ -3638,6 +3693,7 @@ class $$PatientTableTableManager extends RootTableManager<
             cityMunicipality: cityMunicipality,
             province: province,
             zipCode: zipCode,
+            isArchived: isArchived,
           ),
           createCompanionCallback: ({
             Value<int> id = const Value.absent(),
@@ -3656,6 +3712,7 @@ class $$PatientTableTableManager extends RootTableManager<
             required String cityMunicipality,
             required String province,
             required String zipCode,
+            Value<bool> isArchived = const Value.absent(),
           }) =>
               PatientCompanion.insert(
             id: id,
@@ -3674,6 +3731,7 @@ class $$PatientTableTableManager extends RootTableManager<
             cityMunicipality: cityMunicipality,
             province: province,
             zipCode: zipCode,
+            isArchived: isArchived,
           ),
           withReferenceMapper: (p0) => p0
               .map((e) =>
