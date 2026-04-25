@@ -3017,6 +3017,12 @@ class $ClinicalRecordTable extends ClinicalRecord
       type: DriftSqlType.dateTime,
       requiredDuringInsert: false,
       defaultValue: currentDateAndTime);
+  static const VerificationMeta _clinicalNotesMeta =
+      const VerificationMeta('clinicalNotes');
+  @override
+  late final GeneratedColumn<String> clinicalNotes = GeneratedColumn<String>(
+      'clinical_notes', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   @override
   List<GeneratedColumn> get $columns => [
         id,
@@ -3035,7 +3041,8 @@ class $ClinicalRecordTable extends ClinicalRecord
         rootFragment,
         missingDueToCaries,
         filledOrRestored,
-        createdAt
+        createdAt,
+        clinicalNotes
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -3142,6 +3149,12 @@ class $ClinicalRecordTable extends ClinicalRecord
       context.handle(_createdAtMeta,
           createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
     }
+    if (data.containsKey('clinical_notes')) {
+      context.handle(
+          _clinicalNotesMeta,
+          clinicalNotes.isAcceptableOrUnknown(
+              data['clinical_notes']!, _clinicalNotesMeta));
+    }
     return context;
   }
 
@@ -3186,6 +3199,8 @@ class $ClinicalRecordTable extends ClinicalRecord
           DriftSqlType.int, data['${effectivePrefix}filled_or_restored'])!,
       createdAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+      clinicalNotes: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}clinical_notes']),
     );
   }
 
@@ -3214,6 +3229,7 @@ class ClinicalRecordData extends DataClass
   final int missingDueToCaries;
   final int filledOrRestored;
   final DateTime createdAt;
+  final String? clinicalNotes;
   const ClinicalRecordData(
       {required this.id,
       required this.patientId,
@@ -3231,7 +3247,8 @@ class ClinicalRecordData extends DataClass
       required this.rootFragment,
       required this.missingDueToCaries,
       required this.filledOrRestored,
-      required this.createdAt});
+      required this.createdAt,
+      this.clinicalNotes});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -3260,6 +3277,9 @@ class ClinicalRecordData extends DataClass
     map['missing_due_to_caries'] = Variable<int>(missingDueToCaries);
     map['filled_or_restored'] = Variable<int>(filledOrRestored);
     map['created_at'] = Variable<DateTime>(createdAt);
+    if (!nullToAbsent || clinicalNotes != null) {
+      map['clinical_notes'] = Variable<String>(clinicalNotes);
+    }
     return map;
   }
 
@@ -3290,6 +3310,9 @@ class ClinicalRecordData extends DataClass
       missingDueToCaries: Value(missingDueToCaries),
       filledOrRestored: Value(filledOrRestored),
       createdAt: Value(createdAt),
+      clinicalNotes: clinicalNotes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(clinicalNotes),
     );
   }
 
@@ -3318,6 +3341,7 @@ class ClinicalRecordData extends DataClass
       missingDueToCaries: serializer.fromJson<int>(json['missingDueToCaries']),
       filledOrRestored: serializer.fromJson<int>(json['filledOrRestored']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      clinicalNotes: serializer.fromJson<String?>(json['clinicalNotes']),
     );
   }
   @override
@@ -3341,6 +3365,7 @@ class ClinicalRecordData extends DataClass
       'missingDueToCaries': serializer.toJson<int>(missingDueToCaries),
       'filledOrRestored': serializer.toJson<int>(filledOrRestored),
       'createdAt': serializer.toJson<DateTime>(createdAt),
+      'clinicalNotes': serializer.toJson<String?>(clinicalNotes),
     };
   }
 
@@ -3361,7 +3386,8 @@ class ClinicalRecordData extends DataClass
           int? rootFragment,
           int? missingDueToCaries,
           int? filledOrRestored,
-          DateTime? createdAt}) =>
+          DateTime? createdAt,
+          Value<String?> clinicalNotes = const Value.absent()}) =>
       ClinicalRecordData(
         id: id ?? this.id,
         patientId: patientId ?? this.patientId,
@@ -3386,6 +3412,8 @@ class ClinicalRecordData extends DataClass
         missingDueToCaries: missingDueToCaries ?? this.missingDueToCaries,
         filledOrRestored: filledOrRestored ?? this.filledOrRestored,
         createdAt: createdAt ?? this.createdAt,
+        clinicalNotes:
+            clinicalNotes.present ? clinicalNotes.value : this.clinicalNotes,
       );
   ClinicalRecordData copyWithCompanion(ClinicalRecordCompanion data) {
     return ClinicalRecordData(
@@ -3431,6 +3459,9 @@ class ClinicalRecordData extends DataClass
           ? data.filledOrRestored.value
           : this.filledOrRestored,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      clinicalNotes: data.clinicalNotes.present
+          ? data.clinicalNotes.value
+          : this.clinicalNotes,
     );
   }
 
@@ -3453,7 +3484,8 @@ class ClinicalRecordData extends DataClass
           ..write('rootFragment: $rootFragment, ')
           ..write('missingDueToCaries: $missingDueToCaries, ')
           ..write('filledOrRestored: $filledOrRestored, ')
-          ..write('createdAt: $createdAt')
+          ..write('createdAt: $createdAt, ')
+          ..write('clinicalNotes: $clinicalNotes')
           ..write(')'))
         .toString();
   }
@@ -3476,7 +3508,8 @@ class ClinicalRecordData extends DataClass
       rootFragment,
       missingDueToCaries,
       filledOrRestored,
-      createdAt);
+      createdAt,
+      clinicalNotes);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -3497,7 +3530,8 @@ class ClinicalRecordData extends DataClass
           other.rootFragment == this.rootFragment &&
           other.missingDueToCaries == this.missingDueToCaries &&
           other.filledOrRestored == this.filledOrRestored &&
-          other.createdAt == this.createdAt);
+          other.createdAt == this.createdAt &&
+          other.clinicalNotes == this.clinicalNotes);
 }
 
 class ClinicalRecordCompanion extends UpdateCompanion<ClinicalRecordData> {
@@ -3518,6 +3552,7 @@ class ClinicalRecordCompanion extends UpdateCompanion<ClinicalRecordData> {
   final Value<int> missingDueToCaries;
   final Value<int> filledOrRestored;
   final Value<DateTime> createdAt;
+  final Value<String?> clinicalNotes;
   const ClinicalRecordCompanion({
     this.id = const Value.absent(),
     this.patientId = const Value.absent(),
@@ -3536,6 +3571,7 @@ class ClinicalRecordCompanion extends UpdateCompanion<ClinicalRecordData> {
     this.missingDueToCaries = const Value.absent(),
     this.filledOrRestored = const Value.absent(),
     this.createdAt = const Value.absent(),
+    this.clinicalNotes = const Value.absent(),
   });
   ClinicalRecordCompanion.insert({
     this.id = const Value.absent(),
@@ -3555,6 +3591,7 @@ class ClinicalRecordCompanion extends UpdateCompanion<ClinicalRecordData> {
     this.missingDueToCaries = const Value.absent(),
     this.filledOrRestored = const Value.absent(),
     this.createdAt = const Value.absent(),
+    this.clinicalNotes = const Value.absent(),
   }) : patientId = Value(patientId);
   static Insertable<ClinicalRecordData> custom({
     Expression<int>? id,
@@ -3574,6 +3611,7 @@ class ClinicalRecordCompanion extends UpdateCompanion<ClinicalRecordData> {
     Expression<int>? missingDueToCaries,
     Expression<int>? filledOrRestored,
     Expression<DateTime>? createdAt,
+    Expression<String>? clinicalNotes,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -3597,6 +3635,7 @@ class ClinicalRecordCompanion extends UpdateCompanion<ClinicalRecordData> {
         'missing_due_to_caries': missingDueToCaries,
       if (filledOrRestored != null) 'filled_or_restored': filledOrRestored,
       if (createdAt != null) 'created_at': createdAt,
+      if (clinicalNotes != null) 'clinical_notes': clinicalNotes,
     });
   }
 
@@ -3617,7 +3656,8 @@ class ClinicalRecordCompanion extends UpdateCompanion<ClinicalRecordData> {
       Value<int>? rootFragment,
       Value<int>? missingDueToCaries,
       Value<int>? filledOrRestored,
-      Value<DateTime>? createdAt}) {
+      Value<DateTime>? createdAt,
+      Value<String?>? clinicalNotes}) {
     return ClinicalRecordCompanion(
       id: id ?? this.id,
       patientId: patientId ?? this.patientId,
@@ -3637,6 +3677,7 @@ class ClinicalRecordCompanion extends UpdateCompanion<ClinicalRecordData> {
       missingDueToCaries: missingDueToCaries ?? this.missingDueToCaries,
       filledOrRestored: filledOrRestored ?? this.filledOrRestored,
       createdAt: createdAt ?? this.createdAt,
+      clinicalNotes: clinicalNotes ?? this.clinicalNotes,
     );
   }
 
@@ -3696,6 +3737,9 @@ class ClinicalRecordCompanion extends UpdateCompanion<ClinicalRecordData> {
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
+    if (clinicalNotes.present) {
+      map['clinical_notes'] = Variable<String>(clinicalNotes.value);
+    }
     return map;
   }
 
@@ -3718,7 +3762,8 @@ class ClinicalRecordCompanion extends UpdateCompanion<ClinicalRecordData> {
           ..write('rootFragment: $rootFragment, ')
           ..write('missingDueToCaries: $missingDueToCaries, ')
           ..write('filledOrRestored: $filledOrRestored, ')
-          ..write('createdAt: $createdAt')
+          ..write('createdAt: $createdAt, ')
+          ..write('clinicalNotes: $clinicalNotes')
           ..write(')'))
         .toString();
   }
@@ -6220,6 +6265,7 @@ typedef $$ClinicalRecordTableCreateCompanionBuilder = ClinicalRecordCompanion
   Value<int> missingDueToCaries,
   Value<int> filledOrRestored,
   Value<DateTime> createdAt,
+  Value<String?> clinicalNotes,
 });
 typedef $$ClinicalRecordTableUpdateCompanionBuilder = ClinicalRecordCompanion
     Function({
@@ -6240,6 +6286,7 @@ typedef $$ClinicalRecordTableUpdateCompanionBuilder = ClinicalRecordCompanion
   Value<int> missingDueToCaries,
   Value<int> filledOrRestored,
   Value<DateTime> createdAt,
+  Value<String?> clinicalNotes,
 });
 
 final class $$ClinicalRecordTableReferences extends BaseReferences<
@@ -6327,6 +6374,9 @@ class $$ClinicalRecordTableFilterComposer
 
   ColumnFilters<DateTime> get createdAt => $composableBuilder(
       column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get clinicalNotes => $composableBuilder(
+      column: $table.clinicalNotes, builder: (column) => ColumnFilters(column));
 
   $$PatientTableFilterComposer get patientId {
     final $$PatientTableFilterComposer composer = $composerBuilder(
@@ -6418,6 +6468,10 @@ class $$ClinicalRecordTableOrderingComposer
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
       column: $table.createdAt, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get clinicalNotes => $composableBuilder(
+      column: $table.clinicalNotes,
+      builder: (column) => ColumnOrderings(column));
+
   $$PatientTableOrderingComposer get patientId {
     final $$PatientTableOrderingComposer composer = $composerBuilder(
         composer: this,
@@ -6496,6 +6550,9 @@ class $$ClinicalRecordTableAnnotationComposer
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
 
+  GeneratedColumn<String> get clinicalNotes => $composableBuilder(
+      column: $table.clinicalNotes, builder: (column) => column);
+
   $$PatientTableAnnotationComposer get patientId {
     final $$PatientTableAnnotationComposer composer = $composerBuilder(
         composer: this,
@@ -6558,6 +6615,7 @@ class $$ClinicalRecordTableTableManager extends RootTableManager<
             Value<int> missingDueToCaries = const Value.absent(),
             Value<int> filledOrRestored = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
+            Value<String?> clinicalNotes = const Value.absent(),
           }) =>
               ClinicalRecordCompanion(
             id: id,
@@ -6577,6 +6635,7 @@ class $$ClinicalRecordTableTableManager extends RootTableManager<
             missingDueToCaries: missingDueToCaries,
             filledOrRestored: filledOrRestored,
             createdAt: createdAt,
+            clinicalNotes: clinicalNotes,
           ),
           createCompanionCallback: ({
             Value<int> id = const Value.absent(),
@@ -6596,6 +6655,7 @@ class $$ClinicalRecordTableTableManager extends RootTableManager<
             Value<int> missingDueToCaries = const Value.absent(),
             Value<int> filledOrRestored = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
+            Value<String?> clinicalNotes = const Value.absent(),
           }) =>
               ClinicalRecordCompanion.insert(
             id: id,
@@ -6615,6 +6675,7 @@ class $$ClinicalRecordTableTableManager extends RootTableManager<
             missingDueToCaries: missingDueToCaries,
             filledOrRestored: filledOrRestored,
             createdAt: createdAt,
+            clinicalNotes: clinicalNotes,
           ),
           withReferenceMapper: (p0) => p0
               .map((e) => (

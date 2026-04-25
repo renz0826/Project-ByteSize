@@ -144,4 +144,7 @@ class ClinicalRecord extends Table {
 
   // Date of Creation for Clinical Record
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+
+  // Extra Notes
+  TextColumn get clinicalNotes => text().nullable()();
 }
