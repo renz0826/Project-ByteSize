@@ -37,6 +37,22 @@ class InputField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    // Styling for the input fields
+    final inputStyle = InputDecoration(
+        hintText: hintText,
+        hintStyle: theme.textTheme.bodySmall,
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: AppTheme.gray400, width: 1),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: AppTheme.blue500, width: 1),
+        ));
+
     return const Placeholder();
   }
 }
