@@ -43,7 +43,7 @@ class InputField extends StatelessWidget {
         hintText: hintText,
         hintStyle: theme.textTheme.bodySmall,
         contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: AppTheme.gray400, width: 1),
@@ -62,7 +62,7 @@ class InputField extends StatelessWidget {
           controller: controller,
           keyboardType: keyboardType,
           obscureText: obscureText,
-          style: theme.textTheme.bodySmall?.copyWith(color: AppTheme.gray400),
+          style: theme.textTheme.bodySmall?.copyWith(color: AppTheme.black500),
           decoration: inputStyle,
         );
         break;
