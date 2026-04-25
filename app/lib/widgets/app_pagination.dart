@@ -94,11 +94,14 @@ class AppPagination extends StatelessWidget {
                 height: 36,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: isSelected ? AppTheme.white500 : Colors.transparent,
+                  // TODO: add light blue background color and adjust the null
+                  // Selected: light blue bg, unselected: transparent
+                  color: isSelected ? AppTheme.blue200 : Colors.transparent,
                   borderRadius: BorderRadius.circular(8),
+                  // Always show border to increase clickability
                   border: isSelected
                       ? Border.all(color: AppTheme.blue500, width: 1.5)
-                      : null,
+                      : Border.all(color: AppTheme.gray400, width: 1.5),
                 ),
                 child: Text(
                   '$page',
