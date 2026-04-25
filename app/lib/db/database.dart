@@ -11,18 +11,16 @@ part 'database.g.dart';
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
- Stream<List<PatientData>> watchAllPatients() {
-  return select(patient).watch();
- }
-
   @override
   int get schemaVersion => 1;
 }
 
-LazyDatabase _openConnection() {
+LazyDatabase _openConnection() { // change this to create the file at %appdata% once testing is good
   return LazyDatabase(() async {
     final dir = await getApplicationDocumentsDirectory();
     final file = File(p.join(dir.path, 'dentcity.db'));
     return NativeDatabase(file);
   });
 }
+
+

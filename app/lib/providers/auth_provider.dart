@@ -24,7 +24,6 @@ class AuthController extends StateNotifier<AsyncValue<bool>> {
   }
 }
 
-// The provider that makes this logic available to your pages
 final authControllerProvider = StateNotifierProvider<AuthController, AsyncValue<bool>>((ref) {
   return AuthController();
 });
