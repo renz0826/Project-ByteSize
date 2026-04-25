@@ -20,7 +20,7 @@ class InputField extends StatelessWidget {
   // Props for dropdown input
   final List<String>? dropdownItems;
   final String? dropdownValue;
-  final Function(String)? onDropdownChanged;
+  final Function(String?)? onDropdownChanged;
 
   const InputField({
     super.key,
@@ -53,6 +53,35 @@ class InputField extends StatelessWidget {
           borderSide: BorderSide(color: AppTheme.blue500, width: 1),
         ));
 
-    return const Placeholder();
+    // Build specific input based on variant
+    Widget inputContent;
+
+    switch (variant) {
+      case InputVariant.primary:
+        inputContent = TextFormField(
+          controller: controller,
+          keyboardType: keyboardType,
+          obscureText: obscureText,
+          style: theme.textTheme.bodySmall?.copyWith(color: AppTheme.gray400),
+          decoration: inputStyle,
+        );
+        break;
+
+      case InputVariant.dropdown:
+        inputContent = DropdownButtonFormField<String>(
+          initialValue: dropdownValue,
+          icon: Icon(
+            Icons.keyboard_arrow_down,
+            color: AppTheme.gray500,
+          ),
+          decoration: inputStyle,
+          items: dropdownItems?.map((String item) {
+                return DropdownMenuItem(value: item, child: Text(item));
+              }).toList() ??
+              [],
+          onChanged: onDropdownChanged,
+        );
+        break;
+    }
   }
 }
