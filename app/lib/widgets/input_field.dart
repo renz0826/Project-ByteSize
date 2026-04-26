@@ -12,6 +12,7 @@ class InputField extends StatelessWidget {
   final InputVariant variant;
   final String label;
   final String? hintText;
+  final int maxLines;
 
   // Props for standard text input
   final TextEditingController? controller;
@@ -25,19 +26,19 @@ class InputField extends StatelessWidget {
 
   final TextEditingController? searchController;
 
-  const InputField({
-    super.key,
-    required this.label,
-    this.variant = InputVariant.primary,
-    this.hintText,
-    this.controller,
-    this.keyboardType = TextInputType.text,
-    this.obscureText = false,
-    this.dropdownItems,
-    this.dropdownValue,
-    this.onDropdownChanged,
-    this.searchController,
-  });
+  const InputField(
+      {super.key,
+      required this.label,
+      this.variant = InputVariant.primary,
+      this.hintText,
+      this.controller,
+      this.keyboardType = TextInputType.text,
+      this.obscureText = false,
+      this.dropdownItems,
+      this.dropdownValue,
+      this.onDropdownChanged,
+      this.searchController,
+      this.maxLines = 1});
 
   @override
   Widget build(BuildContext context) {
@@ -46,8 +47,7 @@ class InputField extends StatelessWidget {
     final inputStyle = InputDecoration(
         hintText: hintText,
         hintStyle: theme.textTheme.bodySmall,
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: AppTheme.gray400, width: 1),
@@ -63,6 +63,7 @@ class InputField extends StatelessWidget {
     switch (variant) {
       case InputVariant.primary:
         inputContent = TextFormField(
+            maxLines: maxLines,
             controller: controller,
             keyboardType: keyboardType,
             obscureText: obscureText,
