@@ -16,6 +16,17 @@ class RadioGroupField extends StatelessWidget {
     required this.onChanged,
   });
 
+// SAMPLE USE CASE:
+//   RadioGroupField(
+//   label: "Presence of Oral Debris",
+//   options: const ["Present", "None"],
+//   selectedValue: _oralDebris,
+//   onChanged: (String value) {
+//     setState(() {
+//       _oralDebris = value;
+//     });
+//   },
+// ),
   @override
   Widget build(BuildContext context) {
     return Column(
