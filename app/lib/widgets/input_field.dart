@@ -61,6 +61,13 @@ class InputField extends StatelessWidget {
     Widget inputContent;
 
     switch (variant) {
+      // Sample Use Case
+      // InputField(
+      //           label: "First Name",
+      //           hintText: "Enter patient's first name",
+      //           controller: null, // connect to fetch logic
+      //           maxLines: 7, // Use only for notes
+      //         ),
       case InputVariant.primary:
         inputContent = TextFormField(
             maxLines: maxLines,
@@ -72,6 +79,21 @@ class InputField extends StatelessWidget {
             decoration: inputStyle);
         break;
 
+      // Sample Use Case
+      // InputField(
+      //           label: "Procedure Type",
+      //           variant: InputVariant.dropdown, // Switches to the dropdown mode
+      //           dropdownValue:
+      //               _selectedProcedure, // The currently selected item
+      //           dropdownItems: const [
+      //             "Teeth Removal",
+      //             "Cleaning",
+      //             "Consultation",
+      //             "Consultation",
+      //             "Consultation",
+      //           ],
+      // controller: null // input fetching
+      // ),
       case InputVariant.dropdown:
         inputContent = DropdownSearch<String>(
           items: (filter, loadProps) => dropdownItems ?? [],
