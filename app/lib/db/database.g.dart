@@ -1628,6 +1628,363 @@ class BillingCompanion extends UpdateCompanion<BillingData> {
   }
 }
 
+class $BillingItemTable extends BillingItem
+    with TableInfo<$BillingItemTable, BillingItemData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $BillingItemTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _billingIdMeta =
+      const VerificationMeta('billingId');
+  @override
+  late final GeneratedColumn<int> billingId = GeneratedColumn<int>(
+      'billing_id', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: true,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('REFERENCES billing (id)'));
+  static const VerificationMeta _procedureNameMeta =
+      const VerificationMeta('procedureName');
+  @override
+  late final GeneratedColumn<String> procedureName = GeneratedColumn<String>(
+      'procedure_name', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _procedureChargeMeta =
+      const VerificationMeta('procedureCharge');
+  @override
+  late final GeneratedColumn<double> procedureCharge = GeneratedColumn<double>(
+      'procedure_charge', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _quantityMeta =
+      const VerificationMeta('quantity');
+  @override
+  late final GeneratedColumn<int> quantity = GeneratedColumn<int>(
+      'quantity', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(1));
+  static const VerificationMeta _totalLineChargeMeta =
+      const VerificationMeta('totalLineCharge');
+  @override
+  late final GeneratedColumn<double> totalLineCharge = GeneratedColumn<double>(
+      'total_line_charge', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        billingId,
+        procedureName,
+        procedureCharge,
+        quantity,
+        totalLineCharge
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'billing_item';
+  @override
+  VerificationContext validateIntegrity(Insertable<BillingItemData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('billing_id')) {
+      context.handle(_billingIdMeta,
+          billingId.isAcceptableOrUnknown(data['billing_id']!, _billingIdMeta));
+    } else if (isInserting) {
+      context.missing(_billingIdMeta);
+    }
+    if (data.containsKey('procedure_name')) {
+      context.handle(
+          _procedureNameMeta,
+          procedureName.isAcceptableOrUnknown(
+              data['procedure_name']!, _procedureNameMeta));
+    } else if (isInserting) {
+      context.missing(_procedureNameMeta);
+    }
+    if (data.containsKey('procedure_charge')) {
+      context.handle(
+          _procedureChargeMeta,
+          procedureCharge.isAcceptableOrUnknown(
+              data['procedure_charge']!, _procedureChargeMeta));
+    } else if (isInserting) {
+      context.missing(_procedureChargeMeta);
+    }
+    if (data.containsKey('quantity')) {
+      context.handle(_quantityMeta,
+          quantity.isAcceptableOrUnknown(data['quantity']!, _quantityMeta));
+    }
+    if (data.containsKey('total_line_charge')) {
+      context.handle(
+          _totalLineChargeMeta,
+          totalLineCharge.isAcceptableOrUnknown(
+              data['total_line_charge']!, _totalLineChargeMeta));
+    } else if (isInserting) {
+      context.missing(_totalLineChargeMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  BillingItemData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return BillingItemData(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      billingId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}billing_id'])!,
+      procedureName: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}procedure_name'])!,
+      procedureCharge: attachedDatabase.typeMapping.read(
+          DriftSqlType.double, data['${effectivePrefix}procedure_charge'])!,
+      quantity: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}quantity'])!,
+      totalLineCharge: attachedDatabase.typeMapping.read(
+          DriftSqlType.double, data['${effectivePrefix}total_line_charge'])!,
+    );
+  }
+
+  @override
+  $BillingItemTable createAlias(String alias) {
+    return $BillingItemTable(attachedDatabase, alias);
+  }
+}
+
+class BillingItemData extends DataClass implements Insertable<BillingItemData> {
+  final int id;
+  final int billingId;
+  final String procedureName;
+  final double procedureCharge;
+  final int quantity;
+  final double totalLineCharge;
+  const BillingItemData(
+      {required this.id,
+      required this.billingId,
+      required this.procedureName,
+      required this.procedureCharge,
+      required this.quantity,
+      required this.totalLineCharge});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['billing_id'] = Variable<int>(billingId);
+    map['procedure_name'] = Variable<String>(procedureName);
+    map['procedure_charge'] = Variable<double>(procedureCharge);
+    map['quantity'] = Variable<int>(quantity);
+    map['total_line_charge'] = Variable<double>(totalLineCharge);
+    return map;
+  }
+
+  BillingItemCompanion toCompanion(bool nullToAbsent) {
+    return BillingItemCompanion(
+      id: Value(id),
+      billingId: Value(billingId),
+      procedureName: Value(procedureName),
+      procedureCharge: Value(procedureCharge),
+      quantity: Value(quantity),
+      totalLineCharge: Value(totalLineCharge),
+    );
+  }
+
+  factory BillingItemData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return BillingItemData(
+      id: serializer.fromJson<int>(json['id']),
+      billingId: serializer.fromJson<int>(json['billingId']),
+      procedureName: serializer.fromJson<String>(json['procedureName']),
+      procedureCharge: serializer.fromJson<double>(json['procedureCharge']),
+      quantity: serializer.fromJson<int>(json['quantity']),
+      totalLineCharge: serializer.fromJson<double>(json['totalLineCharge']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'billingId': serializer.toJson<int>(billingId),
+      'procedureName': serializer.toJson<String>(procedureName),
+      'procedureCharge': serializer.toJson<double>(procedureCharge),
+      'quantity': serializer.toJson<int>(quantity),
+      'totalLineCharge': serializer.toJson<double>(totalLineCharge),
+    };
+  }
+
+  BillingItemData copyWith(
+          {int? id,
+          int? billingId,
+          String? procedureName,
+          double? procedureCharge,
+          int? quantity,
+          double? totalLineCharge}) =>
+      BillingItemData(
+        id: id ?? this.id,
+        billingId: billingId ?? this.billingId,
+        procedureName: procedureName ?? this.procedureName,
+        procedureCharge: procedureCharge ?? this.procedureCharge,
+        quantity: quantity ?? this.quantity,
+        totalLineCharge: totalLineCharge ?? this.totalLineCharge,
+      );
+  BillingItemData copyWithCompanion(BillingItemCompanion data) {
+    return BillingItemData(
+      id: data.id.present ? data.id.value : this.id,
+      billingId: data.billingId.present ? data.billingId.value : this.billingId,
+      procedureName: data.procedureName.present
+          ? data.procedureName.value
+          : this.procedureName,
+      procedureCharge: data.procedureCharge.present
+          ? data.procedureCharge.value
+          : this.procedureCharge,
+      quantity: data.quantity.present ? data.quantity.value : this.quantity,
+      totalLineCharge: data.totalLineCharge.present
+          ? data.totalLineCharge.value
+          : this.totalLineCharge,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('BillingItemData(')
+          ..write('id: $id, ')
+          ..write('billingId: $billingId, ')
+          ..write('procedureName: $procedureName, ')
+          ..write('procedureCharge: $procedureCharge, ')
+          ..write('quantity: $quantity, ')
+          ..write('totalLineCharge: $totalLineCharge')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      id, billingId, procedureName, procedureCharge, quantity, totalLineCharge);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is BillingItemData &&
+          other.id == this.id &&
+          other.billingId == this.billingId &&
+          other.procedureName == this.procedureName &&
+          other.procedureCharge == this.procedureCharge &&
+          other.quantity == this.quantity &&
+          other.totalLineCharge == this.totalLineCharge);
+}
+
+class BillingItemCompanion extends UpdateCompanion<BillingItemData> {
+  final Value<int> id;
+  final Value<int> billingId;
+  final Value<String> procedureName;
+  final Value<double> procedureCharge;
+  final Value<int> quantity;
+  final Value<double> totalLineCharge;
+  const BillingItemCompanion({
+    this.id = const Value.absent(),
+    this.billingId = const Value.absent(),
+    this.procedureName = const Value.absent(),
+    this.procedureCharge = const Value.absent(),
+    this.quantity = const Value.absent(),
+    this.totalLineCharge = const Value.absent(),
+  });
+  BillingItemCompanion.insert({
+    this.id = const Value.absent(),
+    required int billingId,
+    required String procedureName,
+    required double procedureCharge,
+    this.quantity = const Value.absent(),
+    required double totalLineCharge,
+  })  : billingId = Value(billingId),
+        procedureName = Value(procedureName),
+        procedureCharge = Value(procedureCharge),
+        totalLineCharge = Value(totalLineCharge);
+  static Insertable<BillingItemData> custom({
+    Expression<int>? id,
+    Expression<int>? billingId,
+    Expression<String>? procedureName,
+    Expression<double>? procedureCharge,
+    Expression<int>? quantity,
+    Expression<double>? totalLineCharge,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (billingId != null) 'billing_id': billingId,
+      if (procedureName != null) 'procedure_name': procedureName,
+      if (procedureCharge != null) 'procedure_charge': procedureCharge,
+      if (quantity != null) 'quantity': quantity,
+      if (totalLineCharge != null) 'total_line_charge': totalLineCharge,
+    });
+  }
+
+  BillingItemCompanion copyWith(
+      {Value<int>? id,
+      Value<int>? billingId,
+      Value<String>? procedureName,
+      Value<double>? procedureCharge,
+      Value<int>? quantity,
+      Value<double>? totalLineCharge}) {
+    return BillingItemCompanion(
+      id: id ?? this.id,
+      billingId: billingId ?? this.billingId,
+      procedureName: procedureName ?? this.procedureName,
+      procedureCharge: procedureCharge ?? this.procedureCharge,
+      quantity: quantity ?? this.quantity,
+      totalLineCharge: totalLineCharge ?? this.totalLineCharge,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (billingId.present) {
+      map['billing_id'] = Variable<int>(billingId.value);
+    }
+    if (procedureName.present) {
+      map['procedure_name'] = Variable<String>(procedureName.value);
+    }
+    if (procedureCharge.present) {
+      map['procedure_charge'] = Variable<double>(procedureCharge.value);
+    }
+    if (quantity.present) {
+      map['quantity'] = Variable<int>(quantity.value);
+    }
+    if (totalLineCharge.present) {
+      map['total_line_charge'] = Variable<double>(totalLineCharge.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('BillingItemCompanion(')
+          ..write('id: $id, ')
+          ..write('billingId: $billingId, ')
+          ..write('procedureName: $procedureName, ')
+          ..write('procedureCharge: $procedureCharge, ')
+          ..write('quantity: $quantity, ')
+          ..write('totalLineCharge: $totalLineCharge')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $DentalChartTable extends DentalChart
     with TableInfo<$DentalChartTable, DentalChartData> {
   @override
@@ -2291,6 +2648,229 @@ class TreatmentRecordCompanion extends UpdateCompanion<TreatmentRecordData> {
   }
 }
 
+class $ProcedureLookupTable extends ProcedureLookup
+    with TableInfo<$ProcedureLookupTable, ProcedureLookupData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ProcedureLookupTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _descriptionMeta =
+      const VerificationMeta('description');
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+      'description', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _baseCostMeta =
+      const VerificationMeta('baseCost');
+  @override
+  late final GeneratedColumn<double> baseCost = GeneratedColumn<double>(
+      'base_cost', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [id, description, baseCost];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'procedure_lookup';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<ProcedureLookupData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('description')) {
+      context.handle(
+          _descriptionMeta,
+          description.isAcceptableOrUnknown(
+              data['description']!, _descriptionMeta));
+    } else if (isInserting) {
+      context.missing(_descriptionMeta);
+    }
+    if (data.containsKey('base_cost')) {
+      context.handle(_baseCostMeta,
+          baseCost.isAcceptableOrUnknown(data['base_cost']!, _baseCostMeta));
+    } else if (isInserting) {
+      context.missing(_baseCostMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ProcedureLookupData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ProcedureLookupData(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      description: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}description'])!,
+      baseCost: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}base_cost'])!,
+    );
+  }
+
+  @override
+  $ProcedureLookupTable createAlias(String alias) {
+    return $ProcedureLookupTable(attachedDatabase, alias);
+  }
+}
+
+class ProcedureLookupData extends DataClass
+    implements Insertable<ProcedureLookupData> {
+  final int id;
+  final String description;
+  final double baseCost;
+  const ProcedureLookupData(
+      {required this.id, required this.description, required this.baseCost});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['description'] = Variable<String>(description);
+    map['base_cost'] = Variable<double>(baseCost);
+    return map;
+  }
+
+  ProcedureLookupCompanion toCompanion(bool nullToAbsent) {
+    return ProcedureLookupCompanion(
+      id: Value(id),
+      description: Value(description),
+      baseCost: Value(baseCost),
+    );
+  }
+
+  factory ProcedureLookupData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ProcedureLookupData(
+      id: serializer.fromJson<int>(json['id']),
+      description: serializer.fromJson<String>(json['description']),
+      baseCost: serializer.fromJson<double>(json['baseCost']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'description': serializer.toJson<String>(description),
+      'baseCost': serializer.toJson<double>(baseCost),
+    };
+  }
+
+  ProcedureLookupData copyWith(
+          {int? id, String? description, double? baseCost}) =>
+      ProcedureLookupData(
+        id: id ?? this.id,
+        description: description ?? this.description,
+        baseCost: baseCost ?? this.baseCost,
+      );
+  ProcedureLookupData copyWithCompanion(ProcedureLookupCompanion data) {
+    return ProcedureLookupData(
+      id: data.id.present ? data.id.value : this.id,
+      description:
+          data.description.present ? data.description.value : this.description,
+      baseCost: data.baseCost.present ? data.baseCost.value : this.baseCost,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ProcedureLookupData(')
+          ..write('id: $id, ')
+          ..write('description: $description, ')
+          ..write('baseCost: $baseCost')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, description, baseCost);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ProcedureLookupData &&
+          other.id == this.id &&
+          other.description == this.description &&
+          other.baseCost == this.baseCost);
+}
+
+class ProcedureLookupCompanion extends UpdateCompanion<ProcedureLookupData> {
+  final Value<int> id;
+  final Value<String> description;
+  final Value<double> baseCost;
+  const ProcedureLookupCompanion({
+    this.id = const Value.absent(),
+    this.description = const Value.absent(),
+    this.baseCost = const Value.absent(),
+  });
+  ProcedureLookupCompanion.insert({
+    this.id = const Value.absent(),
+    required String description,
+    required double baseCost,
+  })  : description = Value(description),
+        baseCost = Value(baseCost);
+  static Insertable<ProcedureLookupData> custom({
+    Expression<int>? id,
+    Expression<String>? description,
+    Expression<double>? baseCost,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (description != null) 'description': description,
+      if (baseCost != null) 'base_cost': baseCost,
+    });
+  }
+
+  ProcedureLookupCompanion copyWith(
+      {Value<int>? id, Value<String>? description, Value<double>? baseCost}) {
+    return ProcedureLookupCompanion(
+      id: id ?? this.id,
+      description: description ?? this.description,
+      baseCost: baseCost ?? this.baseCost,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
+    if (baseCost.present) {
+      map['base_cost'] = Variable<double>(baseCost.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ProcedureLookupCompanion(')
+          ..write('id: $id, ')
+          ..write('description: $description, ')
+          ..write('baseCost: $baseCost')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $ClinicalRecordTable extends ClinicalRecord
     with TableInfo<$ClinicalRecordTable, ClinicalRecordData> {
   @override
@@ -2437,6 +3017,12 @@ class $ClinicalRecordTable extends ClinicalRecord
       type: DriftSqlType.dateTime,
       requiredDuringInsert: false,
       defaultValue: currentDateAndTime);
+  static const VerificationMeta _clinicalNotesMeta =
+      const VerificationMeta('clinicalNotes');
+  @override
+  late final GeneratedColumn<String> clinicalNotes = GeneratedColumn<String>(
+      'clinical_notes', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   @override
   List<GeneratedColumn> get $columns => [
         id,
@@ -2455,7 +3041,8 @@ class $ClinicalRecordTable extends ClinicalRecord
         rootFragment,
         missingDueToCaries,
         filledOrRestored,
-        createdAt
+        createdAt,
+        clinicalNotes
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -2562,6 +3149,12 @@ class $ClinicalRecordTable extends ClinicalRecord
       context.handle(_createdAtMeta,
           createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
     }
+    if (data.containsKey('clinical_notes')) {
+      context.handle(
+          _clinicalNotesMeta,
+          clinicalNotes.isAcceptableOrUnknown(
+              data['clinical_notes']!, _clinicalNotesMeta));
+    }
     return context;
   }
 
@@ -2606,6 +3199,8 @@ class $ClinicalRecordTable extends ClinicalRecord
           DriftSqlType.int, data['${effectivePrefix}filled_or_restored'])!,
       createdAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+      clinicalNotes: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}clinical_notes']),
     );
   }
 
@@ -2634,6 +3229,7 @@ class ClinicalRecordData extends DataClass
   final int missingDueToCaries;
   final int filledOrRestored;
   final DateTime createdAt;
+  final String? clinicalNotes;
   const ClinicalRecordData(
       {required this.id,
       required this.patientId,
@@ -2651,7 +3247,8 @@ class ClinicalRecordData extends DataClass
       required this.rootFragment,
       required this.missingDueToCaries,
       required this.filledOrRestored,
-      required this.createdAt});
+      required this.createdAt,
+      this.clinicalNotes});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -2680,6 +3277,9 @@ class ClinicalRecordData extends DataClass
     map['missing_due_to_caries'] = Variable<int>(missingDueToCaries);
     map['filled_or_restored'] = Variable<int>(filledOrRestored);
     map['created_at'] = Variable<DateTime>(createdAt);
+    if (!nullToAbsent || clinicalNotes != null) {
+      map['clinical_notes'] = Variable<String>(clinicalNotes);
+    }
     return map;
   }
 
@@ -2710,6 +3310,9 @@ class ClinicalRecordData extends DataClass
       missingDueToCaries: Value(missingDueToCaries),
       filledOrRestored: Value(filledOrRestored),
       createdAt: Value(createdAt),
+      clinicalNotes: clinicalNotes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(clinicalNotes),
     );
   }
 
@@ -2738,6 +3341,7 @@ class ClinicalRecordData extends DataClass
       missingDueToCaries: serializer.fromJson<int>(json['missingDueToCaries']),
       filledOrRestored: serializer.fromJson<int>(json['filledOrRestored']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      clinicalNotes: serializer.fromJson<String?>(json['clinicalNotes']),
     );
   }
   @override
@@ -2761,6 +3365,7 @@ class ClinicalRecordData extends DataClass
       'missingDueToCaries': serializer.toJson<int>(missingDueToCaries),
       'filledOrRestored': serializer.toJson<int>(filledOrRestored),
       'createdAt': serializer.toJson<DateTime>(createdAt),
+      'clinicalNotes': serializer.toJson<String?>(clinicalNotes),
     };
   }
 
@@ -2781,7 +3386,8 @@ class ClinicalRecordData extends DataClass
           int? rootFragment,
           int? missingDueToCaries,
           int? filledOrRestored,
-          DateTime? createdAt}) =>
+          DateTime? createdAt,
+          Value<String?> clinicalNotes = const Value.absent()}) =>
       ClinicalRecordData(
         id: id ?? this.id,
         patientId: patientId ?? this.patientId,
@@ -2806,6 +3412,8 @@ class ClinicalRecordData extends DataClass
         missingDueToCaries: missingDueToCaries ?? this.missingDueToCaries,
         filledOrRestored: filledOrRestored ?? this.filledOrRestored,
         createdAt: createdAt ?? this.createdAt,
+        clinicalNotes:
+            clinicalNotes.present ? clinicalNotes.value : this.clinicalNotes,
       );
   ClinicalRecordData copyWithCompanion(ClinicalRecordCompanion data) {
     return ClinicalRecordData(
@@ -2851,6 +3459,9 @@ class ClinicalRecordData extends DataClass
           ? data.filledOrRestored.value
           : this.filledOrRestored,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      clinicalNotes: data.clinicalNotes.present
+          ? data.clinicalNotes.value
+          : this.clinicalNotes,
     );
   }
 
@@ -2873,7 +3484,8 @@ class ClinicalRecordData extends DataClass
           ..write('rootFragment: $rootFragment, ')
           ..write('missingDueToCaries: $missingDueToCaries, ')
           ..write('filledOrRestored: $filledOrRestored, ')
-          ..write('createdAt: $createdAt')
+          ..write('createdAt: $createdAt, ')
+          ..write('clinicalNotes: $clinicalNotes')
           ..write(')'))
         .toString();
   }
@@ -2896,7 +3508,8 @@ class ClinicalRecordData extends DataClass
       rootFragment,
       missingDueToCaries,
       filledOrRestored,
-      createdAt);
+      createdAt,
+      clinicalNotes);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -2917,7 +3530,8 @@ class ClinicalRecordData extends DataClass
           other.rootFragment == this.rootFragment &&
           other.missingDueToCaries == this.missingDueToCaries &&
           other.filledOrRestored == this.filledOrRestored &&
-          other.createdAt == this.createdAt);
+          other.createdAt == this.createdAt &&
+          other.clinicalNotes == this.clinicalNotes);
 }
 
 class ClinicalRecordCompanion extends UpdateCompanion<ClinicalRecordData> {
@@ -2938,6 +3552,7 @@ class ClinicalRecordCompanion extends UpdateCompanion<ClinicalRecordData> {
   final Value<int> missingDueToCaries;
   final Value<int> filledOrRestored;
   final Value<DateTime> createdAt;
+  final Value<String?> clinicalNotes;
   const ClinicalRecordCompanion({
     this.id = const Value.absent(),
     this.patientId = const Value.absent(),
@@ -2956,6 +3571,7 @@ class ClinicalRecordCompanion extends UpdateCompanion<ClinicalRecordData> {
     this.missingDueToCaries = const Value.absent(),
     this.filledOrRestored = const Value.absent(),
     this.createdAt = const Value.absent(),
+    this.clinicalNotes = const Value.absent(),
   });
   ClinicalRecordCompanion.insert({
     this.id = const Value.absent(),
@@ -2975,6 +3591,7 @@ class ClinicalRecordCompanion extends UpdateCompanion<ClinicalRecordData> {
     this.missingDueToCaries = const Value.absent(),
     this.filledOrRestored = const Value.absent(),
     this.createdAt = const Value.absent(),
+    this.clinicalNotes = const Value.absent(),
   }) : patientId = Value(patientId);
   static Insertable<ClinicalRecordData> custom({
     Expression<int>? id,
@@ -2994,6 +3611,7 @@ class ClinicalRecordCompanion extends UpdateCompanion<ClinicalRecordData> {
     Expression<int>? missingDueToCaries,
     Expression<int>? filledOrRestored,
     Expression<DateTime>? createdAt,
+    Expression<String>? clinicalNotes,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -3017,6 +3635,7 @@ class ClinicalRecordCompanion extends UpdateCompanion<ClinicalRecordData> {
         'missing_due_to_caries': missingDueToCaries,
       if (filledOrRestored != null) 'filled_or_restored': filledOrRestored,
       if (createdAt != null) 'created_at': createdAt,
+      if (clinicalNotes != null) 'clinical_notes': clinicalNotes,
     });
   }
 
@@ -3037,7 +3656,8 @@ class ClinicalRecordCompanion extends UpdateCompanion<ClinicalRecordData> {
       Value<int>? rootFragment,
       Value<int>? missingDueToCaries,
       Value<int>? filledOrRestored,
-      Value<DateTime>? createdAt}) {
+      Value<DateTime>? createdAt,
+      Value<String?>? clinicalNotes}) {
     return ClinicalRecordCompanion(
       id: id ?? this.id,
       patientId: patientId ?? this.patientId,
@@ -3057,6 +3677,7 @@ class ClinicalRecordCompanion extends UpdateCompanion<ClinicalRecordData> {
       missingDueToCaries: missingDueToCaries ?? this.missingDueToCaries,
       filledOrRestored: filledOrRestored ?? this.filledOrRestored,
       createdAt: createdAt ?? this.createdAt,
+      clinicalNotes: clinicalNotes ?? this.clinicalNotes,
     );
   }
 
@@ -3116,6 +3737,9 @@ class ClinicalRecordCompanion extends UpdateCompanion<ClinicalRecordData> {
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
+    if (clinicalNotes.present) {
+      map['clinical_notes'] = Variable<String>(clinicalNotes.value);
+    }
     return map;
   }
 
@@ -3138,7 +3762,8 @@ class ClinicalRecordCompanion extends UpdateCompanion<ClinicalRecordData> {
           ..write('rootFragment: $rootFragment, ')
           ..write('missingDueToCaries: $missingDueToCaries, ')
           ..write('filledOrRestored: $filledOrRestored, ')
-          ..write('createdAt: $createdAt')
+          ..write('createdAt: $createdAt, ')
+          ..write('clinicalNotes: $clinicalNotes')
           ..write(')'))
         .toString();
   }
@@ -3151,9 +3776,12 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $DentistTable dentist = $DentistTable(this);
   late final $AppointmentTable appointment = $AppointmentTable(this);
   late final $BillingTable billing = $BillingTable(this);
+  late final $BillingItemTable billingItem = $BillingItemTable(this);
   late final $DentalChartTable dentalChart = $DentalChartTable(this);
   late final $TreatmentRecordTable treatmentRecord =
       $TreatmentRecordTable(this);
+  late final $ProcedureLookupTable procedureLookup =
+      $ProcedureLookupTable(this);
   late final $ClinicalRecordTable clinicalRecord = $ClinicalRecordTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
@@ -3164,8 +3792,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         dentist,
         appointment,
         billing,
+        billingItem,
         dentalChart,
         treatmentRecord,
+        procedureLookup,
         clinicalRecord
       ];
 }
@@ -4328,6 +4958,21 @@ final class $$BillingTableReferences
     return ProcessedTableManager(
         manager.$state.copyWith(prefetchedData: [item]));
   }
+
+  static MultiTypedResultKey<$BillingItemTable, List<BillingItemData>>
+      _billingItemRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+          db.billingItem,
+          aliasName:
+              $_aliasNameGenerator(db.billing.id, db.billingItem.billingId));
+
+  $$BillingItemTableProcessedTableManager get billingItemRefs {
+    final manager = $$BillingItemTableTableManager($_db, $_db.billingItem)
+        .filter((f) => f.billingId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_billingItemRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
 }
 
 class $$BillingTableFilterComposer
@@ -4369,6 +5014,27 @@ class $$BillingTableFilterComposer
                   $removeJoinBuilderFromRootComposer,
             ));
     return composer;
+  }
+
+  Expression<bool> billingItemRefs(
+      Expression<bool> Function($$BillingItemTableFilterComposer f) f) {
+    final $$BillingItemTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.billingItem,
+        getReferencedColumn: (t) => t.billingId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$BillingItemTableFilterComposer(
+              $db: $db,
+              $table: $db.billingItem,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
   }
 }
 
@@ -4454,6 +5120,27 @@ class $$BillingTableAnnotationComposer
             ));
     return composer;
   }
+
+  Expression<T> billingItemRefs<T extends Object>(
+      Expression<T> Function($$BillingItemTableAnnotationComposer a) f) {
+    final $$BillingItemTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.billingItem,
+        getReferencedColumn: (t) => t.billingId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$BillingItemTableAnnotationComposer(
+              $db: $db,
+              $table: $db.billingItem,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
 }
 
 class $$BillingTableTableManager extends RootTableManager<
@@ -4467,7 +5154,7 @@ class $$BillingTableTableManager extends RootTableManager<
     $$BillingTableUpdateCompanionBuilder,
     (BillingData, $$BillingTableReferences),
     BillingData,
-    PrefetchHooks Function({bool patientId})> {
+    PrefetchHooks Function({bool patientId, bool billingItemRefs})> {
   $$BillingTableTableManager(_$AppDatabase db, $BillingTable table)
       : super(TableManagerState(
           db: db,
@@ -4510,10 +5197,11 @@ class $$BillingTableTableManager extends RootTableManager<
               .map((e) =>
                   (e.readTable(table), $$BillingTableReferences(db, table, e)))
               .toList(),
-          prefetchHooksCallback: ({patientId = false}) {
+          prefetchHooksCallback: (
+              {patientId = false, billingItemRefs = false}) {
             return PrefetchHooks(
               db: db,
-              explicitlyWatchedTables: [],
+              explicitlyWatchedTables: [if (billingItemRefs) db.billingItem],
               addJoins: <
                   T extends TableManagerState<
                       dynamic,
@@ -4541,7 +5229,21 @@ class $$BillingTableTableManager extends RootTableManager<
                 return state;
               },
               getPrefetchedDataCallback: (items) async {
-                return [];
+                return [
+                  if (billingItemRefs)
+                    await $_getPrefetchedData<BillingData, $BillingTable,
+                            BillingItemData>(
+                        currentTable: table,
+                        referencedTable:
+                            $$BillingTableReferences._billingItemRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$BillingTableReferences(db, table, p0)
+                                .billingItemRefs,
+                        referencedItemsForCurrentItem:
+                            (item, referencedItems) => referencedItems
+                                .where((e) => e.billingId == item.id),
+                        typedResults: items)
+                ];
               },
             );
           },
@@ -4559,7 +5261,296 @@ typedef $$BillingTableProcessedTableManager = ProcessedTableManager<
     $$BillingTableUpdateCompanionBuilder,
     (BillingData, $$BillingTableReferences),
     BillingData,
-    PrefetchHooks Function({bool patientId})>;
+    PrefetchHooks Function({bool patientId, bool billingItemRefs})>;
+typedef $$BillingItemTableCreateCompanionBuilder = BillingItemCompanion
+    Function({
+  Value<int> id,
+  required int billingId,
+  required String procedureName,
+  required double procedureCharge,
+  Value<int> quantity,
+  required double totalLineCharge,
+});
+typedef $$BillingItemTableUpdateCompanionBuilder = BillingItemCompanion
+    Function({
+  Value<int> id,
+  Value<int> billingId,
+  Value<String> procedureName,
+  Value<double> procedureCharge,
+  Value<int> quantity,
+  Value<double> totalLineCharge,
+});
+
+final class $$BillingItemTableReferences
+    extends BaseReferences<_$AppDatabase, $BillingItemTable, BillingItemData> {
+  $$BillingItemTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $BillingTable _billingIdTable(_$AppDatabase db) =>
+      db.billing.createAlias(
+          $_aliasNameGenerator(db.billingItem.billingId, db.billing.id));
+
+  $$BillingTableProcessedTableManager get billingId {
+    final $_column = $_itemColumn<int>('billing_id')!;
+
+    final manager = $$BillingTableTableManager($_db, $_db.billing)
+        .filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_billingIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
+}
+
+class $$BillingItemTableFilterComposer
+    extends Composer<_$AppDatabase, $BillingItemTable> {
+  $$BillingItemTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get procedureName => $composableBuilder(
+      column: $table.procedureName, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get procedureCharge => $composableBuilder(
+      column: $table.procedureCharge,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get quantity => $composableBuilder(
+      column: $table.quantity, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get totalLineCharge => $composableBuilder(
+      column: $table.totalLineCharge,
+      builder: (column) => ColumnFilters(column));
+
+  $$BillingTableFilterComposer get billingId {
+    final $$BillingTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.billingId,
+        referencedTable: $db.billing,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$BillingTableFilterComposer(
+              $db: $db,
+              $table: $db.billing,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$BillingItemTableOrderingComposer
+    extends Composer<_$AppDatabase, $BillingItemTable> {
+  $$BillingItemTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get procedureName => $composableBuilder(
+      column: $table.procedureName,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get procedureCharge => $composableBuilder(
+      column: $table.procedureCharge,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get quantity => $composableBuilder(
+      column: $table.quantity, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get totalLineCharge => $composableBuilder(
+      column: $table.totalLineCharge,
+      builder: (column) => ColumnOrderings(column));
+
+  $$BillingTableOrderingComposer get billingId {
+    final $$BillingTableOrderingComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.billingId,
+        referencedTable: $db.billing,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$BillingTableOrderingComposer(
+              $db: $db,
+              $table: $db.billing,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$BillingItemTableAnnotationComposer
+    extends Composer<_$AppDatabase, $BillingItemTable> {
+  $$BillingItemTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get procedureName => $composableBuilder(
+      column: $table.procedureName, builder: (column) => column);
+
+  GeneratedColumn<double> get procedureCharge => $composableBuilder(
+      column: $table.procedureCharge, builder: (column) => column);
+
+  GeneratedColumn<int> get quantity =>
+      $composableBuilder(column: $table.quantity, builder: (column) => column);
+
+  GeneratedColumn<double> get totalLineCharge => $composableBuilder(
+      column: $table.totalLineCharge, builder: (column) => column);
+
+  $$BillingTableAnnotationComposer get billingId {
+    final $$BillingTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.billingId,
+        referencedTable: $db.billing,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$BillingTableAnnotationComposer(
+              $db: $db,
+              $table: $db.billing,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$BillingItemTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $BillingItemTable,
+    BillingItemData,
+    $$BillingItemTableFilterComposer,
+    $$BillingItemTableOrderingComposer,
+    $$BillingItemTableAnnotationComposer,
+    $$BillingItemTableCreateCompanionBuilder,
+    $$BillingItemTableUpdateCompanionBuilder,
+    (BillingItemData, $$BillingItemTableReferences),
+    BillingItemData,
+    PrefetchHooks Function({bool billingId})> {
+  $$BillingItemTableTableManager(_$AppDatabase db, $BillingItemTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$BillingItemTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$BillingItemTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$BillingItemTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<int> billingId = const Value.absent(),
+            Value<String> procedureName = const Value.absent(),
+            Value<double> procedureCharge = const Value.absent(),
+            Value<int> quantity = const Value.absent(),
+            Value<double> totalLineCharge = const Value.absent(),
+          }) =>
+              BillingItemCompanion(
+            id: id,
+            billingId: billingId,
+            procedureName: procedureName,
+            procedureCharge: procedureCharge,
+            quantity: quantity,
+            totalLineCharge: totalLineCharge,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required int billingId,
+            required String procedureName,
+            required double procedureCharge,
+            Value<int> quantity = const Value.absent(),
+            required double totalLineCharge,
+          }) =>
+              BillingItemCompanion.insert(
+            id: id,
+            billingId: billingId,
+            procedureName: procedureName,
+            procedureCharge: procedureCharge,
+            quantity: quantity,
+            totalLineCharge: totalLineCharge,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (
+                    e.readTable(table),
+                    $$BillingItemTableReferences(db, table, e)
+                  ))
+              .toList(),
+          prefetchHooksCallback: ({billingId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins: <
+                  T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic>>(state) {
+                if (billingId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.billingId,
+                    referencedTable:
+                        $$BillingItemTableReferences._billingIdTable(db),
+                    referencedColumn:
+                        $$BillingItemTableReferences._billingIdTable(db).id,
+                  ) as T;
+                }
+
+                return state;
+              },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ));
+}
+
+typedef $$BillingItemTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $BillingItemTable,
+    BillingItemData,
+    $$BillingItemTableFilterComposer,
+    $$BillingItemTableOrderingComposer,
+    $$BillingItemTableAnnotationComposer,
+    $$BillingItemTableCreateCompanionBuilder,
+    $$BillingItemTableUpdateCompanionBuilder,
+    (BillingItemData, $$BillingItemTableReferences),
+    BillingItemData,
+    PrefetchHooks Function({bool billingId})>;
 typedef $$DentalChartTableCreateCompanionBuilder = DentalChartCompanion
     Function({
   Value<int> id,
@@ -5117,6 +6108,144 @@ typedef $$TreatmentRecordTableProcessedTableManager = ProcessedTableManager<
     (TreatmentRecordData, $$TreatmentRecordTableReferences),
     TreatmentRecordData,
     PrefetchHooks Function({bool appointmentID})>;
+typedef $$ProcedureLookupTableCreateCompanionBuilder = ProcedureLookupCompanion
+    Function({
+  Value<int> id,
+  required String description,
+  required double baseCost,
+});
+typedef $$ProcedureLookupTableUpdateCompanionBuilder = ProcedureLookupCompanion
+    Function({
+  Value<int> id,
+  Value<String> description,
+  Value<double> baseCost,
+});
+
+class $$ProcedureLookupTableFilterComposer
+    extends Composer<_$AppDatabase, $ProcedureLookupTable> {
+  $$ProcedureLookupTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get baseCost => $composableBuilder(
+      column: $table.baseCost, builder: (column) => ColumnFilters(column));
+}
+
+class $$ProcedureLookupTableOrderingComposer
+    extends Composer<_$AppDatabase, $ProcedureLookupTable> {
+  $$ProcedureLookupTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get baseCost => $composableBuilder(
+      column: $table.baseCost, builder: (column) => ColumnOrderings(column));
+}
+
+class $$ProcedureLookupTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ProcedureLookupTable> {
+  $$ProcedureLookupTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => column);
+
+  GeneratedColumn<double> get baseCost =>
+      $composableBuilder(column: $table.baseCost, builder: (column) => column);
+}
+
+class $$ProcedureLookupTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $ProcedureLookupTable,
+    ProcedureLookupData,
+    $$ProcedureLookupTableFilterComposer,
+    $$ProcedureLookupTableOrderingComposer,
+    $$ProcedureLookupTableAnnotationComposer,
+    $$ProcedureLookupTableCreateCompanionBuilder,
+    $$ProcedureLookupTableUpdateCompanionBuilder,
+    (
+      ProcedureLookupData,
+      BaseReferences<_$AppDatabase, $ProcedureLookupTable, ProcedureLookupData>
+    ),
+    ProcedureLookupData,
+    PrefetchHooks Function()> {
+  $$ProcedureLookupTableTableManager(
+      _$AppDatabase db, $ProcedureLookupTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ProcedureLookupTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ProcedureLookupTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ProcedureLookupTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<String> description = const Value.absent(),
+            Value<double> baseCost = const Value.absent(),
+          }) =>
+              ProcedureLookupCompanion(
+            id: id,
+            description: description,
+            baseCost: baseCost,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required String description,
+            required double baseCost,
+          }) =>
+              ProcedureLookupCompanion.insert(
+            id: id,
+            description: description,
+            baseCost: baseCost,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$ProcedureLookupTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $ProcedureLookupTable,
+    ProcedureLookupData,
+    $$ProcedureLookupTableFilterComposer,
+    $$ProcedureLookupTableOrderingComposer,
+    $$ProcedureLookupTableAnnotationComposer,
+    $$ProcedureLookupTableCreateCompanionBuilder,
+    $$ProcedureLookupTableUpdateCompanionBuilder,
+    (
+      ProcedureLookupData,
+      BaseReferences<_$AppDatabase, $ProcedureLookupTable, ProcedureLookupData>
+    ),
+    ProcedureLookupData,
+    PrefetchHooks Function()>;
 typedef $$ClinicalRecordTableCreateCompanionBuilder = ClinicalRecordCompanion
     Function({
   Value<int> id,
@@ -5136,6 +6265,7 @@ typedef $$ClinicalRecordTableCreateCompanionBuilder = ClinicalRecordCompanion
   Value<int> missingDueToCaries,
   Value<int> filledOrRestored,
   Value<DateTime> createdAt,
+  Value<String?> clinicalNotes,
 });
 typedef $$ClinicalRecordTableUpdateCompanionBuilder = ClinicalRecordCompanion
     Function({
@@ -5156,6 +6286,7 @@ typedef $$ClinicalRecordTableUpdateCompanionBuilder = ClinicalRecordCompanion
   Value<int> missingDueToCaries,
   Value<int> filledOrRestored,
   Value<DateTime> createdAt,
+  Value<String?> clinicalNotes,
 });
 
 final class $$ClinicalRecordTableReferences extends BaseReferences<
@@ -5243,6 +6374,9 @@ class $$ClinicalRecordTableFilterComposer
 
   ColumnFilters<DateTime> get createdAt => $composableBuilder(
       column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get clinicalNotes => $composableBuilder(
+      column: $table.clinicalNotes, builder: (column) => ColumnFilters(column));
 
   $$PatientTableFilterComposer get patientId {
     final $$PatientTableFilterComposer composer = $composerBuilder(
@@ -5334,6 +6468,10 @@ class $$ClinicalRecordTableOrderingComposer
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
       column: $table.createdAt, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get clinicalNotes => $composableBuilder(
+      column: $table.clinicalNotes,
+      builder: (column) => ColumnOrderings(column));
+
   $$PatientTableOrderingComposer get patientId {
     final $$PatientTableOrderingComposer composer = $composerBuilder(
         composer: this,
@@ -5412,6 +6550,9 @@ class $$ClinicalRecordTableAnnotationComposer
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
 
+  GeneratedColumn<String> get clinicalNotes => $composableBuilder(
+      column: $table.clinicalNotes, builder: (column) => column);
+
   $$PatientTableAnnotationComposer get patientId {
     final $$PatientTableAnnotationComposer composer = $composerBuilder(
         composer: this,
@@ -5474,6 +6615,7 @@ class $$ClinicalRecordTableTableManager extends RootTableManager<
             Value<int> missingDueToCaries = const Value.absent(),
             Value<int> filledOrRestored = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
+            Value<String?> clinicalNotes = const Value.absent(),
           }) =>
               ClinicalRecordCompanion(
             id: id,
@@ -5493,6 +6635,7 @@ class $$ClinicalRecordTableTableManager extends RootTableManager<
             missingDueToCaries: missingDueToCaries,
             filledOrRestored: filledOrRestored,
             createdAt: createdAt,
+            clinicalNotes: clinicalNotes,
           ),
           createCompanionCallback: ({
             Value<int> id = const Value.absent(),
@@ -5512,6 +6655,7 @@ class $$ClinicalRecordTableTableManager extends RootTableManager<
             Value<int> missingDueToCaries = const Value.absent(),
             Value<int> filledOrRestored = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
+            Value<String?> clinicalNotes = const Value.absent(),
           }) =>
               ClinicalRecordCompanion.insert(
             id: id,
@@ -5531,6 +6675,7 @@ class $$ClinicalRecordTableTableManager extends RootTableManager<
             missingDueToCaries: missingDueToCaries,
             filledOrRestored: filledOrRestored,
             createdAt: createdAt,
+            clinicalNotes: clinicalNotes,
           ),
           withReferenceMapper: (p0) => p0
               .map((e) => (
@@ -5600,10 +6745,14 @@ class $AppDatabaseManager {
       $$AppointmentTableTableManager(_db, _db.appointment);
   $$BillingTableTableManager get billing =>
       $$BillingTableTableManager(_db, _db.billing);
+  $$BillingItemTableTableManager get billingItem =>
+      $$BillingItemTableTableManager(_db, _db.billingItem);
   $$DentalChartTableTableManager get dentalChart =>
       $$DentalChartTableTableManager(_db, _db.dentalChart);
   $$TreatmentRecordTableTableManager get treatmentRecord =>
       $$TreatmentRecordTableTableManager(_db, _db.treatmentRecord);
+  $$ProcedureLookupTableTableManager get procedureLookup =>
+      $$ProcedureLookupTableTableManager(_db, _db.procedureLookup);
   $$ClinicalRecordTableTableManager get clinicalRecord =>
       $$ClinicalRecordTableTableManager(_db, _db.clinicalRecord);
 }
