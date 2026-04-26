@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../style/theme.dart';
+import 'package:dropdown_search/dropdown_search.dart';
 
 // Define Input Field Variants
 enum InputVariant {
@@ -22,6 +23,8 @@ class InputField extends StatelessWidget {
   final String? dropdownValue;
   final Function(String?)? onDropdownChanged;
 
+  final TextEditingController? searchController;
+
   const InputField({
     super.key,
     required this.label,
@@ -33,6 +36,7 @@ class InputField extends StatelessWidget {
     this.dropdownItems,
     this.dropdownValue,
     this.onDropdownChanged,
+    this.searchController,
   });
 
   @override
@@ -59,27 +63,68 @@ class InputField extends StatelessWidget {
     switch (variant) {
       case InputVariant.primary:
         inputContent = TextFormField(
-          controller: controller,
-          keyboardType: keyboardType,
-          obscureText: obscureText,
-          style: theme.textTheme.bodySmall?.copyWith(color: AppTheme.black500),
-          decoration: inputStyle,
-        );
+            controller: controller,
+            keyboardType: keyboardType,
+            obscureText: obscureText,
+            style:
+                theme.textTheme.bodySmall?.copyWith(color: AppTheme.black500),
+            decoration: inputStyle);
         break;
 
       case InputVariant.dropdown:
-        inputContent = DropdownButtonFormField<String>(
-          value: dropdownValue,
-          icon: Icon(
-            Icons.keyboard_arrow_down,
-            color: AppTheme.gray500,
+        inputContent = DropdownSearch<String>(
+          items: (filter, loadProps) => dropdownItems ?? [],
+          selectedItem: dropdownValue,
+          decoratorProps: DropDownDecoratorProps(
+            decoration: inputStyle.copyWith(
+                hintText: hintText ?? "Select an option...",
+                hintStyle: theme.textTheme.bodySmall),
           ),
-          decoration: inputStyle,
-          items: dropdownItems?.map((String item) {
-                return DropdownMenuItem(value: item, child: Text(item));
-              }).toList() ??
-              [],
-          onChanged: onDropdownChanged,
+          dropdownBuilder: (context, selectedItem) {
+            return Text(selectedItem ?? hintText ?? "",
+                style: theme.textTheme.bodySmall
+                    ?.copyWith(color: AppTheme.black500));
+          },
+          popupProps: PopupProps.menu(
+            fit: FlexFit.loose,
+            constraints: const BoxConstraints(maxHeight: 208),
+            showSearchBox: true,
+            searchFieldProps: TextFieldProps(
+              style:
+                  theme.textTheme.bodySmall?.copyWith(color: AppTheme.black500),
+              decoration: InputDecoration(
+                hintStyle: theme.textTheme.bodySmall,
+                hintText: "Search...",
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              ),
+            ),
+            itemBuilder: (context, item, isDisabled, isSelected) {
+              return Container(
+                height: 36,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  item,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: AppTheme.black500,
+                  ),
+                ),
+              );
+            },
+            emptyBuilder: (context, searchEntry) {
+              return Container(
+                height: 48,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  "No results found.",
+                  style: theme.textTheme.bodySmall,
+                ),
+              );
+            },
+          ),
         );
         break;
     }
