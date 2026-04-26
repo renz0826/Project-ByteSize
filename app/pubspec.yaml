@@ -26,6 +26,8 @@ dependencies:
   cupertino_icons: ^1.0.8
   google_fonts: ^8.0.2
   sidebarx: ^0.17.2
+  dropdown_button2: ^3.0.0
+  dropdown_search: ^7.0.0
 
 dev_dependencies:
   flutter_test:
