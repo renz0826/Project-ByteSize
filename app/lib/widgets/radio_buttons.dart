@@ -37,7 +37,7 @@ class RadioGroupField extends StatelessWidget {
           label,
           style: Theme.of(context).textTheme.bodySmall,
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 18),
         Wrap(
           spacing: 24,
           runSpacing: 12,
