@@ -122,6 +122,18 @@ class $PatientTable extends Patient with TableInfo<$PatientTable, PatientData> {
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('CHECK ("is_archived" IN (0, 1))'),
       defaultValue: const Constant(false));
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+      'updated_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
   @override
   List<GeneratedColumn> get $columns => [
         id,
@@ -140,7 +152,9 @@ class $PatientTable extends Patient with TableInfo<$PatientTable, PatientData> {
         cityMunicipality,
         province,
         zipCode,
-        isArchived
+        isArchived,
+        createdAt,
+        updatedAt
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -261,6 +275,18 @@ class $PatientTable extends Patient with TableInfo<$PatientTable, PatientData> {
           isArchived.isAcceptableOrUnknown(
               data['is_archived']!, _isArchivedMeta));
     }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
     return context;
   }
 
@@ -304,6 +330,10 @@ class $PatientTable extends Patient with TableInfo<$PatientTable, PatientData> {
           .read(DriftSqlType.string, data['${effectivePrefix}zip_code'])!,
       isArchived: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}is_archived'])!,
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
     );
   }
 
@@ -331,6 +361,8 @@ class PatientData extends DataClass implements Insertable<PatientData> {
   final String province;
   final String zipCode;
   final bool isArchived;
+  final DateTime createdAt;
+  final DateTime updatedAt;
   const PatientData(
       {required this.id,
       required this.firstName,
@@ -348,7 +380,9 @@ class PatientData extends DataClass implements Insertable<PatientData> {
       required this.cityMunicipality,
       required this.province,
       required this.zipCode,
-      required this.isArchived});
+      required this.isArchived,
+      required this.createdAt,
+      required this.updatedAt});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -375,6 +409,8 @@ class PatientData extends DataClass implements Insertable<PatientData> {
     map['province'] = Variable<String>(province);
     map['zip_code'] = Variable<String>(zipCode);
     map['is_archived'] = Variable<bool>(isArchived);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
     return map;
   }
 
@@ -403,6 +439,8 @@ class PatientData extends DataClass implements Insertable<PatientData> {
       province: Value(province),
       zipCode: Value(zipCode),
       isArchived: Value(isArchived),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
     );
   }
 
@@ -428,6 +466,8 @@ class PatientData extends DataClass implements Insertable<PatientData> {
       province: serializer.fromJson<String>(json['province']),
       zipCode: serializer.fromJson<String>(json['zipCode']),
       isArchived: serializer.fromJson<bool>(json['isArchived']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
     );
   }
   @override
@@ -451,6 +491,8 @@ class PatientData extends DataClass implements Insertable<PatientData> {
       'province': serializer.toJson<String>(province),
       'zipCode': serializer.toJson<String>(zipCode),
       'isArchived': serializer.toJson<bool>(isArchived),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
     };
   }
 
@@ -471,7 +513,9 @@ class PatientData extends DataClass implements Insertable<PatientData> {
           String? cityMunicipality,
           String? province,
           String? zipCode,
-          bool? isArchived}) =>
+          bool? isArchived,
+          DateTime? createdAt,
+          DateTime? updatedAt}) =>
       PatientData(
         id: id ?? this.id,
         firstName: firstName ?? this.firstName,
@@ -493,6 +537,8 @@ class PatientData extends DataClass implements Insertable<PatientData> {
         province: province ?? this.province,
         zipCode: zipCode ?? this.zipCode,
         isArchived: isArchived ?? this.isArchived,
+        createdAt: createdAt ?? this.createdAt,
+        updatedAt: updatedAt ?? this.updatedAt,
       );
   PatientData copyWithCompanion(PatientCompanion data) {
     return PatientData(
@@ -527,6 +573,8 @@ class PatientData extends DataClass implements Insertable<PatientData> {
       zipCode: data.zipCode.present ? data.zipCode.value : this.zipCode,
       isArchived:
           data.isArchived.present ? data.isArchived.value : this.isArchived,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
   }
 
@@ -549,7 +597,9 @@ class PatientData extends DataClass implements Insertable<PatientData> {
           ..write('cityMunicipality: $cityMunicipality, ')
           ..write('province: $province, ')
           ..write('zipCode: $zipCode, ')
-          ..write('isArchived: $isArchived')
+          ..write('isArchived: $isArchived, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
           ..write(')'))
         .toString();
   }
@@ -572,7 +622,9 @@ class PatientData extends DataClass implements Insertable<PatientData> {
       cityMunicipality,
       province,
       zipCode,
-      isArchived);
+      isArchived,
+      createdAt,
+      updatedAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -593,7 +645,9 @@ class PatientData extends DataClass implements Insertable<PatientData> {
           other.cityMunicipality == this.cityMunicipality &&
           other.province == this.province &&
           other.zipCode == this.zipCode &&
-          other.isArchived == this.isArchived);
+          other.isArchived == this.isArchived &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
 }
 
 class PatientCompanion extends UpdateCompanion<PatientData> {
@@ -614,6 +668,8 @@ class PatientCompanion extends UpdateCompanion<PatientData> {
   final Value<String> province;
   final Value<String> zipCode;
   final Value<bool> isArchived;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
   const PatientCompanion({
     this.id = const Value.absent(),
     this.firstName = const Value.absent(),
@@ -632,6 +688,8 @@ class PatientCompanion extends UpdateCompanion<PatientData> {
     this.province = const Value.absent(),
     this.zipCode = const Value.absent(),
     this.isArchived = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
   });
   PatientCompanion.insert({
     this.id = const Value.absent(),
@@ -651,6 +709,8 @@ class PatientCompanion extends UpdateCompanion<PatientData> {
     required String province,
     required String zipCode,
     this.isArchived = const Value.absent(),
+    required DateTime createdAt,
+    required DateTime updatedAt,
   })  : firstName = Value(firstName),
         middleName = Value(middleName),
         lastName = Value(lastName),
@@ -662,7 +722,9 @@ class PatientCompanion extends UpdateCompanion<PatientData> {
         barangay = Value(barangay),
         cityMunicipality = Value(cityMunicipality),
         province = Value(province),
-        zipCode = Value(zipCode);
+        zipCode = Value(zipCode),
+        createdAt = Value(createdAt),
+        updatedAt = Value(updatedAt);
   static Insertable<PatientData> custom({
     Expression<int>? id,
     Expression<String>? firstName,
@@ -681,6 +743,8 @@ class PatientCompanion extends UpdateCompanion<PatientData> {
     Expression<String>? province,
     Expression<String>? zipCode,
     Expression<bool>? isArchived,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -701,6 +765,8 @@ class PatientCompanion extends UpdateCompanion<PatientData> {
       if (province != null) 'province': province,
       if (zipCode != null) 'zip_code': zipCode,
       if (isArchived != null) 'is_archived': isArchived,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
     });
   }
 
@@ -721,7 +787,9 @@ class PatientCompanion extends UpdateCompanion<PatientData> {
       Value<String>? cityMunicipality,
       Value<String>? province,
       Value<String>? zipCode,
-      Value<bool>? isArchived}) {
+      Value<bool>? isArchived,
+      Value<DateTime>? createdAt,
+      Value<DateTime>? updatedAt}) {
     return PatientCompanion(
       id: id ?? this.id,
       firstName: firstName ?? this.firstName,
@@ -740,6 +808,8 @@ class PatientCompanion extends UpdateCompanion<PatientData> {
       province: province ?? this.province,
       zipCode: zipCode ?? this.zipCode,
       isArchived: isArchived ?? this.isArchived,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
     );
   }
 
@@ -797,6 +867,12 @@ class PatientCompanion extends UpdateCompanion<PatientData> {
     if (isArchived.present) {
       map['is_archived'] = Variable<bool>(isArchived.value);
     }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
     return map;
   }
 
@@ -819,7 +895,9 @@ class PatientCompanion extends UpdateCompanion<PatientData> {
           ..write('cityMunicipality: $cityMunicipality, ')
           ..write('province: $province, ')
           ..write('zipCode: $zipCode, ')
-          ..write('isArchived: $isArchived')
+          ..write('isArchived: $isArchived, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
           ..write(')'))
         .toString();
   }
@@ -2580,6 +2658,15 @@ class $ClinicalRecordTable extends ClinicalRecord
       requiredDuringInsert: true,
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('REFERENCES patient (id)'));
+  static const VerificationMeta _appointmentIdMeta =
+      const VerificationMeta('appointmentId');
+  @override
+  late final GeneratedColumn<int> appointmentId = GeneratedColumn<int>(
+      'appointment_id', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: true,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('REFERENCES appointment (id)'));
   static const VerificationMeta _pastIllnessesMeta =
       const VerificationMeta('pastIllnesses');
   @override
@@ -2712,6 +2799,7 @@ class $ClinicalRecordTable extends ClinicalRecord
   List<GeneratedColumn> get $columns => [
         id,
         patientId,
+        appointmentId,
         pastIllnesses,
         presentIllnesses,
         allergies,
@@ -2747,6 +2835,14 @@ class $ClinicalRecordTable extends ClinicalRecord
           patientId.isAcceptableOrUnknown(data['patient_id']!, _patientIdMeta));
     } else if (isInserting) {
       context.missing(_patientIdMeta);
+    }
+    if (data.containsKey('appointment_id')) {
+      context.handle(
+          _appointmentIdMeta,
+          appointmentId.isAcceptableOrUnknown(
+              data['appointment_id']!, _appointmentIdMeta));
+    } else if (isInserting) {
+      context.missing(_appointmentIdMeta);
     }
     if (data.containsKey('past_illnesses')) {
       context.handle(
@@ -2853,6 +2949,8 @@ class $ClinicalRecordTable extends ClinicalRecord
           .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
       patientId: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}patient_id'])!,
+      appointmentId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}appointment_id'])!,
       pastIllnesses: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}past_illnesses']),
       presentIllnesses: attachedDatabase.typeMapping.read(
@@ -2899,6 +2997,7 @@ class ClinicalRecordData extends DataClass
     implements Insertable<ClinicalRecordData> {
   final int id;
   final int patientId;
+  final int appointmentId;
   final String? pastIllnesses;
   final String? presentIllnesses;
   final String? allergies;
@@ -2918,6 +3017,7 @@ class ClinicalRecordData extends DataClass
   const ClinicalRecordData(
       {required this.id,
       required this.patientId,
+      required this.appointmentId,
       this.pastIllnesses,
       this.presentIllnesses,
       this.allergies,
@@ -2939,6 +3039,7 @@ class ClinicalRecordData extends DataClass
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
     map['patient_id'] = Variable<int>(patientId);
+    map['appointment_id'] = Variable<int>(appointmentId);
     if (!nullToAbsent || pastIllnesses != null) {
       map['past_illnesses'] = Variable<String>(pastIllnesses);
     }
@@ -2972,6 +3073,7 @@ class ClinicalRecordData extends DataClass
     return ClinicalRecordCompanion(
       id: Value(id),
       patientId: Value(patientId),
+      appointmentId: Value(appointmentId),
       pastIllnesses: pastIllnesses == null && nullToAbsent
           ? const Value.absent()
           : Value(pastIllnesses),
@@ -3007,6 +3109,7 @@ class ClinicalRecordData extends DataClass
     return ClinicalRecordData(
       id: serializer.fromJson<int>(json['id']),
       patientId: serializer.fromJson<int>(json['patientId']),
+      appointmentId: serializer.fromJson<int>(json['appointmentId']),
       pastIllnesses: serializer.fromJson<String?>(json['pastIllnesses']),
       presentIllnesses: serializer.fromJson<String?>(json['presentIllnesses']),
       allergies: serializer.fromJson<String?>(json['allergies']),
@@ -3035,6 +3138,7 @@ class ClinicalRecordData extends DataClass
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'patientId': serializer.toJson<int>(patientId),
+      'appointmentId': serializer.toJson<int>(appointmentId),
       'pastIllnesses': serializer.toJson<String?>(pastIllnesses),
       'presentIllnesses': serializer.toJson<String?>(presentIllnesses),
       'allergies': serializer.toJson<String?>(allergies),
@@ -3057,6 +3161,7 @@ class ClinicalRecordData extends DataClass
   ClinicalRecordData copyWith(
           {int? id,
           int? patientId,
+          int? appointmentId,
           Value<String?> pastIllnesses = const Value.absent(),
           Value<String?> presentIllnesses = const Value.absent(),
           Value<String?> allergies = const Value.absent(),
@@ -3076,6 +3181,7 @@ class ClinicalRecordData extends DataClass
       ClinicalRecordData(
         id: id ?? this.id,
         patientId: patientId ?? this.patientId,
+        appointmentId: appointmentId ?? this.appointmentId,
         pastIllnesses:
             pastIllnesses.present ? pastIllnesses.value : this.pastIllnesses,
         presentIllnesses: presentIllnesses.present
@@ -3104,6 +3210,9 @@ class ClinicalRecordData extends DataClass
     return ClinicalRecordData(
       id: data.id.present ? data.id.value : this.id,
       patientId: data.patientId.present ? data.patientId.value : this.patientId,
+      appointmentId: data.appointmentId.present
+          ? data.appointmentId.value
+          : this.appointmentId,
       pastIllnesses: data.pastIllnesses.present
           ? data.pastIllnesses.value
           : this.pastIllnesses,
@@ -3155,6 +3264,7 @@ class ClinicalRecordData extends DataClass
     return (StringBuffer('ClinicalRecordData(')
           ..write('id: $id, ')
           ..write('patientId: $patientId, ')
+          ..write('appointmentId: $appointmentId, ')
           ..write('pastIllnesses: $pastIllnesses, ')
           ..write('presentIllnesses: $presentIllnesses, ')
           ..write('allergies: $allergies, ')
@@ -3179,6 +3289,7 @@ class ClinicalRecordData extends DataClass
   int get hashCode => Object.hash(
       id,
       patientId,
+      appointmentId,
       pastIllnesses,
       presentIllnesses,
       allergies,
@@ -3201,6 +3312,7 @@ class ClinicalRecordData extends DataClass
       (other is ClinicalRecordData &&
           other.id == this.id &&
           other.patientId == this.patientId &&
+          other.appointmentId == this.appointmentId &&
           other.pastIllnesses == this.pastIllnesses &&
           other.presentIllnesses == this.presentIllnesses &&
           other.allergies == this.allergies &&
@@ -3222,6 +3334,7 @@ class ClinicalRecordData extends DataClass
 class ClinicalRecordCompanion extends UpdateCompanion<ClinicalRecordData> {
   final Value<int> id;
   final Value<int> patientId;
+  final Value<int> appointmentId;
   final Value<String?> pastIllnesses;
   final Value<String?> presentIllnesses;
   final Value<String?> allergies;
@@ -3241,6 +3354,7 @@ class ClinicalRecordCompanion extends UpdateCompanion<ClinicalRecordData> {
   const ClinicalRecordCompanion({
     this.id = const Value.absent(),
     this.patientId = const Value.absent(),
+    this.appointmentId = const Value.absent(),
     this.pastIllnesses = const Value.absent(),
     this.presentIllnesses = const Value.absent(),
     this.allergies = const Value.absent(),
@@ -3261,6 +3375,7 @@ class ClinicalRecordCompanion extends UpdateCompanion<ClinicalRecordData> {
   ClinicalRecordCompanion.insert({
     this.id = const Value.absent(),
     required int patientId,
+    required int appointmentId,
     this.pastIllnesses = const Value.absent(),
     this.presentIllnesses = const Value.absent(),
     this.allergies = const Value.absent(),
@@ -3277,10 +3392,12 @@ class ClinicalRecordCompanion extends UpdateCompanion<ClinicalRecordData> {
     this.filledOrRestored = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.clinicalNotes = const Value.absent(),
-  }) : patientId = Value(patientId);
+  })  : patientId = Value(patientId),
+        appointmentId = Value(appointmentId);
   static Insertable<ClinicalRecordData> custom({
     Expression<int>? id,
     Expression<int>? patientId,
+    Expression<int>? appointmentId,
     Expression<String>? pastIllnesses,
     Expression<String>? presentIllnesses,
     Expression<String>? allergies,
@@ -3301,6 +3418,7 @@ class ClinicalRecordCompanion extends UpdateCompanion<ClinicalRecordData> {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (patientId != null) 'patient_id': patientId,
+      if (appointmentId != null) 'appointment_id': appointmentId,
       if (pastIllnesses != null) 'past_illnesses': pastIllnesses,
       if (presentIllnesses != null) 'present_illnesses': presentIllnesses,
       if (allergies != null) 'allergies': allergies,
@@ -3327,6 +3445,7 @@ class ClinicalRecordCompanion extends UpdateCompanion<ClinicalRecordData> {
   ClinicalRecordCompanion copyWith(
       {Value<int>? id,
       Value<int>? patientId,
+      Value<int>? appointmentId,
       Value<String?>? pastIllnesses,
       Value<String?>? presentIllnesses,
       Value<String?>? allergies,
@@ -3346,6 +3465,7 @@ class ClinicalRecordCompanion extends UpdateCompanion<ClinicalRecordData> {
     return ClinicalRecordCompanion(
       id: id ?? this.id,
       patientId: patientId ?? this.patientId,
+      appointmentId: appointmentId ?? this.appointmentId,
       pastIllnesses: pastIllnesses ?? this.pastIllnesses,
       presentIllnesses: presentIllnesses ?? this.presentIllnesses,
       allergies: allergies ?? this.allergies,
@@ -3374,6 +3494,9 @@ class ClinicalRecordCompanion extends UpdateCompanion<ClinicalRecordData> {
     }
     if (patientId.present) {
       map['patient_id'] = Variable<int>(patientId.value);
+    }
+    if (appointmentId.present) {
+      map['appointment_id'] = Variable<int>(appointmentId.value);
     }
     if (pastIllnesses.present) {
       map['past_illnesses'] = Variable<String>(pastIllnesses.value);
@@ -3433,6 +3556,7 @@ class ClinicalRecordCompanion extends UpdateCompanion<ClinicalRecordData> {
     return (StringBuffer('ClinicalRecordCompanion(')
           ..write('id: $id, ')
           ..write('patientId: $patientId, ')
+          ..write('appointmentId: $appointmentId, ')
           ..write('pastIllnesses: $pastIllnesses, ')
           ..write('presentIllnesses: $presentIllnesses, ')
           ..write('allergies: $allergies, ')
@@ -3500,6 +3624,8 @@ typedef $$PatientTableCreateCompanionBuilder = PatientCompanion Function({
   required String province,
   required String zipCode,
   Value<bool> isArchived,
+  required DateTime createdAt,
+  required DateTime updatedAt,
 });
 typedef $$PatientTableUpdateCompanionBuilder = PatientCompanion Function({
   Value<int> id,
@@ -3519,6 +3645,8 @@ typedef $$PatientTableUpdateCompanionBuilder = PatientCompanion Function({
   Value<String> province,
   Value<String> zipCode,
   Value<bool> isArchived,
+  Value<DateTime> createdAt,
+  Value<DateTime> updatedAt,
 });
 
 final class $$PatientTableReferences
@@ -3646,6 +3774,12 @@ class $$PatientTableFilterComposer
 
   ColumnFilters<bool> get isArchived => $composableBuilder(
       column: $table.isArchived, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
 
   Expression<bool> appointmentRefs(
       Expression<bool> Function($$AppointmentTableFilterComposer f) f) {
@@ -3796,6 +3930,12 @@ class $$PatientTableOrderingComposer
 
   ColumnOrderings<bool> get isArchived => $composableBuilder(
       column: $table.isArchived, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
 }
 
 class $$PatientTableAnnotationComposer
@@ -3857,6 +3997,12 @@ class $$PatientTableAnnotationComposer
 
   GeneratedColumn<bool> get isArchived => $composableBuilder(
       column: $table.isArchived, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
 
   Expression<T> appointmentRefs<T extends Object>(
       Expression<T> Function($$AppointmentTableAnnotationComposer a) f) {
@@ -3987,6 +4133,8 @@ class $$PatientTableTableManager extends RootTableManager<
             Value<String> province = const Value.absent(),
             Value<String> zipCode = const Value.absent(),
             Value<bool> isArchived = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<DateTime> updatedAt = const Value.absent(),
           }) =>
               PatientCompanion(
             id: id,
@@ -4006,6 +4154,8 @@ class $$PatientTableTableManager extends RootTableManager<
             province: province,
             zipCode: zipCode,
             isArchived: isArchived,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
           ),
           createCompanionCallback: ({
             Value<int> id = const Value.absent(),
@@ -4025,6 +4175,8 @@ class $$PatientTableTableManager extends RootTableManager<
             required String province,
             required String zipCode,
             Value<bool> isArchived = const Value.absent(),
+            required DateTime createdAt,
+            required DateTime updatedAt,
           }) =>
               PatientCompanion.insert(
             id: id,
@@ -4044,6 +4196,8 @@ class $$PatientTableTableManager extends RootTableManager<
             province: province,
             zipCode: zipCode,
             isArchived: isArchived,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
           ),
           withReferenceMapper: (p0) => p0
               .map((e) =>
@@ -4281,6 +4435,21 @@ final class $$AppointmentTableReferences
     return ProcessedTableManager(
         manager.$state.copyWith(prefetchedData: [item]));
   }
+
+  static MultiTypedResultKey<$ClinicalRecordTable, List<ClinicalRecordData>>
+      _clinicalRecordRefsTable(_$AppDatabase db) =>
+          MultiTypedResultKey.fromTable(db.clinicalRecord,
+              aliasName: $_aliasNameGenerator(
+                  db.appointment.id, db.clinicalRecord.appointmentId));
+
+  $$ClinicalRecordTableProcessedTableManager get clinicalRecordRefs {
+    final manager = $$ClinicalRecordTableTableManager($_db, $_db.clinicalRecord)
+        .filter((f) => f.appointmentId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_clinicalRecordRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
 }
 
 class $$AppointmentTableFilterComposer
@@ -4327,6 +4496,27 @@ class $$AppointmentTableFilterComposer
                   $removeJoinBuilderFromRootComposer,
             ));
     return composer;
+  }
+
+  Expression<bool> clinicalRecordRefs(
+      Expression<bool> Function($$ClinicalRecordTableFilterComposer f) f) {
+    final $$ClinicalRecordTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.clinicalRecord,
+        getReferencedColumn: (t) => t.appointmentId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ClinicalRecordTableFilterComposer(
+              $db: $db,
+              $table: $db.clinicalRecord,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
   }
 }
 
@@ -4420,6 +4610,27 @@ class $$AppointmentTableAnnotationComposer
             ));
     return composer;
   }
+
+  Expression<T> clinicalRecordRefs<T extends Object>(
+      Expression<T> Function($$ClinicalRecordTableAnnotationComposer a) f) {
+    final $$ClinicalRecordTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.clinicalRecord,
+        getReferencedColumn: (t) => t.appointmentId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ClinicalRecordTableAnnotationComposer(
+              $db: $db,
+              $table: $db.clinicalRecord,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
 }
 
 class $$AppointmentTableTableManager extends RootTableManager<
@@ -4433,7 +4644,7 @@ class $$AppointmentTableTableManager extends RootTableManager<
     $$AppointmentTableUpdateCompanionBuilder,
     (AppointmentData, $$AppointmentTableReferences),
     AppointmentData,
-    PrefetchHooks Function({bool patientId})> {
+    PrefetchHooks Function({bool patientId, bool clinicalRecordRefs})> {
   $$AppointmentTableTableManager(_$AppDatabase db, $AppointmentTable table)
       : super(TableManagerState(
           db: db,
@@ -4482,10 +4693,13 @@ class $$AppointmentTableTableManager extends RootTableManager<
                     $$AppointmentTableReferences(db, table, e)
                   ))
               .toList(),
-          prefetchHooksCallback: ({patientId = false}) {
+          prefetchHooksCallback: (
+              {patientId = false, clinicalRecordRefs = false}) {
             return PrefetchHooks(
               db: db,
-              explicitlyWatchedTables: [],
+              explicitlyWatchedTables: [
+                if (clinicalRecordRefs) db.clinicalRecord
+              ],
               addJoins: <
                   T extends TableManagerState<
                       dynamic,
@@ -4513,7 +4727,21 @@ class $$AppointmentTableTableManager extends RootTableManager<
                 return state;
               },
               getPrefetchedDataCallback: (items) async {
-                return [];
+                return [
+                  if (clinicalRecordRefs)
+                    await $_getPrefetchedData<AppointmentData,
+                            $AppointmentTable, ClinicalRecordData>(
+                        currentTable: table,
+                        referencedTable: $$AppointmentTableReferences
+                            ._clinicalRecordRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$AppointmentTableReferences(db, table, p0)
+                                .clinicalRecordRefs,
+                        referencedItemsForCurrentItem:
+                            (item, referencedItems) => referencedItems
+                                .where((e) => e.appointmentId == item.id),
+                        typedResults: items)
+                ];
               },
             );
           },
@@ -4531,7 +4759,7 @@ typedef $$AppointmentTableProcessedTableManager = ProcessedTableManager<
     $$AppointmentTableUpdateCompanionBuilder,
     (AppointmentData, $$AppointmentTableReferences),
     AppointmentData,
-    PrefetchHooks Function({bool patientId})>;
+    PrefetchHooks Function({bool patientId, bool clinicalRecordRefs})>;
 typedef $$BillingTableCreateCompanionBuilder = BillingCompanion Function({
   Value<int> id,
   required int patientId,
@@ -5583,6 +5811,7 @@ typedef $$ClinicalRecordTableCreateCompanionBuilder = ClinicalRecordCompanion
     Function({
   Value<int> id,
   required int patientId,
+  required int appointmentId,
   Value<String?> pastIllnesses,
   Value<String?> presentIllnesses,
   Value<String?> allergies,
@@ -5604,6 +5833,7 @@ typedef $$ClinicalRecordTableUpdateCompanionBuilder = ClinicalRecordCompanion
     Function({
   Value<int> id,
   Value<int> patientId,
+  Value<int> appointmentId,
   Value<String?> pastIllnesses,
   Value<String?> presentIllnesses,
   Value<String?> allergies,
@@ -5637,6 +5867,21 @@ final class $$ClinicalRecordTableReferences extends BaseReferences<
     final manager = $$PatientTableTableManager($_db, $_db.patient)
         .filter((f) => f.id.sqlEquals($_column));
     final item = $_typedResult.readTableOrNull(_patientIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
+
+  static $AppointmentTable _appointmentIdTable(_$AppDatabase db) =>
+      db.appointment.createAlias($_aliasNameGenerator(
+          db.clinicalRecord.appointmentId, db.appointment.id));
+
+  $$AppointmentTableProcessedTableManager get appointmentId {
+    final $_column = $_itemColumn<int>('appointment_id')!;
+
+    final manager = $$AppointmentTableTableManager($_db, $_db.appointment)
+        .filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_appointmentIdTable($_db));
     if (item == null) return manager;
     return ProcessedTableManager(
         manager.$state.copyWith(prefetchedData: [item]));
@@ -5723,6 +5968,26 @@ class $$ClinicalRecordTableFilterComposer
             $$PatientTableFilterComposer(
               $db: $db,
               $table: $db.patient,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+
+  $$AppointmentTableFilterComposer get appointmentId {
+    final $$AppointmentTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.appointmentId,
+        referencedTable: $db.appointment,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$AppointmentTableFilterComposer(
+              $db: $db,
+              $table: $db.appointment,
               $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
               joinBuilder: joinBuilder,
               $removeJoinBuilderFromRootComposer:
@@ -5824,6 +6089,26 @@ class $$ClinicalRecordTableOrderingComposer
             ));
     return composer;
   }
+
+  $$AppointmentTableOrderingComposer get appointmentId {
+    final $$AppointmentTableOrderingComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.appointmentId,
+        referencedTable: $db.appointment,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$AppointmentTableOrderingComposer(
+              $db: $db,
+              $table: $db.appointment,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
 }
 
 class $$ClinicalRecordTableAnnotationComposer
@@ -5905,6 +6190,26 @@ class $$ClinicalRecordTableAnnotationComposer
             ));
     return composer;
   }
+
+  $$AppointmentTableAnnotationComposer get appointmentId {
+    final $$AppointmentTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.appointmentId,
+        referencedTable: $db.appointment,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$AppointmentTableAnnotationComposer(
+              $db: $db,
+              $table: $db.appointment,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
 }
 
 class $$ClinicalRecordTableTableManager extends RootTableManager<
@@ -5918,7 +6223,7 @@ class $$ClinicalRecordTableTableManager extends RootTableManager<
     $$ClinicalRecordTableUpdateCompanionBuilder,
     (ClinicalRecordData, $$ClinicalRecordTableReferences),
     ClinicalRecordData,
-    PrefetchHooks Function({bool patientId})> {
+    PrefetchHooks Function({bool patientId, bool appointmentId})> {
   $$ClinicalRecordTableTableManager(
       _$AppDatabase db, $ClinicalRecordTable table)
       : super(TableManagerState(
@@ -5933,6 +6238,7 @@ class $$ClinicalRecordTableTableManager extends RootTableManager<
           updateCompanionCallback: ({
             Value<int> id = const Value.absent(),
             Value<int> patientId = const Value.absent(),
+            Value<int> appointmentId = const Value.absent(),
             Value<String?> pastIllnesses = const Value.absent(),
             Value<String?> presentIllnesses = const Value.absent(),
             Value<String?> allergies = const Value.absent(),
@@ -5953,6 +6259,7 @@ class $$ClinicalRecordTableTableManager extends RootTableManager<
               ClinicalRecordCompanion(
             id: id,
             patientId: patientId,
+            appointmentId: appointmentId,
             pastIllnesses: pastIllnesses,
             presentIllnesses: presentIllnesses,
             allergies: allergies,
@@ -5973,6 +6280,7 @@ class $$ClinicalRecordTableTableManager extends RootTableManager<
           createCompanionCallback: ({
             Value<int> id = const Value.absent(),
             required int patientId,
+            required int appointmentId,
             Value<String?> pastIllnesses = const Value.absent(),
             Value<String?> presentIllnesses = const Value.absent(),
             Value<String?> allergies = const Value.absent(),
@@ -5993,6 +6301,7 @@ class $$ClinicalRecordTableTableManager extends RootTableManager<
               ClinicalRecordCompanion.insert(
             id: id,
             patientId: patientId,
+            appointmentId: appointmentId,
             pastIllnesses: pastIllnesses,
             presentIllnesses: presentIllnesses,
             allergies: allergies,
@@ -6016,7 +6325,7 @@ class $$ClinicalRecordTableTableManager extends RootTableManager<
                     $$ClinicalRecordTableReferences(db, table, e)
                   ))
               .toList(),
-          prefetchHooksCallback: ({patientId = false}) {
+          prefetchHooksCallback: ({patientId = false, appointmentId = false}) {
             return PrefetchHooks(
               db: db,
               explicitlyWatchedTables: [],
@@ -6043,6 +6352,17 @@ class $$ClinicalRecordTableTableManager extends RootTableManager<
                         $$ClinicalRecordTableReferences._patientIdTable(db).id,
                   ) as T;
                 }
+                if (appointmentId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.appointmentId,
+                    referencedTable:
+                        $$ClinicalRecordTableReferences._appointmentIdTable(db),
+                    referencedColumn: $$ClinicalRecordTableReferences
+                        ._appointmentIdTable(db)
+                        .id,
+                  ) as T;
+                }
 
                 return state;
               },
@@ -6065,7 +6385,7 @@ typedef $$ClinicalRecordTableProcessedTableManager = ProcessedTableManager<
     $$ClinicalRecordTableUpdateCompanionBuilder,
     (ClinicalRecordData, $$ClinicalRecordTableReferences),
     ClinicalRecordData,
-    PrefetchHooks Function({bool patientId})>;
+    PrefetchHooks Function({bool patientId, bool appointmentId})>;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
