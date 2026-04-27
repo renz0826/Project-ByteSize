@@ -2,6 +2,7 @@ import 'package:dentcity_management_system/style/theme.dart';
 import 'package:flutter/material.dart';
 import '/../widgets/main_buttons.dart';
 import '/../widgets/input_field.dart';
+import '/../widgets/page_header.dart';
 
 String? _defaultSelection;
 
@@ -53,7 +54,7 @@ class _PatientDashboardState extends State<PatientDashboard> {
       padding: EdgeInsets.all(32),
       decoration: BoxDecoration(
         color: AppTheme.white500,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(24),
         boxShadow: AppTheme.floatShadow,
       ),
       child: Column(
