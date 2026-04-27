@@ -135,6 +135,19 @@ class _AddPatientFormState extends State<AddPatientForm> {
                       "Widowed",
                       "Annulled"
                     ])),
+                const SizedBox(width: 20),
+                Expanded(
+                  child: RadioGroupField(
+                    label: "Senior Citizen/PWD",
+                    options: const ["Yes", "No"],
+                    selectedValue: _defaultSelection,
+                    onChanged: (String value) {
+                      setState(() {
+                        _defaultSelection = value; //
+                      });
+                    },
+                  ),
+                ),
               ],
             ),
           ),
