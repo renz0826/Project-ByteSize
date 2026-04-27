@@ -110,7 +110,7 @@ class _AddPatientFormState extends State<AddPatientForm> {
           ),
           const SizedBox(height: 18),
           SizedBox(
-            width: 800,
+            width: 1000,
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -138,8 +138,8 @@ class _AddPatientFormState extends State<AddPatientForm> {
                 const SizedBox(width: 20),
                 Expanded(
                   child: RadioGroupField(
-                    label: "Senior Citizen/PWD",
-                    options: const ["Yes", "No"],
+                    label: "PWD Status",
+                    options: const ["Applicable", "Not Applicable"],
                     selectedValue: _defaultSelection,
                     onChanged: (String value) {
                       setState(() {
