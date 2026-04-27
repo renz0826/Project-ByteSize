@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '/../widgets/main_buttons.dart';
 import '/../widgets/input_field.dart';
 
+String? _defaultSelection;
+
 class PatientDashboard extends StatefulWidget {
   const PatientDashboard({super.key});
 
@@ -17,7 +19,9 @@ class _PatientDashboardState extends State<PatientDashboard> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: _showDetails ? _buildDetailsView() : _buildMainDashboard(),
+        child: SingleChildScrollView(
+          child: _showDetails ? _buildDetailsView() : _buildMainDashboard(),
+        ),
       ),
     );
   }
@@ -43,7 +47,6 @@ class _PatientDashboardState extends State<PatientDashboard> {
     );
   }
 
-  // --- VIEW 2: THE DETAILS SCREEN ---
   Widget _buildDetailsView() {
     return Container(
       margin: EdgeInsets.all(24),
@@ -54,7 +57,6 @@ class _PatientDashboardState extends State<PatientDashboard> {
         boxShadow: AppTheme.floatShadow,
       ),
       child: Column(
-        spacing: 36,
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.start,
@@ -62,11 +64,14 @@ class _PatientDashboardState extends State<PatientDashboard> {
           Text("Personal Details",
               style: Theme.of(context).textTheme.headlineLarge),
           Column(
-            spacing: 16,
+            spacing: 12,
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
+              const SizedBox(height: 36),
+
+              // Fetch patient full name
               Text(
                 "Full Name",
                 style: Theme.of(context).textTheme.titleLarge,
@@ -99,6 +104,111 @@ class _PatientDashboardState extends State<PatientDashboard> {
                   ),
                 ],
               ),
+
+              const SizedBox(height: 36),
+
+              // Fetch patient demographics
+              Text(
+                "Demographic",
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              Column(
+                spacing: 18,
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    width: 800,
+                    child: Row(
+                      spacing: 20,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: InputField(
+                            hintText: "Select a month",
+                            label: "Month",
+                            variant: InputVariant.dropdown,
+                            dropdownValue: _defaultSelection,
+                            dropdownItems: const [
+                              "January",
+                              "February",
+                              "March",
+                              "April",
+                              "May",
+                            ],
+                          ),
+                        ),
+                        Expanded(
+                          child: InputField(
+                            hintText: "Select a day",
+                            label: "Day",
+                            variant: InputVariant.dropdown,
+                            dropdownValue: _defaultSelection,
+                            dropdownItems: const [
+                              "1",
+                              "2",
+                              "3",
+                              "4",
+                              "5",
+                            ],
+                          ),
+                        ),
+                        Expanded(
+                          child: InputField(
+                            hintText: "Select a year",
+                            label: "Year",
+                            variant: InputVariant.dropdown,
+                            dropdownValue: _defaultSelection,
+                            dropdownItems: const [
+                              "2001",
+                              "2002",
+                              "2006",
+                            ],
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                  SizedBox(
+                    width: 525,
+                    child: Row(
+                      spacing: 20,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: InputField(
+                            hintText: "Select a sex",
+                            label: "Sex",
+                            variant: InputVariant.dropdown,
+                            dropdownValue: _defaultSelection,
+                            dropdownItems: const [
+                              "Male",
+                              "Female",
+                            ],
+                          ),
+                        ),
+                        Expanded(
+                          child: InputField(
+                            hintText: "Select a civil status",
+                            label: "Civil Status",
+                            variant: InputVariant.dropdown,
+                            dropdownValue: _defaultSelection,
+                            dropdownItems: const [
+                              "Single",
+                              "Married",
+                              "Widowed",
+                              "Annulled",
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              )
             ],
           ),
           Button(
