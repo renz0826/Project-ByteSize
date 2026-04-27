@@ -16,10 +16,12 @@ class AddPatientForm extends StatefulWidget {
 class _AddPatientFormState extends State<AddPatientForm> {
   String? _defaultSelection;
 
-  // TODO : Connect all text fields to the approriate db
+  // TODO : Connect all text fields to the appropriate db
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return Center(
+        child: Container(
+      constraints: const BoxConstraints(maxWidth: 1200),
       margin: const EdgeInsets.all(24),
       padding: const EdgeInsets.all(32),
       decoration: BoxDecoration(
@@ -34,7 +36,7 @@ class _AddPatientFormState extends State<AddPatientForm> {
           Text("Personal Details",
               style: Theme.of(context).textTheme.headlineLarge),
 
-          const SizedBox(height: 22),
+          const SizedBox(height: 32),
 
           // --- FULL NAME ---
           Text("Full Name", style: Theme.of(context).textTheme.titleLarge),
@@ -56,104 +58,99 @@ class _AddPatientFormState extends State<AddPatientForm> {
             ],
           ),
 
-          const SizedBox(height: 22),
+          const SizedBox(height: 32),
 
           // --- DEMOGRAPHIC ---
           Text("Demographic", style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 12),
-          SizedBox(
-            width: 800,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                    child: InputField(
-                        hintText: "Select a month",
-                        label: "Month",
-                        variant: InputVariant.dropdown,
-                        dropdownValue: _defaultSelection,
-                        dropdownItems: const [
-                      "January",
-                      "February",
-                      "March",
-                      "April",
-                      "May"
-                    ])), // TODO: Link the valid months to a calendar
-                const SizedBox(width: 20),
-                Expanded(
-                    child: InputField(
-                        hintText: "Select a day",
-                        label: "Day",
-                        variant: InputVariant.dropdown,
-                        dropdownValue: _defaultSelection,
-                        dropdownItems: const [
-                      "1",
-                      "2",
-                      "3",
-                      "4",
-                      "5"
-                    ])), // TODO: Add the list for all valid Days. Create an error handling state by setting a max depending on each month
-                const SizedBox(width: 20),
-                Expanded(
-                    child: InputField(
-                        hintText: "Select a year",
-                        label: "Year",
-                        variant: InputVariant.dropdown,
-                        dropdownValue: _defaultSelection,
-                        dropdownItems: const [
-                      "2001",
-                      "2002",
-                      "2006"
-                    ])), // TODO: Add the list for all valid Dates setting 2026 as a max
-              ],
-            ),
-          ),
-          const SizedBox(height: 18),
-          SizedBox(
-            width: 1000,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                    child: InputField(
-                        hintText: "Select a sex",
-                        label: "Sex",
-                        variant: InputVariant.dropdown,
-                        dropdownValue: _defaultSelection,
-                        dropdownItems: const ["Male", "Female"])),
-                const SizedBox(width: 20),
-                Expanded(
-                    child: InputField(
-                        hintText: "Select a civil status",
-                        label: "Civil Status",
-                        variant: InputVariant.dropdown,
-                        dropdownValue: _defaultSelection,
-                        dropdownItems: const [
-                      // TODO: Determine if amo lang ni ang need for this section
-                      "Single",
-                      "Married",
-                      "Widowed",
-                      "Annulled"
-                    ])),
-                const SizedBox(width: 20),
-                Expanded(
-                  child: RadioGroupField(
-                    label: "PWD Status",
-                    options: const ["Applicable", "Not Applicable"],
-                    selectedValue: _defaultSelection,
-                    onChanged: (String value) {
-                      setState(() {
-                        _defaultSelection =
-                            value; // Diri kaw lang place ka pag input sa db
-                      });
-                    },
-                  ),
+
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: InputField(
+                  hintText: "Select a month",
+                  label: "Month",
+                  variant: InputVariant.dropdown,
+                  dropdownValue: _defaultSelection,
+                  dropdownItems: const [
+                    "January",
+                    "February",
+                    "March",
+                    "April",
+                    "May"
+                  ],
                 ),
-              ],
-            ),
+              ),
+              const SizedBox(width: 20),
+              Expanded(
+                child: InputField(
+                  hintText: "Select a day",
+                  label: "Day",
+                  variant: InputVariant.dropdown,
+                  dropdownValue: _defaultSelection,
+                  dropdownItems: const ["1", "2", "3", "4", "5"],
+                ),
+              ),
+              const SizedBox(width: 20),
+              Expanded(
+                child: InputField(
+                  hintText: "Select a year",
+                  label: "Year",
+                  variant: InputVariant.dropdown,
+                  dropdownValue: _defaultSelection,
+                  dropdownItems: const ["2001", "2002", "2006"],
+                ),
+              ),
+            ],
           ),
 
-          const SizedBox(height: 22),
+          const SizedBox(height: 20),
+
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: InputField(
+                  hintText: "Select a sex",
+                  label: "Sex",
+                  variant: InputVariant.dropdown,
+                  dropdownValue: _defaultSelection,
+                  dropdownItems: const ["Male", "Female"],
+                ),
+              ),
+              const SizedBox(width: 20),
+              Expanded(
+                child: InputField(
+                  hintText: "Select a civil status",
+                  label: "Civil Status",
+                  variant: InputVariant.dropdown,
+                  dropdownValue: _defaultSelection,
+                  dropdownItems: const [
+                    "Single",
+                    "Married",
+                    "Widowed",
+                    "Annulled"
+                  ],
+                ),
+              ),
+              const SizedBox(width: 20),
+              Expanded(
+                child: RadioGroupField(
+                  label: "PWD Status",
+                  options: const ["Applicable", "Not Applicable"],
+                  selectedValue: _defaultSelection,
+                  onChanged: (String value) {
+                    setState(() {
+                      _defaultSelection = value;
+                    });
+                  },
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 32),
 
           // --- CONTACT INFO ---
           Text("Contact Information",
@@ -172,7 +169,7 @@ class _AddPatientFormState extends State<AddPatientForm> {
                       hintText: "Enter emergency number")),
             ],
           ),
-          const SizedBox(height: 18),
+          const SizedBox(height: 20),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -187,64 +184,77 @@ class _AddPatientFormState extends State<AddPatientForm> {
             ],
           ),
 
-          const SizedBox(height: 22),
+          const SizedBox(height: 32),
 
           // --- ADDRESS ---
           Text("Address", style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 12),
-          Row(
+
+          Column(
+            mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                  child: InputField(
-                      hintText: "Select a Street",
-                      label: "Street Address",
-                      variant: InputVariant.dropdown,
-                      dropdownValue: _defaultSelection,
-                      dropdownItems: const [
-                    "Luna St."
-                  ])), // TODO: Add the list for all valid Street Addresses in the Philippines
-              const SizedBox(width: 20),
-              Expanded(
-                  child: InputField(
+              // Row 1: Full width Street Address
+              InputField(
+                hintText: "Enter Patient Street Address",
+                label: "Street Address",
+              ),
+
+              const SizedBox(height: 20),
+
+              // Row 2: Barangay and City
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: InputField(
                       hintText: "Select a Barangay",
                       label: "Barangay",
                       variant: InputVariant.dropdown,
                       dropdownValue: _defaultSelection,
-                      dropdownItems: const [
-                    "Brgy. Magsaysay"
-                  ])), // TODO: Add the list for all valid Barangays in the Philippines
-              const SizedBox(width: 20),
-              Expanded(
-                  child: InputField(
+                      dropdownItems: const ["Brgy. Magsaysay"],
+                    ),
+                  ),
+                  const SizedBox(width: 20),
+                  Expanded(
+                    child: InputField(
                       hintText: "Select a City/Municipality",
                       label: "City/Municipality",
                       variant: InputVariant.dropdown,
                       dropdownValue: _defaultSelection,
-                      dropdownItems: const [
-                    "La Paz, Iloilo City"
-                  ])), // TODO: Add the list for all valid City/Municipalities in the Philippines
-              const SizedBox(width: 20),
-              Expanded(
-                  child: InputField(
+                      dropdownItems: const ["La Paz, Iloilo City"],
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 20),
+
+              // Row 3: Province and ZIP Code
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    flex: 2,
+                    child: InputField(
                       hintText: "Select a Province",
                       label: "Province",
                       variant: InputVariant.dropdown,
                       dropdownValue: _defaultSelection,
-                      dropdownItems: const [
-                    "Iloilo"
-                  ])), // TODO: Add the list for all valid Provinces in the Philippines
-              const SizedBox(width: 20),
-              SizedBox(
-                width: 150,
-                child: InputField(
-                    hintText: "Select a ZIP",
-                    label: "ZIP Code",
-                    variant: InputVariant.dropdown,
-                    dropdownValue: _defaultSelection,
-                    dropdownItems: const [
-                      "5000"
-                    ]), // TODO: Add the list for all valid ZIP Codes in the Philippines
+                      dropdownItems: const ["Iloilo"],
+                    ),
+                  ),
+                  const SizedBox(width: 20),
+                  Expanded(
+                    flex: 1,
+                    child: InputField(
+                      hintText: "e.g. 5000",
+                      label: "ZIP Code",
+                      variant: InputVariant.primary,
+                      keyboardType: TextInputType.number,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -262,14 +272,13 @@ class _AddPatientFormState extends State<AddPatientForm> {
                   width: double.infinity,
                   icon: Icons.arrow_forward,
                   iconPlacement: IconPlacement.right,
-                  onPressed: widget
-                      .onNext, // temporary button function that returns to the main dashboard
+                  onPressed: widget.onNext,
                 ),
               )
             ],
           ),
         ],
       ),
-    );
+    ));
   }
 }
