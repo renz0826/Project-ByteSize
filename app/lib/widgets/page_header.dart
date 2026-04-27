@@ -49,8 +49,8 @@ class PageHeader extends StatelessWidget {
   BoxDecoration get _containerDecoration => BoxDecoration(
   color: AppTheme.white500,
   borderRadius: const BorderRadius.only(
-    topLeft: Radius.circular(19),     
-    bottomLeft: Radius.circular(19),
+    topLeft: Radius.circular(24),     
+    bottomLeft: Radius.circular(24),
   ),
   boxShadow: AppTheme.floatShadow,
 );
