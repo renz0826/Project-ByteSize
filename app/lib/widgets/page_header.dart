@@ -94,10 +94,12 @@ class PageHeader extends StatelessWidget {
           const SizedBox(width: 12),
           Text(
             title,
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  color: AppTheme.black500,
-                  fontWeight: FontWeight.w700,
-                ),
+            style: GoogleFonts.beVietnamPro(
+            fontSize: 20,
+            fontWeight: FontWeight.w700, 
+            color: AppTheme.black500,
+            letterSpacing: 0.2,
+          ),
           ),
         ],
       ),
