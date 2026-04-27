@@ -7,11 +7,11 @@ class ProcedureLookupRepository {
   ProcedureLookupRepository(this.db);
 
 // Read all procedures to be used for the dropdown menu ()
-  Future<List<ProcedureLookupData>> getAllProcedures() =>
+Future<List<ProcedureLookupData>> getAllProcedures() =>
       db.select(db.procedureLookup).get();
 
 // Get only a SINGLE procedure
-  Future<ProcedureLookupData> getProcedure(int id) =>
+Future<ProcedureLookupData> getProcedure(int id) =>
       (db.select(db.procedureLookup)..where((p) => p.id.equals(id)))
           .getSingle();
 
