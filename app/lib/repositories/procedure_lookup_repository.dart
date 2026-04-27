@@ -15,5 +15,5 @@ Future<ProcedureLookupData> getProcedure(int id) =>
       (db.select(db.procedureLookup)..where((p) => p.id.equals(id)))
           .getSingle();
 
-// Nothing here yet, but seed procedures here so tables are populated pre-launch
+// TODO: ADD HERE ALL PROCEDURES THE CLINIC USES FOR SEEDING
 }
