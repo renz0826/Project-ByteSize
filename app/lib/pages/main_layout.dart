@@ -1,3 +1,4 @@
+import 'package:dentcity_management_system/pages/patients-record_page.dart';
 import 'package:flutter/material.dart';
 import 'package:sidebarx/sidebarx.dart';
 import '../style/theme.dart';
@@ -7,6 +8,7 @@ import 'main_dashboard.dart';
 import 'schedule/schedule_dashboard.dart';
 import 'patient_records/patient_dashboard.dart';
 import '../widgets/horizontal_logo.dart';
+import '../widgets/page_header.dart';
 
 class MainLayout extends StatefulWidget {
   const MainLayout({super.key});
@@ -139,18 +141,27 @@ class _SidebarState extends State<MainLayout> {
             child: AnimatedBuilder(
               animation: _controller,
               builder: (context, child) {
-                switch (_controller.selectedIndex) {
-                  case 0:
-                    return DashboardPage();
-                  case 1:
-                    return PatientDashboard();
-                  case 2:
-                    return BillingDashboard();
-                  case 3:
-                    return ScheduleDashboard();
-                  default:
-                    return const Center(child: Text('Not Found'));
-                }
+                //logic for selecting the page
+                final pages = [
+                  (title: 'Dashboard',       screen: DashboardPage()),
+                  (title: 'Patient Records', screen: PatientRecordsScreen()),
+                  (title: 'Billings',        screen: BillingDashboard()),
+                  (title: 'Scheduling',      screen: ScheduleDashboard()),
+                ];
+
+                final index = _controller.selectedIndex;
+                // Handle out-of-range index (e.g., when no item is selected)
+                if (index >= pages.length) return const Center(child: Text('Not Found'));
+
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    PageHeader(title: pages[index].title,
+                    type: PageHeaderType.plain,),
+                    
+                    Expanded(child: pages[index].screen),
+                  ],
+                );
               },
             ),
           ),
