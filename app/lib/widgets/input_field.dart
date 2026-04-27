@@ -161,7 +161,7 @@ class InputField extends StatelessWidget {
           label,
           style: Theme.of(context)
               .textTheme
-              .bodyLarge
+              .bodyMedium
               ?.copyWith(color: AppTheme.gray500),
         ),
         SizedBox(height: 8),
