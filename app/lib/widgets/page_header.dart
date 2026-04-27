@@ -84,7 +84,7 @@ class PageHeader extends StatelessWidget {
       padding: const EdgeInsets.only(left: 48),
       decoration: _containerDecoration,
       child: Row(
-        mainAxisSize: MainAxisSize.min,
+        mainAxisSize: MainAxisSize.max,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           GestureDetector(
