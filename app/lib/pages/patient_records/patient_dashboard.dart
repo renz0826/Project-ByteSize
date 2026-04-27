@@ -69,7 +69,7 @@ class _PatientDashboardState extends State<PatientDashboard> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              const SizedBox(height: 36),
+              const SizedBox(height: 22),
 
               // Fetch patient full name
               Text(
@@ -105,7 +105,7 @@ class _PatientDashboardState extends State<PatientDashboard> {
                 ],
               ),
 
-              const SizedBox(height: 36),
+              const SizedBox(height: 22),
 
               // Fetch patient demographics
               Text(
@@ -207,6 +207,67 @@ class _PatientDashboardState extends State<PatientDashboard> {
                       ],
                     ),
                   ),
+
+                  const SizedBox(height: 22),
+
+                  // Fetch patient contact info
+                  Text(
+                    "Contact Information",
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                  Column(
+                    spacing: 18,
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Row(
+                        spacing: 20,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: InputField(
+                              label: "Mobile Number",
+                              hintText: "Enter patient's mobile number",
+                              controller: null,
+                            ),
+                          ),
+                          Expanded(
+                            child: InputField(
+                              label: "Emergency Contact Number",
+                              hintText:
+                                  "Enter patient's emergency contact number",
+                              controller: null,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        spacing: 20,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: InputField(
+                              label: "Reffered By",
+                              hintText: "Enter patient's referral",
+                              controller: null,
+                            ),
+                          ),
+                          Expanded(
+                            child: InputField(
+                              label: "Relationship",
+                              hintText:
+                                  "Enter patient's relationship with referral",
+                              controller: null,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 22),
+                    ],
+                  )
                 ],
               )
             ],
