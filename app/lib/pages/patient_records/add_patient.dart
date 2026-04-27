@@ -143,7 +143,8 @@ class _AddPatientFormState extends State<AddPatientForm> {
                     selectedValue: _defaultSelection,
                     onChanged: (String value) {
                       setState(() {
-                        _defaultSelection = value; //
+                        _defaultSelection =
+                            value; // Diri kaw lang place ka pag input sa db
                       });
                     },
                   ),
@@ -261,7 +262,8 @@ class _AddPatientFormState extends State<AddPatientForm> {
                   width: double.infinity,
                   icon: Icons.arrow_forward,
                   iconPlacement: IconPlacement.right,
-                  onPressed: widget.onNext,
+                  onPressed: widget
+                      .onNext, // temporary button function that returns to the main dashboard
                 ),
               )
             ],
