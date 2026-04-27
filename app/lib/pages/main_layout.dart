@@ -1,4 +1,4 @@
-import '../pages/patient_records/patient_dashboard.dart';
+import 'patient_records/patient_dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:sidebarx/sidebarx.dart';
 import '../style/theme.dart';
@@ -6,7 +6,6 @@ import '../pages/login_page.dart';
 import 'billing/billing_dashboard.dart';
 import 'main_dashboard.dart';
 import 'schedule/schedule_dashboard.dart';
-import 'patient_records/patient_dashboard.dart';
 import '../widgets/horizontal_logo.dart';
 import '../widgets/page_header.dart';
 
