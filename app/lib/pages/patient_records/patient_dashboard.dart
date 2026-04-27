@@ -266,24 +266,103 @@ class _PatientDashboardState extends State<PatientDashboard> {
                         ],
                       ),
                       const SizedBox(height: 22),
+
+                      // Fetch patient address
+                      Text(
+                        "Address",
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                      Row(
+                        spacing: 20,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: InputField(
+                              hintText: "Select a Street",
+                              label: "Street Address",
+                              variant: InputVariant.dropdown,
+                              dropdownValue: _defaultSelection,
+                              dropdownItems: const [
+                                "Luna St.",
+                              ],
+                            ),
+                          ),
+                          Expanded(
+                            child: InputField(
+                              hintText: "Select a Barangay",
+                              label: "Barangay",
+                              variant: InputVariant.dropdown,
+                              dropdownValue: _defaultSelection,
+                              dropdownItems: const [
+                                "Brgy. Magsaysay",
+                              ],
+                            ),
+                          ),
+                          Expanded(
+                            child: InputField(
+                              hintText: "Select a City/Municipality",
+                              label: "City/Municipality",
+                              variant: InputVariant.dropdown,
+                              dropdownValue: _defaultSelection,
+                              dropdownItems: const [
+                                "la Paz, Iloilo City",
+                              ],
+                            ),
+                          ),
+                          Expanded(
+                            child: InputField(
+                              hintText: "Select a Province",
+                              label: "Province",
+                              variant: InputVariant.dropdown,
+                              dropdownValue: _defaultSelection,
+                              dropdownItems: const [
+                                "Iloilo",
+                              ],
+                            ),
+                          ),
+                          SizedBox(
+                            width: 150,
+                            child: Expanded(
+                              child: InputField(
+                                hintText: "Select a ZIP",
+                                label: "ZIP Code",
+                                variant: InputVariant.dropdown,
+                                dropdownValue: _defaultSelection,
+                                dropdownItems: const [
+                                  "5000",
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 22),
                     ],
                   )
                 ],
               )
             ],
           ),
-          Button(
-            label: "Back to Records",
-            width: double.infinity,
-            variant: ButtonVariant.secondary,
-            icon: Icons.arrow_back,
-            iconPlacement: IconPlacement.left,
-            onPressed: () {
-              // 4. Flip the switch back to return to the list!
-              setState(() {
-                _showDetails = false;
-              });
-            },
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              SizedBox(
+                width: 160,
+                child: Button(
+                  label: "Next",
+                  width: double.infinity,
+                  icon: Icons.arrow_forward,
+                  iconPlacement: IconPlacement.right,
+                  onPressed: () {
+                    // 4. Flip the switch back to return to the list!
+                    setState(() {
+                      _showDetails = false;
+                    });
+                  },
+                ),
+              )
+            ],
           ),
         ],
       ),
