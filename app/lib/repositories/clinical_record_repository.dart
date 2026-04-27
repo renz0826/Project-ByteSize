@@ -6,19 +6,19 @@ class ClinicalRecordRepository {
   ClinicalRecordRepository(this.db);
 
 // Add New Clinical Record
-  Future<int> addClinicalRecord(ClinicalRecordCompanion record) =>
+Future<int> addClinicalRecord(ClinicalRecordCompanion record) =>
     db.into(db.clinicalRecord).insert(record);
 
 // Read All Clinical Records (Get Function)
-  Future<List<ClinicalRecordData>> getAllClinicalRecords() =>
+Future<List<ClinicalRecordData>> getAllClinicalRecords() =>
   db.select(db.clinicalRecord).get();
 
 // Read only a SINGLE clinical record by id
-  Future<ClinicalRecordData> getClinicalRecord(int id) => 
+Future<ClinicalRecordData> getClinicalRecord(int id) => 
   (db.select(db.clinicalRecord) ..where((c) => c.id.equals(id))) .getSingle();
 
 // Read Clinical Records by a PATIENT (many can be called here)
-  Future<List<ClinicalRecordData>> getClinicalRecordsByPatient(int patientId) => 
+Future<List<ClinicalRecordData>> getClinicalRecordsByPatient(int patientId) => 
   (db.select(db.clinicalRecord) ..where((c) => c.id.equals(patientId))) .get(); 
 
 // Update full Clinical Record
@@ -26,7 +26,7 @@ Future<bool> updateClinicalRecord(ClinicalRecordCompanion record) =>
   db.update(db.clinicalRecord).replace(record);
 
 // Update Medical Background Only
- Future<int> updateMedicalBackground({
+Future<int> updateMedicalBackground({
     required int id,
     String? pastIllnesses,
     String? presentIllnesses,
@@ -60,7 +60,7 @@ Future<int> updateTreatmentSection({
         ));
 
 // Update Tooth Count
-  Future<int> updateToothCount({
+Future<int> updateToothCount({
     required int id,
     required int carriesForFilling,
     required int carriesForExtraction,
