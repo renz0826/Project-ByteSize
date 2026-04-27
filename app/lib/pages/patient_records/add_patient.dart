@@ -2,6 +2,7 @@ import 'package:dentcity_management_system/style/theme.dart';
 import 'package:flutter/material.dart';
 import '/../widgets/main_buttons.dart';
 import '/../widgets/input_field.dart';
+import '/../widgets/radio_buttons.dart';
 
 class AddPatientForm extends StatefulWidget {
   final VoidCallback onNext;
@@ -15,6 +16,7 @@ class AddPatientForm extends StatefulWidget {
 class _AddPatientFormState extends State<AddPatientForm> {
   String? _defaultSelection;
 
+  // TODO : Connect all text fields to the approriate db
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -76,7 +78,7 @@ class _AddPatientFormState extends State<AddPatientForm> {
                       "March",
                       "April",
                       "May"
-                    ])),
+                    ])), // TODO: Link the valid months to a calendar
                 const SizedBox(width: 20),
                 Expanded(
                     child: InputField(
@@ -84,7 +86,13 @@ class _AddPatientFormState extends State<AddPatientForm> {
                         label: "Day",
                         variant: InputVariant.dropdown,
                         dropdownValue: _defaultSelection,
-                        dropdownItems: const ["1", "2", "3", "4", "5"])),
+                        dropdownItems: const [
+                      "1",
+                      "2",
+                      "3",
+                      "4",
+                      "5"
+                    ])), // TODO: Add the list for all valid Days. Create an error handling state by setting a max depending on each month
                 const SizedBox(width: 20),
                 Expanded(
                     child: InputField(
@@ -92,13 +100,17 @@ class _AddPatientFormState extends State<AddPatientForm> {
                         label: "Year",
                         variant: InputVariant.dropdown,
                         dropdownValue: _defaultSelection,
-                        dropdownItems: const ["2001", "2002", "2006"])),
+                        dropdownItems: const [
+                      "2001",
+                      "2002",
+                      "2006"
+                    ])), // TODO: Add the list for all valid Dates setting 2026 as a max
               ],
             ),
           ),
           const SizedBox(height: 18),
           SizedBox(
-            width: 525,
+            width: 800,
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -117,6 +129,7 @@ class _AddPatientFormState extends State<AddPatientForm> {
                         variant: InputVariant.dropdown,
                         dropdownValue: _defaultSelection,
                         dropdownItems: const [
+                      // TODO: Determine if amo lang ni ang need for this section
                       "Single",
                       "Married",
                       "Widowed",
@@ -174,7 +187,9 @@ class _AddPatientFormState extends State<AddPatientForm> {
                       label: "Street Address",
                       variant: InputVariant.dropdown,
                       dropdownValue: _defaultSelection,
-                      dropdownItems: const ["Luna St."])),
+                      dropdownItems: const [
+                    "Luna St."
+                  ])), // TODO: Add the list for all valid Street Addresses in the Philippines
               const SizedBox(width: 20),
               Expanded(
                   child: InputField(
@@ -182,7 +197,9 @@ class _AddPatientFormState extends State<AddPatientForm> {
                       label: "Barangay",
                       variant: InputVariant.dropdown,
                       dropdownValue: _defaultSelection,
-                      dropdownItems: const ["Brgy. Magsaysay"])),
+                      dropdownItems: const [
+                    "Brgy. Magsaysay"
+                  ])), // TODO: Add the list for all valid Barangays in the Philippines
               const SizedBox(width: 20),
               Expanded(
                   child: InputField(
@@ -190,7 +207,9 @@ class _AddPatientFormState extends State<AddPatientForm> {
                       label: "City/Municipality",
                       variant: InputVariant.dropdown,
                       dropdownValue: _defaultSelection,
-                      dropdownItems: const ["La Paz, Iloilo City"])),
+                      dropdownItems: const [
+                    "La Paz, Iloilo City"
+                  ])), // TODO: Add the list for all valid City/Municipalities in the Philippines
               const SizedBox(width: 20),
               Expanded(
                   child: InputField(
@@ -198,7 +217,9 @@ class _AddPatientFormState extends State<AddPatientForm> {
                       label: "Province",
                       variant: InputVariant.dropdown,
                       dropdownValue: _defaultSelection,
-                      dropdownItems: const ["Iloilo"])),
+                      dropdownItems: const [
+                    "Iloilo"
+                  ])), // TODO: Add the list for all valid Provinces in the Philippines
               const SizedBox(width: 20),
               SizedBox(
                 width: 150,
@@ -207,7 +228,9 @@ class _AddPatientFormState extends State<AddPatientForm> {
                     label: "ZIP Code",
                     variant: InputVariant.dropdown,
                     dropdownValue: _defaultSelection,
-                    dropdownItems: const ["5000"]),
+                    dropdownItems: const [
+                      "5000"
+                    ]), // TODO: Add the list for all valid ZIP Codes in the Philippines
               ),
             ],
           ),
