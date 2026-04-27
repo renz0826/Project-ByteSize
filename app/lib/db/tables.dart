@@ -93,18 +93,7 @@ class DentalChart extends Table { // dental chart entity
   DateTimeColumn get lastUpdated => dateTime()();
 }
 
-class TreatmentRecord extends Table { // Treatment Record Entity
-// Primary Key
-  IntColumn get id => integer().autoIncrement()(); 
 
-// Foreign Key
-  IntColumn get appointmentID => integer().references(Appointment, #id)(); 
-
-// Treatment Names & Details
-  IntColumn get procedureCode => integer()();
-  IntColumn get toothNumber => integer()();
-  TextColumn get notes => text()();
-}
 
 class ProcedureLookup extends Table { // procedurelookup entity (this is for the drop-down table soon)
 // Primary Key

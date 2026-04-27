@@ -2333,321 +2333,6 @@ class DentalChartCompanion extends UpdateCompanion<DentalChartData> {
   }
 }
 
-class $TreatmentRecordTable extends TreatmentRecord
-    with TableInfo<$TreatmentRecordTable, TreatmentRecordData> {
-  @override
-  final GeneratedDatabase attachedDatabase;
-  final String? _alias;
-  $TreatmentRecordTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _idMeta = const VerificationMeta('id');
-  @override
-  late final GeneratedColumn<int> id = GeneratedColumn<int>(
-      'id', aliasedName, false,
-      hasAutoIncrement: true,
-      type: DriftSqlType.int,
-      requiredDuringInsert: false,
-      defaultConstraints:
-          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
-  static const VerificationMeta _appointmentIDMeta =
-      const VerificationMeta('appointmentID');
-  @override
-  late final GeneratedColumn<int> appointmentID = GeneratedColumn<int>(
-      'appointment_i_d', aliasedName, false,
-      type: DriftSqlType.int,
-      requiredDuringInsert: true,
-      defaultConstraints:
-          GeneratedColumn.constraintIsAlways('REFERENCES appointment (id)'));
-  static const VerificationMeta _procedureCodeMeta =
-      const VerificationMeta('procedureCode');
-  @override
-  late final GeneratedColumn<int> procedureCode = GeneratedColumn<int>(
-      'procedure_code', aliasedName, false,
-      type: DriftSqlType.int, requiredDuringInsert: true);
-  static const VerificationMeta _toothNumberMeta =
-      const VerificationMeta('toothNumber');
-  @override
-  late final GeneratedColumn<int> toothNumber = GeneratedColumn<int>(
-      'tooth_number', aliasedName, false,
-      type: DriftSqlType.int, requiredDuringInsert: true);
-  static const VerificationMeta _notesMeta = const VerificationMeta('notes');
-  @override
-  late final GeneratedColumn<String> notes = GeneratedColumn<String>(
-      'notes', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
-  @override
-  List<GeneratedColumn> get $columns =>
-      [id, appointmentID, procedureCode, toothNumber, notes];
-  @override
-  String get aliasedName => _alias ?? actualTableName;
-  @override
-  String get actualTableName => $name;
-  static const String $name = 'treatment_record';
-  @override
-  VerificationContext validateIntegrity(
-      Insertable<TreatmentRecordData> instance,
-      {bool isInserting = false}) {
-    final context = VerificationContext();
-    final data = instance.toColumns(true);
-    if (data.containsKey('id')) {
-      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
-    }
-    if (data.containsKey('appointment_i_d')) {
-      context.handle(
-          _appointmentIDMeta,
-          appointmentID.isAcceptableOrUnknown(
-              data['appointment_i_d']!, _appointmentIDMeta));
-    } else if (isInserting) {
-      context.missing(_appointmentIDMeta);
-    }
-    if (data.containsKey('procedure_code')) {
-      context.handle(
-          _procedureCodeMeta,
-          procedureCode.isAcceptableOrUnknown(
-              data['procedure_code']!, _procedureCodeMeta));
-    } else if (isInserting) {
-      context.missing(_procedureCodeMeta);
-    }
-    if (data.containsKey('tooth_number')) {
-      context.handle(
-          _toothNumberMeta,
-          toothNumber.isAcceptableOrUnknown(
-              data['tooth_number']!, _toothNumberMeta));
-    } else if (isInserting) {
-      context.missing(_toothNumberMeta);
-    }
-    if (data.containsKey('notes')) {
-      context.handle(
-          _notesMeta, notes.isAcceptableOrUnknown(data['notes']!, _notesMeta));
-    } else if (isInserting) {
-      context.missing(_notesMeta);
-    }
-    return context;
-  }
-
-  @override
-  Set<GeneratedColumn> get $primaryKey => {id};
-  @override
-  TreatmentRecordData map(Map<String, dynamic> data, {String? tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return TreatmentRecordData(
-      id: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
-      appointmentID: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}appointment_i_d'])!,
-      procedureCode: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}procedure_code'])!,
-      toothNumber: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}tooth_number'])!,
-      notes: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}notes'])!,
-    );
-  }
-
-  @override
-  $TreatmentRecordTable createAlias(String alias) {
-    return $TreatmentRecordTable(attachedDatabase, alias);
-  }
-}
-
-class TreatmentRecordData extends DataClass
-    implements Insertable<TreatmentRecordData> {
-  final int id;
-  final int appointmentID;
-  final int procedureCode;
-  final int toothNumber;
-  final String notes;
-  const TreatmentRecordData(
-      {required this.id,
-      required this.appointmentID,
-      required this.procedureCode,
-      required this.toothNumber,
-      required this.notes});
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    map['id'] = Variable<int>(id);
-    map['appointment_i_d'] = Variable<int>(appointmentID);
-    map['procedure_code'] = Variable<int>(procedureCode);
-    map['tooth_number'] = Variable<int>(toothNumber);
-    map['notes'] = Variable<String>(notes);
-    return map;
-  }
-
-  TreatmentRecordCompanion toCompanion(bool nullToAbsent) {
-    return TreatmentRecordCompanion(
-      id: Value(id),
-      appointmentID: Value(appointmentID),
-      procedureCode: Value(procedureCode),
-      toothNumber: Value(toothNumber),
-      notes: Value(notes),
-    );
-  }
-
-  factory TreatmentRecordData.fromJson(Map<String, dynamic> json,
-      {ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return TreatmentRecordData(
-      id: serializer.fromJson<int>(json['id']),
-      appointmentID: serializer.fromJson<int>(json['appointmentID']),
-      procedureCode: serializer.fromJson<int>(json['procedureCode']),
-      toothNumber: serializer.fromJson<int>(json['toothNumber']),
-      notes: serializer.fromJson<String>(json['notes']),
-    );
-  }
-  @override
-  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return <String, dynamic>{
-      'id': serializer.toJson<int>(id),
-      'appointmentID': serializer.toJson<int>(appointmentID),
-      'procedureCode': serializer.toJson<int>(procedureCode),
-      'toothNumber': serializer.toJson<int>(toothNumber),
-      'notes': serializer.toJson<String>(notes),
-    };
-  }
-
-  TreatmentRecordData copyWith(
-          {int? id,
-          int? appointmentID,
-          int? procedureCode,
-          int? toothNumber,
-          String? notes}) =>
-      TreatmentRecordData(
-        id: id ?? this.id,
-        appointmentID: appointmentID ?? this.appointmentID,
-        procedureCode: procedureCode ?? this.procedureCode,
-        toothNumber: toothNumber ?? this.toothNumber,
-        notes: notes ?? this.notes,
-      );
-  TreatmentRecordData copyWithCompanion(TreatmentRecordCompanion data) {
-    return TreatmentRecordData(
-      id: data.id.present ? data.id.value : this.id,
-      appointmentID: data.appointmentID.present
-          ? data.appointmentID.value
-          : this.appointmentID,
-      procedureCode: data.procedureCode.present
-          ? data.procedureCode.value
-          : this.procedureCode,
-      toothNumber:
-          data.toothNumber.present ? data.toothNumber.value : this.toothNumber,
-      notes: data.notes.present ? data.notes.value : this.notes,
-    );
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('TreatmentRecordData(')
-          ..write('id: $id, ')
-          ..write('appointmentID: $appointmentID, ')
-          ..write('procedureCode: $procedureCode, ')
-          ..write('toothNumber: $toothNumber, ')
-          ..write('notes: $notes')
-          ..write(')'))
-        .toString();
-  }
-
-  @override
-  int get hashCode =>
-      Object.hash(id, appointmentID, procedureCode, toothNumber, notes);
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is TreatmentRecordData &&
-          other.id == this.id &&
-          other.appointmentID == this.appointmentID &&
-          other.procedureCode == this.procedureCode &&
-          other.toothNumber == this.toothNumber &&
-          other.notes == this.notes);
-}
-
-class TreatmentRecordCompanion extends UpdateCompanion<TreatmentRecordData> {
-  final Value<int> id;
-  final Value<int> appointmentID;
-  final Value<int> procedureCode;
-  final Value<int> toothNumber;
-  final Value<String> notes;
-  const TreatmentRecordCompanion({
-    this.id = const Value.absent(),
-    this.appointmentID = const Value.absent(),
-    this.procedureCode = const Value.absent(),
-    this.toothNumber = const Value.absent(),
-    this.notes = const Value.absent(),
-  });
-  TreatmentRecordCompanion.insert({
-    this.id = const Value.absent(),
-    required int appointmentID,
-    required int procedureCode,
-    required int toothNumber,
-    required String notes,
-  })  : appointmentID = Value(appointmentID),
-        procedureCode = Value(procedureCode),
-        toothNumber = Value(toothNumber),
-        notes = Value(notes);
-  static Insertable<TreatmentRecordData> custom({
-    Expression<int>? id,
-    Expression<int>? appointmentID,
-    Expression<int>? procedureCode,
-    Expression<int>? toothNumber,
-    Expression<String>? notes,
-  }) {
-    return RawValuesInsertable({
-      if (id != null) 'id': id,
-      if (appointmentID != null) 'appointment_i_d': appointmentID,
-      if (procedureCode != null) 'procedure_code': procedureCode,
-      if (toothNumber != null) 'tooth_number': toothNumber,
-      if (notes != null) 'notes': notes,
-    });
-  }
-
-  TreatmentRecordCompanion copyWith(
-      {Value<int>? id,
-      Value<int>? appointmentID,
-      Value<int>? procedureCode,
-      Value<int>? toothNumber,
-      Value<String>? notes}) {
-    return TreatmentRecordCompanion(
-      id: id ?? this.id,
-      appointmentID: appointmentID ?? this.appointmentID,
-      procedureCode: procedureCode ?? this.procedureCode,
-      toothNumber: toothNumber ?? this.toothNumber,
-      notes: notes ?? this.notes,
-    );
-  }
-
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    if (id.present) {
-      map['id'] = Variable<int>(id.value);
-    }
-    if (appointmentID.present) {
-      map['appointment_i_d'] = Variable<int>(appointmentID.value);
-    }
-    if (procedureCode.present) {
-      map['procedure_code'] = Variable<int>(procedureCode.value);
-    }
-    if (toothNumber.present) {
-      map['tooth_number'] = Variable<int>(toothNumber.value);
-    }
-    if (notes.present) {
-      map['notes'] = Variable<String>(notes.value);
-    }
-    return map;
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('TreatmentRecordCompanion(')
-          ..write('id: $id, ')
-          ..write('appointmentID: $appointmentID, ')
-          ..write('procedureCode: $procedureCode, ')
-          ..write('toothNumber: $toothNumber, ')
-          ..write('notes: $notes')
-          ..write(')'))
-        .toString();
-  }
-}
-
 class $ProcedureLookupTable extends ProcedureLookup
     with TableInfo<$ProcedureLookupTable, ProcedureLookupData> {
   @override
@@ -3778,8 +3463,6 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $BillingTable billing = $BillingTable(this);
   late final $BillingItemTable billingItem = $BillingItemTable(this);
   late final $DentalChartTable dentalChart = $DentalChartTable(this);
-  late final $TreatmentRecordTable treatmentRecord =
-      $TreatmentRecordTable(this);
   late final $ProcedureLookupTable procedureLookup =
       $ProcedureLookupTable(this);
   late final $ClinicalRecordTable clinicalRecord = $ClinicalRecordTable(this);
@@ -3794,7 +3477,6 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         billing,
         billingItem,
         dentalChart,
-        treatmentRecord,
         procedureLookup,
         clinicalRecord
       ];
@@ -4599,23 +4281,6 @@ final class $$AppointmentTableReferences
     return ProcessedTableManager(
         manager.$state.copyWith(prefetchedData: [item]));
   }
-
-  static MultiTypedResultKey<$TreatmentRecordTable, List<TreatmentRecordData>>
-      _treatmentRecordRefsTable(_$AppDatabase db) =>
-          MultiTypedResultKey.fromTable(db.treatmentRecord,
-              aliasName: $_aliasNameGenerator(
-                  db.appointment.id, db.treatmentRecord.appointmentID));
-
-  $$TreatmentRecordTableProcessedTableManager get treatmentRecordRefs {
-    final manager = $$TreatmentRecordTableTableManager(
-            $_db, $_db.treatmentRecord)
-        .filter((f) => f.appointmentID.id.sqlEquals($_itemColumn<int>('id')!));
-
-    final cache =
-        $_typedResult.readTableOrNull(_treatmentRecordRefsTable($_db));
-    return ProcessedTableManager(
-        manager.$state.copyWith(prefetchedData: cache));
-  }
 }
 
 class $$AppointmentTableFilterComposer
@@ -4662,27 +4327,6 @@ class $$AppointmentTableFilterComposer
                   $removeJoinBuilderFromRootComposer,
             ));
     return composer;
-  }
-
-  Expression<bool> treatmentRecordRefs(
-      Expression<bool> Function($$TreatmentRecordTableFilterComposer f) f) {
-    final $$TreatmentRecordTableFilterComposer composer = $composerBuilder(
-        composer: this,
-        getCurrentColumn: (t) => t.id,
-        referencedTable: $db.treatmentRecord,
-        getReferencedColumn: (t) => t.appointmentID,
-        builder: (joinBuilder,
-                {$addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer}) =>
-            $$TreatmentRecordTableFilterComposer(
-              $db: $db,
-              $table: $db.treatmentRecord,
-              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-              joinBuilder: joinBuilder,
-              $removeJoinBuilderFromRootComposer:
-                  $removeJoinBuilderFromRootComposer,
-            ));
-    return f(composer);
   }
 }
 
@@ -4776,27 +4420,6 @@ class $$AppointmentTableAnnotationComposer
             ));
     return composer;
   }
-
-  Expression<T> treatmentRecordRefs<T extends Object>(
-      Expression<T> Function($$TreatmentRecordTableAnnotationComposer a) f) {
-    final $$TreatmentRecordTableAnnotationComposer composer = $composerBuilder(
-        composer: this,
-        getCurrentColumn: (t) => t.id,
-        referencedTable: $db.treatmentRecord,
-        getReferencedColumn: (t) => t.appointmentID,
-        builder: (joinBuilder,
-                {$addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer}) =>
-            $$TreatmentRecordTableAnnotationComposer(
-              $db: $db,
-              $table: $db.treatmentRecord,
-              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-              joinBuilder: joinBuilder,
-              $removeJoinBuilderFromRootComposer:
-                  $removeJoinBuilderFromRootComposer,
-            ));
-    return f(composer);
-  }
 }
 
 class $$AppointmentTableTableManager extends RootTableManager<
@@ -4810,7 +4433,7 @@ class $$AppointmentTableTableManager extends RootTableManager<
     $$AppointmentTableUpdateCompanionBuilder,
     (AppointmentData, $$AppointmentTableReferences),
     AppointmentData,
-    PrefetchHooks Function({bool patientId, bool treatmentRecordRefs})> {
+    PrefetchHooks Function({bool patientId})> {
   $$AppointmentTableTableManager(_$AppDatabase db, $AppointmentTable table)
       : super(TableManagerState(
           db: db,
@@ -4859,13 +4482,10 @@ class $$AppointmentTableTableManager extends RootTableManager<
                     $$AppointmentTableReferences(db, table, e)
                   ))
               .toList(),
-          prefetchHooksCallback: (
-              {patientId = false, treatmentRecordRefs = false}) {
+          prefetchHooksCallback: ({patientId = false}) {
             return PrefetchHooks(
               db: db,
-              explicitlyWatchedTables: [
-                if (treatmentRecordRefs) db.treatmentRecord
-              ],
+              explicitlyWatchedTables: [],
               addJoins: <
                   T extends TableManagerState<
                       dynamic,
@@ -4893,21 +4513,7 @@ class $$AppointmentTableTableManager extends RootTableManager<
                 return state;
               },
               getPrefetchedDataCallback: (items) async {
-                return [
-                  if (treatmentRecordRefs)
-                    await $_getPrefetchedData<AppointmentData,
-                            $AppointmentTable, TreatmentRecordData>(
-                        currentTable: table,
-                        referencedTable: $$AppointmentTableReferences
-                            ._treatmentRecordRefsTable(db),
-                        managerFromTypedResult: (p0) =>
-                            $$AppointmentTableReferences(db, table, p0)
-                                .treatmentRecordRefs,
-                        referencedItemsForCurrentItem:
-                            (item, referencedItems) => referencedItems
-                                .where((e) => e.appointmentID == item.id),
-                        typedResults: items)
-                ];
+                return [];
               },
             );
           },
@@ -4925,7 +4531,7 @@ typedef $$AppointmentTableProcessedTableManager = ProcessedTableManager<
     $$AppointmentTableUpdateCompanionBuilder,
     (AppointmentData, $$AppointmentTableReferences),
     AppointmentData,
-    PrefetchHooks Function({bool patientId, bool treatmentRecordRefs})>;
+    PrefetchHooks Function({bool patientId})>;
 typedef $$BillingTableCreateCompanionBuilder = BillingCompanion Function({
   Value<int> id,
   required int patientId,
@@ -5835,279 +5441,6 @@ typedef $$DentalChartTableProcessedTableManager = ProcessedTableManager<
     (DentalChartData, $$DentalChartTableReferences),
     DentalChartData,
     PrefetchHooks Function({bool patientID})>;
-typedef $$TreatmentRecordTableCreateCompanionBuilder = TreatmentRecordCompanion
-    Function({
-  Value<int> id,
-  required int appointmentID,
-  required int procedureCode,
-  required int toothNumber,
-  required String notes,
-});
-typedef $$TreatmentRecordTableUpdateCompanionBuilder = TreatmentRecordCompanion
-    Function({
-  Value<int> id,
-  Value<int> appointmentID,
-  Value<int> procedureCode,
-  Value<int> toothNumber,
-  Value<String> notes,
-});
-
-final class $$TreatmentRecordTableReferences extends BaseReferences<
-    _$AppDatabase, $TreatmentRecordTable, TreatmentRecordData> {
-  $$TreatmentRecordTableReferences(
-      super.$_db, super.$_table, super.$_typedResult);
-
-  static $AppointmentTable _appointmentIDTable(_$AppDatabase db) =>
-      db.appointment.createAlias($_aliasNameGenerator(
-          db.treatmentRecord.appointmentID, db.appointment.id));
-
-  $$AppointmentTableProcessedTableManager get appointmentID {
-    final $_column = $_itemColumn<int>('appointment_i_d')!;
-
-    final manager = $$AppointmentTableTableManager($_db, $_db.appointment)
-        .filter((f) => f.id.sqlEquals($_column));
-    final item = $_typedResult.readTableOrNull(_appointmentIDTable($_db));
-    if (item == null) return manager;
-    return ProcessedTableManager(
-        manager.$state.copyWith(prefetchedData: [item]));
-  }
-}
-
-class $$TreatmentRecordTableFilterComposer
-    extends Composer<_$AppDatabase, $TreatmentRecordTable> {
-  $$TreatmentRecordTableFilterComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnFilters<int> get id => $composableBuilder(
-      column: $table.id, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<int> get procedureCode => $composableBuilder(
-      column: $table.procedureCode, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<int> get toothNumber => $composableBuilder(
-      column: $table.toothNumber, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get notes => $composableBuilder(
-      column: $table.notes, builder: (column) => ColumnFilters(column));
-
-  $$AppointmentTableFilterComposer get appointmentID {
-    final $$AppointmentTableFilterComposer composer = $composerBuilder(
-        composer: this,
-        getCurrentColumn: (t) => t.appointmentID,
-        referencedTable: $db.appointment,
-        getReferencedColumn: (t) => t.id,
-        builder: (joinBuilder,
-                {$addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer}) =>
-            $$AppointmentTableFilterComposer(
-              $db: $db,
-              $table: $db.appointment,
-              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-              joinBuilder: joinBuilder,
-              $removeJoinBuilderFromRootComposer:
-                  $removeJoinBuilderFromRootComposer,
-            ));
-    return composer;
-  }
-}
-
-class $$TreatmentRecordTableOrderingComposer
-    extends Composer<_$AppDatabase, $TreatmentRecordTable> {
-  $$TreatmentRecordTableOrderingComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnOrderings<int> get id => $composableBuilder(
-      column: $table.id, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<int> get procedureCode => $composableBuilder(
-      column: $table.procedureCode,
-      builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<int> get toothNumber => $composableBuilder(
-      column: $table.toothNumber, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get notes => $composableBuilder(
-      column: $table.notes, builder: (column) => ColumnOrderings(column));
-
-  $$AppointmentTableOrderingComposer get appointmentID {
-    final $$AppointmentTableOrderingComposer composer = $composerBuilder(
-        composer: this,
-        getCurrentColumn: (t) => t.appointmentID,
-        referencedTable: $db.appointment,
-        getReferencedColumn: (t) => t.id,
-        builder: (joinBuilder,
-                {$addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer}) =>
-            $$AppointmentTableOrderingComposer(
-              $db: $db,
-              $table: $db.appointment,
-              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-              joinBuilder: joinBuilder,
-              $removeJoinBuilderFromRootComposer:
-                  $removeJoinBuilderFromRootComposer,
-            ));
-    return composer;
-  }
-}
-
-class $$TreatmentRecordTableAnnotationComposer
-    extends Composer<_$AppDatabase, $TreatmentRecordTable> {
-  $$TreatmentRecordTableAnnotationComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  GeneratedColumn<int> get id =>
-      $composableBuilder(column: $table.id, builder: (column) => column);
-
-  GeneratedColumn<int> get procedureCode => $composableBuilder(
-      column: $table.procedureCode, builder: (column) => column);
-
-  GeneratedColumn<int> get toothNumber => $composableBuilder(
-      column: $table.toothNumber, builder: (column) => column);
-
-  GeneratedColumn<String> get notes =>
-      $composableBuilder(column: $table.notes, builder: (column) => column);
-
-  $$AppointmentTableAnnotationComposer get appointmentID {
-    final $$AppointmentTableAnnotationComposer composer = $composerBuilder(
-        composer: this,
-        getCurrentColumn: (t) => t.appointmentID,
-        referencedTable: $db.appointment,
-        getReferencedColumn: (t) => t.id,
-        builder: (joinBuilder,
-                {$addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer}) =>
-            $$AppointmentTableAnnotationComposer(
-              $db: $db,
-              $table: $db.appointment,
-              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-              joinBuilder: joinBuilder,
-              $removeJoinBuilderFromRootComposer:
-                  $removeJoinBuilderFromRootComposer,
-            ));
-    return composer;
-  }
-}
-
-class $$TreatmentRecordTableTableManager extends RootTableManager<
-    _$AppDatabase,
-    $TreatmentRecordTable,
-    TreatmentRecordData,
-    $$TreatmentRecordTableFilterComposer,
-    $$TreatmentRecordTableOrderingComposer,
-    $$TreatmentRecordTableAnnotationComposer,
-    $$TreatmentRecordTableCreateCompanionBuilder,
-    $$TreatmentRecordTableUpdateCompanionBuilder,
-    (TreatmentRecordData, $$TreatmentRecordTableReferences),
-    TreatmentRecordData,
-    PrefetchHooks Function({bool appointmentID})> {
-  $$TreatmentRecordTableTableManager(
-      _$AppDatabase db, $TreatmentRecordTable table)
-      : super(TableManagerState(
-          db: db,
-          table: table,
-          createFilteringComposer: () =>
-              $$TreatmentRecordTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () =>
-              $$TreatmentRecordTableOrderingComposer($db: db, $table: table),
-          createComputedFieldComposer: () =>
-              $$TreatmentRecordTableAnnotationComposer($db: db, $table: table),
-          updateCompanionCallback: ({
-            Value<int> id = const Value.absent(),
-            Value<int> appointmentID = const Value.absent(),
-            Value<int> procedureCode = const Value.absent(),
-            Value<int> toothNumber = const Value.absent(),
-            Value<String> notes = const Value.absent(),
-          }) =>
-              TreatmentRecordCompanion(
-            id: id,
-            appointmentID: appointmentID,
-            procedureCode: procedureCode,
-            toothNumber: toothNumber,
-            notes: notes,
-          ),
-          createCompanionCallback: ({
-            Value<int> id = const Value.absent(),
-            required int appointmentID,
-            required int procedureCode,
-            required int toothNumber,
-            required String notes,
-          }) =>
-              TreatmentRecordCompanion.insert(
-            id: id,
-            appointmentID: appointmentID,
-            procedureCode: procedureCode,
-            toothNumber: toothNumber,
-            notes: notes,
-          ),
-          withReferenceMapper: (p0) => p0
-              .map((e) => (
-                    e.readTable(table),
-                    $$TreatmentRecordTableReferences(db, table, e)
-                  ))
-              .toList(),
-          prefetchHooksCallback: ({appointmentID = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [],
-              addJoins: <
-                  T extends TableManagerState<
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic>>(state) {
-                if (appointmentID) {
-                  state = state.withJoin(
-                    currentTable: table,
-                    currentColumn: table.appointmentID,
-                    referencedTable: $$TreatmentRecordTableReferences
-                        ._appointmentIDTable(db),
-                    referencedColumn: $$TreatmentRecordTableReferences
-                        ._appointmentIDTable(db)
-                        .id,
-                  ) as T;
-                }
-
-                return state;
-              },
-              getPrefetchedDataCallback: (items) async {
-                return [];
-              },
-            );
-          },
-        ));
-}
-
-typedef $$TreatmentRecordTableProcessedTableManager = ProcessedTableManager<
-    _$AppDatabase,
-    $TreatmentRecordTable,
-    TreatmentRecordData,
-    $$TreatmentRecordTableFilterComposer,
-    $$TreatmentRecordTableOrderingComposer,
-    $$TreatmentRecordTableAnnotationComposer,
-    $$TreatmentRecordTableCreateCompanionBuilder,
-    $$TreatmentRecordTableUpdateCompanionBuilder,
-    (TreatmentRecordData, $$TreatmentRecordTableReferences),
-    TreatmentRecordData,
-    PrefetchHooks Function({bool appointmentID})>;
 typedef $$ProcedureLookupTableCreateCompanionBuilder = ProcedureLookupCompanion
     Function({
   Value<int> id,
@@ -6749,8 +6082,6 @@ class $AppDatabaseManager {
       $$BillingItemTableTableManager(_db, _db.billingItem);
   $$DentalChartTableTableManager get dentalChart =>
       $$DentalChartTableTableManager(_db, _db.dentalChart);
-  $$TreatmentRecordTableTableManager get treatmentRecord =>
-      $$TreatmentRecordTableTableManager(_db, _db.treatmentRecord);
   $$ProcedureLookupTableTableManager get procedureLookup =>
       $$ProcedureLookupTableTableManager(_db, _db.procedureLookup);
   $$ClinicalRecordTableTableManager get clinicalRecord =>
