@@ -11,6 +11,7 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_svg: ^2.0.10
+  easy_radio: ^0.0.3
 
   # Database
   drift: ^2.14.0
@@ -28,6 +29,7 @@ dependencies:
   sidebarx: ^0.17.2
   dropdown_button2: ^3.0.0
   dropdown_search: ^7.0.0
+  heroicons: ^0.11.0
 
 dev_dependencies:
   flutter_test:
