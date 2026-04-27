@@ -81,7 +81,8 @@ class PageHeader extends StatelessWidget {
     // withBack
     return Container(
       height: 108,
-      padding: const EdgeInsets.only(left: 48),
+      margin: const EdgeInsets.only(left: 24, bottom: 40),
+      padding: const EdgeInsets.only(left: 32),
       decoration: _containerDecoration,
       child: Row(
         mainAxisSize: MainAxisSize.max,
@@ -89,7 +90,7 @@ class PageHeader extends StatelessWidget {
         children: [
           GestureDetector(
             onTap: onBack ?? () => Navigator.of(context).pop(),
-            child: const Icon(Icons.arrow_back, color: AppTheme.black500, size: 20),
+            child: const Icon(Icons.arrow_back_rounded, color: AppTheme.black500, size: 32),
           ),
           const SizedBox(width: 12),
           Text(
