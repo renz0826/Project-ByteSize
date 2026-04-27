@@ -241,14 +241,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.28.0"
-  easy_radio:
-    dependency: "direct main"
-    description:
-      name: easy_radio
-      sha256: "6f8a2b947ee581e3c4750a5b3ada6af423e88174fe15e03d74d1a912ef911435"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.0.3"
   dropdown_button2:
     dependency: "direct main"
     description:
@@ -265,6 +257,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "7.0.0"
+  easy_radio:
+    dependency: "direct main"
+    description:
+      name: easy_radio
+      sha256: "6f8a2b947ee581e3c4750a5b3ada6af423e88174fe15e03d74d1a912ef911435"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.3"
   fake_async:
     dependency: transitive
     description:
