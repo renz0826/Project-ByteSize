@@ -1,4 +1,4 @@
-import 'package:dentcity_management_system/pages/patients-record_page.dart';
+import '../pages/patient_records/patient_dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:sidebarx/sidebarx.dart';
 import '../style/theme.dart';
@@ -144,7 +144,7 @@ class _SidebarState extends State<MainLayout> {
                 //logic for selecting the page
                 final pages = [
                   (title: 'Dashboard',       screen: DashboardPage()),
-                  (title: 'Patient Records', screen: PatientRecordsScreen()),
+                  (title: 'Patient Records', screen: PatientDashboard()),
                   (title: 'Billings',        screen: BillingDashboard()),
                   (title: 'Scheduling',      screen: ScheduleDashboard()),
                 ];
