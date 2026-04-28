@@ -6,14 +6,16 @@ import '/../widgets/radio_buttons.dart';
 
 class AddPatientForm extends StatefulWidget {
   final VoidCallback onNext;
+  final Map<String, dynamic>? existingPatient;
 
-  const AddPatientForm({super.key, required this.onNext});
+  const AddPatientForm({super.key, this.existingPatient, required this.onNext});
 
   @override
   State<AddPatientForm> createState() => _AddPatientFormState();
 }
 
 class _AddPatientFormState extends State<AddPatientForm> {
+  bool get isEditing => widget.existingPatient != null;
   String? _defaultSelection;
 
   // TODO : Connect all text fields to the appropriate db
@@ -62,51 +64,55 @@ class _AddPatientFormState extends State<AddPatientForm> {
 
           // --- DEMOGRAPHIC ---
           Text("Demographic", style: Theme.of(context).textTheme.titleLarge),
-          const SizedBox(height: 12),
 
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: InputField(
-                  hintText: "Select a month",
-                  label: "Month",
-                  variant: InputVariant.dropdown,
-                  dropdownValue: _defaultSelection,
-                  dropdownItems: const [
-                    "January",
-                    "February",
-                    "March",
-                    "April",
-                    "May"
-                  ],
+          if (!isEditing) ...[
+            const SizedBox(height: 12),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: InputField(
+                    hintText: "Select a month",
+                    label: "Month",
+                    variant: InputVariant.dropdown,
+                    dropdownValue: _defaultSelection,
+                    isHidden: isEditing,
+                    dropdownItems: const [
+                      "January",
+                      "February",
+                      "March",
+                      "April",
+                      "May"
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(width: 20),
-              Expanded(
-                child: InputField(
-                  hintText: "Select a day",
-                  label: "Day",
-                  variant: InputVariant.dropdown,
-                  dropdownValue: _defaultSelection,
-                  dropdownItems: const ["1", "2", "3", "4", "5"],
+                const SizedBox(width: 20),
+                Expanded(
+                  child: InputField(
+                    hintText: "Select a day",
+                    label: "Day",
+                    variant: InputVariant.dropdown,
+                    dropdownValue: _defaultSelection,
+                    isHidden: isEditing,
+                    dropdownItems: const ["1", "2", "3", "4", "5"],
+                  ),
                 ),
-              ),
-              const SizedBox(width: 20),
-              Expanded(
-                child: InputField(
-                  hintText: "Select a year",
-                  label: "Year",
-                  variant: InputVariant.dropdown,
-                  dropdownValue: _defaultSelection,
-                  dropdownItems: const ["2001", "2002", "2006"],
+                const SizedBox(width: 20),
+                Expanded(
+                  child: InputField(
+                    hintText: "Select a year",
+                    label: "Year",
+                    variant: InputVariant.dropdown,
+                    dropdownValue: _defaultSelection,
+                    isHidden: isEditing,
+                    dropdownItems: const ["2001", "2002", "2006"],
+                  ),
                 ),
-              ),
-            ],
-          ),
+              ],
+            ),
+          ],
 
           const SizedBox(height: 20),
-
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
