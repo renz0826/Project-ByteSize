@@ -15,7 +15,7 @@ Future<List<AppointmentData>> getAllAppointments() =>
 
 // Get a SINGLE Appointment
 Future<AppointmentData> getAppointment(int id) =>
-  (db.select(db.appointment) ..where((a) => a.id.equals(id))) .getSingle();
+  (db.select(db.appointment) ..where((a) => a.appointmentId.equals(id))) .getSingle();
 
 // Get Appointments by PATIENT (Filter Function #1)
   Future<List<AppointmentData>> getAppointmentByPatient(int patientID) =>
@@ -24,7 +24,7 @@ Future<AppointmentData> getAppointment(int id) =>
 // Get Appointments by DATE (Filter Function #2)
 Future<List<AppointmentData>> getAppointmentByDate(DateTime appointmentDate) =>
   (db.select(db.appointment)
-        ..where((a) => a.appointmentDate.isBetweenValues(
+        ..where((a) => a.scheduleDateTime.isBetweenValues(
           DateTime(appointmentDate.year, appointmentDate.month, appointmentDate.day, 0, 0, 0), // min values
           DateTime(appointmentDate.year, appointmentDate.month, appointmentDate.day, 23, 59, 59), // max values
         )))
@@ -40,9 +40,9 @@ Future<bool> updateAppointment(AppointmentCompanion appointment) =>
 
 // Update Appointment Status
 Future<int> updateAppointmentStatus(int id, String status) =>
-  (db.update(db.appointment) ..where((a) => a.id.equals(id))) .write(AppointmentCompanion(status: Value(status)));
+  (db.update(db.appointment) ..where((a) => a.appointmentId.equals(id))) .write(AppointmentCompanion(status: Value(status)));
 
 // Delete Appointment
 Future<int> deleteAppointment(int id) => 
-  (db.delete(db.appointment) .. where ((a) => a.id.equals(id))) .go(); 
+  (db.delete(db.appointment) ..where ((a) => a.appointmentId.equals(id))) .go(); 
 }
