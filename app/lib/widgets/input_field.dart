@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import '../../style/theme.dart';
 import 'package:dropdown_search/dropdown_search.dart';
+import 'package:flutter_spinbox/flutter_spinbox.dart';
 
 // Define Input Field Variants
 enum InputVariant {
   primary,
   dropdown,
+  counter,
 }
 
 class InputField extends StatelessWidget {
@@ -23,22 +25,31 @@ class InputField extends StatelessWidget {
   final List<String>? dropdownItems;
   final String? dropdownValue;
   final Function(String?)? onDropdownChanged;
-
   final TextEditingController? searchController;
 
-  const InputField(
-      {super.key,
-      required this.label,
-      this.variant = InputVariant.primary,
-      this.hintText,
-      this.controller,
-      this.keyboardType = TextInputType.text,
-      this.obscureText = false,
-      this.dropdownItems,
-      this.dropdownValue,
-      this.onDropdownChanged,
-      this.searchController,
-      this.maxLines = 1});
+  final int counterValue;
+  final Function(int)? onCounterChanged;
+  final int counterMin;
+  final int counterMax;
+
+  const InputField({
+    super.key,
+    required this.label,
+    this.variant = InputVariant.primary,
+    this.hintText,
+    this.controller,
+    this.keyboardType = TextInputType.text,
+    this.obscureText = false,
+    this.dropdownItems,
+    this.dropdownValue,
+    this.onDropdownChanged,
+    this.searchController,
+    this.maxLines = 1,
+    this.counterValue = 0,
+    this.onCounterChanged,
+    this.counterMin = 0, // Prevents negative numbers by default
+    this.counterMax = 100,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -149,6 +160,19 @@ class InputField extends StatelessWidget {
             },
           ),
         );
+        break;
+
+      case InputVariant.counter:
+        inputContent = SpinBox(
+            min: counterMin.toDouble(),
+            max: counterMax.toDouble(),
+            value: counterValue.toDouble(),
+            // Automatically handles typing AND button clicks!
+            onChanged: (value) {
+              if (onCounterChanged != null) onCounterChanged!(value.toInt());
+            },
+            // You can pass your exact DENTCITY input style here!
+            decoration: inputStyle);
         break;
     }
 
