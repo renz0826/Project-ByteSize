@@ -54,7 +54,10 @@ class _AddPatientFormState extends State<AddPatientForm> {
             children: [
               Expanded(
                   child: InputField(
-                      label: "First Name", hintText: "Enter first name")),
+                label: "First Name",
+                hintText: "Enter first name",
+                isRequired: true,
+              )),
               const SizedBox(width: 20),
               Expanded(
                   child: InputField(
@@ -62,7 +65,10 @@ class _AddPatientFormState extends State<AddPatientForm> {
               const SizedBox(width: 20),
               Expanded(
                   child: InputField(
-                      label: "Last Name", hintText: "Enter last name")),
+                label: "Last Name",
+                hintText: "Enter last name",
+                isRequired: true,
+              )),
             ],
           ),
 
@@ -83,6 +89,7 @@ class _AddPatientFormState extends State<AddPatientForm> {
                     variant: InputVariant.dropdown,
                     dropdownValue: _defaultSelection,
                     isHidden: isEditing,
+                    isRequired: true,
                     dropdownItems: const [
                       "January",
                       "February",
@@ -100,6 +107,7 @@ class _AddPatientFormState extends State<AddPatientForm> {
                     variant: InputVariant.dropdown,
                     dropdownValue: _defaultSelection,
                     isHidden: isEditing,
+                    isRequired: true,
                     dropdownItems: const ["1", "2", "3", "4", "5"],
                   ),
                 ),
@@ -111,6 +119,7 @@ class _AddPatientFormState extends State<AddPatientForm> {
                     variant: InputVariant.dropdown,
                     dropdownValue: _defaultSelection,
                     isHidden: isEditing,
+                    isRequired: true,
                     dropdownItems: const ["2001", "2002", "2006"],
                   ),
                 ),
@@ -128,6 +137,7 @@ class _AddPatientFormState extends State<AddPatientForm> {
                   label: "Sex",
                   variant: InputVariant.dropdown,
                   dropdownValue: _defaultSelection,
+                  isRequired: true,
                   dropdownItems: const ["Male", "Female"],
                 ),
               ),
@@ -152,6 +162,7 @@ class _AddPatientFormState extends State<AddPatientForm> {
                   label: "PWD Status",
                   options: const ["Applicable", "Not Applicable"],
                   selectedValue: _defaultSelection,
+                  isRequired: true,
                   onChanged: (String value) {
                     setState(() {
                       _defaultSelection = value;
@@ -173,12 +184,17 @@ class _AddPatientFormState extends State<AddPatientForm> {
             children: [
               Expanded(
                   child: InputField(
-                      label: "Mobile Number", hintText: "Enter mobile number")),
+                label: "Mobile Number",
+                hintText: "Enter mobile number",
+                isRequired: true,
+              )),
               const SizedBox(width: 20),
               Expanded(
                   child: InputField(
-                      label: "Emergency Contact Number",
-                      hintText: "Enter emergency number")),
+                label: "Emergency Contact Number",
+                hintText: "Enter emergency number",
+                isRequired: true,
+              )),
             ],
           ),
           const SizedBox(height: 20),
