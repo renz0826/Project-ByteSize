@@ -2,6 +2,14 @@ import 'package:flutter/material.dart';
 import '/../widgets/main_buttons.dart';
 import 'add_patient.dart';
 
+// enum of different patients view
+// TODO: Add different Edit and View Patient Record Views
+enum PatientsView {
+  main,
+  addPatient,
+  addClinicalRecord,
+}
+
 class PatientDashboard extends StatefulWidget {
   const PatientDashboard({super.key});
 
@@ -10,7 +18,20 @@ class PatientDashboard extends StatefulWidget {
 }
 
 class _PatientDashboardState extends State<PatientDashboard> {
-  bool _showDetails = false;
+  // Functions to change patients screen states
+  PatientsView _currentView = PatientsView.main;
+
+  void _goToAddPatient() {
+    setState(() => _currentView = PatientsView.addPatient);
+  }
+
+  void _goToAddClinicalRecord() {
+    setState(() => _currentView = PatientsView.addClinicalRecord);
+  }
+
+  void _goBackToMain() {
+    setState(() => _currentView = PatientsView.main);
+  }
 
   @override
   Widget build(BuildContext context) {
