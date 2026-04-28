@@ -104,7 +104,7 @@ class InputField extends StatelessWidget {
                 hintStyle: theme.textTheme.bodySmall),
           ),
           dropdownBuilder: (context, selectedItem) {
-            return Text(selectedItem ?? hintText ?? "",
+            return Text(selectedItem ?? "",
                 style: theme.textTheme.bodySmall
                     ?.copyWith(color: AppTheme.black500));
           },
@@ -161,7 +161,7 @@ class InputField extends StatelessWidget {
           label,
           style: Theme.of(context)
               .textTheme
-              .bodyLarge
+              .bodySmall
               ?.copyWith(color: AppTheme.gray500),
         ),
         SizedBox(height: 8),

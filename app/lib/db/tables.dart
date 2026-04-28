@@ -2,14 +2,14 @@ import 'package:drift/drift.dart';
 
 class Patient extends Table { // Patient Entity
 // Primary Key
-  IntColumn get id => integer().autoIncrement()();
+  IntColumn get patientId=> integer().autoIncrement()();
 
-// Full Name Section
+// Full Name 
   TextColumn get firstName => text()();
   TextColumn get middleName => text()();
   TextColumn get lastName => text()();
 
-// Demographic Section
+// Demographic ]
   DateTimeColumn get birthDate => dateTime()();
   TextColumn get sex => text().withLength(min: 1, max: 10)();
   TextColumn get civilStatus => text()();
@@ -27,124 +27,125 @@ class Patient extends Table { // Patient Entity
   TextColumn get province => text()();
   TextColumn get zipCode => text()();
 
-// flag
+// Flags
 BoolColumn get isArchived => boolean().withDefault(const Constant(false))();
+BoolColumn get isSeniorOrPWD => boolean().withDefault(const Constant(false))();
+
+// Metadata
+DateTimeColumn get createdAt => dateTime()();
+DateTimeColumn get updatedAt => dateTime()();
 }
 
-class Dentist extends Table {// Dentist Entity
+class ClinicalStaff extends Table {// Dentist and Staff Entity
 // Primary Key
-  IntColumn get id => integer()(); // we don't really need this, but for database purposes setting a PK for our dentist
+  IntColumn get staffId => integer()(); 
+
+// Other Data
+  TextColumn get name => text()();
+  BoolColumn get isLockedOut => boolean().withDefault(const Constant(false))();
+  // PIN is already located in auth_provider
 }
 
-class Appointment extends Table { // appointment entity
+class Appointment extends Table { // Appointment entity
 // Primary Key
-  IntColumn get id => integer().autoIncrement()();
+  IntColumn get appointmentId => integer().autoIncrement()();
 
 // Foreign Key
-  IntColumn get patientId => integer().references(Patient, #id)();
+  IntColumn get patientId => integer().references(Patient, #patientId)();
+  IntColumn get staffId => integer().nullable().references(ClinicalStaff, #staffId)();
 
-// Schedule an Appointment
-  DateTimeColumn get appointmentDate => dateTime()();
-  TextColumn get timeSlot => text()(); 
-  TextColumn get reasonForVisit => text()(); // will put values in the DB for this
-  TextColumn get status => text().withDefault(const Constant('Scheduled'))(); // scheduled first -> confirmed -> completed
+  // Date and Time
+  DateTimeColumn get scheduleDateTime => dateTime()();
+
+  // Reason for Visit
+  TextColumn get reasonForVisit => text()();
+  
+  // Status (Scheduled, Completed, & Cancelled)
+  TextColumn get status => text().withDefault(const Constant('Scheduled'))();
 }
 
-class Billing extends Table { // Billing Entity (Summarized Data to be displayed in the dashboard)
-// Primary Key
-  IntColumn get id => integer().autoIncrement()();
+class Invoice extends Table { // Billing Entity
+  // Primary Key
+  IntColumn get invoiceId => integer().autoIncrement()();
 
-// Foreign Key
-  IntColumn get patientId => integer().references(Patient, #id)();
+  // Foreign Keys
+  IntColumn get patientId => integer().references(Patient, #patientId)();
+  IntColumn get chargeId => integer().references(ProcedureCharge, #chargeId)();
+  IntColumn get transactionId => integer().references(PaymentTransaction, #transactionId)();
 
-// Date, Status, and Total Amount
-  DateTimeColumn get dateCreated => dateTime().withDefault(currentDateAndTime)();
-  RealColumn get totalAmount => real()(); 
-  TextColumn get status => text().withDefault(const Constant('Unpaid'))(); // The 3 statuses' in the main page
+  // Issued Date
+  DateTimeColumn get issuedDate => dateTime().withDefault(currentDateAndTime)();
+
+  // Total Balance
+  RealColumn get totalBalance => real()();
+
+  // Status (Paid, Pending)
+  TextColumn get status => text()();
 }
 
-class BillingItem extends Table { // Billing Entity (Non-Summarized Data)
-// Primary Key
-  IntColumn get id => integer().autoIncrement()();
+class ProcedureCharge extends Table {
+  // Primary Key
+  IntColumn get chargeId => integer().autoIncrement()();
 
-// Foreign Key
-  IntColumn get billingId => integer().references(Billing, #id)();
+  // Procedure Name (Cleaning, Tightening)
+  TextColumn get procedureName => text()();
 
-// Procedure Charge
-  TextColumn get procedureName => text()(); 
-  RealColumn get procedureCharge => real()(); 
+  // The base price of a specific procedure
+  RealColumn get procedureCharge => real()();
+
+  // How many times this was done (1 being the default)
   IntColumn get quantity => integer().withDefault(const Constant(1))();
-  RealColumn get totalLineCharge => real()(); // procedureCharge * quantity
+
+  // TCharge x Quantity = Total
+  RealColumn get totalProcedureCharge => real()();
 }
 
-class DentalChart extends Table { // dental chart entity
+class PaymentTransaction extends Table {
 // Primary Key
-  IntColumn get id => integer().autoIncrement()(); 
+  IntColumn get transactionId => integer().autoIncrement()();
 
-// Foreign Key
-  IntColumn get patientID => integer().references(Patient, #id)(); 
+// The actual money paid by the patient
+  RealColumn get amountReceived => real()();
 
-// Tooth Information
-  IntColumn get toothNumber => integer()();
-  TextColumn get surface => text()();
-  TextColumn get condition => text()();
-
-// Last Updated 
-  DateTimeColumn get lastUpdated => dateTime()();
-}
-
-class TreatmentRecord extends Table { // Treatment Record Entity
-// Primary Key
-  IntColumn get id => integer().autoIncrement()(); 
-
-// Foreign Key
-  IntColumn get appointmentID => integer().references(Appointment, #id)(); 
-
-// Treatment Names & Details
-  IntColumn get procedureCode => integer()();
-  IntColumn get toothNumber => integer()();
-  TextColumn get notes => text()();
-}
-
-class ProcedureLookup extends Table { // procedurelookup entity (this is for the drop-down table soon)
-// Primary Key
-  IntColumn get id => integer().autoIncrement()(); 
-
-// Other Details
-  TextColumn get description => text()();
-  RealColumn get baseCost => real()();
+// How the patient pays (cash, card, e-wallet)
+  TextColumn get modeOfPayment => text()();
+  
+// Payment Date
+  DateTimeColumn get paymentDate => dateTime().withDefault(currentDateAndTime)();
 }
 
 class ClinicalRecord extends Table {
-// Primary Key
-  IntColumn get id => integer().autoIncrement()();
+  // Primary Key
+  IntColumn get recordId => integer().autoIncrement()();
 
-// Link to the patient
-  IntColumn get patientId => integer().references(Patient, #id)();
+  // Foreign Key
+  IntColumn get patientId => integer().references(Patient, #patientId)();
 
-// Medical Background Section
-  TextColumn get pastIllnesses => text().nullable()();
-  TextColumn get presentIllnesses => text().nullable()();
+  // Timestamp
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+
+  // Medical History 
+  TextColumn get pastIllness => text().nullable()();
+  TextColumn get presentIllness => text().nullable()();
   TextColumn get allergies => text().nullable()();
   TextColumn get currentMedication => text().nullable()();
 
-// Treatment Section (use radio buttons here)
+  // Dental Exam 
   BoolColumn get hasOralDebris => boolean().withDefault(const Constant(false))();
   BoolColumn get hasCalculus => boolean().withDefault(const Constant(false))();
-  BoolColumn get hasGingivitis => boolean().withDefault(const Constant(false))();
   BoolColumn get hasPeriodontalPocket => boolean().withDefault(const Constant(false))();
+  BoolColumn get hasGingivitis => boolean().withDefault(const Constant(false))();
   BoolColumn get hasDentofacialAnomaly => boolean().withDefault(const Constant(false))();
 
-  // Tooth Count Section
-  IntColumn get carriesForFilling => integer().withDefault(const Constant(0))();
-  IntColumn get carriesForExtraction => integer().withDefault(const Constant(0))();
+  // Tooth Counters (Integers)
+  IntColumn get cariesForFilling => integer().withDefault(const Constant(0))();
+  IntColumn get cariesForExtraction => integer().withDefault(const Constant(0))();
   IntColumn get rootFragment => integer().withDefault(const Constant(0))();
   IntColumn get missingDueToCaries => integer().withDefault(const Constant(0))();
   IntColumn get filledOrRestored => integer().withDefault(const Constant(0))();
 
-  // Date of Creation for Clinical Record
-  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
-
-  // Extra Notes
+  // Doctor's Narrative
   TextColumn get clinicalNotes => text().nullable()();
 }
+
+

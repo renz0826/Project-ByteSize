@@ -6,43 +6,45 @@ class ClinicalRecordRepository {
   ClinicalRecordRepository(this.db);
 
 // Add New Clinical Record
-  Future<int> addClinicalRecord(ClinicalRecordCompanion record) =>
+Future<int> addClinicalRecord(ClinicalRecordCompanion record) =>
     db.into(db.clinicalRecord).insert(record);
 
 // Read All Clinical Records (Get Function)
-  Future<List<ClinicalRecordData>> getAllClinicalRecords() =>
+Future<List<ClinicalRecordData>> getAllClinicalRecords() =>
   db.select(db.clinicalRecord).get();
 
 // Read only a SINGLE clinical record by id
-  Future<ClinicalRecordData> getClinicalRecord(int id) => 
-  (db.select(db.clinicalRecord) ..where((c) => c.id.equals(id))) .getSingle();
+Future<ClinicalRecordData> getClinicalRecord(int id) => 
+  (db.select(db.clinicalRecord) ..where((c) => c.recordId.equals(id))) .getSingle();
 
 // Read Clinical Records by a PATIENT (many can be called here)
-  Future<List<ClinicalRecordData>> getClinicalRecordsByPatient(int patientId) => 
-  (db.select(db.clinicalRecord) ..where((c) => c.id.equals(patientId))) .get(); 
+Future<List<ClinicalRecordData>> getClinicalRecordsByPatient(int patientId) => 
+  (db.select(db.clinicalRecord) ..where((c) => c.patientId.equals(patientId))) .get(); 
 
 // Update full Clinical Record
 Future<bool> updateClinicalRecord(ClinicalRecordCompanion record) => 
   db.update(db.clinicalRecord).replace(record);
 
 // Update Medical Background Only
- Future<int> updateMedicalBackground({
-    required int id,
+Future<int> updateMedicalBackground({
+    required int clinicalId,
     String? pastIllnesses,
     String? presentIllnesses,
     String? allergies,
     String? currentMedication,
-  }) =>(db.update(db.clinicalRecord) ..where((c) => c.id.equals(id)))
+    String? clinicalNotes,
+  }) =>(db.update(db.clinicalRecord) ..where((c) => c.recordId.equals(clinicalId)))
         .write(ClinicalRecordCompanion(
-          pastIllnesses: Value(pastIllnesses),
-          presentIllnesses: Value(presentIllnesses),
+          pastIllness: Value(pastIllnesses),
+          presentIllness: Value(presentIllnesses),
           allergies: Value(allergies),
           currentMedication: Value(currentMedication),
+          clinicalNotes: Value(clinicalNotes),
         ));
 
 // Update Treatment Section 
 Future<int> updateTreatmentSection({
-    required int id,
+    required int clinicalId,
     required bool hasOralDebris,
     required bool hasCalculus,
     required bool hasGingivitis,
@@ -50,7 +52,7 @@ Future<int> updateTreatmentSection({
     required bool hasDentofacialAnomaly,
   }) =>
       (db.update(db.clinicalRecord)
-        ..where((c) => c.id.equals(id)))
+        ..where((c) => c.recordId.equals(clinicalId)))
         .write(ClinicalRecordCompanion(
           hasOralDebris: Value(hasOralDebris),
           hasCalculus: Value(hasCalculus),
@@ -60,19 +62,19 @@ Future<int> updateTreatmentSection({
         ));
 
 // Update Tooth Count
-  Future<int> updateToothCount({
-    required int id,
-    required int carriesForFilling,
-    required int carriesForExtraction,
+Future<int> updateToothCount({
+    required int clinicalId,
+    required int cariesForFilling,
+    required int cariesForExtraction,
     required int rootFragment,
     required int missingDueToCaries,
     required int filledOrRestored,
   }) =>
       (db.update(db.clinicalRecord)
-        ..where((c) => c.id.equals(id)))
+        ..where((c) => c.recordId.equals(clinicalId)))
         .write(ClinicalRecordCompanion(
-          carriesForFilling: Value(carriesForFilling),
-          carriesForExtraction: Value(carriesForExtraction),
+          cariesForFilling: Value(cariesForFilling),
+          cariesForExtraction: Value(cariesForExtraction),
           rootFragment: Value(rootFragment),
           missingDueToCaries: Value(missingDueToCaries),
           filledOrRestored: Value(filledOrRestored),
@@ -80,7 +82,5 @@ Future<int> updateTreatmentSection({
 
 // Delete Clinical Record
 Future<int> deleteClinicalRecord(int id) =>
-      (db.delete(db.clinicalRecord)
-        ..where((c) => c.id.equals(id)))
-        .go();
+      (db.delete(db.clinicalRecord) ..where((c) => c.recordId.equals(id))).go();
 }
