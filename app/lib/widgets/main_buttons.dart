@@ -23,6 +23,7 @@ class Button extends StatelessWidget {
   final IconPlacement iconPlacement;
   final double width;
   final bool isLoading;
+  final double? fontSize;
 
   const Button({
     super.key,
@@ -33,6 +34,7 @@ class Button extends StatelessWidget {
     this.iconPlacement = IconPlacement.left,
     this.width = 0,
     this.isLoading = false,
+    this.fontSize,
   });
 
   @override
@@ -71,7 +73,7 @@ class Button extends StatelessWidget {
 
           Text(
             label,
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            style: TextStyle(fontSize: fontSize ?? 16, fontWeight: FontWeight.w600),
           ),
 
           // Places the icon on the right
@@ -134,6 +136,8 @@ class Button extends StatelessWidget {
                 elevation: 0,
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    minimumSize: Size.zero, //remove default minimum size
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap, //reduce the default minimum size of the button
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(24))),
             child: buttonContent);
@@ -150,6 +154,8 @@ class Button extends StatelessWidget {
                 elevation: 0,
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    minimumSize: Size.zero, //remove default minimum size
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap, //reduce the default minimum size of the button
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(24))),
             child: buttonContent);
@@ -211,9 +217,11 @@ class Button extends StatelessWidget {
             child: buttonContent);
     }
 
-    return SizedBox(
-      width: width,
-      child: buttonWidget,
-    );
+    return width == 0
+        ? buttonWidget
+        : SizedBox(
+            width: width,
+            child: buttonWidget,
+          );
   }
 }
