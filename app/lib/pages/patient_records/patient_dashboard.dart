@@ -30,6 +30,7 @@ class _PatientDashboardState extends State<PatientDashboard> {
     setState(() => _currentView = PatientsView.addClinicalRecord);
   }
 
+  // TODO: Make the save button functional and return to the main dashboard.
   void _goBackToMain() {
     setState(() => _currentView = PatientsView.main);
   }

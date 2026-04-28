@@ -4,6 +4,7 @@ import '/../widgets/main_buttons.dart';
 import '/../widgets/input_field.dart';
 import '/../widgets/radio_buttons.dart';
 
+// TODO: For the add patient onNext, make sure that the data is saved temporarily where it does not restart.
 class AddPatientForm extends StatefulWidget {
   final VoidCallback onNext;
   final VoidCallback onBack;
