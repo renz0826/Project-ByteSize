@@ -15,7 +15,7 @@ Future<List<AppointmentData>> getAllAppointments() =>
 
 // Get a SINGLE Appointment
 Future<AppointmentData> getAppointment(int id) =>
-  (db.select(db.appointment) ..where((a) => a.id.equals(id))) .getSingle();
+  (db.select(db.appointment) ..where((a) => a.appointmentId.equals(id))) .getSingle();
 
 // Get Appointments by PATIENT (Filter Function #1)
   Future<List<AppointmentData>> getAppointmentByPatient(int patientID) =>
