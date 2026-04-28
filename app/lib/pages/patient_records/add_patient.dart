@@ -4,16 +4,24 @@ import '/../widgets/main_buttons.dart';
 import '/../widgets/input_field.dart';
 import '/../widgets/radio_buttons.dart';
 
+// TODO: For the add patient onNext, make sure that the data is saved temporarily where it does not restart.
 class AddPatientForm extends StatefulWidget {
   final VoidCallback onNext;
+  final VoidCallback onBack;
+  final Map<String, dynamic>? existingPatient;
 
-  const AddPatientForm({super.key, required this.onNext});
+  const AddPatientForm(
+      {super.key,
+      this.existingPatient,
+      required this.onNext,
+      required this.onBack});
 
   @override
   State<AddPatientForm> createState() => _AddPatientFormState();
 }
 
 class _AddPatientFormState extends State<AddPatientForm> {
+  bool get isEditing => widget.existingPatient != null;
   String? _defaultSelection;
 
   // TODO : Connect all text fields to the appropriate db
@@ -46,7 +54,10 @@ class _AddPatientFormState extends State<AddPatientForm> {
             children: [
               Expanded(
                   child: InputField(
-                      label: "First Name", hintText: "Enter first name")),
+                label: "First Name",
+                hintText: "Enter first name",
+                isRequired: true,
+              )),
               const SizedBox(width: 20),
               Expanded(
                   child: InputField(
@@ -54,7 +65,10 @@ class _AddPatientFormState extends State<AddPatientForm> {
               const SizedBox(width: 20),
               Expanded(
                   child: InputField(
-                      label: "Last Name", hintText: "Enter last name")),
+                label: "Last Name",
+                hintText: "Enter last name",
+                isRequired: true,
+              )),
             ],
           ),
 
@@ -62,51 +76,58 @@ class _AddPatientFormState extends State<AddPatientForm> {
 
           // --- DEMOGRAPHIC ---
           Text("Demographic", style: Theme.of(context).textTheme.titleLarge),
-          const SizedBox(height: 12),
 
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: InputField(
-                  hintText: "Select a month",
-                  label: "Month",
-                  variant: InputVariant.dropdown,
-                  dropdownValue: _defaultSelection,
-                  dropdownItems: const [
-                    "January",
-                    "February",
-                    "March",
-                    "April",
-                    "May"
-                  ],
+          if (!isEditing) ...[
+            const SizedBox(height: 12),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: InputField(
+                    hintText: "Select a month",
+                    label: "Month",
+                    variant: InputVariant.dropdown,
+                    dropdownValue: _defaultSelection,
+                    isHidden: isEditing,
+                    isRequired: true,
+                    dropdownItems: const [
+                      "January",
+                      "February",
+                      "March",
+                      "April",
+                      "May"
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(width: 20),
-              Expanded(
-                child: InputField(
-                  hintText: "Select a day",
-                  label: "Day",
-                  variant: InputVariant.dropdown,
-                  dropdownValue: _defaultSelection,
-                  dropdownItems: const ["1", "2", "3", "4", "5"],
+                const SizedBox(width: 20),
+                Expanded(
+                  child: InputField(
+                    hintText: "Select a day",
+                    label: "Day",
+                    variant: InputVariant.dropdown,
+                    dropdownValue: _defaultSelection,
+                    isHidden: isEditing,
+                    isRequired: true,
+                    dropdownItems: const ["1", "2", "3", "4", "5"],
+                  ),
                 ),
-              ),
-              const SizedBox(width: 20),
-              Expanded(
-                child: InputField(
-                  hintText: "Select a year",
-                  label: "Year",
-                  variant: InputVariant.dropdown,
-                  dropdownValue: _defaultSelection,
-                  dropdownItems: const ["2001", "2002", "2006"],
+                const SizedBox(width: 20),
+                Expanded(
+                  child: InputField(
+                    hintText: "Select a year",
+                    label: "Year",
+                    variant: InputVariant.dropdown,
+                    dropdownValue: _defaultSelection,
+                    isHidden: isEditing,
+                    isRequired: true,
+                    dropdownItems: const ["2001", "2002", "2006"],
+                  ),
                 ),
-              ),
-            ],
-          ),
+              ],
+            ),
+          ],
 
           const SizedBox(height: 20),
-
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -116,6 +137,7 @@ class _AddPatientFormState extends State<AddPatientForm> {
                   label: "Sex",
                   variant: InputVariant.dropdown,
                   dropdownValue: _defaultSelection,
+                  isRequired: true,
                   dropdownItems: const ["Male", "Female"],
                 ),
               ),
@@ -140,6 +162,7 @@ class _AddPatientFormState extends State<AddPatientForm> {
                   label: "PWD Status",
                   options: const ["Applicable", "Not Applicable"],
                   selectedValue: _defaultSelection,
+                  isRequired: true,
                   onChanged: (String value) {
                     setState(() {
                       _defaultSelection = value;
@@ -161,12 +184,17 @@ class _AddPatientFormState extends State<AddPatientForm> {
             children: [
               Expanded(
                   child: InputField(
-                      label: "Mobile Number", hintText: "Enter mobile number")),
+                label: "Mobile Number",
+                hintText: "Enter mobile number",
+                isRequired: true,
+              )),
               const SizedBox(width: 20),
               Expanded(
                   child: InputField(
-                      label: "Emergency Contact Number",
-                      hintText: "Enter emergency number")),
+                label: "Emergency Contact Number",
+                hintText: "Enter emergency number",
+                isRequired: true,
+              )),
             ],
           ),
           const SizedBox(height: 20),
@@ -265,8 +293,19 @@ class _AddPatientFormState extends State<AddPatientForm> {
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
+              // ! A temporary button that returns to back to main
+              // SizedBox(
+              //   width: 160,
+              //   child: Button(
+              //     label: "Back",
+              //     width: double.infinity,
+              //     icon: Icons.arrow_forward,
+              //     iconPlacement: IconPlacement.right,
+              //     onPressed: widget.onBack,
+              //   ),
+              // ),
               SizedBox(
-                width: 160,
+                width: 140,
                 child: Button(
                   label: "Next",
                   width: double.infinity,

@@ -7,14 +7,15 @@ class RadioGroupField extends StatelessWidget {
   final List<String> options;
   final String? selectedValue;
   final Function(String) onChanged;
+  final bool isRequired;
 
-  const RadioGroupField({
-    super.key,
-    required this.label,
-    this.options = const ["Present", "None"],
-    required this.selectedValue,
-    required this.onChanged,
-  });
+  const RadioGroupField(
+      {super.key,
+      required this.label,
+      this.options = const ["Present", "None"],
+      required this.selectedValue,
+      required this.onChanged,
+      this.isRequired = false});
 
 // SAMPLE USE CASE:
 //   RadioGroupField(
@@ -33,10 +34,34 @@ class RadioGroupField extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(
-          label,
-          style: Theme.of(context).textTheme.bodySmall,
-        ),
+        if (!isRequired) ...[
+          Text(
+            label,
+            style: Theme.of(context)
+                .textTheme
+                .bodySmall
+                ?.copyWith(color: AppTheme.gray500),
+          ),
+        ] else
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: Theme.of(context)
+                    .textTheme
+                    .bodySmall
+                    ?.copyWith(color: AppTheme.gray500),
+              ),
+              Text(
+                "  *",
+                style: Theme.of(context)
+                    .textTheme
+                    .bodySmall
+                    ?.copyWith(color: AppTheme.red600),
+              ),
+            ],
+          ),
         const SizedBox(height: 18),
         Wrap(
           spacing: 24,
