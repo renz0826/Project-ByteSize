@@ -42,7 +42,12 @@ class _PatientDashboardState extends State<PatientDashboard> {
     // TODO: Add View and Edit States
     switch (_currentView) {
       case PatientsView.addPatient:
-        activeScreen = AddPatientForm(onNext: _goToAddClinicalRecord);
+        activeScreen = AddPatientForm(
+            // existingPatient: {
+            //     'birthday': '1995-08-24', // ! If this is enabled, the birthdate field will not show
+            //     'firstName': 'John',
+            //   },
+            onNext: _goToAddClinicalRecord);
       case PatientsView.addClinicalRecord:
         activeScreen = AddClinicalRecordForm(onFinish: _goBackToMain);
         break;
