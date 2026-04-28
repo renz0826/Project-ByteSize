@@ -15,7 +15,7 @@ class InputField extends StatelessWidget {
   final String label;
   final String? hintText;
   final int maxLines;
-
+  final bool isRequired;
   final bool isHidden;
 
   // Props for standard text input
@@ -35,25 +35,25 @@ class InputField extends StatelessWidget {
   final int counterMin;
   final int counterMax;
 
-  const InputField({
-    super.key,
-    required this.label,
-    this.variant = InputVariant.primary,
-    this.hintText,
-    this.controller,
-    this.keyboardType = TextInputType.text,
-    this.obscureText = false,
-    this.dropdownItems,
-    this.dropdownValue,
-    this.onDropdownChanged,
-    this.searchController,
-    this.maxLines = 1,
-    this.counterValue = 0,
-    this.onCounterChanged,
-    this.counterMin = 0, // Prevents negative numbers by default
-    this.counterMax = 100,
-    this.isHidden = false,
-  });
+  const InputField(
+      {super.key,
+      required this.label,
+      this.variant = InputVariant.primary,
+      this.hintText,
+      this.controller,
+      this.keyboardType = TextInputType.text,
+      this.obscureText = false,
+      this.dropdownItems,
+      this.dropdownValue,
+      this.onDropdownChanged,
+      this.searchController,
+      this.maxLines = 1,
+      this.counterValue = 0,
+      this.onCounterChanged,
+      this.counterMin = 0, // Prevents negative numbers by default
+      this.counterMax = 100,
+      this.isHidden = false,
+      this.isRequired = false});
 
   @override
   Widget build(BuildContext context) {
@@ -197,13 +197,34 @@ class InputField extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(
-          label,
-          style: Theme.of(context)
-              .textTheme
-              .bodySmall
-              ?.copyWith(color: AppTheme.gray500),
-        ),
+        if (!isRequired) ...[
+          Text(
+            label,
+            style: Theme.of(context)
+                .textTheme
+                .bodySmall
+                ?.copyWith(color: AppTheme.gray500),
+          ),
+        ] else
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: Theme.of(context)
+                    .textTheme
+                    .bodySmall
+                    ?.copyWith(color: AppTheme.gray500),
+              ),
+              Text(
+                "  *",
+                style: Theme.of(context)
+                    .textTheme
+                    .bodySmall
+                    ?.copyWith(color: AppTheme.red600),
+              ),
+            ],
+          ),
         SizedBox(height: 8),
         inputContent,
       ],
