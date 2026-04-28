@@ -6,7 +6,9 @@ import '/../widgets/radio_buttons.dart';
 
 class AddClinicalRecordForm extends StatefulWidget {
   final VoidCallback onFinish;
-  const AddClinicalRecordForm({super.key, required this.onFinish});
+  final VoidCallback onPrevious;
+  const AddClinicalRecordForm(
+      {super.key, required this.onFinish, required this.onPrevious});
 
   @override
   State<AddClinicalRecordForm> createState() => _AddClinicalRecordFormState();
@@ -297,10 +299,21 @@ class _AddClinicalRecordFormState extends State<AddClinicalRecordForm> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Button(
-                          label: "Next",
-                          width: 300,
-                          icon: Icons.arrow_forward,
-                          iconPlacement: IconPlacement.right,
+                          variant: ButtonVariant.secondary,
+                          label: "Previous",
+                          width: 160,
+                          icon: Icons.arrow_back,
+                          iconPlacement: IconPlacement.left,
+                          onPressed: widget.onPrevious,
+                        ),
+                        SizedBox(
+                          width: 24,
+                        ),
+                        Button(
+                          label: "Save",
+                          width: 140,
+                          icon: Icons.save_alt_outlined,
+                          iconPlacement: IconPlacement.left,
                           onPressed: widget.onFinish,
                         ),
                       ])

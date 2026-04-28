@@ -43,13 +43,15 @@ class _PatientDashboardState extends State<PatientDashboard> {
     switch (_currentView) {
       case PatientsView.addPatient:
         activeScreen = AddPatientForm(
-            // existingPatient: {
-            //     'birthday': '1995-08-24', // ! If this is enabled, the birthdate field will not show
-            //     'firstName': 'John',
-            //   },
-            onNext: _goToAddClinicalRecord);
+          // existingPatient: {
+          //     'birthday': '1995-08-24', // ! If this is enabled, the birthdate field will not show
+          //     'firstName': 'John',
+          //   },
+          onNext: _goToAddClinicalRecord, onBack: _goBackToMain,
+        );
       case PatientsView.addClinicalRecord:
-        activeScreen = AddClinicalRecordForm(onFinish: _goBackToMain);
+        activeScreen = AddClinicalRecordForm(
+            onPrevious: _goToAddPatient, onFinish: _goBackToMain);
         break;
       case PatientsView.main:
         activeScreen = _buildMainDashboard();

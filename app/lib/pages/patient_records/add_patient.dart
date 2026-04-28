@@ -6,9 +6,14 @@ import '/../widgets/radio_buttons.dart';
 
 class AddPatientForm extends StatefulWidget {
   final VoidCallback onNext;
+  final VoidCallback onBack;
   final Map<String, dynamic>? existingPatient;
 
-  const AddPatientForm({super.key, this.existingPatient, required this.onNext});
+  const AddPatientForm(
+      {super.key,
+      this.existingPatient,
+      required this.onNext,
+      required this.onBack});
 
   @override
   State<AddPatientForm> createState() => _AddPatientFormState();
@@ -271,18 +276,19 @@ class _AddPatientFormState extends State<AddPatientForm> {
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
+              // ! A temporary button that returns to back to main
+              // SizedBox(
+              //   width: 160,
+              //   child: Button(
+              //     label: "Back",
+              //     width: double.infinity,
+              //     icon: Icons.arrow_forward,
+              //     iconPlacement: IconPlacement.right,
+              //     onPressed: widget.onBack,
+              //   ),
+              // ),
               SizedBox(
-                width: 160,
-                child: Button(
-                  label: "Back",
-                  width: double.infinity,
-                  icon: Icons.arrow_forward,
-                  iconPlacement: IconPlacement.right,
-                  onPressed: widget.onNext,
-                ),
-              ),
-              SizedBox(
-                width: 160,
+                width: 140,
                 child: Button(
                   label: "Next",
                   width: double.infinity,
