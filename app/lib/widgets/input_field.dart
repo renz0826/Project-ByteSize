@@ -16,6 +16,8 @@ class InputField extends StatelessWidget {
   final String? hintText;
   final int maxLines;
 
+  final bool isHidden;
+
   // Props for standard text input
   final TextEditingController? controller;
   final TextInputType keyboardType;
@@ -50,6 +52,7 @@ class InputField extends StatelessWidget {
     this.onCounterChanged,
     this.counterMin = 0, // Prevents negative numbers by default
     this.counterMax = 100,
+    this.isHidden = false,
   });
 
   @override
@@ -108,6 +111,7 @@ class InputField extends StatelessWidget {
       // ),
       case InputVariant.dropdown:
         inputContent = DropdownSearch<String>(
+          enabled: !isHidden,
           items: (filter, loadProps) => dropdownItems ?? [],
           selectedItem: dropdownValue,
           decoratorProps: DropDownDecoratorProps(
@@ -176,6 +180,7 @@ class InputField extends StatelessWidget {
       // ),
       case InputVariant.counter:
         inputContent = SpinBox(
+            enabled: !isHidden,
             min: counterMin.toDouble(),
             max: counterMax.toDouble(),
             value: counterValue.toDouble(),
