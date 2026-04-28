@@ -27,6 +27,7 @@ class InputField extends StatelessWidget {
   final Function(String?)? onDropdownChanged;
   final TextEditingController? searchController;
 
+  // Props for dropdown input
   final int counterValue;
   final Function(int)? onCounterChanged;
   final int counterMin;
@@ -72,7 +73,7 @@ class InputField extends StatelessWidget {
     Widget inputContent;
 
     switch (variant) {
-      // Sample Use Case
+      // SAMPLE USE CASE:
       // InputField(
       //           label: "First Name",
       //           hintText: "Enter patient's first name",
@@ -90,7 +91,7 @@ class InputField extends StatelessWidget {
             decoration: inputStyle);
         break;
 
-      // Sample Use Case
+      // SAMPLE USE CASE:
       // InputField(
       //           label: "Procedure Type",
       //           variant: InputVariant.dropdown, // Switches to the dropdown mode
@@ -162,16 +163,26 @@ class InputField extends StatelessWidget {
         );
         break;
 
+      // SAMPLE USE CASE:
+      // RadioGroupField(
+      //   label: "Presence of Dentofacial Anomaly",
+      //   options: const ["Present", "None"],
+      //   selectedValue: _defaultSelection,
+      //   onChanged: (String value) {
+      //     setState(() {
+      //       _defaultSelection = value;
+      //     });
+      //   },
+      // ),
       case InputVariant.counter:
         inputContent = SpinBox(
             min: counterMin.toDouble(),
             max: counterMax.toDouble(),
             value: counterValue.toDouble(),
-            // Automatically handles typing AND button clicks!
+            // Automatically handles typing and button clicks
             onChanged: (value) {
               if (onCounterChanged != null) onCounterChanged!(value.toInt());
             },
-            // You can pass your exact DENTCITY input style here!
             decoration: inputStyle);
         break;
     }
