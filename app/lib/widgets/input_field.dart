@@ -3,7 +3,10 @@ import '../../style/theme.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 
 // Define Input Field Variants
-enum InputVariant { primary, dropdown, counter }
+enum InputVariant {
+  primary,
+  dropdown,
+}
 
 class InputField extends StatelessWidget {
   final InputVariant variant;
@@ -23,30 +26,19 @@ class InputField extends StatelessWidget {
 
   final TextEditingController? searchController;
 
-  // Props specifically for the Counter input
-  final int counterValue;
-  final Function(int)? onCounterChanged;
-  final int counterMin;
-  final int counterMax;
-
-  const InputField({
-    super.key,
-    required this.label,
-    this.variant = InputVariant.primary,
-    this.hintText,
-    this.controller,
-    this.keyboardType = TextInputType.text,
-    this.obscureText = false,
-    this.dropdownItems,
-    this.dropdownValue,
-    this.onDropdownChanged,
-    this.searchController,
-    this.maxLines = 1,
-    this.counterValue = 0,
-    this.onCounterChanged,
-    this.counterMin = 0,
-    this.counterMax = 32,
-  });
+  const InputField(
+      {super.key,
+      required this.label,
+      this.variant = InputVariant.primary,
+      this.hintText,
+      this.controller,
+      this.keyboardType = TextInputType.text,
+      this.obscureText = false,
+      this.dropdownItems,
+      this.dropdownValue,
+      this.onDropdownChanged,
+      this.searchController,
+      this.maxLines = 1});
 
   @override
   Widget build(BuildContext context) {
@@ -155,54 +147,6 @@ class InputField extends StatelessWidget {
                 ),
               );
             },
-          ),
-        );
-        break;
-
-      case InputVariant.counter:
-        inputContent = Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: AppTheme.gray400, width: 1),
-          ),
-          // Slightly reduced vertical padding because IconButtons have their own built-in padding
-          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              IconButton(
-                icon: const Icon(Icons.remove),
-                color: counterValue > counterMin
-                    ? AppTheme.black500
-                    : AppTheme.gray400,
-                onPressed: () {
-                  // Only triggers if we are above the minimum
-                  if (counterValue > counterMin && onCounterChanged != null) {
-                    onCounterChanged!(counterValue - 1);
-                  }
-                },
-              ),
-              Text(
-                counterValue.toString(),
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: AppTheme.black500,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 16,
-                ),
-              ),
-              IconButton(
-                icon: const Icon(Icons.add),
-                color: counterValue < counterMax
-                    ? AppTheme.blue500
-                    : AppTheme.gray400,
-                onPressed: () {
-                  // Only triggers if we are below the maximum
-                  if (counterValue < counterMax && onCounterChanged != null) {
-                    onCounterChanged!(counterValue + 1);
-                  }
-                },
-              ),
-            ],
           ),
         );
         break;
