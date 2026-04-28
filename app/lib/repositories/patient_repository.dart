@@ -15,7 +15,8 @@ Future<List<PatientData>> searchPatients(String query) =>
         ..where((p) => 
             p.firstName.contains(query) | 
             p.middleName.contains(query) | 
-            p.lastName.contains(query)
+            p.lastName.contains(query) |
+            p.contactNumber.contains(query)
         ))
         .get();
 

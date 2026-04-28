@@ -17,8 +17,8 @@ final clinicalRecordsProvider = FutureProvider<List<ClinicalRecordData>>((ref) {
 
 // Single Clinical Record Provider
 final clinicalRecordProvider =
-    FutureProvider.family<ClinicalRecordData, int>((ref, id) {
-  return ref.watch(clinicalRecordRepositoryProvider).getClinicalRecord(id);
+    FutureProvider.family<ClinicalRecordData, int>((ref, patientId) {
+  return ref.watch(clinicalRecordRepositoryProvider).getClinicalRecord(patientId);
 });
 
 // Clinical Records by PATIENT
