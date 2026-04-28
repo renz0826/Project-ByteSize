@@ -268,6 +268,16 @@ class _AddPatientFormState extends State<AddPatientForm> {
               SizedBox(
                 width: 160,
                 child: Button(
+                  label: "Back",
+                  width: double.infinity,
+                  icon: Icons.arrow_forward,
+                  iconPlacement: IconPlacement.right,
+                  onPressed: widget.onNext,
+                ),
+              ),
+              SizedBox(
+                width: 160,
+                child: Button(
                   label: "Next",
                   width: double.infinity,
                   icon: Icons.arrow_forward,
