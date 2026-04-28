@@ -15,11 +15,11 @@ Future<List<ClinicalRecordData>> getAllClinicalRecords() =>
 
 // Read only a SINGLE clinical record by id
 Future<ClinicalRecordData> getClinicalRecord(int id) => 
-  (db.select(db.clinicalRecord) ..where((c) => c.id.equals(id))) .getSingle();
+  (db.select(db.clinicalRecord) ..where((c) => c.recordId.equals(id))) .getSingle();
 
 // Read Clinical Records by a PATIENT (many can be called here)
 Future<List<ClinicalRecordData>> getClinicalRecordsByPatient(int patientId) => 
-  (db.select(db.clinicalRecord) ..where((c) => c.id.equals(patientId))) .get(); 
+  (db.select(db.clinicalRecord) ..where((c) => c.recordId.equals(patientId))) .get(); 
 
 // Update full Clinical Record
 Future<bool> updateClinicalRecord(ClinicalRecordCompanion record) => 
@@ -32,10 +32,10 @@ Future<int> updateMedicalBackground({
     String? presentIllnesses,
     String? allergies,
     String? currentMedication,
-  }) =>(db.update(db.clinicalRecord) ..where((c) => c.id.equals(id)))
+  }) =>(db.update(db.clinicalRecord) ..where((c) => c.recordId.equals(id)))
         .write(ClinicalRecordCompanion(
-          pastIllnesses: Value(pastIllnesses),
-          presentIllnesses: Value(presentIllnesses),
+          pastIllness: Value(pastIllnesses),
+          presentIllness: Value(presentIllnesses),
           allergies: Value(allergies),
           currentMedication: Value(currentMedication),
         ));
@@ -50,7 +50,7 @@ Future<int> updateTreatmentSection({
     required bool hasDentofacialAnomaly,
   }) =>
       (db.update(db.clinicalRecord)
-        ..where((c) => c.id.equals(id)))
+        ..where((c) => c.recordId.equals(id)))
         .write(ClinicalRecordCompanion(
           hasOralDebris: Value(hasOralDebris),
           hasCalculus: Value(hasCalculus),
@@ -69,10 +69,10 @@ Future<int> updateToothCount({
     required int filledOrRestored,
   }) =>
       (db.update(db.clinicalRecord)
-        ..where((c) => c.id.equals(id)))
+        ..where((c) => c.recordId.equals(id)))
         .write(ClinicalRecordCompanion(
-          carriesForFilling: Value(carriesForFilling),
-          carriesForExtraction: Value(carriesForExtraction),
+          cariesForFilling: Value(carriesForFilling),
+          cariesForExtraction: Value(carriesForExtraction),
           rootFragment: Value(rootFragment),
           missingDueToCaries: Value(missingDueToCaries),
           filledOrRestored: Value(filledOrRestored),
@@ -81,6 +81,6 @@ Future<int> updateToothCount({
 // Delete Clinical Record
 Future<int> deleteClinicalRecord(int id) =>
       (db.delete(db.clinicalRecord)
-        ..where((c) => c.id.equals(id)))
+        ..where((c) => c.recordId.equals(id)))
         .go();
 }

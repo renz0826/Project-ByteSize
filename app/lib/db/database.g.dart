@@ -2591,6 +2591,12 @@ class $ClinicalRecordTable extends ClinicalRecord
   late final GeneratedColumn<String> pastIllness = GeneratedColumn<String>(
       'past_illness', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _presentIllnessMeta =
+      const VerificationMeta('presentIllness');
+  @override
+  late final GeneratedColumn<String> presentIllness = GeneratedColumn<String>(
+      'present_illness', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _allergiesMeta =
       const VerificationMeta('allergies');
   @override
@@ -2632,6 +2638,16 @@ class $ClinicalRecordTable extends ClinicalRecord
       requiredDuringInsert: false,
       defaultConstraints: GeneratedColumn.constraintIsAlways(
           'CHECK ("has_periodontal_pocket" IN (0, 1))'),
+      defaultValue: const Constant(false));
+  static const VerificationMeta _hasGingivitisMeta =
+      const VerificationMeta('hasGingivitis');
+  @override
+  late final GeneratedColumn<bool> hasGingivitis = GeneratedColumn<bool>(
+      'has_gingivitis', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("has_gingivitis" IN (0, 1))'),
       defaultValue: const Constant(false));
   static const VerificationMeta _hasDentofacialAnomalyMeta =
       const VerificationMeta('hasDentofacialAnomaly');
@@ -2695,11 +2711,13 @@ class $ClinicalRecordTable extends ClinicalRecord
         patientId,
         createdAt,
         pastIllness,
+        presentIllness,
         allergies,
         currentMedication,
         hasOralDebris,
         hasCalculus,
         hasPeriodontalPocket,
+        hasGingivitis,
         hasDentofacialAnomaly,
         cariesForFilling,
         cariesForExtraction,
@@ -2738,6 +2756,12 @@ class $ClinicalRecordTable extends ClinicalRecord
           pastIllness.isAcceptableOrUnknown(
               data['past_illness']!, _pastIllnessMeta));
     }
+    if (data.containsKey('present_illness')) {
+      context.handle(
+          _presentIllnessMeta,
+          presentIllness.isAcceptableOrUnknown(
+              data['present_illness']!, _presentIllnessMeta));
+    }
     if (data.containsKey('allergies')) {
       context.handle(_allergiesMeta,
           allergies.isAcceptableOrUnknown(data['allergies']!, _allergiesMeta));
@@ -2765,6 +2789,12 @@ class $ClinicalRecordTable extends ClinicalRecord
           _hasPeriodontalPocketMeta,
           hasPeriodontalPocket.isAcceptableOrUnknown(
               data['has_periodontal_pocket']!, _hasPeriodontalPocketMeta));
+    }
+    if (data.containsKey('has_gingivitis')) {
+      context.handle(
+          _hasGingivitisMeta,
+          hasGingivitis.isAcceptableOrUnknown(
+              data['has_gingivitis']!, _hasGingivitisMeta));
     }
     if (data.containsKey('has_dentofacial_anomaly')) {
       context.handle(
@@ -2825,6 +2855,8 @@ class $ClinicalRecordTable extends ClinicalRecord
           .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
       pastIllness: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}past_illness']),
+      presentIllness: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}present_illness']),
       allergies: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}allergies']),
       currentMedication: attachedDatabase.typeMapping.read(
@@ -2835,6 +2867,8 @@ class $ClinicalRecordTable extends ClinicalRecord
           .read(DriftSqlType.bool, data['${effectivePrefix}has_calculus'])!,
       hasPeriodontalPocket: attachedDatabase.typeMapping.read(
           DriftSqlType.bool, data['${effectivePrefix}has_periodontal_pocket'])!,
+      hasGingivitis: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}has_gingivitis'])!,
       hasDentofacialAnomaly: attachedDatabase.typeMapping.read(
           DriftSqlType.bool,
           data['${effectivePrefix}has_dentofacial_anomaly'])!,
@@ -2865,11 +2899,13 @@ class ClinicalRecordData extends DataClass
   final int patientId;
   final DateTime createdAt;
   final String? pastIllness;
+  final String? presentIllness;
   final String? allergies;
   final String? currentMedication;
   final bool hasOralDebris;
   final bool hasCalculus;
   final bool hasPeriodontalPocket;
+  final bool hasGingivitis;
   final bool hasDentofacialAnomaly;
   final int cariesForFilling;
   final int cariesForExtraction;
@@ -2882,11 +2918,13 @@ class ClinicalRecordData extends DataClass
       required this.patientId,
       required this.createdAt,
       this.pastIllness,
+      this.presentIllness,
       this.allergies,
       this.currentMedication,
       required this.hasOralDebris,
       required this.hasCalculus,
       required this.hasPeriodontalPocket,
+      required this.hasGingivitis,
       required this.hasDentofacialAnomaly,
       required this.cariesForFilling,
       required this.cariesForExtraction,
@@ -2903,6 +2941,9 @@ class ClinicalRecordData extends DataClass
     if (!nullToAbsent || pastIllness != null) {
       map['past_illness'] = Variable<String>(pastIllness);
     }
+    if (!nullToAbsent || presentIllness != null) {
+      map['present_illness'] = Variable<String>(presentIllness);
+    }
     if (!nullToAbsent || allergies != null) {
       map['allergies'] = Variable<String>(allergies);
     }
@@ -2912,6 +2953,7 @@ class ClinicalRecordData extends DataClass
     map['has_oral_debris'] = Variable<bool>(hasOralDebris);
     map['has_calculus'] = Variable<bool>(hasCalculus);
     map['has_periodontal_pocket'] = Variable<bool>(hasPeriodontalPocket);
+    map['has_gingivitis'] = Variable<bool>(hasGingivitis);
     map['has_dentofacial_anomaly'] = Variable<bool>(hasDentofacialAnomaly);
     map['caries_for_filling'] = Variable<int>(cariesForFilling);
     map['caries_for_extraction'] = Variable<int>(cariesForExtraction);
@@ -2932,6 +2974,9 @@ class ClinicalRecordData extends DataClass
       pastIllness: pastIllness == null && nullToAbsent
           ? const Value.absent()
           : Value(pastIllness),
+      presentIllness: presentIllness == null && nullToAbsent
+          ? const Value.absent()
+          : Value(presentIllness),
       allergies: allergies == null && nullToAbsent
           ? const Value.absent()
           : Value(allergies),
@@ -2941,6 +2986,7 @@ class ClinicalRecordData extends DataClass
       hasOralDebris: Value(hasOralDebris),
       hasCalculus: Value(hasCalculus),
       hasPeriodontalPocket: Value(hasPeriodontalPocket),
+      hasGingivitis: Value(hasGingivitis),
       hasDentofacialAnomaly: Value(hasDentofacialAnomaly),
       cariesForFilling: Value(cariesForFilling),
       cariesForExtraction: Value(cariesForExtraction),
@@ -2961,6 +3007,7 @@ class ClinicalRecordData extends DataClass
       patientId: serializer.fromJson<int>(json['patientId']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       pastIllness: serializer.fromJson<String?>(json['pastIllness']),
+      presentIllness: serializer.fromJson<String?>(json['presentIllness']),
       allergies: serializer.fromJson<String?>(json['allergies']),
       currentMedication:
           serializer.fromJson<String?>(json['currentMedication']),
@@ -2968,6 +3015,7 @@ class ClinicalRecordData extends DataClass
       hasCalculus: serializer.fromJson<bool>(json['hasCalculus']),
       hasPeriodontalPocket:
           serializer.fromJson<bool>(json['hasPeriodontalPocket']),
+      hasGingivitis: serializer.fromJson<bool>(json['hasGingivitis']),
       hasDentofacialAnomaly:
           serializer.fromJson<bool>(json['hasDentofacialAnomaly']),
       cariesForFilling: serializer.fromJson<int>(json['cariesForFilling']),
@@ -2987,11 +3035,13 @@ class ClinicalRecordData extends DataClass
       'patientId': serializer.toJson<int>(patientId),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'pastIllness': serializer.toJson<String?>(pastIllness),
+      'presentIllness': serializer.toJson<String?>(presentIllness),
       'allergies': serializer.toJson<String?>(allergies),
       'currentMedication': serializer.toJson<String?>(currentMedication),
       'hasOralDebris': serializer.toJson<bool>(hasOralDebris),
       'hasCalculus': serializer.toJson<bool>(hasCalculus),
       'hasPeriodontalPocket': serializer.toJson<bool>(hasPeriodontalPocket),
+      'hasGingivitis': serializer.toJson<bool>(hasGingivitis),
       'hasDentofacialAnomaly': serializer.toJson<bool>(hasDentofacialAnomaly),
       'cariesForFilling': serializer.toJson<int>(cariesForFilling),
       'cariesForExtraction': serializer.toJson<int>(cariesForExtraction),
@@ -3007,11 +3057,13 @@ class ClinicalRecordData extends DataClass
           int? patientId,
           DateTime? createdAt,
           Value<String?> pastIllness = const Value.absent(),
+          Value<String?> presentIllness = const Value.absent(),
           Value<String?> allergies = const Value.absent(),
           Value<String?> currentMedication = const Value.absent(),
           bool? hasOralDebris,
           bool? hasCalculus,
           bool? hasPeriodontalPocket,
+          bool? hasGingivitis,
           bool? hasDentofacialAnomaly,
           int? cariesForFilling,
           int? cariesForExtraction,
@@ -3024,6 +3076,8 @@ class ClinicalRecordData extends DataClass
         patientId: patientId ?? this.patientId,
         createdAt: createdAt ?? this.createdAt,
         pastIllness: pastIllness.present ? pastIllness.value : this.pastIllness,
+        presentIllness:
+            presentIllness.present ? presentIllness.value : this.presentIllness,
         allergies: allergies.present ? allergies.value : this.allergies,
         currentMedication: currentMedication.present
             ? currentMedication.value
@@ -3031,6 +3085,7 @@ class ClinicalRecordData extends DataClass
         hasOralDebris: hasOralDebris ?? this.hasOralDebris,
         hasCalculus: hasCalculus ?? this.hasCalculus,
         hasPeriodontalPocket: hasPeriodontalPocket ?? this.hasPeriodontalPocket,
+        hasGingivitis: hasGingivitis ?? this.hasGingivitis,
         hasDentofacialAnomaly:
             hasDentofacialAnomaly ?? this.hasDentofacialAnomaly,
         cariesForFilling: cariesForFilling ?? this.cariesForFilling,
@@ -3048,6 +3103,9 @@ class ClinicalRecordData extends DataClass
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       pastIllness:
           data.pastIllness.present ? data.pastIllness.value : this.pastIllness,
+      presentIllness: data.presentIllness.present
+          ? data.presentIllness.value
+          : this.presentIllness,
       allergies: data.allergies.present ? data.allergies.value : this.allergies,
       currentMedication: data.currentMedication.present
           ? data.currentMedication.value
@@ -3060,6 +3118,9 @@ class ClinicalRecordData extends DataClass
       hasPeriodontalPocket: data.hasPeriodontalPocket.present
           ? data.hasPeriodontalPocket.value
           : this.hasPeriodontalPocket,
+      hasGingivitis: data.hasGingivitis.present
+          ? data.hasGingivitis.value
+          : this.hasGingivitis,
       hasDentofacialAnomaly: data.hasDentofacialAnomaly.present
           ? data.hasDentofacialAnomaly.value
           : this.hasDentofacialAnomaly,
@@ -3091,11 +3152,13 @@ class ClinicalRecordData extends DataClass
           ..write('patientId: $patientId, ')
           ..write('createdAt: $createdAt, ')
           ..write('pastIllness: $pastIllness, ')
+          ..write('presentIllness: $presentIllness, ')
           ..write('allergies: $allergies, ')
           ..write('currentMedication: $currentMedication, ')
           ..write('hasOralDebris: $hasOralDebris, ')
           ..write('hasCalculus: $hasCalculus, ')
           ..write('hasPeriodontalPocket: $hasPeriodontalPocket, ')
+          ..write('hasGingivitis: $hasGingivitis, ')
           ..write('hasDentofacialAnomaly: $hasDentofacialAnomaly, ')
           ..write('cariesForFilling: $cariesForFilling, ')
           ..write('cariesForExtraction: $cariesForExtraction, ')
@@ -3113,11 +3176,13 @@ class ClinicalRecordData extends DataClass
       patientId,
       createdAt,
       pastIllness,
+      presentIllness,
       allergies,
       currentMedication,
       hasOralDebris,
       hasCalculus,
       hasPeriodontalPocket,
+      hasGingivitis,
       hasDentofacialAnomaly,
       cariesForFilling,
       cariesForExtraction,
@@ -3133,11 +3198,13 @@ class ClinicalRecordData extends DataClass
           other.patientId == this.patientId &&
           other.createdAt == this.createdAt &&
           other.pastIllness == this.pastIllness &&
+          other.presentIllness == this.presentIllness &&
           other.allergies == this.allergies &&
           other.currentMedication == this.currentMedication &&
           other.hasOralDebris == this.hasOralDebris &&
           other.hasCalculus == this.hasCalculus &&
           other.hasPeriodontalPocket == this.hasPeriodontalPocket &&
+          other.hasGingivitis == this.hasGingivitis &&
           other.hasDentofacialAnomaly == this.hasDentofacialAnomaly &&
           other.cariesForFilling == this.cariesForFilling &&
           other.cariesForExtraction == this.cariesForExtraction &&
@@ -3152,11 +3219,13 @@ class ClinicalRecordCompanion extends UpdateCompanion<ClinicalRecordData> {
   final Value<int> patientId;
   final Value<DateTime> createdAt;
   final Value<String?> pastIllness;
+  final Value<String?> presentIllness;
   final Value<String?> allergies;
   final Value<String?> currentMedication;
   final Value<bool> hasOralDebris;
   final Value<bool> hasCalculus;
   final Value<bool> hasPeriodontalPocket;
+  final Value<bool> hasGingivitis;
   final Value<bool> hasDentofacialAnomaly;
   final Value<int> cariesForFilling;
   final Value<int> cariesForExtraction;
@@ -3169,11 +3238,13 @@ class ClinicalRecordCompanion extends UpdateCompanion<ClinicalRecordData> {
     this.patientId = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.pastIllness = const Value.absent(),
+    this.presentIllness = const Value.absent(),
     this.allergies = const Value.absent(),
     this.currentMedication = const Value.absent(),
     this.hasOralDebris = const Value.absent(),
     this.hasCalculus = const Value.absent(),
     this.hasPeriodontalPocket = const Value.absent(),
+    this.hasGingivitis = const Value.absent(),
     this.hasDentofacialAnomaly = const Value.absent(),
     this.cariesForFilling = const Value.absent(),
     this.cariesForExtraction = const Value.absent(),
@@ -3187,11 +3258,13 @@ class ClinicalRecordCompanion extends UpdateCompanion<ClinicalRecordData> {
     required int patientId,
     this.createdAt = const Value.absent(),
     this.pastIllness = const Value.absent(),
+    this.presentIllness = const Value.absent(),
     this.allergies = const Value.absent(),
     this.currentMedication = const Value.absent(),
     this.hasOralDebris = const Value.absent(),
     this.hasCalculus = const Value.absent(),
     this.hasPeriodontalPocket = const Value.absent(),
+    this.hasGingivitis = const Value.absent(),
     this.hasDentofacialAnomaly = const Value.absent(),
     this.cariesForFilling = const Value.absent(),
     this.cariesForExtraction = const Value.absent(),
@@ -3205,11 +3278,13 @@ class ClinicalRecordCompanion extends UpdateCompanion<ClinicalRecordData> {
     Expression<int>? patientId,
     Expression<DateTime>? createdAt,
     Expression<String>? pastIllness,
+    Expression<String>? presentIllness,
     Expression<String>? allergies,
     Expression<String>? currentMedication,
     Expression<bool>? hasOralDebris,
     Expression<bool>? hasCalculus,
     Expression<bool>? hasPeriodontalPocket,
+    Expression<bool>? hasGingivitis,
     Expression<bool>? hasDentofacialAnomaly,
     Expression<int>? cariesForFilling,
     Expression<int>? cariesForExtraction,
@@ -3223,12 +3298,14 @@ class ClinicalRecordCompanion extends UpdateCompanion<ClinicalRecordData> {
       if (patientId != null) 'patient_id': patientId,
       if (createdAt != null) 'created_at': createdAt,
       if (pastIllness != null) 'past_illness': pastIllness,
+      if (presentIllness != null) 'present_illness': presentIllness,
       if (allergies != null) 'allergies': allergies,
       if (currentMedication != null) 'current_medication': currentMedication,
       if (hasOralDebris != null) 'has_oral_debris': hasOralDebris,
       if (hasCalculus != null) 'has_calculus': hasCalculus,
       if (hasPeriodontalPocket != null)
         'has_periodontal_pocket': hasPeriodontalPocket,
+      if (hasGingivitis != null) 'has_gingivitis': hasGingivitis,
       if (hasDentofacialAnomaly != null)
         'has_dentofacial_anomaly': hasDentofacialAnomaly,
       if (cariesForFilling != null) 'caries_for_filling': cariesForFilling,
@@ -3247,11 +3324,13 @@ class ClinicalRecordCompanion extends UpdateCompanion<ClinicalRecordData> {
       Value<int>? patientId,
       Value<DateTime>? createdAt,
       Value<String?>? pastIllness,
+      Value<String?>? presentIllness,
       Value<String?>? allergies,
       Value<String?>? currentMedication,
       Value<bool>? hasOralDebris,
       Value<bool>? hasCalculus,
       Value<bool>? hasPeriodontalPocket,
+      Value<bool>? hasGingivitis,
       Value<bool>? hasDentofacialAnomaly,
       Value<int>? cariesForFilling,
       Value<int>? cariesForExtraction,
@@ -3264,11 +3343,13 @@ class ClinicalRecordCompanion extends UpdateCompanion<ClinicalRecordData> {
       patientId: patientId ?? this.patientId,
       createdAt: createdAt ?? this.createdAt,
       pastIllness: pastIllness ?? this.pastIllness,
+      presentIllness: presentIllness ?? this.presentIllness,
       allergies: allergies ?? this.allergies,
       currentMedication: currentMedication ?? this.currentMedication,
       hasOralDebris: hasOralDebris ?? this.hasOralDebris,
       hasCalculus: hasCalculus ?? this.hasCalculus,
       hasPeriodontalPocket: hasPeriodontalPocket ?? this.hasPeriodontalPocket,
+      hasGingivitis: hasGingivitis ?? this.hasGingivitis,
       hasDentofacialAnomaly:
           hasDentofacialAnomaly ?? this.hasDentofacialAnomaly,
       cariesForFilling: cariesForFilling ?? this.cariesForFilling,
@@ -3295,6 +3376,9 @@ class ClinicalRecordCompanion extends UpdateCompanion<ClinicalRecordData> {
     if (pastIllness.present) {
       map['past_illness'] = Variable<String>(pastIllness.value);
     }
+    if (presentIllness.present) {
+      map['present_illness'] = Variable<String>(presentIllness.value);
+    }
     if (allergies.present) {
       map['allergies'] = Variable<String>(allergies.value);
     }
@@ -3310,6 +3394,9 @@ class ClinicalRecordCompanion extends UpdateCompanion<ClinicalRecordData> {
     if (hasPeriodontalPocket.present) {
       map['has_periodontal_pocket'] =
           Variable<bool>(hasPeriodontalPocket.value);
+    }
+    if (hasGingivitis.present) {
+      map['has_gingivitis'] = Variable<bool>(hasGingivitis.value);
     }
     if (hasDentofacialAnomaly.present) {
       map['has_dentofacial_anomaly'] =
@@ -3343,11 +3430,13 @@ class ClinicalRecordCompanion extends UpdateCompanion<ClinicalRecordData> {
           ..write('patientId: $patientId, ')
           ..write('createdAt: $createdAt, ')
           ..write('pastIllness: $pastIllness, ')
+          ..write('presentIllness: $presentIllness, ')
           ..write('allergies: $allergies, ')
           ..write('currentMedication: $currentMedication, ')
           ..write('hasOralDebris: $hasOralDebris, ')
           ..write('hasCalculus: $hasCalculus, ')
           ..write('hasPeriodontalPocket: $hasPeriodontalPocket, ')
+          ..write('hasGingivitis: $hasGingivitis, ')
           ..write('hasDentofacialAnomaly: $hasDentofacialAnomaly, ')
           ..write('cariesForFilling: $cariesForFilling, ')
           ..write('cariesForExtraction: $cariesForExtraction, ')
@@ -5567,11 +5656,13 @@ typedef $$ClinicalRecordTableCreateCompanionBuilder = ClinicalRecordCompanion
   required int patientId,
   Value<DateTime> createdAt,
   Value<String?> pastIllness,
+  Value<String?> presentIllness,
   Value<String?> allergies,
   Value<String?> currentMedication,
   Value<bool> hasOralDebris,
   Value<bool> hasCalculus,
   Value<bool> hasPeriodontalPocket,
+  Value<bool> hasGingivitis,
   Value<bool> hasDentofacialAnomaly,
   Value<int> cariesForFilling,
   Value<int> cariesForExtraction,
@@ -5586,11 +5677,13 @@ typedef $$ClinicalRecordTableUpdateCompanionBuilder = ClinicalRecordCompanion
   Value<int> patientId,
   Value<DateTime> createdAt,
   Value<String?> pastIllness,
+  Value<String?> presentIllness,
   Value<String?> allergies,
   Value<String?> currentMedication,
   Value<bool> hasOralDebris,
   Value<bool> hasCalculus,
   Value<bool> hasPeriodontalPocket,
+  Value<bool> hasGingivitis,
   Value<bool> hasDentofacialAnomaly,
   Value<int> cariesForFilling,
   Value<int> cariesForExtraction,
@@ -5639,6 +5732,10 @@ class $$ClinicalRecordTableFilterComposer
   ColumnFilters<String> get pastIllness => $composableBuilder(
       column: $table.pastIllness, builder: (column) => ColumnFilters(column));
 
+  ColumnFilters<String> get presentIllness => $composableBuilder(
+      column: $table.presentIllness,
+      builder: (column) => ColumnFilters(column));
+
   ColumnFilters<String> get allergies => $composableBuilder(
       column: $table.allergies, builder: (column) => ColumnFilters(column));
 
@@ -5655,6 +5752,9 @@ class $$ClinicalRecordTableFilterComposer
   ColumnFilters<bool> get hasPeriodontalPocket => $composableBuilder(
       column: $table.hasPeriodontalPocket,
       builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get hasGingivitis => $composableBuilder(
+      column: $table.hasGingivitis, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<bool> get hasDentofacialAnomaly => $composableBuilder(
       column: $table.hasDentofacialAnomaly,
@@ -5721,6 +5821,10 @@ class $$ClinicalRecordTableOrderingComposer
   ColumnOrderings<String> get pastIllness => $composableBuilder(
       column: $table.pastIllness, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get presentIllness => $composableBuilder(
+      column: $table.presentIllness,
+      builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<String> get allergies => $composableBuilder(
       column: $table.allergies, builder: (column) => ColumnOrderings(column));
 
@@ -5737,6 +5841,10 @@ class $$ClinicalRecordTableOrderingComposer
 
   ColumnOrderings<bool> get hasPeriodontalPocket => $composableBuilder(
       column: $table.hasPeriodontalPocket,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get hasGingivitis => $composableBuilder(
+      column: $table.hasGingivitis,
       builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<bool> get hasDentofacialAnomaly => $composableBuilder(
@@ -5806,6 +5914,9 @@ class $$ClinicalRecordTableAnnotationComposer
   GeneratedColumn<String> get pastIllness => $composableBuilder(
       column: $table.pastIllness, builder: (column) => column);
 
+  GeneratedColumn<String> get presentIllness => $composableBuilder(
+      column: $table.presentIllness, builder: (column) => column);
+
   GeneratedColumn<String> get allergies =>
       $composableBuilder(column: $table.allergies, builder: (column) => column);
 
@@ -5820,6 +5931,9 @@ class $$ClinicalRecordTableAnnotationComposer
 
   GeneratedColumn<bool> get hasPeriodontalPocket => $composableBuilder(
       column: $table.hasPeriodontalPocket, builder: (column) => column);
+
+  GeneratedColumn<bool> get hasGingivitis => $composableBuilder(
+      column: $table.hasGingivitis, builder: (column) => column);
 
   GeneratedColumn<bool> get hasDentofacialAnomaly => $composableBuilder(
       column: $table.hasDentofacialAnomaly, builder: (column) => column);
@@ -5891,11 +6005,13 @@ class $$ClinicalRecordTableTableManager extends RootTableManager<
             Value<int> patientId = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
             Value<String?> pastIllness = const Value.absent(),
+            Value<String?> presentIllness = const Value.absent(),
             Value<String?> allergies = const Value.absent(),
             Value<String?> currentMedication = const Value.absent(),
             Value<bool> hasOralDebris = const Value.absent(),
             Value<bool> hasCalculus = const Value.absent(),
             Value<bool> hasPeriodontalPocket = const Value.absent(),
+            Value<bool> hasGingivitis = const Value.absent(),
             Value<bool> hasDentofacialAnomaly = const Value.absent(),
             Value<int> cariesForFilling = const Value.absent(),
             Value<int> cariesForExtraction = const Value.absent(),
@@ -5909,11 +6025,13 @@ class $$ClinicalRecordTableTableManager extends RootTableManager<
             patientId: patientId,
             createdAt: createdAt,
             pastIllness: pastIllness,
+            presentIllness: presentIllness,
             allergies: allergies,
             currentMedication: currentMedication,
             hasOralDebris: hasOralDebris,
             hasCalculus: hasCalculus,
             hasPeriodontalPocket: hasPeriodontalPocket,
+            hasGingivitis: hasGingivitis,
             hasDentofacialAnomaly: hasDentofacialAnomaly,
             cariesForFilling: cariesForFilling,
             cariesForExtraction: cariesForExtraction,
@@ -5927,11 +6045,13 @@ class $$ClinicalRecordTableTableManager extends RootTableManager<
             required int patientId,
             Value<DateTime> createdAt = const Value.absent(),
             Value<String?> pastIllness = const Value.absent(),
+            Value<String?> presentIllness = const Value.absent(),
             Value<String?> allergies = const Value.absent(),
             Value<String?> currentMedication = const Value.absent(),
             Value<bool> hasOralDebris = const Value.absent(),
             Value<bool> hasCalculus = const Value.absent(),
             Value<bool> hasPeriodontalPocket = const Value.absent(),
+            Value<bool> hasGingivitis = const Value.absent(),
             Value<bool> hasDentofacialAnomaly = const Value.absent(),
             Value<int> cariesForFilling = const Value.absent(),
             Value<int> cariesForExtraction = const Value.absent(),
@@ -5945,11 +6065,13 @@ class $$ClinicalRecordTableTableManager extends RootTableManager<
             patientId: patientId,
             createdAt: createdAt,
             pastIllness: pastIllness,
+            presentIllness: presentIllness,
             allergies: allergies,
             currentMedication: currentMedication,
             hasOralDebris: hasOralDebris,
             hasCalculus: hasCalculus,
             hasPeriodontalPocket: hasPeriodontalPocket,
+            hasGingivitis: hasGingivitis,
             hasDentofacialAnomaly: hasDentofacialAnomaly,
             cariesForFilling: cariesForFilling,
             cariesForExtraction: cariesForExtraction,

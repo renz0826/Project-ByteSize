@@ -126,6 +126,7 @@ class ClinicalRecord extends Table {
 
   // Medical History 
   TextColumn get pastIllness => text().nullable()();
+  TextColumn get presentIllness => text().nullable()();
   TextColumn get allergies => text().nullable()();
   TextColumn get currentMedication => text().nullable()();
 
@@ -133,6 +134,7 @@ class ClinicalRecord extends Table {
   BoolColumn get hasOralDebris => boolean().withDefault(const Constant(false))();
   BoolColumn get hasCalculus => boolean().withDefault(const Constant(false))();
   BoolColumn get hasPeriodontalPocket => boolean().withDefault(const Constant(false))();
+  BoolColumn get hasGingivitis => boolean().withDefault(const Constant(false))();
   BoolColumn get hasDentofacialAnomaly => boolean().withDefault(const Constant(false))();
 
   // Tooth Counters (Integers)
