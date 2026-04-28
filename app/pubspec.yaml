@@ -29,6 +29,7 @@ dependencies:
   dropdown_button2: ^3.0.0
   dropdown_search: ^7.0.0
   heroicons: ^0.11.0
+  flutter_spinbox: ^0.13.1
 
 dev_dependencies:
   flutter_test:

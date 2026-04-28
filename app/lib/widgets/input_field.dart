@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import '../../style/theme.dart';
 import 'package:dropdown_search/dropdown_search.dart';
+import 'package:flutter_spinbox/flutter_spinbox.dart';
 
 // Define Input Field Variants
 enum InputVariant {
   primary,
   dropdown,
+  counter,
 }
 
 class InputField extends StatelessWidget {
@@ -13,6 +15,8 @@ class InputField extends StatelessWidget {
   final String label;
   final String? hintText;
   final int maxLines;
+  final bool isRequired;
+  final bool isHidden;
 
   // Props for standard text input
   final TextEditingController? controller;
@@ -23,8 +27,13 @@ class InputField extends StatelessWidget {
   final List<String>? dropdownItems;
   final String? dropdownValue;
   final Function(String?)? onDropdownChanged;
-
   final TextEditingController? searchController;
+
+  // Props for dropdown input
+  final int counterValue;
+  final Function(int)? onCounterChanged;
+  final int counterMin;
+  final int counterMax;
 
   const InputField(
       {super.key,
@@ -38,7 +47,13 @@ class InputField extends StatelessWidget {
       this.dropdownValue,
       this.onDropdownChanged,
       this.searchController,
-      this.maxLines = 1});
+      this.maxLines = 1,
+      this.counterValue = 0,
+      this.onCounterChanged,
+      this.counterMin = 0, // Prevents negative numbers by default
+      this.counterMax = 100,
+      this.isHidden = false,
+      this.isRequired = false});
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +76,7 @@ class InputField extends StatelessWidget {
     Widget inputContent;
 
     switch (variant) {
-      // Sample Use Case
+      // SAMPLE USE CASE:
       // InputField(
       //           label: "First Name",
       //           hintText: "Enter patient's first name",
@@ -79,7 +94,7 @@ class InputField extends StatelessWidget {
             decoration: inputStyle);
         break;
 
-      // Sample Use Case
+      // SAMPLE USE CASE:
       // InputField(
       //           label: "Procedure Type",
       //           variant: InputVariant.dropdown, // Switches to the dropdown mode
@@ -96,6 +111,7 @@ class InputField extends StatelessWidget {
       // ),
       case InputVariant.dropdown:
         inputContent = DropdownSearch<String>(
+          enabled: !isHidden,
           items: (filter, loadProps) => dropdownItems ?? [],
           selectedItem: dropdownValue,
           decoratorProps: DropDownDecoratorProps(
@@ -150,6 +166,30 @@ class InputField extends StatelessWidget {
           ),
         );
         break;
+
+      // SAMPLE USE CASE:
+      // RadioGroupField(
+      //   label: "Presence of Dentofacial Anomaly",
+      //   options: const ["Present", "None"],
+      //   selectedValue: _defaultSelection,
+      //   onChanged: (String value) {
+      //     setState(() {
+      //       _defaultSelection = value;
+      //     });
+      //   },
+      // ),
+      case InputVariant.counter:
+        inputContent = SpinBox(
+            enabled: !isHidden,
+            min: counterMin.toDouble(),
+            max: counterMax.toDouble(),
+            value: counterValue.toDouble(),
+            // Automatically handles typing and button clicks
+            onChanged: (value) {
+              if (onCounterChanged != null) onCounterChanged!(value.toInt());
+            },
+            decoration: inputStyle);
+        break;
     }
 
     // Main input with label
@@ -157,13 +197,34 @@ class InputField extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(
-          label,
-          style: Theme.of(context)
-              .textTheme
-              .bodyLarge
-              ?.copyWith(color: AppTheme.gray500),
-        ),
+        if (!isRequired) ...[
+          Text(
+            label,
+            style: Theme.of(context)
+                .textTheme
+                .bodySmall
+                ?.copyWith(color: AppTheme.gray500),
+          ),
+        ] else
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: Theme.of(context)
+                    .textTheme
+                    .bodySmall
+                    ?.copyWith(color: AppTheme.gray500),
+              ),
+              Text(
+                "  *",
+                style: Theme.of(context)
+                    .textTheme
+                    .bodySmall
+                    ?.copyWith(color: AppTheme.red600),
+              ),
+            ],
+          ),
         SizedBox(height: 8),
         inputContent,
       ],
