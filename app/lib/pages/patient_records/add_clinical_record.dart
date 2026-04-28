@@ -5,7 +5,8 @@ import '/../widgets/input_field.dart';
 import '/../widgets/radio_buttons.dart';
 
 class AddClinicalRecordForm extends StatefulWidget {
-  const AddClinicalRecordForm({super.key});
+  final VoidCallback onNext;
+  const AddClinicalRecordForm({super.key, required this.onNext});
 
   @override
   State<AddClinicalRecordForm> createState() => _AddClinicalRecordFormState();
