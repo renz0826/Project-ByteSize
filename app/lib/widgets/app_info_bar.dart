@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../style/theme.dart';
 import './app_status_badge.dart';
+import 'package:heroicons/heroicons.dart';
 
 // Bar container
 class _BarContainer extends StatelessWidget {
@@ -34,8 +35,12 @@ class _MoreOptions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PopupMenuButton<String>(
-      icon: const Icon(Icons.more_horiz, color: AppTheme.gray400),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      color: AppTheme.white500,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      padding: EdgeInsetsGeometry.zero,
+      icon: const HeroIcon(HeroIcons.ellipsisHorizontal, color: AppTheme.gray500),
       onSelected: onSelected,
       itemBuilder: (_) => items,
     );
@@ -234,7 +239,7 @@ class PatientRecordBar extends StatelessWidget {
             PopupMenuItem(
               value: 'add_clinical_record',
               child: Row(children: [
-                Icon(Icons.add_circle_outline, size: 18),
+                HeroIcon(HeroIcons.documentPlus, size: 20),
                 SizedBox(width: 10),
                 Text('Add New Clinical Record'),
               ]),
@@ -242,7 +247,7 @@ class PatientRecordBar extends StatelessWidget {
             PopupMenuItem(
               value: 'add_schedule',
               child: Row(children: [
-                Icon(Icons.calendar_today_outlined, size: 18),
+                HeroIcon(HeroIcons.calendar, size: 20),
                 SizedBox(width: 10),
                 Text('Add Schedule'),
               ]),
@@ -250,7 +255,7 @@ class PatientRecordBar extends StatelessWidget {
             PopupMenuItem(
               value: 'view_record',
               child: Row(children: [
-                Icon(Icons.file_copy_outlined, size: 18),
+                HeroIcon(HeroIcons.eye, size: 20),
                 SizedBox(width: 10),
                 Text('View Record'),
               ]),
@@ -258,7 +263,7 @@ class PatientRecordBar extends StatelessWidget {
             PopupMenuItem(
               value: 'edit_details',
               child: Row(children: [
-                Icon(Icons.edit_outlined, size: 18),
+                HeroIcon(HeroIcons.pencilSquare, size: 20),
                 SizedBox(width: 10),
                 Text('Edit Personal Details'),
               ]),
@@ -266,7 +271,7 @@ class PatientRecordBar extends StatelessWidget {
             PopupMenuItem(
               value: 'archive',
               child: Row(children: [
-                Icon(Icons.inventory_2_outlined, size: 18, color: AppTheme.red600),
+                HeroIcon(HeroIcons.archiveBox, size: 20, color: AppTheme.red600),
                 SizedBox(width: 10),
                 Text('Archive Record', style: TextStyle(color: AppTheme.red600)),
               ]),
@@ -358,7 +363,7 @@ class BillingBar extends StatelessWidget {
             PopupMenuItem(
               value: 'process_payment',
               child: Row(children: [
-                Icon(Icons.payment_outlined, size: 18),
+                HeroIcon(HeroIcons.banknotes, size: 20),
                 SizedBox(width: 10),
                 Text('Process Payment'),
               ]),
@@ -366,7 +371,7 @@ class BillingBar extends StatelessWidget {
             PopupMenuItem(
               value: 'view_bill',
               child: Row(children: [
-                Icon(Icons.file_copy_outlined, size: 18),
+                HeroIcon(HeroIcons.eye, size: 20),
                 SizedBox(width: 10),
                 Text('View Bill'),
               ]),
@@ -437,7 +442,7 @@ class ScheduleBar extends StatelessWidget {
             PopupMenuItem(
               value: 'view_appointment',
               child: Row(children: [
-                Icon(Icons.file_copy_outlined, size: 18),
+                HeroIcon(HeroIcons.eye, size: 20),
                 SizedBox(width: 10),
                 Text('View Appointment'),
               ]),
@@ -445,7 +450,7 @@ class ScheduleBar extends StatelessWidget {
             PopupMenuItem(
               value: 'edit_appointment',
               child: Row(children: [
-                Icon(Icons.edit_outlined, size: 18),
+                HeroIcon(HeroIcons.pencilSquare, size: 20),
                 SizedBox(width: 10),
                 Text('Edit Appointment'),
               ]),
@@ -453,7 +458,7 @@ class ScheduleBar extends StatelessWidget {
             PopupMenuItem(
               value: 'cancel_appointment',
               child: Row(children: [
-                Icon(Icons.close, size: 18, color: AppTheme.red600),
+                HeroIcon(HeroIcons.xMark, size: 20, color: AppTheme.red600),
                 SizedBox(width: 10),
                 Text('Cancel Appointment', style: TextStyle(color: AppTheme.red600)),
               ]),
