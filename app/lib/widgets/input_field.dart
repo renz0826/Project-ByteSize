@@ -114,6 +114,11 @@ class InputField extends StatelessWidget {
           enabled: !isHidden,
           items: (filter, loadProps) => dropdownItems ?? [],
           selectedItem: dropdownValue,
+          onSelected: (String? value) {
+            if (onDropdownChanged != null) {
+              onDropdownChanged!(value);
+            }
+          },
           decoratorProps: DropDownDecoratorProps(
             decoration: inputStyle.copyWith(
                 hintText: hintText ?? "Select an option...",

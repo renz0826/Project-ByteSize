@@ -31,6 +31,9 @@ dependencies:
   dropdown_search: ^7.0.0
   heroicons: ^0.11.0
   flutter_spinbox: ^0.13.1
+  philippines_rpcmb: ^0.0.3
+  ph_address_finder: ^5.0.0
+  collection: ^1.18.0
 
 dev_dependencies:
   flutter_test:
