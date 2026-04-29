@@ -26,13 +26,21 @@ class AddPatientForm extends StatefulWidget {
 class _AddPatientFormState extends State<AddPatientForm> {
   bool get isEditing => widget.existingPatient != null;
   String? _defaultSelection;
-  String? _selectedMonth; // selected month to change days 
+
+  // State for Month/Day Dynamic System
+  String? _selectedMonth; // selected month to change days
   String? _selectedDay; // selected day
 
-  Map<String, String> rowSelections = { // this is to ensure that they all don't use defaultSelection
+  // State for Barangay, Municipality, and Province
+  String? _selectedProvince;
+  String? _selectedCity;
+  String? _selectedBarangay;
+
+  Map<String, String> rowSelections = {
+    // this is to ensure that they all don't use defaultSelection
     "PWD": "Not Applicable",
     "Senior": "Not Applicable",
-  }; 
+  };
 
   // TODO : Connect all text fields to the appropriate db
   @override
@@ -184,7 +192,10 @@ class _AddPatientFormState extends State<AddPatientForm> {
               Expanded(
                 child: RadioGroupField(
                   label: "PWD Status",
-                  options: const ["Applicable", "Not Applicable"], // edit this if u want tochange
+                  options: const [
+                    "Applicable",
+                    "Not Applicable"
+                  ], // edit this if u want tochange
                   selectedValue: rowSelections["PWD"]!,
                   onChanged: (value) {
                     setState(() {
@@ -245,54 +256,74 @@ class _AddPatientFormState extends State<AddPatientForm> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Row 1: Full width Street Address
               InputField(
                 hintText: "Enter Patient Street Address",
                 label: "Street Address",
               ),
-
               const SizedBox(height: 20),
-
-              // Row 2: Barangay and City
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(
                     child: InputField(
-                      hintText: "Select a Barangay",
-                      label: "Barangay",
+                      hintText: "e.g Iloilo",
+                      label: "Select A Province",
                       variant: InputVariant.dropdown,
-                      dropdownValue: _defaultSelection,
-                      dropdownItems: PhAddressService.getAllBarangayNames(),
+                      dropdownValue: _selectedProvince, // dropdown all provinces
+                      dropdownItems: PhAddressService.getAllProvinceNames(), // call function from services
+                      onDropdownChanged: (value) {
+                        setState(() { // set state everytime user changes province (reset query function basically)
+                          _selectedProvince = value; 
+                          _selectedCity = null;
+                          _selectedBarangay = null;
+                        });
+                      },
                     ),
                   ),
-                  const SizedBox(width: 20),
                   Expanded(
                     child: InputField(
-                      hintText: "Select a City/Municipality",
-                      label: "City/Municipality",
+                      key: ValueKey(_selectedProvince), // this key resets ALL queries on new province selection
+                      hintText: "e.g. Iloilo City",
+                      label: "Select a City/Municipality",
                       variant: InputVariant.dropdown,
-                      dropdownValue: _defaultSelection,
-                      dropdownItems: PhAddressService.getAllCityNames(),
+                      dropdownValue: _selectedCity, // dropdown cities from the province selected
+                      dropdownItems: _selectedProvince != null // only display if there is an answer to the query
+                          ? PhAddressService.getCitiesByProvince( // call from services
+                              _selectedProvince!) 
+                          : [],
+                      onDropdownChanged: (value) {
+                        setState(() { // set state everytime user changes province (reset query)
+                          _selectedCity = value;
+                          _selectedBarangay = null;
+                        });
+                      },
                     ),
                   ),
                 ],
               ),
-
-              const SizedBox(height: 20),
-
-              // Row 3: Province and ZIP Code
+              const SizedBox(height: 20), // Row 3: Province and ZIP Code
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(
-                    flex: 2,
                     child: InputField(
-                      hintText: "Select a Province",
-                      label: "Province",
-                      variant: InputVariant.dropdown,
-                      dropdownValue: _defaultSelection,
-                      dropdownItems: PhAddressService.getAllProvinceNames(),
+                      key: ValueKey(_selectedCity), // this key resets ALL queries on new province selection
+                      hintText: "e.g. Magsaysay",
+                      label: "Select A Barangay",
+                      variant: InputVariant.dropdown, 
+                      dropdownValue: _selectedBarangay, // dropdown barangays from city/municipality selected
+                      dropdownItems:
+                          (_selectedProvince != null && _selectedCity != null)
+                              ? PhAddressService.getBarangaysByLocation( // call from services
+                                  provinceName: _selectedProvince!,
+                                  cityName: _selectedCity!,
+                                )
+                              : [],
+                      onDropdownChanged: (value) {
+                        setState(() {
+                          _selectedBarangay = value;
+                        });
+                      },
                     ),
                   ),
                   const SizedBox(width: 20),
