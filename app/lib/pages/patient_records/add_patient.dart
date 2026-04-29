@@ -8,6 +8,8 @@ import '../../services/date_service.dart';
 
 // TODO: For the add patient onNext, make sure that the data is saved temporarily where it does not restart.
 
+// TODO: @Renz, please fix the boxes na indi sila ga bungo (Province & City Boxes), thanks! - Fons
+
 class AddPatientForm extends StatefulWidget {
   final VoidCallback onNext;
   final VoidCallback onBack;
