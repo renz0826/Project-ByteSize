@@ -18,7 +18,7 @@ class PhAddressService {
         .toList()..sort();
   }
 
- // 3. All Barangays (MUST use .brgyName)
+ // All 42,000 Barangays in the Philippines
  static List<String> getAllBarangayNames() {
   return philippineRegions
       .expand((r) => r.provinces)
