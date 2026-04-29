@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '/../widgets/main_buttons.dart';
 import '/../widgets/input_field.dart';
 import '/../widgets/radio_buttons.dart';
+import '../../services/locations_ph.dart';
 
 // TODO: For the add patient onNext, make sure that the data is saved temporarily where it does not restart.
 class AddPatientForm extends StatefulWidget {
@@ -115,7 +116,7 @@ class _AddPatientFormState extends State<AddPatientForm> {
                     dropdownValue: _defaultSelection,
                     isHidden: isEditing,
                     isRequired: true,
-                    dropdownItems: List.generate(31, (i) => (i + 1).toString()), 
+                    dropdownItems: List.generate(31, (i) => (i + 1).toString()),
                     // TODO: add a feature to only display limited days on specific months
                     // TODO: February(28 or 29) April,June,September,November(30)
                   ),
@@ -129,9 +130,11 @@ class _AddPatientFormState extends State<AddPatientForm> {
                     dropdownValue: _defaultSelection,
                     isHidden: isEditing,
                     isRequired: true,
-                    dropdownItems: List.generate( // dynamic list, updates using the DateTime of the client's PC
-                      (DateTime.now().year - 1900) + 1, // adds 2027 to the option list, and so on with other years
-                      (index) => (DateTime.now().year - index).toString(), 
+                    dropdownItems: List.generate(
+                      // dynamic list, updates using the DateTime of the client's PC
+                      (DateTime.now().year - 1900) +
+                          1, // adds 2027 to the option list, and so on with other years
+                      (index) => (DateTime.now().year - index).toString(),
                     ),
                   ),
                 ),
@@ -252,7 +255,7 @@ class _AddPatientFormState extends State<AddPatientForm> {
                       label: "Barangay",
                       variant: InputVariant.dropdown,
                       dropdownValue: _defaultSelection,
-                      dropdownItems: const ["Brgy. Magsaysay"],
+                      dropdownItems: PhAddressService.getAllBarangayNames(),
                     ),
                   ),
                   const SizedBox(width: 20),
@@ -262,7 +265,7 @@ class _AddPatientFormState extends State<AddPatientForm> {
                       label: "City/Municipality",
                       variant: InputVariant.dropdown,
                       dropdownValue: _defaultSelection,
-                      dropdownItems: const ["La Paz, Iloilo City"],
+                      dropdownItems: PhAddressService.getAllCityNames(),
                     ),
                   ),
                 ],
@@ -281,7 +284,7 @@ class _AddPatientFormState extends State<AddPatientForm> {
                       label: "Province",
                       variant: InputVariant.dropdown,
                       dropdownValue: _defaultSelection,
-                      dropdownItems: const ["Iloilo"],
+                      dropdownItems: PhAddressService.getAllProvinceNames(),
                     ),
                   ),
                   const SizedBox(width: 20),
