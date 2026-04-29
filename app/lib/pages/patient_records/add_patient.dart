@@ -91,7 +91,7 @@ class _AddPatientFormState extends State<AddPatientForm> {
                     hintText: "Select a month",
                     label: "Month",
                     variant: InputVariant.dropdown,
-                    dropdownValue: _selectedMonth,
+                    dropdownValue: _defaultSelection,
                     isHidden: isEditing,
                     isRequired: true,
                     dropdownItems: const [
@@ -108,12 +108,7 @@ class _AddPatientFormState extends State<AddPatientForm> {
                       "November",
                       "December",
                     ],
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedMonth = value;
-                        _selectedDay = null;
-                      });
-                    },
+                    
                   ),
                 ),
                 const SizedBox(width: 20),
@@ -122,23 +117,12 @@ class _AddPatientFormState extends State<AddPatientForm> {
                     hintText: "Select a day",
                     label: "Day",
                     variant: InputVariant.dropdown,
-                    dropdownValue: _selectedDay,
+                    dropdownValue: _defaultSelection,
                     isHidden: isEditing,
                     isRequired: true,
-                    dropdownItems: List.generate( // generates based on the month
-                      (_selectedMonth == "February")
-                          ? 28
-                          : (["April", "June", "September", "November"]
-                                  .contains(_selectedMonth)
-                              ? 30
-                              : 31),
-                      (i) => (i + 1).toString(),
-                    ),
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedDay = value;
-                      });
-                    },
+                    dropdownItems: List.generate(31, (i) => (i + 1).toString()),
+                    // TODO: add a feature to only display limited days on specific months
+                    // TODO: February(28 or 29) April,June,September,November(30)
                   ),
                 ),
                 const SizedBox(width: 20),
