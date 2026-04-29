@@ -27,7 +27,7 @@ class _AddPatientFormState extends State<AddPatientForm> {
   bool get isEditing => widget.existingPatient != null;
   String? _defaultSelection;
   String? _selectedMonth; // selected month to change days 
-  String? _selectedDay; // selected days
+  String? _selectedDay; // selected day
 
   Map<String, String> rowSelections = { // this is to ensure that they all don't use defaultSelection
     "PWD": "Not Applicable",
