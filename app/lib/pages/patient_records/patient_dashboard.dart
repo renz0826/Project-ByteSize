@@ -368,9 +368,6 @@ Widget _buildTableRow(PatientRecord patient) {
         SizedBox(
           width: 70,
           child: PopupMenuButton<String>(
-            constraints: BoxConstraints(
-              maxWidth: 250,
-            ),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12)
             ),
@@ -415,6 +412,7 @@ Widget _buildTableRow(PatientRecord patient) {
   );
 }
 
+//popupitem helper
 PopupMenuItem<String> _buildPopupItem({
   required String value,
   required HeroIcons icon,
@@ -423,7 +421,7 @@ PopupMenuItem<String> _buildPopupItem({
   return PopupMenuItem<String>(
     value: value,
     height: 35,
-    padding: const EdgeInsets.symmetric(horizontal: 12),
+    padding: const EdgeInsets.symmetric(horizontal: 8),
     child: Row(
       mainAxisSize: MainAxisSize.min,
       children: [
