@@ -33,6 +33,7 @@ dependencies:
   flutter_spinbox: ^0.13.1
   philippines_rpcmb: ^0.0.3
   ph_address_finder: ^5.0.0
+  csv: ^6.0.0
 
 dev_dependencies:
   flutter_test:
@@ -51,3 +52,4 @@ flutter:
   assets:
     - assets/images/
     - assets/icons/
+    - assets/sqldump/
