@@ -4,8 +4,10 @@ import '/../widgets/main_buttons.dart';
 import '/../widgets/input_field.dart';
 import '/../widgets/radio_buttons.dart';
 import '../../services/locations_ph.dart';
+import '../../services/date_service.dart';
 
 // TODO: For the add patient onNext, make sure that the data is saved temporarily where it does not restart.
+
 class AddPatientForm extends StatefulWidget {
   final VoidCallback onNext;
   final VoidCallback onBack;
@@ -24,9 +26,13 @@ class AddPatientForm extends StatefulWidget {
 class _AddPatientFormState extends State<AddPatientForm> {
   bool get isEditing => widget.existingPatient != null;
   String? _defaultSelection;
-  String? _selectedMonth;
-  String? _selectedDay;
-  String? _selectedYear = DateTime.now().year.toString();
+  String? _selectedMonth; // selected month to change days 
+  String? _selectedDay; // selected days
+
+  Map<String, String> rowSelections = { // this is to ensure that they all don't use defaultSelection
+    "PWD": "Not Applicable",
+    "Senior": "Not Applicable",
+  }; 
 
   // TODO : Connect all text fields to the appropriate db
   @override
@@ -91,38 +97,37 @@ class _AddPatientFormState extends State<AddPatientForm> {
                     hintText: "Select a month",
                     label: "Month",
                     variant: InputVariant.dropdown,
-                    dropdownValue: _defaultSelection,
+                    dropdownValue: _selectedMonth,
                     isHidden: isEditing,
                     isRequired: true,
-                    dropdownItems: const [
-                      "January",
-                      "February",
-                      "March",
-                      "April",
-                      "May",
-                      "June",
-                      "July",
-                      "August",
-                      "September",
-                      "October",
-                      "November",
-                      "December",
-                    ],
-                    
+                    dropdownItems: DateService.months,
+                    onDropdownChanged: (value) {
+                      setState(() {
+                        _selectedMonth = value;
+                        _selectedDay = null;
+                      });
+                    },
                   ),
                 ),
                 const SizedBox(width: 20),
                 Expanded(
                   child: InputField(
+                    key: ValueKey(_selectedMonth),
                     hintText: "Select a day",
                     label: "Day",
                     variant: InputVariant.dropdown,
-                    dropdownValue: _defaultSelection,
+                    dropdownValue: _selectedDay,
                     isHidden: isEditing,
                     isRequired: true,
-                    dropdownItems: List.generate(31, (i) => (i + 1).toString()),
-                    // TODO: add a feature to only display limited days on specific months
-                    // TODO: February(28 or 29) April,June,September,November(30)
+                    dropdownItems: List.generate(
+                      DateService.getDaysInMonth(_selectedMonth),
+                      (index) => (index + 1).toString(),
+                    ),
+                    onDropdownChanged: (value) {
+                      setState(() {
+                        _selectedDay = value;
+                      });
+                    },
                   ),
                 ),
                 const SizedBox(width: 20),
@@ -179,12 +184,11 @@ class _AddPatientFormState extends State<AddPatientForm> {
               Expanded(
                 child: RadioGroupField(
                   label: "PWD Status",
-                  options: const ["Applicable", "Not Applicable"],
-                  selectedValue: _defaultSelection,
-                  isRequired: true,
-                  onChanged: (String value) {
+                  options: const ["Applicable", "Not Applicable"], // edit this if u want tochange
+                  selectedValue: rowSelections["PWD"]!,
+                  onChanged: (value) {
                     setState(() {
-                      _defaultSelection = value;
+                      rowSelections["PWD"] = value;
                     });
                   },
                 ),

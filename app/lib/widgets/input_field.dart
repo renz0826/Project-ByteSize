@@ -112,7 +112,7 @@ class InputField extends StatelessWidget {
       case InputVariant.dropdown:
         inputContent = DropdownSearch<String>(
           enabled: !isHidden,
-          items: (filter, loadProps) => dropdownItems ?? [],
+          items: (filter, loadProps) => dropdownItems ?? [],        
           selectedItem: dropdownValue,
           decoratorProps: DropDownDecoratorProps(
             decoration: inputStyle.copyWith(
