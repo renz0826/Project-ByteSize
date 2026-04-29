@@ -24,6 +24,9 @@ class AddPatientForm extends StatefulWidget {
 class _AddPatientFormState extends State<AddPatientForm> {
   bool get isEditing => widget.existingPatient != null;
   String? _defaultSelection;
+  String? _selectedMonth;
+  String? _selectedDay;
+  String? _selectedYear = DateTime.now().year.toString();
 
   // TODO : Connect all text fields to the appropriate db
   @override
@@ -88,7 +91,7 @@ class _AddPatientFormState extends State<AddPatientForm> {
                     hintText: "Select a month",
                     label: "Month",
                     variant: InputVariant.dropdown,
-                    dropdownValue: _defaultSelection,
+                    dropdownValue: _selectedMonth,
                     isHidden: isEditing,
                     isRequired: true,
                     dropdownItems: const [
@@ -105,6 +108,12 @@ class _AddPatientFormState extends State<AddPatientForm> {
                       "November",
                       "December",
                     ],
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedMonth = value;
+                        _selectedDay = null;
+                      });
+                    },
                   ),
                 ),
                 const SizedBox(width: 20),
@@ -113,12 +122,23 @@ class _AddPatientFormState extends State<AddPatientForm> {
                     hintText: "Select a day",
                     label: "Day",
                     variant: InputVariant.dropdown,
-                    dropdownValue: _defaultSelection,
+                    dropdownValue: _selectedDay,
                     isHidden: isEditing,
                     isRequired: true,
-                    dropdownItems: List.generate(31, (i) => (i + 1).toString()),
-                    // TODO: add a feature to only display limited days on specific months
-                    // TODO: February(28 or 29) April,June,September,November(30)
+                    dropdownItems: List.generate( // generates based on the month
+                      (_selectedMonth == "February")
+                          ? 28
+                          : (["April", "June", "September", "November"]
+                                  .contains(_selectedMonth)
+                              ? 30
+                              : 31),
+                      (i) => (i + 1).toString(),
+                    ),
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedDay = value;
+                      });
+                    },
                   ),
                 ),
                 const SizedBox(width: 20),
