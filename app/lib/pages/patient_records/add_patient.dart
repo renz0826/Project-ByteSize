@@ -8,8 +8,6 @@ import '../../services/date_service.dart';
 
 // TODO: For the add patient onNext, make sure that the data is saved temporarily where it does not restart.
 
-// TODO: @Renz, please fix the boxes na indi sila ga bungo (Province & City Boxes), thanks! - Fons
-
 class AddPatientForm extends StatefulWidget {
   final VoidCallback onNext;
   final VoidCallback onBack;
@@ -258,43 +256,62 @@ class _AddPatientFormState extends State<AddPatientForm> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Row 1: Street Address
+
               InputField(
                 hintText: "Enter Patient Street Address",
                 label: "Street Address",
               ),
               const SizedBox(height: 20),
+
+              // Row 2: Barangay and City/Municipality
+
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(
                     child: InputField(
-                      hintText: "e.g Iloilo",
-                      label: "Select A Province",
+                      key: ValueKey(
+                          _selectedCity), // this key resets ALL queries on new province selection
+                      hintText: "Select a Barangay",
+                      label: "Barangay",
                       variant: InputVariant.dropdown,
-                      dropdownValue: _selectedProvince, // dropdown all provinces
-                      dropdownItems: PhAddressService.getAllProvinceNames(), // call function from services
+                      dropdownValue:
+                          _selectedBarangay, // dropdown barangays from city/municipality selected
+                      dropdownItems:
+                          (_selectedProvince != null && _selectedCity != null)
+                              ? PhAddressService.getBarangaysByLocation(
+                                  // call from services
+                                  provinceName: _selectedProvince!,
+                                  cityName: _selectedCity!,
+                                )
+                              : [],
                       onDropdownChanged: (value) {
-                        setState(() { // set state everytime user changes province (reset query function basically)
-                          _selectedProvince = value; 
-                          _selectedCity = null;
-                          _selectedBarangay = null;
+                        setState(() {
+                          _selectedBarangay = value;
                         });
                       },
                     ),
                   ),
+                  const SizedBox(width: 20),
                   Expanded(
                     child: InputField(
-                      key: ValueKey(_selectedProvince), // this key resets ALL queries on new province selection
-                      hintText: "e.g. Iloilo City",
-                      label: "Select a City/Municipality",
+                      key: ValueKey(
+                          _selectedProvince), // this key resets ALL queries on new province selection
+                      hintText: "Select a City/Municipality",
+                      label: "City/Municipality",
                       variant: InputVariant.dropdown,
-                      dropdownValue: _selectedCity, // dropdown cities from the province selected
-                      dropdownItems: _selectedProvince != null // only display if there is an answer to the query
-                          ? PhAddressService.getCitiesByProvince( // call from services
-                              _selectedProvince!) 
+                      dropdownValue:
+                          _selectedCity, // dropdown cities from the province selected
+                      dropdownItems: _selectedProvince !=
+                              null // only display if there is an answer to the query
+                          ? PhAddressService.getCitiesByProvince(
+                              // call from services
+                              _selectedProvince!)
                           : [],
                       onDropdownChanged: (value) {
-                        setState(() { // set state everytime user changes province (reset query)
+                        setState(() {
+                          // set state everytime user changes province (reset query)
                           _selectedCity = value;
                           _selectedBarangay = null;
                         });
@@ -303,27 +320,29 @@ class _AddPatientFormState extends State<AddPatientForm> {
                   ),
                 ],
               ),
-              const SizedBox(height: 20), // Row 3: Province and ZIP Code
+
+              const SizedBox(height: 20),
+
+              // Row 3: Province and ZIP Code
+
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(
                     child: InputField(
-                      key: ValueKey(_selectedCity), // this key resets ALL queries on new province selection
-                      hintText: "e.g. Magsaysay",
-                      label: "Select A Barangay",
-                      variant: InputVariant.dropdown, 
-                      dropdownValue: _selectedBarangay, // dropdown barangays from city/municipality selected
-                      dropdownItems:
-                          (_selectedProvince != null && _selectedCity != null)
-                              ? PhAddressService.getBarangaysByLocation( // call from services
-                                  provinceName: _selectedProvince!,
-                                  cityName: _selectedCity!,
-                                )
-                              : [],
+                      hintText: "Select a Province",
+                      label: "Province",
+                      variant: InputVariant.dropdown,
+                      dropdownValue:
+                          _selectedProvince, // dropdown all provinces
+                      dropdownItems: PhAddressService
+                          .getAllProvinceNames(), // call function from services
                       onDropdownChanged: (value) {
                         setState(() {
-                          _selectedBarangay = value;
+                          // set state everytime user changes province (reset query function basically)
+                          _selectedProvince = value;
+                          _selectedCity = null;
+                          _selectedBarangay = null;
                         });
                       },
                     ),
