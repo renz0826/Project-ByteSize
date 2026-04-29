@@ -31,7 +31,6 @@ class AppSortDropdown extends StatefulWidget {
       constraints: const BoxConstraints(minWidth: 150, maxWidth: 150),
       offset: const Offset(0, 10),
       position: PopupMenuPosition.under,
-      tooltip: 'Sort Options',
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
         side: const BorderSide(color: AppTheme.gray400),
