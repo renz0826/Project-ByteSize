@@ -95,7 +95,14 @@ class _AddPatientFormState extends State<AddPatientForm> {
                       "February",
                       "March",
                       "April",
-                      "May"
+                      "May",
+                      "June",
+                      "July",
+                      "August",
+                      "September",
+                      "October",
+                      "November",
+                      "December",
                     ],
                   ),
                 ),
@@ -108,7 +115,9 @@ class _AddPatientFormState extends State<AddPatientForm> {
                     dropdownValue: _defaultSelection,
                     isHidden: isEditing,
                     isRequired: true,
-                    dropdownItems: const ["1", "2", "3", "4", "5"],
+                    dropdownItems: List.generate(31, (i) => (i + 1).toString()), 
+                    // TODO: add a feature to only display limited days on specific months
+                    // TODO: February(28 or 29) April,June,September,November(30)
                   ),
                 ),
                 const SizedBox(width: 20),
@@ -120,7 +129,10 @@ class _AddPatientFormState extends State<AddPatientForm> {
                     dropdownValue: _defaultSelection,
                     isHidden: isEditing,
                     isRequired: true,
-                    dropdownItems: const ["2001", "2002", "2006"],
+                    dropdownItems: List.generate( // dynamic list, updates using the DateTime of the client's PC
+                      (DateTime.now().year - 1900) + 1, // adds 2027 to the option list, and so on with other years
+                      (index) => (DateTime.now().year - index).toString(), 
+                    ),
                   ),
                 ),
               ],
