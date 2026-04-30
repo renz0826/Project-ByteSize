@@ -163,12 +163,12 @@ class _ScheduleAppointmentFormState extends State<ScheduleAppointmentForm> {
               //   ),
               // ),
               SizedBox(
-                width: 140,
+                width: 280,
                 child: Button(
-                  label: "Next",
+                  label: "Schedule Appointment",
                   width: double.infinity,
-                  icon: Icons.arrow_forward,
-                  iconPlacement: IconPlacement.right,
+                  icon: Icons.check,
+                  iconPlacement: IconPlacement.left,
                   onPressed: widget.onSave,
                 ),
               )
