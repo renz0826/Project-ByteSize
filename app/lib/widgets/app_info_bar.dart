@@ -2,6 +2,11 @@ import 'package:flutter/material.dart';
 import '../style/theme.dart';
 import './app_status_badge.dart';
 import 'package:heroicons/heroicons.dart';
+import './icon_buttons.dart';
+
+// NOTE: This file can be lighter if we were to use a helper for the text design,
+// namely by predefining the styles and layout. This ensures efficient code
+// reusability and reduces the boilerplate of each block.
 
 // Bar container
 class _BarContainer extends StatelessWidget {
@@ -67,27 +72,12 @@ class AppointmentBar extends StatelessWidget {
     this.onAction,
   });
 
-  // Action icon depends on status
+  // action icon depends on status — uses IconButtons widget
   Widget _actionButton() {
     final isWaiting = status == BadgeStatus.waiting;
-    return GestureDetector(
-      onTap: onAction,
-      child: Container(
-        width: 32,
-        height: 32,
-        decoration: BoxDecoration(
-          border: Border.all(
-            color: isWaiting ? AppTheme.red600 : AppTheme.green300,
-            width: 1.5,
-          ),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Icon(
-          isWaiting ? Icons.close : Icons.check,
-          size: 16,
-          color: isWaiting ? AppTheme.red600 : AppTheme.green300,
-        ),
-      ),
+    return IconButtons(
+      onPressed: onAction,
+      variant: isWaiting ? IconButtonVariant.cancel : IconButtonVariant.finish,
     );
   }
 
