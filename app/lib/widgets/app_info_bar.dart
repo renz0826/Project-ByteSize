@@ -8,11 +8,45 @@ import './icon_buttons.dart';
 // namely by predefining the styles and layout. This ensures efficient code
 // reusability and reduces the boilerplate of each block.
 
+/// Centralized Date Formatter to avoid repetition
+String formatDate(DateTime date) {
+  final mm = date.month.toString().padLeft(2, '0');
+  final dd = date.day.toString().padLeft(2, '0');
+  final yy = date.year.toString().substring(2);
+  return '$mm/$dd/$yy';
+}
+
 // shared text style helper
 TextStyle? barTextStyle(BuildContext context) {
   return Theme.of(context).textTheme.bodySmall?.copyWith(
     color: AppTheme.black500,
   );
+}
+
+// shared bar text widget - handles style and flex dynamically
+class _BarText extends StatelessWidget {
+  final String text;
+  final bool isName;   
+  final bool ellipsis; 
+
+  const _BarText(
+    this.text, {
+    this.isName = false,
+    this.ellipsis = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      flex: isName ? 3 : 2,
+      child: Text(
+        text,
+        style: barTextStyle(context),
+        overflow: ellipsis ? TextOverflow.ellipsis : null,
+        maxLines: ellipsis ? 1 : null,
+      ),
+    );
+  }
 }
 
 // Bar container
@@ -92,34 +126,9 @@ class AppointmentBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return _BarContainer(
       children: [
-        // name
-        Expanded(
-          flex: 3,
-          child: Text(
-            fullName, 
-            style: barTextStyle(context),
-            overflow: TextOverflow.ellipsis,
-            maxLines: 1,
-          ),
-        ),
-
-        // time
-        Expanded(
-          flex: 2,
-          child: Text(
-            time, 
-            style: barTextStyle(context),
-        ),
-        ),
-
-        // procedure
-        Expanded(
-          flex: 5,
-          child: Text(
-            procedure, 
-            style: barTextStyle(context),
-            ), 
-          ),
+        _BarText(fullName, isName: true, ellipsis: true,), // name
+        _BarText(time), // time
+        _BarText(procedure), // procedure
 
         // status badge + action button pushed to right
         Row(
@@ -150,23 +159,8 @@ class PatientsTreatedBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return _BarContainer(
       children: [
-        // name
-        Expanded(
-          flex: 3,
-          child: Text(
-            fullName, 
-            style: barTextStyle(context),
-          ),
-        ),
-
-        // procedure
-        Expanded(
-          flex: 3,
-          child: Text(
-            procedure, 
-            style: barTextStyle(context),
-          ),
-        ),
+        _BarText(fullName, isName: true, ellipsis: true,), // name
+        _BarText(procedure), // procedure
       ],
     );
   }
@@ -197,67 +191,11 @@ class PatientRecordBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return _BarContainer(
       children: [
-        // name
-        Expanded(
-          flex: 3,
-          child: Text(
-            fullName, 
-            style: barTextStyle(context),
-            overflow: TextOverflow.ellipsis, 
-            maxLines: 1,
-          ),
-        ),
-
-        // gender
-        Expanded(
-          flex: 2,
-          child: Text(
-            gender, 
-            style: barTextStyle(context),
-          ),
-        ),
-
-        // age
-        Expanded(
-          flex: 2,
-          child: Text(
-            '$age yo',
-            style: barTextStyle(context),
-          ),
-        ),
-
-        // address
-        Expanded(
-          flex: 5,
-          child: Text(
-            address, 
-            style: barTextStyle(context),
-            overflow: TextOverflow.ellipsis, 
-            maxLines: 1,
-          ),
-        ),
-
-        // contact
-        Expanded(
-          flex: 3,
-          child: Text(
-            contact,
-            style: barTextStyle(context),
-        ),
-        ),
-
-        // procedure
-        Expanded(
-          flex: 2,
-          child: Text(
-            procedure, 
-            style: barTextStyle(context),
-        ),
-        ),
-        
-        Expanded(
-          flex: 2,
-          child: const SizedBox()),
+        _BarText(fullName, isName: true, ellipsis: true,),
+        _BarText(gender),
+        _BarText(address),
+        _BarText(contact),
+        _BarText(procedure),
 
         // more options: Add New Clinical Record, Add Schedule, View Record, Edit Personal Details, Archive Record
         SizedBox(
@@ -334,6 +272,7 @@ class BillingBar extends StatelessWidget {
     this.onMenuSelected,
   });
 
+  // Amount Getter
   String get _formattedAmount {
     final formatted = amount.toStringAsFixed(0).replaceAllMapped(
           RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
@@ -342,63 +281,16 @@ class BillingBar extends StatelessWidget {
     return '₱ $formatted';
   }
 
-  String get _formattedDate {
-    final mm = date.month.toString().padLeft(2, '0');
-    final dd = date.day.toString().padLeft(2, '0');
-    final yy = date.year.toString().substring(2);
-    return '$mm/$dd/$yy';
-  }
-
   @override
   Widget build(BuildContext context) {
     return _BarContainer(
       children: [
-        // invoice id
-        SizedBox(
-          width: 72,
-          child: Text(
-            invoiceId, 
-            style: barTextStyle(context), 
-          ),
-        ),
 
-        // name
-        Expanded(
-          flex: 3,
-          child: Text(
-            fullName,
-            style: barTextStyle(context),
-          ),
-        ),
-
-        // procedure
-        Expanded(
-          flex: 3,
-          child: Text(
-            procedure, 
-            style: barTextStyle(context), 
-          ),
-        ),
-
-        // amount
-        Expanded(
-          flex: 2,
-          child: Text(
-            _formattedAmount, 
-            style: barTextStyle(context), 
-          ),
-        ),
-
-        // date
-        Expanded(
-          flex: 2,
-          child: Text(
-            _formattedDate,
-            style: barTextStyle(context),
-          ),
-        ),
-
-        // status badge
+        _BarText(invoiceId),
+        _BarText(fullName, isName: true, ellipsis: true,),
+        _BarText(procedure, ellipsis: true,),
+        _BarText(_formattedAmount),
+        _BarText(formatDate(date)),
         AppStatusBadge(status: status),
 
         // more options: Process Payment, View Bill
@@ -445,52 +337,14 @@ class ScheduleBar extends StatelessWidget {
     this.onMenuSelected,
   });
 
-  String get _formattedDate {
-    final mm = date.month.toString().padLeft(2, '0');
-    final dd = date.day.toString().padLeft(2, '0');
-    final yy = date.year.toString().substring(2);
-    return '$mm/$dd/$yy';
-  }
-
   @override
   Widget build(BuildContext context) {
     return _BarContainer(
       children: [
-        // name
-        Expanded(
-          flex: 3,
-          child: Text(
-            fullName, 
-            style: barTextStyle(context),
-          ),
-        ),
-
-        // date
-        Expanded(
-          flex: 2,
-          child: Text(
-            _formattedDate, 
-            style: barTextStyle(context), 
-          ),
-        ),
-
-        // time
-        Expanded(
-          flex: 2,
-          child: Text(
-            time, 
-            style: barTextStyle(context),
-          ),
-        ),
-
-        // procedure
-        Expanded(
-          flex: 3,
-          child: Text(
-            procedure, 
-            style: barTextStyle(context),
-          ),
-        ),
+        _BarText(fullName, isName: true, ellipsis: true,),
+        _BarText(formatDate(date)),
+        _BarText(time),
+        _BarText(procedure, ellipsis: true,),
 
         // more options: View Appointment, Edit Appointment, Cancel Appointment
         _MoreOptions(
