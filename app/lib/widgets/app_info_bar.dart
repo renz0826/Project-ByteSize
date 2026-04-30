@@ -8,6 +8,13 @@ import './icon_buttons.dart';
 // namely by predefining the styles and layout. This ensures efficient code
 // reusability and reduces the boilerplate of each block.
 
+// shared text style helper
+TextStyle? barTextStyle(BuildContext context) {
+  return Theme.of(context).textTheme.bodySmall?.copyWith(
+    color: AppTheme.black500,
+  );
+}
+
 // Bar container
 class _BarContainer extends StatelessWidget {
   final List<Widget> children;
@@ -90,9 +97,7 @@ class AppointmentBar extends StatelessWidget {
           flex: 3,
           child: Text(
             fullName, 
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: AppTheme.black500
-            ), 
+            style: barTextStyle(context),
             overflow: TextOverflow.ellipsis,
             maxLines: 1,
           ),
@@ -101,20 +106,20 @@ class AppointmentBar extends StatelessWidget {
         // time
         Expanded(
           flex: 2,
-          child: Text(time, style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: AppTheme.black500
-            ), 
+          child: Text(
+            time, 
+            style: barTextStyle(context),
         ),
         ),
 
         // procedure
         Expanded(
           flex: 5,
-          child: Text(procedure, style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: AppTheme.black500
+          child: Text(
+            procedure, 
+            style: barTextStyle(context),
             ), 
           ),
-        ),
 
         // status badge + action button pushed to right
         Row(
@@ -148,18 +153,18 @@ class PatientsTreatedBar extends StatelessWidget {
         // name
         Expanded(
           flex: 3,
-          child: Text(fullName, style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: AppTheme.black500
-            ), 
+          child: Text(
+            fullName, 
+            style: barTextStyle(context),
           ),
         ),
 
         // procedure
         Expanded(
           flex: 3,
-          child: Text(procedure, style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: AppTheme.black500
-            ), 
+          child: Text(
+            procedure, 
+            style: barTextStyle(context),
           ),
         ),
       ],
@@ -197,9 +202,7 @@ class PatientRecordBar extends StatelessWidget {
           flex: 3,
           child: Text(
             fullName, 
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: AppTheme.black500
-            ), 
+            style: barTextStyle(context),
             overflow: TextOverflow.ellipsis, 
             maxLines: 1,
           ),
@@ -208,18 +211,18 @@ class PatientRecordBar extends StatelessWidget {
         // gender
         Expanded(
           flex: 2,
-          child: Text(gender, style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            color: AppTheme.black500
-          )
+          child: Text(
+            gender, 
+            style: barTextStyle(context),
           ),
         ),
 
         // age
         Expanded(
           flex: 2,
-          child: Text('$age yo', style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            color: AppTheme.black500
-          )
+          child: Text(
+            '$age yo',
+            style: barTextStyle(context),
           ),
         ),
 
@@ -228,9 +231,7 @@ class PatientRecordBar extends StatelessWidget {
           flex: 5,
           child: Text(
             address, 
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            color: AppTheme.black500
-          ),
+            style: barTextStyle(context),
             overflow: TextOverflow.ellipsis, 
             maxLines: 1,
           ),
@@ -239,18 +240,18 @@ class PatientRecordBar extends StatelessWidget {
         // contact
         Expanded(
           flex: 3,
-          child: Text(contact, style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            color: AppTheme.black500
-          ),
+          child: Text(
+            contact,
+            style: barTextStyle(context),
         ),
         ),
 
         // procedure
         Expanded(
           flex: 2,
-          child: Text(procedure, style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            color: AppTheme.black500
-          ),
+          child: Text(
+            procedure, 
+            style: barTextStyle(context),
         ),
         ),
         
@@ -355,45 +356,45 @@ class BillingBar extends StatelessWidget {
         // invoice id
         SizedBox(
           width: 72,
-          child: Text(invoiceId, style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: AppTheme.black500
-            ), 
+          child: Text(
+            invoiceId, 
+            style: barTextStyle(context), 
           ),
         ),
 
         // name
         Expanded(
           flex: 3,
-          child: Text(fullName, style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: AppTheme.black500
-            ), 
+          child: Text(
+            fullName,
+            style: barTextStyle(context),
           ),
         ),
 
         // procedure
         Expanded(
           flex: 3,
-          child: Text(procedure, style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: AppTheme.black500
-            ), 
+          child: Text(
+            procedure, 
+            style: barTextStyle(context), 
           ),
         ),
 
         // amount
         Expanded(
           flex: 2,
-          child: Text(_formattedAmount, style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: AppTheme.black500
-            ), 
+          child: Text(
+            _formattedAmount, 
+            style: barTextStyle(context), 
           ),
         ),
 
         // date
         Expanded(
           flex: 2,
-          child: Text(_formattedDate, style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: AppTheme.black500
-            ), 
+          child: Text(
+            _formattedDate,
+            style: barTextStyle(context),
           ),
         ),
 
@@ -458,36 +459,36 @@ class ScheduleBar extends StatelessWidget {
         // name
         Expanded(
           flex: 3,
-          child: Text(fullName, style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: AppTheme.black500
-            ), 
+          child: Text(
+            fullName, 
+            style: barTextStyle(context),
           ),
         ),
 
         // date
         Expanded(
           flex: 2,
-          child: Text(_formattedDate, style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: AppTheme.black500
-            ), 
+          child: Text(
+            _formattedDate, 
+            style: barTextStyle(context), 
           ),
         ),
 
         // time
         Expanded(
           flex: 2,
-          child: Text(time, style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: AppTheme.black500
-            ), 
+          child: Text(
+            time, 
+            style: barTextStyle(context),
           ),
         ),
 
         // procedure
         Expanded(
           flex: 3,
-          child: Text(procedure, style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: AppTheme.black500
-            ), 
+          child: Text(
+            procedure, 
+            style: barTextStyle(context),
           ),
         ),
 
