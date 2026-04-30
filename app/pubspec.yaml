@@ -11,6 +11,7 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_svg: ^2.0.10
+  heroicons: ^0.11.0
 
   # Database
   drift: ^2.14.0
