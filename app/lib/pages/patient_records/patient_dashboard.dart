@@ -2,6 +2,7 @@ import 'package:dentcity_management_system/pages/patient_records/add_clinical_re
 import 'package:flutter/material.dart';
 import '/../widgets/main_buttons.dart';
 import 'add_patient.dart';
+import '/../widgets/attribute_read_view.dart';
 
 // enum of different patients view
 // TODO: Add different Edit and View Patient Record Views
@@ -72,6 +73,8 @@ class _PatientDashboardState extends State<PatientDashboard> {
     return Container(
       padding: const EdgeInsets.all(24),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text("Records Index", style: TextStyle(fontSize: 24)),
           const SizedBox(height: 20),
@@ -80,6 +83,14 @@ class _PatientDashboardState extends State<PatientDashboard> {
               variant: ButtonVariant.primary,
               width: double.infinity,
               onPressed: _goToAddPatient),
+
+          // TODO: Please remove this before merging, @fons - Renz
+          AttributeReadView(label: "Presence of Oral Debris", content: "None"),
+          AttributeReadView(
+            label: "Presence of Calculus",
+            content: "Present",
+            isCrucial: true,
+          ),
         ],
       ),
     );
