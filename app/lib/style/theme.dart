@@ -60,8 +60,8 @@ class AppTheme {
   // shadows
   static final List<BoxShadow> cardShadow = [
     BoxShadow(
-      color: Colors.black.withOpacity(0.20),
-      blurRadius: 16,
+      color: Colors.black.withOpacity(0.08),
+      blurRadius: 8,
       spreadRadius: 0,
       offset: const Offset(0, 4),
     ),

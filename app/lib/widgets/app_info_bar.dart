@@ -12,7 +12,9 @@ class _BarContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+      height: 60,
+      margin: EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
         color: AppTheme.white500,
         borderRadius: BorderRadius.circular(16),
@@ -40,7 +42,7 @@ class _MoreOptions extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
       ),
       padding: EdgeInsetsGeometry.zero,
-      icon: const HeroIcon(HeroIcons.ellipsisHorizontal, color: AppTheme.gray500),
+      icon: const HeroIcon(HeroIcons.ellipsisHorizontal, color: AppTheme.gray500, size: 30),
       onSelected: onSelected,
       itemBuilder: (_) => items,
     );
@@ -98,7 +100,9 @@ class AppointmentBar extends StatelessWidget {
           flex: 3,
           child: Text(
             fullName, 
-            style: Theme.of(context).textTheme.bodyMedium, 
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: AppTheme.black500
+            ), 
             overflow: TextOverflow.ellipsis,
             maxLines: 1,
           ),
@@ -107,13 +111,19 @@ class AppointmentBar extends StatelessWidget {
         // time
         Expanded(
           flex: 2,
-          child: Text(time, style: Theme.of(context).textTheme.bodySmall),
+          child: Text(time, style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: AppTheme.black500
+            ), 
+        ),
         ),
 
         // procedure
         Expanded(
-          flex: 3,
-          child: Text(procedure, style: Theme.of(context).textTheme.bodySmall),
+          flex: 5,
+          child: Text(procedure, style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: AppTheme.black500
+            ), 
+          ),
         ),
 
         // status badge + action button pushed to right
@@ -148,13 +158,19 @@ class PatientsTreatedBar extends StatelessWidget {
         // name
         Expanded(
           flex: 3,
-          child: Text(fullName, style: Theme.of(context).textTheme.bodySmall),
+          child: Text(fullName, style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: AppTheme.black500
+            ), 
+          ),
         ),
 
         // procedure
         Expanded(
           flex: 3,
-          child: Text(procedure, style: Theme.of(context).textTheme.bodySmall),
+          child: Text(procedure, style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: AppTheme.black500
+            ), 
+          ),
         ),
       ],
     );
@@ -191,7 +207,9 @@ class PatientRecordBar extends StatelessWidget {
           flex: 3,
           child: Text(
             fullName, 
-            style: Theme.of(context).textTheme.bodyMedium, 
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: AppTheme.black500
+            ), 
             overflow: TextOverflow.ellipsis, 
             maxLines: 1,
           ),
@@ -200,21 +218,29 @@ class PatientRecordBar extends StatelessWidget {
         // gender
         Expanded(
           flex: 2,
-          child: Text(gender, style: Theme.of(context).textTheme.bodySmall),
+          child: Text(gender, style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: AppTheme.black500
+          )
+          ),
         ),
 
         // age
         Expanded(
-          flex: 1,
-          child: Text('$age yo', style: Theme.of(context).textTheme.bodySmall),
+          flex: 2,
+          child: Text('$age yo', style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: AppTheme.black500
+          )
+          ),
         ),
 
         // address
         Expanded(
-          flex: 4,
+          flex: 5,
           child: Text(
             address, 
-            style: Theme.of(context).textTheme.bodySmall, 
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: AppTheme.black500
+          ),
             overflow: TextOverflow.ellipsis, 
             maxLines: 1,
           ),
@@ -223,60 +249,73 @@ class PatientRecordBar extends StatelessWidget {
         // contact
         Expanded(
           flex: 3,
-          child: Text(contact, style: Theme.of(context).textTheme.bodySmall),
+          child: Text(contact, style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: AppTheme.black500
+          ),
+        ),
         ),
 
         // procedure
         Expanded(
-          flex: 3,
-          child: Text(procedure, style: Theme.of(context).textTheme.bodySmall),
+          flex: 2,
+          child: Text(procedure, style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: AppTheme.black500
+          ),
         ),
+        ),
+        
+        Expanded(
+          flex: 2,
+          child: const SizedBox()),
 
         // more options: Add New Clinical Record, Add Schedule, View Record, Edit Personal Details, Archive Record
-        _MoreOptions(
-          onSelected: onMenuSelected,
-          items: const [
-            PopupMenuItem(
-              value: 'add_clinical_record',
-              child: Row(children: [
-                HeroIcon(HeroIcons.documentPlus, size: 20),
-                SizedBox(width: 10),
-                Text('Add New Clinical Record'),
-              ]),
+        SizedBox(
+          width: 70,
+          child: _MoreOptions(
+              onSelected: onMenuSelected,
+              items: const [
+                PopupMenuItem(
+                  value: 'add_clinical_record',
+                  child: Row(children: [
+                    HeroIcon(HeroIcons.documentPlus, size: 20),
+                    SizedBox(width: 10),
+                    Text('Add New Clinical Record'),
+                  ]),
+                ),
+                PopupMenuItem(
+                  value: 'add_schedule',
+                  child: Row(children: [
+                    HeroIcon(HeroIcons.calendar, size: 20),
+                    SizedBox(width: 10),
+                    Text('Add Schedule'),
+                  ]),
+                ),
+                PopupMenuItem(
+                  value: 'view_record',
+                  child: Row(children: [
+                    HeroIcon(HeroIcons.eye, size: 20),
+                    SizedBox(width: 10),
+                    Text('View Record'),
+                  ]),
+                ),
+                PopupMenuItem(
+                  value: 'edit_details',
+                  child: Row(children: [
+                    HeroIcon(HeroIcons.pencilSquare, size: 20),
+                    SizedBox(width: 10),
+                    Text('Edit Personal Details'),
+                  ]),
+                ),
+                PopupMenuItem(
+                  value: 'archive',
+                  child: Row(children: [
+                    HeroIcon(HeroIcons.archiveBox, size: 20, color: AppTheme.red600),
+                    SizedBox(width: 10),
+                    Text('Archive Record', style: TextStyle(color: AppTheme.red600)),
+                  ]),
+                ),
+              ],
             ),
-            PopupMenuItem(
-              value: 'add_schedule',
-              child: Row(children: [
-                HeroIcon(HeroIcons.calendar, size: 20),
-                SizedBox(width: 10),
-                Text('Add Schedule'),
-              ]),
-            ),
-            PopupMenuItem(
-              value: 'view_record',
-              child: Row(children: [
-                HeroIcon(HeroIcons.eye, size: 20),
-                SizedBox(width: 10),
-                Text('View Record'),
-              ]),
-            ),
-            PopupMenuItem(
-              value: 'edit_details',
-              child: Row(children: [
-                HeroIcon(HeroIcons.pencilSquare, size: 20),
-                SizedBox(width: 10),
-                Text('Edit Personal Details'),
-              ]),
-            ),
-            PopupMenuItem(
-              value: 'archive',
-              child: Row(children: [
-                HeroIcon(HeroIcons.archiveBox, size: 20, color: AppTheme.red600),
-                SizedBox(width: 10),
-                Text('Archive Record', style: TextStyle(color: AppTheme.red600)),
-              ]),
-            ),
-          ],
         ),
       ],
     );
@@ -326,31 +365,46 @@ class BillingBar extends StatelessWidget {
         // invoice id
         SizedBox(
           width: 72,
-          child: Text(invoiceId, style: Theme.of(context).textTheme.bodySmall),
+          child: Text(invoiceId, style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: AppTheme.black500
+            ), 
+          ),
         ),
 
         // name
         Expanded(
           flex: 3,
-          child: Text(fullName, style: Theme.of(context).textTheme.bodySmall),
+          child: Text(fullName, style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: AppTheme.black500
+            ), 
+          ),
         ),
 
         // procedure
         Expanded(
           flex: 3,
-          child: Text(procedure, style: Theme.of(context).textTheme.bodySmall),
+          child: Text(procedure, style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: AppTheme.black500
+            ), 
+          ),
         ),
 
         // amount
         Expanded(
           flex: 2,
-          child: Text(_formattedAmount, style: Theme.of(context).textTheme.bodySmall),
+          child: Text(_formattedAmount, style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: AppTheme.black500
+            ), 
+          ),
         ),
 
         // date
         Expanded(
           flex: 2,
-          child: Text(_formattedDate, style: Theme.of(context).textTheme.bodySmall),
+          child: Text(_formattedDate, style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: AppTheme.black500
+            ), 
+          ),
         ),
 
         // status badge
@@ -414,25 +468,37 @@ class ScheduleBar extends StatelessWidget {
         // name
         Expanded(
           flex: 3,
-          child: Text(fullName, style: Theme.of(context).textTheme.bodySmall),
+          child: Text(fullName, style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: AppTheme.black500
+            ), 
+          ),
         ),
 
         // date
         Expanded(
           flex: 2,
-          child: Text(_formattedDate, style: Theme.of(context).textTheme.bodySmall),
+          child: Text(_formattedDate, style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: AppTheme.black500
+            ), 
+          ),
         ),
 
         // time
         Expanded(
           flex: 2,
-          child: Text(time, style: Theme.of(context).textTheme.bodySmall),
+          child: Text(time, style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: AppTheme.black500
+            ), 
+          ),
         ),
 
         // procedure
         Expanded(
           flex: 3,
-          child: Text(procedure, style: Theme.of(context).textTheme.bodySmall),
+          child: Text(procedure, style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: AppTheme.black500
+            ), 
+          ),
         ),
 
         // more options: View Appointment, Edit Appointment, Cancel Appointment
