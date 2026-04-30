@@ -1,4 +1,3 @@
-import 'package:dentcity_management_system/pages/patient_records/add_clinical_record.dart';
 import 'package:flutter/material.dart';
 import '/../widgets/main_buttons.dart';
 import 'schedule_appointment.dart';
@@ -25,7 +24,6 @@ class _ScheduleDashboardState extends State<ScheduleDashboard> {
     setState(() => _currentView = SchedulesView.scheduleAppointment);
   }
 
-  // TODO: Make the save button functional and return to the main dashboard.
   void _goBackToMain() {
     setState(() => _currentView = SchedulesView.main);
   }

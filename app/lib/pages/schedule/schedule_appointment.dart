@@ -2,11 +2,7 @@ import 'package:dentcity_management_system/style/theme.dart';
 import 'package:flutter/material.dart';
 import '/../widgets/main_buttons.dart';
 import '/../widgets/input_field.dart';
-import '/../widgets/radio_buttons.dart';
-import '../../services/locations_ph.dart';
 import '../../services/date_service.dart';
-
-// TODO: For the add patient onNext, make sure that the data is saved temporarily where it does not restart.
 
 class ScheduleAppointmentForm extends StatefulWidget {
   final VoidCallback onSave;
@@ -151,17 +147,6 @@ class _ScheduleAppointmentFormState extends State<ScheduleAppointmentForm> {
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              // ! A temporary button that returns to back to main
-              // SizedBox(
-              //   width: 160,
-              //   child: Button(
-              //     label: "Back",
-              //     width: double.infinity,
-              //     icon: Icons.arrow_forward,
-              //     iconPlacement: IconPlacement.right,
-              //     onPressed: widget.onBack,
-              //   ),
-              // ),
               SizedBox(
                 width: 280,
                 child: Button(
