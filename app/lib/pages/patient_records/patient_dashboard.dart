@@ -84,13 +84,6 @@ class _PatientDashboardState extends State<PatientDashboard> {
               width: double.infinity,
               onPressed: _goToAddPatient),
 
-          // TODO: Please remove this before merging, @fons - Renz
-          AttributeReadView(label: "Presence of Oral Debris", content: "None"),
-          AttributeReadView(
-            label: "Presence of Calculus",
-            content: "Present",
-            isCrucial: true,
-          ),
         ],
       ),
     );
