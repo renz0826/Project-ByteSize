@@ -64,7 +64,7 @@ class _BarContainer extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppTheme.white500,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: AppTheme.floatShadow,
+        boxShadow: AppTheme.cardShadow,
       ),
       child: Row(
         children: children,
