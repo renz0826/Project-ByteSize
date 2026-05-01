@@ -11,8 +11,7 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_svg: ^2.0.10
-  easy_radio: ^0.0.3
-  heroicons: ^0.11.0
+  
   # Database
   drift: ^2.14.0
   sqflite_common_ffi: ^2.3.0
@@ -34,6 +33,7 @@ dependencies:
   philippines_rpcmb: ^0.0.3
   ph_address_finder: ^5.0.0
   collection: ^1.18.0
+  easy_radio: ^0.0.3
 
 dev_dependencies:
   flutter_test:
