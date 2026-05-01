@@ -208,7 +208,7 @@ class PatientsTreatedBar extends StatelessWidget {
 // Patients Record Bar
 class PatientRecordBar extends StatelessWidget {
   final String fullName;
-  final String gender;
+  final String sex;
   final int age;
   final String address;
   final String contact;
@@ -218,7 +218,7 @@ class PatientRecordBar extends StatelessWidget {
   const PatientRecordBar({
     super.key,
     required this.fullName,
-    required this.gender,
+    required this.sex,
     required this.age,
     required this.address,
     required this.contact,
@@ -231,7 +231,8 @@ class PatientRecordBar extends StatelessWidget {
     return _BarContainer(
       children: [
         _BarText(fullName, isName: true, ellipsis: true,),
-        _BarText(gender),
+        _BarText(sex),
+        _BarText('$age yo'),
         _BarText(address),
         _BarText(contact),
         _BarText(procedure),
