@@ -89,7 +89,7 @@ class _PatientDashboardState extends State<PatientDashboard> {
   int get _totalPages => (_filteredRecords.length / _recordsPerPage).ceil();
 
   
-//search function
+//TODO: create search function
   void _onSearch(String query) {
   setState(() {
     _currentPage = 1;
