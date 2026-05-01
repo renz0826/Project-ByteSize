@@ -11,8 +11,8 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_svg: ^2.0.10
+  easy_radio: ^0.0.3
   heroicons: ^0.11.0
-
   # Database
   drift: ^2.14.0
   sqflite_common_ffi: ^2.3.0
@@ -27,6 +27,13 @@ dependencies:
   cupertino_icons: ^1.0.8
   google_fonts: ^8.0.2
   sidebarx: ^0.17.2
+  dropdown_button2: ^3.0.0
+  dropdown_search: ^7.0.0
+  heroicons: ^0.11.0
+  flutter_spinbox: ^0.13.1
+  philippines_rpcmb: ^0.0.3
+  ph_address_finder: ^5.0.0
+  collection: ^1.18.0
 
 dev_dependencies:
   flutter_test:
