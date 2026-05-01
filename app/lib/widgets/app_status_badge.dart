@@ -58,11 +58,11 @@ class AppStatusBadge extends StatelessWidget {
       child: Text(
         _label,
         textAlign: TextAlign.center,
-        style: const TextStyle(
-          fontSize: 13,
-          fontWeight: FontWeight.w600,
+        style: Theme.of(context).textTheme.bodySmall?.copyWith(
           color: AppTheme.black500,
-        ),
+          fontWeight: FontWeight.w600,
+          fontSize: 13
+        )
       ),
     );
   }
