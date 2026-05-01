@@ -26,19 +26,19 @@ TextStyle? barTextStyle(BuildContext context) {
 // shared bar text widget - handles style and flex dynamically
 class _BarText extends StatelessWidget {
   final String text;
-  final bool isName;   
+  final int flex;   
   final bool ellipsis; 
 
   const _BarText(
     this.text, {
-    this.isName = false,
+    this.flex = 2,
     this.ellipsis = false,
   });
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      flex: isName ? 3 : 2,
+      flex: flex,
       child: Text(
         text,
         style: barTextStyle(context),
@@ -165,7 +165,7 @@ class AppointmentBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return _BarContainer(
       children: [
-        _BarText(fullName, isName: true, ellipsis: true,), // name
+        _BarText(fullName, flex: 3, ellipsis: true,), // name
         _BarText(time), // time
         _BarText(procedure), // procedure
 
@@ -198,7 +198,7 @@ class PatientsTreatedBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return _BarContainer(
       children: [
-        _BarText(fullName, isName: true, ellipsis: true,), // name
+        _BarText(fullName, flex: 3, ellipsis: true,), // name
         _BarText(procedure), // procedure
       ],
     );
@@ -208,7 +208,7 @@ class PatientsTreatedBar extends StatelessWidget {
 // Patients Record Bar
 class PatientRecordBar extends StatelessWidget {
   final String fullName;
-  final String gender;
+  final String sex;
   final int age;
   final String address;
   final String contact;
@@ -218,7 +218,7 @@ class PatientRecordBar extends StatelessWidget {
   const PatientRecordBar({
     super.key,
     required this.fullName,
-    required this.gender,
+    required this.sex,
     required this.age,
     required this.address,
     required this.contact,
@@ -230,11 +230,13 @@ class PatientRecordBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return _BarContainer(
       children: [
-        _BarText(fullName, isName: true, ellipsis: true,),
-        _BarText(gender),
-        _BarText(address),
-        _BarText(contact),
-        _BarText(procedure),
+        _BarText(fullName, flex: 3, ellipsis: true),
+        _BarText(sex, flex: 2),
+        _BarText('$age yo', flex: 2),
+        _BarText(address, flex: 5, ellipsis: true),
+        _BarText(contact, flex: 3),
+        _BarText(procedure, flex: 2),
+        Expanded(flex:2, child: const SizedBox()),
 
         // more options: Add New Clinical Record, Add Schedule, View Record, Edit Personal Details, Archive Record
         SizedBox(
@@ -291,7 +293,7 @@ class BillingBar extends StatelessWidget {
       children: [
 
         _BarText(invoiceId),
-        _BarText(fullName, isName: true, ellipsis: true,),
+        _BarText(fullName, flex: 3, ellipsis: true,),
         _BarText(procedure, ellipsis: true,),
         _BarText(_formattedAmount),
         _BarText(formatDate(date)),
@@ -331,7 +333,7 @@ class ScheduleBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return _BarContainer(
       children: [
-        _BarText(fullName, isName: true, ellipsis: true,),
+        _BarText(fullName, flex: 3, ellipsis: true,),
         _BarText(formatDate(date)),
         _BarText(time),
         _BarText(procedure, ellipsis: true,),
