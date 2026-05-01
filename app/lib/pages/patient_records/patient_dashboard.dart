@@ -8,6 +8,7 @@ import 'add_patient.dart';
 import 'add_clinical_record.dart';
 import '/../widgets/page_header.dart';
 import 'package:heroicons/heroicons.dart';
+import '/../widgets/app_info_bar.dart';
 
 //data model
 //TODO: replace with Patient Data when database is connected
@@ -74,7 +75,7 @@ class _PatientDashboardState extends State<PatientDashboard> {
   final TextEditingController _searchController = TextEditingController();
   List<PatientRecord> _filteredRecords = patientRecords;
   int _currentPage = 1;
-  final int _recordsPerPage = 7;
+  final int _recordsPerPage = 6;
   String? _selectedStatus; //for filter chips
 
   //number of items to show per page
@@ -158,7 +159,7 @@ Widget build(BuildContext context) {
           ),
           //pagination
           SliverPadding(
-            padding: const EdgeInsets.only(left: 24, right: 24, bottom: 24),
+            padding: const EdgeInsets.only(left: 24, right: 24, bottom: 24, top: 16),
             sliver: SliverToBoxAdapter(
               child: AppPagination(
                 currentPage: _currentPage,
@@ -336,107 +337,17 @@ Widget _buildTableHeader(){
 
 //table row
 Widget _buildTableRow(PatientRecord patient) {
-  final cellStyle = AppTheme.textTheme.bodySmall!.copyWith(color: AppTheme.black500);
-
-  return Container(
-    height: 59,
-    margin: const EdgeInsets.only(bottom: 8),
-    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-    decoration: BoxDecoration(
-      color: AppTheme.white500,
-      borderRadius: BorderRadius.circular(16),
-      boxShadow: [
-        BoxShadow(
-          color: Colors.black.withOpacity(0.1),
-          blurRadius: 4,
-          offset: const Offset(0, 2),
-        ),
-      ],
-    ),
-    child: Row(
-      children: [
-        Expanded(flex: 3, child: Text(patient.name, style: cellStyle)),
-        Expanded(flex: 2, child: Text(patient.sex, style: cellStyle)),
-        Expanded(flex: 2, child: Text(patient.age, style: cellStyle)),
-        Expanded(flex: 5, child: Text(patient.address, style: cellStyle, overflow: TextOverflow.ellipsis)), 
-        Expanded(flex: 3, child: Text(patient.contactNumber, style: cellStyle)),
-        Expanded(flex: 3, child: Text(patient.procedure, style: cellStyle)),
-
-        const Spacer(),
-
-        //actions menu
-        SizedBox(
-          width: 70,
-          child: PopupMenuButton<String>(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12)
-            ),
-            color: AppTheme.white500,
-            padding: EdgeInsets.zero,
-            icon: const HeroIcon(HeroIcons.ellipsisHorizontal, color: AppTheme.gray500), 
-            onSelected: (value) {
-              if (value == 'add new clinical record') {
-                _goToAddClinicalRecord(); //switch to add clinical record view
-              }
-              //TODO: implement other actions view record, edit, add schedule, archive
-            },
-            itemBuilder: (context) => [
-              _buildPopupItem(
-                value: 'add new clinical record',
-                icon: HeroIcons.documentPlus,
-                label: 'Add New Clinical Record',
-              ),
-              _buildPopupItem(
-                value: 'add schedule',
-                icon: HeroIcons.calendar,
-                label: 'Add Schedule'),
-              _buildPopupItem(
-                value: 'view record',
-                icon: HeroIcons.eye,
-                label: 'View Record'),
-              _buildPopupItem(
-                value: 'edit personal details',
-                icon: HeroIcons.pencilSquare,
-                label: 'Edit Personal Details'
-              ),
-              _buildPopupItem(
-                value: 'archive record',
-                icon: HeroIcons.archiveBox,
-                label: 'Archive Record',
-              ),
-            ],
-          ),
-        ),
-      ],
-    ),
-  );
-}
-
-//popupitem helper
-PopupMenuItem<String> _buildPopupItem({
-  required String value,
-  required HeroIcons icon,
-  required String label,
-}) {
-  return PopupMenuItem<String>(
-    value: value,
-    height: 35,
-    padding: const EdgeInsets.symmetric(horizontal: 8),
-    child: Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        HeroIcon(
-          icon,
-          color: AppTheme.gray500,
-          size: 20,
-        ),
-        const SizedBox(width: 10), 
-        Text(
-          label,
-          style: const TextStyle(fontSize: 14),
-        ),
-      ],
-    ),
+  return PatientRecordBar(
+    fullName: patient.name, 
+    sex: patient.sex, 
+    age: int.parse(patient.age.replaceAll(' yo', '')),
+    address: patient.address, 
+    contact: patient.contactNumber, 
+    procedure: patient.procedure,
+    onMenuSelected: (value){
+      if (value == 'add_clinical_record') _goToAddClinicalRecord();
+      //TODO: other actions
+    }
   );
 }
 }
