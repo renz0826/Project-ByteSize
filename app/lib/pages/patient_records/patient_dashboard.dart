@@ -75,7 +75,7 @@ class _PatientDashboardState extends State<PatientDashboard> {
   final TextEditingController _searchController = TextEditingController();
   List<PatientRecord> _filteredRecords = patientRecords;
   int _currentPage = 1;
-  final int _recordsPerPage = 6;
+  final int _recordsPerPage = 8;
   String? _selectedStatus; //for filter chips
 
   //number of items to show per page
