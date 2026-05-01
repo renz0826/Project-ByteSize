@@ -72,8 +72,6 @@ class _ScheduleAppointmentFormState extends State<ScheduleAppointmentForm> {
           const SizedBox(height: 32),
 
           // --- APPOINTMENT SCHEDULE ---
-          const SizedBox(height: 12),
-
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
