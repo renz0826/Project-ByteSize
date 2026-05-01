@@ -73,9 +73,24 @@ class _BarContainer extends StatelessWidget {
   }
 }
 
+//shared menu item widget
+class BarMenuItem {
+  final String value;
+  final HeroIcons icon;
+  final String label;
+  final Color? color;
+
+  const BarMenuItem({
+    required this.value,
+    required this.icon,
+    required this.label,
+    this.color,
+  });
+}
+
 // Shared options button
 class _MoreOptions extends StatelessWidget {
-  final List<PopupMenuEntry<String>> items;
+  final List<BarMenuItem> items; 
   final ValueChanged<String>? onSelected;
 
   const _MoreOptions({required this.items, this.onSelected});
@@ -90,7 +105,31 @@ class _MoreOptions extends StatelessWidget {
       padding: EdgeInsetsGeometry.zero,
       icon: const HeroIcon(HeroIcons.ellipsisHorizontal, color: AppTheme.gray500, size: 30),
       onSelected: onSelected,
-      itemBuilder: (_) => items,
+      itemBuilder: (_) => items.map(_buildItem).toList(),
+    );
+  }
+
+  PopupMenuItem<String>_buildItem(BarMenuItem item){
+    return PopupMenuItem<String>(
+      value: item.value,
+      height: 35,
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          HeroIcon(item.icon,
+          color: item.color ?? AppTheme.gray500,
+          size: 20,
+          ),
+          const SizedBox(width: 10),
+          Text(
+            item.label,
+            style: AppTheme.textTheme.bodySmall?.copyWith(
+              color: item.color ?? AppTheme.black500,
+            ),
+          )
+        ],
+      ),
     );
   }
 }
@@ -202,47 +241,12 @@ class PatientRecordBar extends StatelessWidget {
           width: 70,
           child: _MoreOptions(
               onSelected: onMenuSelected,
-              items: const [
-                PopupMenuItem(
-                  value: 'add_clinical_record',
-                  child: Row(children: [
-                    HeroIcon(HeroIcons.documentPlus, size: 20),
-                    SizedBox(width: 10),
-                    Text('Add New Clinical Record'),
-                  ]),
-                ),
-                PopupMenuItem(
-                  value: 'add_schedule',
-                  child: Row(children: [
-                    HeroIcon(HeroIcons.calendar, size: 20),
-                    SizedBox(width: 10),
-                    Text('Add Schedule'),
-                  ]),
-                ),
-                PopupMenuItem(
-                  value: 'view_record',
-                  child: Row(children: [
-                    HeroIcon(HeroIcons.eye, size: 20),
-                    SizedBox(width: 10),
-                    Text('View Record'),
-                  ]),
-                ),
-                PopupMenuItem(
-                  value: 'edit_details',
-                  child: Row(children: [
-                    HeroIcon(HeroIcons.pencilSquare, size: 20),
-                    SizedBox(width: 10),
-                    Text('Edit Personal Details'),
-                  ]),
-                ),
-                PopupMenuItem(
-                  value: 'archive',
-                  child: Row(children: [
-                    HeroIcon(HeroIcons.archiveBox, size: 20, color: AppTheme.red600),
-                    SizedBox(width: 10),
-                    Text('Archive Record', style: TextStyle(color: AppTheme.red600)),
-                  ]),
-                ),
+              items: [
+                BarMenuItem(value: 'add_clinical_record', icon: HeroIcons.documentPlus, label: 'Add New Clinical Record'),
+                BarMenuItem(value: 'add_schedule', icon: HeroIcons.calendar, label: 'Add Schedule'),
+                BarMenuItem(value: 'view_record', icon: HeroIcons.eye, label: 'View Record'),
+                BarMenuItem(value: 'edit_details', icon: HeroIcons.pencilSquare, label: 'Edit Personal Details'),
+                BarMenuItem(value: 'archive', icon: HeroIcons.archiveBox, label: 'Archive Record', color: AppTheme.red600),
               ],
             ),
         ),
@@ -296,23 +300,9 @@ class BillingBar extends StatelessWidget {
         // more options: Process Payment, View Bill
         _MoreOptions(
           onSelected: onMenuSelected,
-          items: const [
-            PopupMenuItem(
-              value: 'process_payment',
-              child: Row(children: [
-                HeroIcon(HeroIcons.banknotes, size: 20),
-                SizedBox(width: 10),
-                Text('Process Payment'),
-              ]),
-            ),
-            PopupMenuItem(
-              value: 'view_bill',
-              child: Row(children: [
-                HeroIcon(HeroIcons.eye, size: 20),
-                SizedBox(width: 10),
-                Text('View Bill'),
-              ]),
-            ),
+          items: [
+            BarMenuItem(value: 'process_payment', icon: HeroIcons.banknotes, label: 'Process Payment'),
+            BarMenuItem(value: 'view_bill', icon: HeroIcons.eye, label: 'View Bill')
           ],
         ),
       ],
@@ -349,31 +339,10 @@ class ScheduleBar extends StatelessWidget {
         // more options: View Appointment, Edit Appointment, Cancel Appointment
         _MoreOptions(
           onSelected: onMenuSelected,
-          items: const [
-            PopupMenuItem(
-              value: 'view_appointment',
-              child: Row(children: [
-                HeroIcon(HeroIcons.eye, size: 20),
-                SizedBox(width: 10),
-                Text('View Appointment'),
-              ]),
-            ),
-            PopupMenuItem(
-              value: 'edit_appointment',
-              child: Row(children: [
-                HeroIcon(HeroIcons.pencilSquare, size: 20),
-                SizedBox(width: 10),
-                Text('Edit Appointment'),
-              ]),
-            ),
-            PopupMenuItem(
-              value: 'cancel_appointment',
-              child: Row(children: [
-                HeroIcon(HeroIcons.xMark, size: 20, color: AppTheme.red600),
-                SizedBox(width: 10),
-                Text('Cancel Appointment', style: TextStyle(color: AppTheme.red600)),
-              ]),
-            ),
+          items: [
+            BarMenuItem(value: 'view_appointment', icon: HeroIcons.eye, label: 'View Appointment'),
+            BarMenuItem(value: 'edit_appointment', icon: HeroIcons.pencilSquare, label: 'Edit Appointment'),
+            BarMenuItem(value: 'cancel_appointment', icon: HeroIcons.xMark, label: 'Cancel Appointment', color: AppTheme.red600)
           ],
         ),
       ],
