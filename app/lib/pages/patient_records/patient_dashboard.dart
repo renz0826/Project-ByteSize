@@ -1,8 +1,8 @@
 import 'package:dentcity_management_system/pages/patient_records/add_clinical_record.dart';
 import 'package:flutter/material.dart';
-import '/../widgets/main_buttons.dart';
+import '../../widgets/main_buttons.dart';
 import 'add_patient.dart';
-import '/../widgets/attribute_read_view.dart';
+import '../../widgets/attribute_read_view.dart';
 
 // enum of different patients view
 // TODO: Add different Edit and View Patient Record Views
@@ -83,7 +83,6 @@ class _PatientDashboardState extends State<PatientDashboard> {
               variant: ButtonVariant.primary,
               width: double.infinity,
               onPressed: _goToAddPatient),
-
         ],
       ),
     );
