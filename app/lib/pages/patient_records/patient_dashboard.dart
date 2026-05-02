@@ -214,8 +214,10 @@ class _PatientDashboardState extends State<PatientDashboard> {
                 offset: const Offset(
                     0, -20), //pulls form up to reduce gap below header
                 child: AddPatientForm(
-                  onNext: _goToAddClinicalRecord,
-                  onBack: _goBackToMain,
+                  onNext: (data) => _goToAddClinicalRecord(
+                      data), // brings the patient data into the add clinical record page
+                  onBack: () =>
+                      setState(() => _currentView = PatientsView.main),
                 ),
               ),
             ],
