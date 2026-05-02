@@ -68,6 +68,7 @@ class AppSearchBar extends StatelessWidget {
           hintStyle: Theme.of(context).textTheme.bodySmall,
           filled: true,
           fillColor: AppTheme.white500,
+          hoverColor: AppTheme.white500,
           contentPadding: const EdgeInsets.symmetric(horizontal: 16),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(26),
