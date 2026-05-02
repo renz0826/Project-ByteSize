@@ -232,7 +232,8 @@ class _PatientDashboardState extends State<PatientDashboard> {
                 offset: const Offset(0, -20),
                 child: AddClinicalRecordForm(
                   onPrevious: _goToAddPatient,
-                  onFinish: _goBackToMain,
+                  onFinish: (clinicalData) => _goBackToMain(
+                      clinicalData), // use a wrapper to pass clinicalData argument
                 ),
               ),
             ],
