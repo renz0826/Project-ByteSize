@@ -1,3 +1,4 @@
+import 'package:dentcity_management_system/db/database.dart';
 import 'package:dentcity_management_system/style/theme.dart';
 import 'package:flutter/material.dart';
 import '/../widgets/main_buttons.dart';
@@ -9,7 +10,7 @@ import '../../services/date_service.dart';
 // TODO: For the add patient onNext, make sure that the data is saved temporarily where it does not restart.
 
 class AddPatientForm extends StatefulWidget {
-  final VoidCallback onNext;
+  final Function(PatientCompanion) onNext; // pass the data object itself
   final VoidCallback onBack;
   final Map<String, dynamic>? existingPatient;
 
@@ -27,14 +28,73 @@ class _AddPatientFormState extends State<AddPatientForm> {
   bool get isEditing => widget.existingPatient != null;
   String? _defaultSelection;
 
-  // State for Month/Day Dynamic System
-  String? _selectedMonth; // selected month to change days
-  String? _selectedDay; // selected day
+  // Name controllers
+  final _firstNameController = TextEditingController();
+  final _middleNameController = TextEditingController();
+  final _lastNameController = TextEditingController();
 
-  // State for Barangay, Municipality, and Province
+  // Contact controllers
+  final _contactNumberController = TextEditingController();
+  final _emergencyContactController = TextEditingController();
+  final _referredByController = TextEditingController();
+  final _relationshipController = TextEditingController();
+
+  // Address controllers
+  final _streetController = TextEditingController();
+  final _zipController = TextEditingController();
+  final _barangayController = TextEditingController();
+  final _cityController = TextEditingController();
+  final _provinceController = TextEditingController();
+
+  // Dropdown state variables (already have these)
+  String? _selectedMonth;
+  String? _selectedDay;
+  String? _selectedYear;
+  String? _selectedSex;
+  String? _selectedStatus;
   String? _selectedProvince;
   String? _selectedCity;
   String? _selectedBarangay;
+
+  void _handleNext() {
+    DateTime birthDate = DateTime.now(); // create birthdate based off of user input
+    if (_selectedYear != null &&
+        _selectedMonth != null &&
+        _selectedDay != null) {
+      birthDate = DateTime(
+        int.parse(_selectedYear!),
+        int.parse(_selectedMonth!),
+        int.parse(_selectedDay!),
+      );
+    }
+
+    final patientEntry = PatientCompanion.insert( // Patient Companion(Controllers of each input box)
+      firstName: _firstNameController.text,
+      middleName: _middleNameController.text,
+      lastName: _lastNameController.text,
+      birthDay: birthDate,
+      sex: _selectedSex ?? "Other",
+      civilStatus: _selectedStatus ?? "Single",
+      contactNumber: _contactNumberController.text,
+      emergencyContactNo: _emergencyContactController.text,
+      referredBy: _referredByController.text,
+      relationship: _relationshipController.text,
+
+      // Address - using your dropdown values or controllers
+      streetAddress: _streetController.text,
+      barangay: _selectedBarangay ?? _barangayController.text,
+      cityMunicipality: _selectedCity ?? _cityController.text,
+      province: _selectedProvince ?? _provinceController.text,
+      zipCode: _zipController.text,
+
+      // Metadata
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    );
+
+    // 3. Send the data to the PatientDashboard
+    widget.onNext(patientEntry);
+  }
 
   Map<String, String> rowSelections = {
     // this is to ensure that they all don't use defaultSelection
@@ -386,7 +446,7 @@ class _AddPatientFormState extends State<AddPatientForm> {
                   width: double.infinity,
                   icon: Icons.arrow_forward,
                   iconPlacement: IconPlacement.right,
-                  onPressed: widget.onNext,
+                  onPressed: _handleNext, // changed to handle atomic saving
                 ),
               )
             ],
