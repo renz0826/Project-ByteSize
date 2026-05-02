@@ -34,7 +34,17 @@ class PatientRecord {
   });
 }
 
-
+//sample data
+//TODO: remove this and fetch real data from database when connected
+final List<PatientRecord> patientRecords = List.generate(20, (index) => PatientRecord(
+  name: 'Full Name Here',
+  sex: index.isEven ? 'Male' : 'Female',     
+  age: '100 yo',
+  address: 'Luna St., La Paz, Iloilo City',
+  contactNumber: '09123456780',
+  procedure: 'Teeth Removal',
+  status: index % 3 == 0 ? 'Archived' : 'Active',
+));
 
 //view enum
 enum PatientsView { main, addPatient, addClinicalRecord }
@@ -114,7 +124,7 @@ class _PatientDashboardState extends State<PatientDashboard> {
         );
         break;
       case PatientsView.main:
-        activeScreen = _buildTableRow();
+        activeScreen = _buildMainDashboard();
         break;
     }
 
