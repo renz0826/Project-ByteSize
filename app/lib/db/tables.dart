@@ -9,8 +9,8 @@ class Patient extends Table { // Patient Entity
   TextColumn get middleName => text()();
   TextColumn get lastName => text()();
 
-// Demographic ]
-  DateTimeColumn get birthDate => dateTime()();
+// Demographic 
+  DateTimeColumn get birthDay => dateTime()();
   TextColumn get sex => text().withLength(min: 1, max: 10)();
   TextColumn get civilStatus => text()();
 
