@@ -58,17 +58,17 @@ class _AddPatientFormState extends State<AddPatientForm> {
   String? _selectedBarangay;
 
   void _handleNext() {
-    DateTime birthDate = DateTime.now();
+    DateTime birthDate = DateTime.now(); // calculates birthdate with the given information
 
-    if (_selectedYear != null &&
+    if (_selectedYear != null && // in the date_helper service, transforms month to number (e.g. May -> 5)
         _selectedMonth != null &&
         _selectedDay != null) {
       birthDate = DateHelper.convertToDateTime(
           _selectedMonth!, _selectedDay!, _selectedYear!);
     }
 
-    final patientEntry = PatientCompanion.insert(
-      firstName: _firstNameController.text,
+    final patientEntry = PatientCompanion.insert( // Patient Companion
+      firstName: _firstNameController.text, // no drift.value means this field is required 
       middleName: drift.Value(_middleNameController.text), // keep this nullable
       lastName: _lastNameController.text,
       birthDay: birthDate,
@@ -79,7 +79,7 @@ class _AddPatientFormState extends State<AddPatientForm> {
       referredBy: _referredByController.text,
       relationship: _relationshipController.text,
 
-      // Address - using your dropdown values or controllers
+      // Address 
       streetAddress: _streetController.text,
       barangay: _selectedBarangay ?? _barangayController.text,
       cityMunicipality: _selectedCity ?? _cityController.text,
@@ -91,12 +91,10 @@ class _AddPatientFormState extends State<AddPatientForm> {
       updatedAt: DateTime.now(),
     );
 
-    // 3. Send the data to the PatientDashboard
     widget.onNext(patientEntry);
   }
 
   Map<String, String> rowSelections = {
-    // this is to ensure that they all don't use defaultSelection
     "PWD": "Not Applicable",
     "Senior": "Not Applicable",
   };
@@ -193,7 +191,7 @@ class _AddPatientFormState extends State<AddPatientForm> {
                     isRequired: true,
                     dropdownItems: List.generate(
                       DateService.getDaysInMonth(_selectedMonth),
-                      (index) => (index + 1).toString(),
+                      (index) => (index + 1).toString(), // function to display specific days on specific months
                     ),
                     onDropdownChanged: (value) {
                       setState(() {
@@ -214,7 +212,7 @@ class _AddPatientFormState extends State<AddPatientForm> {
                     dropdownItems: List.generate(
                       (DateTime.now().year - 1900) + 1,
                       (index) => (DateTime.now().year - index)
-                          .toString(), // function to use PC's datetime to add when a new year comes
+                          .toString(), // function to use PC's datetime to add when a new year comes (scaling list)
                     ),
                     onDropdownChanged: (value) {
                       setState(() {
@@ -223,7 +221,7 @@ class _AddPatientFormState extends State<AddPatientForm> {
                     },
                   ),
                 ),
-              ], // This bracket closes the Row
+              ], 
             ),
           ],
           const SizedBox(height: 20),

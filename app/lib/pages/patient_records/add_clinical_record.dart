@@ -34,7 +34,7 @@ class _AddClinicalRecordFormState extends State<AddClinicalRecordForm> {
   bool _hasPeriodontalPocket = false;
   bool _hasDentofacialAnomaly = false;
 
-// Tooth Count
+// Tooth Count (Automatically setting these to zero)
   int _cariesFilling = 0;
   int _cariesExtraction = 0;
   int _missingDueToCaries = 0;
@@ -46,9 +46,9 @@ class _AddClinicalRecordFormState extends State<AddClinicalRecordForm> {
 
   void _handleSave() {
     final recordEntry = ClinicalRecordCompanion.insert(
-      patientId: widget.patientId // required 
+      patientId: widget.patientId // required (since we are saving TWO tables in one save button)
       ,
-      // Medical Background
+      // Medical Background (Most of these are optional)
       pastIllness: drift.Value(_pastIllnessController.text),
       presentIllness: drift.Value(_presentIllnessController.text),
       allergies: drift.Value(_allergiesController.text),
@@ -173,7 +173,7 @@ class _AddClinicalRecordFormState extends State<AddClinicalRecordForm> {
                             RadioGroupField(
                               label: "Presence of Oral Debris",
                               options: const ["Present", "None"],
-                              selectedValue: _hasDebris ? "Present" : "None",
+                              selectedValue: _hasDebris ? "Present" : "None", // User can only select 2 options (radio button)
                               onChanged: (value) {
                                 setState(
                                     () => _hasDebris = (value == "Present"));
@@ -370,7 +370,7 @@ class _AddClinicalRecordFormState extends State<AddClinicalRecordForm> {
 
                   const SizedBox(height: 32),
 
-                  Row(
+                  Row( 
                       mainAxisAlignment: MainAxisAlignment.end,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -386,7 +386,7 @@ class _AddClinicalRecordFormState extends State<AddClinicalRecordForm> {
                           width: 24,
                         ),
                         Button(
-                          label: "Save",
+                          label: "Save", // as a bonus, made the save button work
                           width: 140,
                           icon: Icons.save_alt_outlined,
                           iconPlacement: IconPlacement.left,
