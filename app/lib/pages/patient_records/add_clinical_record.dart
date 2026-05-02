@@ -112,7 +112,7 @@ class _AddClinicalRecordFormState extends State<AddClinicalRecordForm> {
                             ),
                             const SizedBox(width: 100),
                             RadioGroupField(
-                              label: "Presence of Oral Debris",
+                              label: "Presence of Calculus",
                               options: const ["Present", "None"],
                               selectedValue: _defaultSelection,
                               onChanged: (String value) {
@@ -123,7 +123,7 @@ class _AddClinicalRecordFormState extends State<AddClinicalRecordForm> {
                             ),
                             const SizedBox(width: 100),
                             RadioGroupField(
-                              label: "Presence of Oral Debris",
+                              label: "Presence of Gingivitis",
                               options: const ["Present", "None"],
                               selectedValue: _defaultSelection,
                               onChanged: (String value) {
