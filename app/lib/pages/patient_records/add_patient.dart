@@ -7,6 +7,7 @@ import '/../widgets/input_field.dart';
 import '/../widgets/radio_buttons.dart';
 import '../../services/locations_ph.dart';
 import '../../services/date_service.dart';
+import '../../services/date_helper.dart';
 
 // TODO: For the add patient onNext, make sure that the data is saved temporarily where it does not restart.
 
@@ -57,20 +58,16 @@ class _AddPatientFormState extends State<AddPatientForm> {
   String? _selectedBarangay;
 
   void _handleNext() {
-    DateTime birthDate =
-        DateTime.now(); // create birthdate based off of user input
+    DateTime birthDate = DateTime.now();
+
     if (_selectedYear != null &&
         _selectedMonth != null &&
         _selectedDay != null) {
-      birthDate = DateTime(
-        int.parse(_selectedYear!),
-        int.parse(_selectedMonth!),
-        int.parse(_selectedDay!),
-      );
+      birthDate = DateHelper.convertToDateTime(
+          _selectedMonth!, _selectedDay!, _selectedYear!);
     }
 
     final patientEntry = PatientCompanion.insert(
-      // Patient Companion(Controllers of each input box)
       firstName: _firstNameController.text,
       middleName: drift.Value(_middleNameController.text), // keep this nullable
       lastName: _lastNameController.text,
@@ -226,8 +223,8 @@ class _AddPatientFormState extends State<AddPatientForm> {
                     },
                   ),
                 ),
-              ], 
-            ), 
+              ], // This bracket closes the Row
+            ),
           ],
           const SizedBox(height: 20),
           Row(
@@ -357,24 +354,19 @@ class _AddPatientFormState extends State<AddPatientForm> {
                 children: [
                   Expanded(
                     child: InputField(
-                      key: ValueKey(
-                          _selectedCity), // this key resets ALL queries on new province selection
-                      hintText: "Select a Barangay",
-                      label: "Barangay",
+                      hintText: "Select a Province",
+                      label: "Province",
                       variant: InputVariant.dropdown,
                       dropdownValue:
-                          _selectedBarangay, // dropdown barangays from city/municipality selected
-                      dropdownItems:
-                          (_selectedProvince != null && _selectedCity != null)
-                              ? PhAddressService.getBarangaysByLocation(
-                                  // call from services
-                                  provinceName: _selectedProvince!,
-                                  cityName: _selectedCity!,
-                                )
-                              : [],
+                          _selectedProvince, // dropdown all provinces
+                      dropdownItems: PhAddressService
+                          .getAllProvinceNames(), // call function from services
                       onDropdownChanged: (value) {
                         setState(() {
-                          _selectedBarangay = value;
+                          // set state everytime user changes province (reset query function basically)
+                          _selectedProvince = value;
+                          _selectedCity = null;
+                          _selectedBarangay = null;
                         });
                       },
                     ),
@@ -416,19 +408,24 @@ class _AddPatientFormState extends State<AddPatientForm> {
                 children: [
                   Expanded(
                     child: InputField(
-                      hintText: "Select a Province",
-                      label: "Province",
+                      key: ValueKey(
+                          _selectedCity), // this key resets ALL queries on new province selection
+                      hintText: "Select a Barangay",
+                      label: "Barangay",
                       variant: InputVariant.dropdown,
                       dropdownValue:
-                          _selectedProvince, // dropdown all provinces
-                      dropdownItems: PhAddressService
-                          .getAllProvinceNames(), // call function from services
+                          _selectedBarangay, // dropdown barangays from city/municipality selected
+                      dropdownItems:
+                          (_selectedProvince != null && _selectedCity != null)
+                              ? PhAddressService.getBarangaysByLocation(
+                                  // call from services
+                                  provinceName: _selectedProvince!,
+                                  cityName: _selectedCity!,
+                                )
+                              : [],
                       onDropdownChanged: (value) {
                         setState(() {
-                          // set state everytime user changes province (reset query function basically)
-                          _selectedProvince = value;
-                          _selectedCity = null;
-                          _selectedBarangay = null;
+                          _selectedBarangay = value;
                         });
                       },
                     ),

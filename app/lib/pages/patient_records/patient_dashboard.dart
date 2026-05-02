@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../../widgets/main_buttons.dart';
 import 'add_patient.dart';
 import '../../widgets/attribute_read_view.dart';
+import 'package:drift/drift.dart' as drift;
 
 // enum of different patients view
 // TODO: Add different Edit and View Patient Record Views
@@ -22,6 +23,8 @@ class PatientDashboard extends StatefulWidget {
 
 class _PatientDashboardState extends State<PatientDashboard> {
   // Functions to change patients screen states
+  PatientCompanion? _draftPatient;
+  ClinicalRecordCompanion? _draftClinicalRecord;
   PatientsView _currentView = PatientsView.main;
 
   void _goToAddPatient() {
@@ -29,14 +32,32 @@ class _PatientDashboardState extends State<PatientDashboard> {
   }
 
   void _goToAddClinicalRecord(PatientCompanion patientData) {
-  setState(() {
-    _currentView = PatientsView.addClinicalRecord;
-  });
-}
+    setState(() {
+      _draftPatient = patientData;
+      _currentView = PatientsView.addClinicalRecord;
+    });
+  }
 
   // TODO: Make the save button functional and return to the main dashboard.
-  void _goBackToMain() {
-    setState(() => _currentView = PatientsView.main);
+  // Update this in patient_dashboard.dart
+  void _goBackToMain(ClinicalRecordCompanion clinicalData) async {
+    final db = AppDatabase();
+
+    try {
+      final newPatientId = await db.into(db.patient).insert(_draftPatient!);
+      final recordWithId = clinicalData.copyWith(
+        patientId: drift.Value(newPatientId),
+      );
+
+      await db.into(db.clinicalRecord).insert(recordWithId);
+
+      setState(() {
+        _draftClinicalRecord = clinicalData;
+        _currentView = PatientsView.main;
+      });
+    } catch (e) {
+      print("Database Error: $e");
+    }
   }
 
   @override
@@ -52,11 +73,17 @@ class _PatientDashboardState extends State<PatientDashboard> {
           //     'birthday': '1995-08-24', // ! If this is enabled, the birthdate field will not show
           //     'firstName': 'John',
           //   },
-          onNext: _goToAddClinicalRecord, onBack: _goBackToMain,
+          onNext: (data) => _goToAddClinicalRecord(data),
+          onBack: () => setState(() => _currentView = PatientsView.main),
         );
+        break;
       case PatientsView.addClinicalRecord:
         activeScreen = AddClinicalRecordForm(
-            onPrevious: _goToAddPatient, onFinish: _goBackToMain);
+          patientId: 0,
+          onPrevious: _goToAddPatient,
+          onFinish: (clinicalData) => _goBackToMain(
+              clinicalData), // use a wrapper to pass clinicalData argument
+        );
         break;
       case PatientsView.main:
         activeScreen = _buildMainDashboard();
