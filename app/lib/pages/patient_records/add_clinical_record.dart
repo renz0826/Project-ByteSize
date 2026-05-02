@@ -15,8 +15,27 @@ class AddClinicalRecordForm extends StatefulWidget {
 }
 
 class _AddClinicalRecordFormState extends State<AddClinicalRecordForm> {
-  String? _defaultSelection;
   int _teethExtracted = 0;
+
+// Medical Background Controller
+  final _pastIllnessController = TextEditingController();
+  final _presentIllnessController = TextEditingController();
+  final _allergiesController = TextEditingController();
+  final _medicationController = TextEditingController();
+
+// Treatment Procedure (Radio Boxes): Setting this false as default
+  bool _hasDebris = false;
+  bool _hasCalculus = false;
+  bool _hasGingivitis = false;
+  bool _hasPeriodontalPocket = false;
+  bool _hasDentofacialAnomaly = false;
+
+// Tooth Count
+  int _cariesFilling = 0;
+  int _cariesExtraction = 0;
+  int _missingDueToCaries = 0;
+  int _rootFragment = 0;
+  int _filledOrRestored = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -55,13 +74,18 @@ class _AddClinicalRecordFormState extends State<AddClinicalRecordForm> {
                     children: [
                       Expanded(
                           child: InputField(
-                              label: "Past Illnesses",
-                              hintText: "Enter patient's past illnesses")),
+                        label: "Past Illnesses",
+                        hintText: "Enter patient's past illnesses",
+                        controller: _pastIllnessController,
+                      )),
                       const SizedBox(width: 20),
                       Expanded(
                           child: InputField(
-                              label: "Present Illnesses",
-                              hintText: "Enter patient's present illnesses")),
+                        label: "Present Illnesses",
+                        hintText: "Enter patient's present illnesses",
+                        controller:
+                            _presentIllnessController, // present illness controller
+                      )),
                     ],
                   ),
 
@@ -73,13 +97,17 @@ class _AddClinicalRecordFormState extends State<AddClinicalRecordForm> {
                     children: [
                       Expanded(
                           child: InputField(
-                              label: "Allergies",
-                              hintText: "Enter patient's allergies")),
+                        label: "Allergies",
+                        hintText: "Enter patient's allergies",
+                        controller: _allergiesController,
+                      )), // present illness controller
                       const SizedBox(width: 20),
                       Expanded(
                           child: InputField(
-                              label: "Current Medication",
-                              hintText: "Enter patient's current medication")),
+                        label: "Current Medication",
+                        hintText: "Enter patient's current medication",
+                        controller: _medicationController,
+                      )),
                     ],
                   ),
 
@@ -103,33 +131,31 @@ class _AddClinicalRecordFormState extends State<AddClinicalRecordForm> {
                             RadioGroupField(
                               label: "Presence of Oral Debris",
                               options: const ["Present", "None"],
-                              selectedValue: _defaultSelection,
-                              onChanged: (String value) {
-                                setState(() {
-                                  _defaultSelection = value;
-                                });
+                              selectedValue: _hasDebris ? "Present" : "None",
+                              onChanged: (value) {
+                                setState(
+                                    () => _hasDebris = (value == "Present"));
                               },
                             ),
                             const SizedBox(width: 100),
                             RadioGroupField(
                               label: "Presence of Calculus",
                               options: const ["Present", "None"],
-                              selectedValue: _defaultSelection,
-                              onChanged: (String value) {
-                                setState(() {
-                                  _defaultSelection = value;
-                                });
+                              selectedValue: _hasCalculus ? "Present" : "None",
+                              onChanged: (value) {
+                                setState(
+                                    () => _hasCalculus = (value == "Present"));
                               },
                             ),
                             const SizedBox(width: 100),
                             RadioGroupField(
                               label: "Presence of Gingivitis",
                               options: const ["Present", "None"],
-                              selectedValue: _defaultSelection,
-                              onChanged: (String value) {
-                                setState(() {
-                                  _defaultSelection = value;
-                                });
+                              selectedValue:
+                                  _hasGingivitis ? "Present" : "None",
+                              onChanged: (value) {
+                                setState(() =>
+                                    _hasGingivitis = (value == "Present"));
                               },
                             ),
                           ],
@@ -144,10 +170,11 @@ class _AddClinicalRecordFormState extends State<AddClinicalRecordForm> {
                             RadioGroupField(
                               label: "Presence of Periodontal Pocket",
                               options: const ["Present", "None"],
-                              selectedValue: _defaultSelection,
+                              selectedValue:
+                                  _hasPeriodontalPocket ? "Present" : "None",
                               onChanged: (String value) {
                                 setState(() {
-                                  _defaultSelection = value;
+                                  _hasPeriodontalPocket = (value == "Present");
                                 });
                               },
                             ),
@@ -155,10 +182,11 @@ class _AddClinicalRecordFormState extends State<AddClinicalRecordForm> {
                             RadioGroupField(
                               label: "Presence of Dentofacial Anomaly",
                               options: const ["Present", "None"],
-                              selectedValue: _defaultSelection,
+                              selectedValue:
+                                  _hasDentofacialAnomaly ? "Present" : "None",
                               onChanged: (String value) {
                                 setState(() {
-                                  _defaultSelection = value;
+                                  _hasDentofacialAnomaly = (value == "Present");
                                 });
                               },
                             ),
