@@ -150,18 +150,24 @@ Widget build(BuildContext context) {
           //table rows
           SliverPadding(
             padding: const EdgeInsets.only(left: 24, right: 24),
-            sliver: SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (context, index) => _buildTableRow(_currentPageRecords[index]),
-                childCount: _currentPageRecords.length,
-              ),
-            ),
+            sliver: _currentPageRecords.isEmpty
+                ? SliverToBoxAdapter(
+                    child: _buildEmptyState(),
+                  )
+                : SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) => _buildTableRow(_currentPageRecords[index]),
+                      childCount: _currentPageRecords.length,
+                    ),
+                  ),
           ),
           //pagination
           SliverPadding(
             padding: const EdgeInsets.only(left: 24, right: 24, bottom: 24, top: 16),
             sliver: SliverToBoxAdapter(
-              child: AppPagination(
+              child: _filteredRecords.isEmpty ?
+              const SizedBox.shrink()
+              : AppPagination(
                 currentPage: _currentPage,
                 totalPages: _totalPages,
                 onPageChanged: (newPage) => setState(() => _currentPage = newPage),
@@ -238,7 +244,7 @@ Widget _buildSearchBar() {
                 child: Button(
                   label: 'Add New Record',
                   variant: ButtonVariant.primary,
-                  icon: Icons.insert_drive_file_outlined,
+                  heroIcon: HeroIcons.documentPlus,
                   onPressed: _goToAddPatient,
                 ),
               ),
@@ -348,6 +354,29 @@ Widget _buildTableRow(PatientRecord patient) {
       if (value == 'add_clinical_record') _goToAddClinicalRecord();
       //TODO: other actions
     }
+  );
+}
+
+// empty state
+Widget _buildEmptyState() {
+  return Center(
+    child: Padding(
+      padding: const EdgeInsets.symmetric(vertical: 48),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const SizedBox(height: 16),
+          Text(
+            _searchController.text.isNotEmpty
+                ? "Sorry, We couldn't find anything that matches '${_searchController.text}'"
+                : 'No records found',
+            style: AppTheme.textTheme.bodyMedium?.copyWith(
+              color: AppTheme.gray400,
+            ),
+          ),
+        ],
+      ),
+    ),
   );
 }
 }
