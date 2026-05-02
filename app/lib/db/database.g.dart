@@ -28,8 +28,8 @@ class $PatientTable extends Patient with TableInfo<$PatientTable, PatientData> {
       const VerificationMeta('middleName');
   @override
   late final GeneratedColumn<String> middleName = GeneratedColumn<String>(
-      'middle_name', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
+      'middle_name', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _lastNameMeta =
       const VerificationMeta('lastName');
   @override
@@ -193,8 +193,6 @@ class $PatientTable extends Patient with TableInfo<$PatientTable, PatientData> {
           _middleNameMeta,
           middleName.isAcceptableOrUnknown(
               data['middle_name']!, _middleNameMeta));
-    } else if (isInserting) {
-      context.missing(_middleNameMeta);
     }
     if (data.containsKey('last_name')) {
       context.handle(_lastNameMeta,
@@ -326,7 +324,7 @@ class $PatientTable extends Patient with TableInfo<$PatientTable, PatientData> {
       firstName: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}first_name'])!,
       middleName: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}middle_name'])!,
+          .read(DriftSqlType.string, data['${effectivePrefix}middle_name']),
       lastName: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}last_name'])!,
       birthDay: attachedDatabase.typeMapping
@@ -373,7 +371,7 @@ class $PatientTable extends Patient with TableInfo<$PatientTable, PatientData> {
 class PatientData extends DataClass implements Insertable<PatientData> {
   final int patientId;
   final String firstName;
-  final String middleName;
+  final String? middleName;
   final String lastName;
   final DateTime birthDay;
   final String sex;
@@ -394,7 +392,7 @@ class PatientData extends DataClass implements Insertable<PatientData> {
   const PatientData(
       {required this.patientId,
       required this.firstName,
-      required this.middleName,
+      this.middleName,
       required this.lastName,
       required this.birthDay,
       required this.sex,
@@ -417,7 +415,9 @@ class PatientData extends DataClass implements Insertable<PatientData> {
     final map = <String, Expression>{};
     map['patient_id'] = Variable<int>(patientId);
     map['first_name'] = Variable<String>(firstName);
-    map['middle_name'] = Variable<String>(middleName);
+    if (!nullToAbsent || middleName != null) {
+      map['middle_name'] = Variable<String>(middleName);
+    }
     map['last_name'] = Variable<String>(lastName);
     map['birth_day'] = Variable<DateTime>(birthDay);
     map['sex'] = Variable<String>(sex);
@@ -442,7 +442,9 @@ class PatientData extends DataClass implements Insertable<PatientData> {
     return PatientCompanion(
       patientId: Value(patientId),
       firstName: Value(firstName),
-      middleName: Value(middleName),
+      middleName: middleName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(middleName),
       lastName: Value(lastName),
       birthDay: Value(birthDay),
       sex: Value(sex),
@@ -469,7 +471,7 @@ class PatientData extends DataClass implements Insertable<PatientData> {
     return PatientData(
       patientId: serializer.fromJson<int>(json['patientId']),
       firstName: serializer.fromJson<String>(json['firstName']),
-      middleName: serializer.fromJson<String>(json['middleName']),
+      middleName: serializer.fromJson<String?>(json['middleName']),
       lastName: serializer.fromJson<String>(json['lastName']),
       birthDay: serializer.fromJson<DateTime>(json['birthDay']),
       sex: serializer.fromJson<String>(json['sex']),
@@ -496,7 +498,7 @@ class PatientData extends DataClass implements Insertable<PatientData> {
     return <String, dynamic>{
       'patientId': serializer.toJson<int>(patientId),
       'firstName': serializer.toJson<String>(firstName),
-      'middleName': serializer.toJson<String>(middleName),
+      'middleName': serializer.toJson<String?>(middleName),
       'lastName': serializer.toJson<String>(lastName),
       'birthDay': serializer.toJson<DateTime>(birthDay),
       'sex': serializer.toJson<String>(sex),
@@ -520,7 +522,7 @@ class PatientData extends DataClass implements Insertable<PatientData> {
   PatientData copyWith(
           {int? patientId,
           String? firstName,
-          String? middleName,
+          Value<String?> middleName = const Value.absent(),
           String? lastName,
           DateTime? birthDay,
           String? sex,
@@ -541,7 +543,7 @@ class PatientData extends DataClass implements Insertable<PatientData> {
       PatientData(
         patientId: patientId ?? this.patientId,
         firstName: firstName ?? this.firstName,
-        middleName: middleName ?? this.middleName,
+        middleName: middleName.present ? middleName.value : this.middleName,
         lastName: lastName ?? this.lastName,
         birthDay: birthDay ?? this.birthDay,
         sex: sex ?? this.sex,
@@ -679,7 +681,7 @@ class PatientData extends DataClass implements Insertable<PatientData> {
 class PatientCompanion extends UpdateCompanion<PatientData> {
   final Value<int> patientId;
   final Value<String> firstName;
-  final Value<String> middleName;
+  final Value<String?> middleName;
   final Value<String> lastName;
   final Value<DateTime> birthDay;
   final Value<String> sex;
@@ -722,7 +724,7 @@ class PatientCompanion extends UpdateCompanion<PatientData> {
   PatientCompanion.insert({
     this.patientId = const Value.absent(),
     required String firstName,
-    required String middleName,
+    this.middleName = const Value.absent(),
     required String lastName,
     required DateTime birthDay,
     required String sex,
@@ -741,7 +743,6 @@ class PatientCompanion extends UpdateCompanion<PatientData> {
     required DateTime createdAt,
     required DateTime updatedAt,
   })  : firstName = Value(firstName),
-        middleName = Value(middleName),
         lastName = Value(lastName),
         birthDay = Value(birthDay),
         sex = Value(sex),
@@ -807,7 +808,7 @@ class PatientCompanion extends UpdateCompanion<PatientData> {
   PatientCompanion copyWith(
       {Value<int>? patientId,
       Value<String>? firstName,
-      Value<String>? middleName,
+      Value<String?>? middleName,
       Value<String>? lastName,
       Value<DateTime>? birthDay,
       Value<String>? sex,
@@ -3473,7 +3474,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
 typedef $$PatientTableCreateCompanionBuilder = PatientCompanion Function({
   Value<int> patientId,
   required String firstName,
-  required String middleName,
+  Value<String?> middleName,
   required String lastName,
   required DateTime birthDay,
   required String sex,
@@ -3495,7 +3496,7 @@ typedef $$PatientTableCreateCompanionBuilder = PatientCompanion Function({
 typedef $$PatientTableUpdateCompanionBuilder = PatientCompanion Function({
   Value<int> patientId,
   Value<String> firstName,
-  Value<String> middleName,
+  Value<String?> middleName,
   Value<String> lastName,
   Value<DateTime> birthDay,
   Value<String> sex,
@@ -3937,7 +3938,7 @@ class $$PatientTableTableManager extends RootTableManager<
           updateCompanionCallback: ({
             Value<int> patientId = const Value.absent(),
             Value<String> firstName = const Value.absent(),
-            Value<String> middleName = const Value.absent(),
+            Value<String?> middleName = const Value.absent(),
             Value<String> lastName = const Value.absent(),
             Value<DateTime> birthDay = const Value.absent(),
             Value<String> sex = const Value.absent(),
@@ -3981,7 +3982,7 @@ class $$PatientTableTableManager extends RootTableManager<
           createCompanionCallback: ({
             Value<int> patientId = const Value.absent(),
             required String firstName,
-            required String middleName,
+            Value<String?> middleName = const Value.absent(),
             required String lastName,
             required DateTime birthDay,
             required String sex,
