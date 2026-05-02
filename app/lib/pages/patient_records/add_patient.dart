@@ -1,6 +1,7 @@
 import 'package:dentcity_management_system/db/database.dart';
 import 'package:dentcity_management_system/style/theme.dart';
 import 'package:flutter/material.dart';
+import 'package:drift/drift.dart' as drift;
 import '/../widgets/main_buttons.dart';
 import '/../widgets/input_field.dart';
 import '/../widgets/radio_buttons.dart';
@@ -26,7 +27,6 @@ class AddPatientForm extends StatefulWidget {
 
 class _AddPatientFormState extends State<AddPatientForm> {
   bool get isEditing => widget.existingPatient != null;
-  String? _defaultSelection;
 
   // Name controllers
   final _firstNameController = TextEditingController();
@@ -57,7 +57,8 @@ class _AddPatientFormState extends State<AddPatientForm> {
   String? _selectedBarangay;
 
   void _handleNext() {
-    DateTime birthDate = DateTime.now(); // create birthdate based off of user input
+    DateTime birthDate =
+        DateTime.now(); // create birthdate based off of user input
     if (_selectedYear != null &&
         _selectedMonth != null &&
         _selectedDay != null) {
@@ -68,9 +69,10 @@ class _AddPatientFormState extends State<AddPatientForm> {
       );
     }
 
-    final patientEntry = PatientCompanion.insert( // Patient Companion(Controllers of each input box)
+    final patientEntry = PatientCompanion.insert(
+      // Patient Companion(Controllers of each input box)
       firstName: _firstNameController.text,
-      middleName: _middleNameController.text,
+      middleName: drift.Value(_middleNameController.text), // keep this nullable
       lastName: _lastNameController.text,
       birthDay: birthDate,
       sex: _selectedSex ?? "Other",
@@ -135,17 +137,22 @@ class _AddPatientFormState extends State<AddPatientForm> {
                 label: "First Name",
                 hintText: "Enter first name",
                 isRequired: true,
+                controller: _firstNameController, // first name controller
               )),
               const SizedBox(width: 20),
               Expanded(
                   child: InputField(
-                      label: "Middle Name", hintText: "Enter middle name")),
+                label: "Middle Name",
+                hintText: "Enter middle name",
+                controller: _middleNameController, // middle name controller
+              )),
               const SizedBox(width: 20),
               Expanded(
                   child: InputField(
                 label: "Last Name",
                 hintText: "Enter last name",
                 isRequired: true,
+                controller: _lastNameController, // last name controller
               )),
             ],
           ),
@@ -204,21 +211,24 @@ class _AddPatientFormState extends State<AddPatientForm> {
                     hintText: "Select a year",
                     label: "Year",
                     variant: InputVariant.dropdown,
-                    dropdownValue: _defaultSelection,
+                    dropdownValue: _selectedYear,
                     isHidden: isEditing,
                     isRequired: true,
                     dropdownItems: List.generate(
-                      // dynamic list, updates using the DateTime of the client's PC
-                      (DateTime.now().year - 1900) +
-                          1, // adds 2027 to the option list, and so on with other years
-                      (index) => (DateTime.now().year - index).toString(),
+                      (DateTime.now().year - 1900) + 1,
+                      (index) => (DateTime.now().year - index)
+                          .toString(), // function to use PC's datetime to add when a new year comes
                     ),
+                    onDropdownChanged: (value) {
+                      setState(() {
+                        _selectedYear = value;
+                      });
+                    },
                   ),
                 ),
-              ],
-            ),
+              ], 
+            ), 
           ],
-
           const SizedBox(height: 20),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -228,7 +238,12 @@ class _AddPatientFormState extends State<AddPatientForm> {
                   hintText: "Select a sex",
                   label: "Sex",
                   variant: InputVariant.dropdown,
-                  dropdownValue: _defaultSelection,
+                  dropdownValue: _selectedSex,
+                  onDropdownChanged: (value) {
+                    setState(() {
+                      _selectedSex = value;
+                    });
+                  },
                   isRequired: true,
                   dropdownItems: const ["Male", "Female"],
                 ),
@@ -239,7 +254,12 @@ class _AddPatientFormState extends State<AddPatientForm> {
                   hintText: "Select a civil status",
                   label: "Civil Status",
                   variant: InputVariant.dropdown,
-                  dropdownValue: _defaultSelection,
+                  dropdownValue: _selectedStatus,
+                  onDropdownChanged: (value) {
+                    setState(() {
+                      _selectedStatus = value;
+                    });
+                  },
                   dropdownItems: const [
                     "Single",
                     "Married",
@@ -252,10 +272,7 @@ class _AddPatientFormState extends State<AddPatientForm> {
               Expanded(
                 child: RadioGroupField(
                   label: "PWD Status",
-                  options: const [
-                    "Applicable",
-                    "Not Applicable"
-                  ], // edit this if u want tochange
+                  options: const ["Applicable", "Not Applicable"],
                   selectedValue: rowSelections["PWD"]!,
                   onChanged: (value) {
                     setState(() {
@@ -281,6 +298,7 @@ class _AddPatientFormState extends State<AddPatientForm> {
                 label: "Mobile Number",
                 hintText: "Enter mobile number",
                 isRequired: true,
+                controller: _contactNumberController,
               )),
               const SizedBox(width: 20),
               Expanded(
@@ -288,6 +306,8 @@ class _AddPatientFormState extends State<AddPatientForm> {
                 label: "Emergency Contact Number",
                 hintText: "Enter emergency number",
                 isRequired: true,
+                controller:
+                    _emergencyContactController, // Emergency Contact Controller
               )),
             ],
           ),
@@ -297,12 +317,17 @@ class _AddPatientFormState extends State<AddPatientForm> {
             children: [
               Expanded(
                   child: InputField(
-                      label: "Referred By", hintText: "Enter referral")),
+                label: "Referred By",
+                hintText: "Enter referral",
+                controller: _referredByController,
+              )),
               const SizedBox(width: 20),
               Expanded(
                   child: InputField(
-                      label: "Relationship",
-                      hintText: "Relationship with referral")),
+                label: "Relationship",
+                hintText: "Relationship with referral",
+                controller: _relationshipController,
+              )),
             ],
           ),
 
@@ -321,6 +346,7 @@ class _AddPatientFormState extends State<AddPatientForm> {
               InputField(
                 hintText: "Enter Patient Street Address",
                 label: "Street Address",
+                controller: _streetController,
               ),
               const SizedBox(height: 20),
 
@@ -415,6 +441,7 @@ class _AddPatientFormState extends State<AddPatientForm> {
                       label: "ZIP Code",
                       variant: InputVariant.primary,
                       keyboardType: TextInputType.number,
+                      controller: _zipController, // Zip Code Controller
                     ),
                   ),
                 ],
