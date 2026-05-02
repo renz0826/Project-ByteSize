@@ -1,10 +1,7 @@
-import '/../style/theme.dart';
+import 'package:dentcity_management_system/pages/patient_records/add_clinical_record.dart';
 import '../../db/database.dart';
 import 'package:flutter/material.dart';
-import '/../widgets/search_bar.dart';
-import '/../widgets/app_pagination.dart';
-import '/../widgets/main_buttons.dart';
-import '/../widgets/filter_dropdown.dart';
+import '../../widgets/main_buttons.dart';
 import 'add_patient.dart';
 import 'add_clinical_record.dart';
 import '/../widgets/page_header.dart';
@@ -12,44 +9,14 @@ import 'package:heroicons/heroicons.dart';
 import '/../widgets/app_info_bar.dart';
 import 'package:drift/drift.dart' as drift;
 
-//data model
-//TODO: replace with Patient Data when database is connected
-class PatientRecord {
-  final String name;
-  final String sex;
-  final String age;
-  final String address;
-  final String contactNumber;
-  final String procedure;
-  final String status; 
-  
-  PatientRecord({
-    required this.name,
-    required this.sex,
-    required this.age,
-    required this.address,
-    required this.contactNumber,
-    required this.procedure,
-    required this.status,
-  });
+// enum of different patients view
+// TODO: Add different Edit and View Patient Record Views
+enum PatientsView {
+  main,
+  addPatient,
+  addClinicalRecord,
 }
 
-//sample data
-//TODO: remove this and fetch real data from database when connected
-final List<PatientRecord> patientRecords = List.generate(20, (index) => PatientRecord(
-  name: 'Full Name Here',
-  sex: index.isEven ? 'Male' : 'Female',     
-  age: '100 yo',
-  address: 'Luna St., La Paz, Iloilo City',
-  contactNumber: '09123456780',
-  procedure: 'Teeth Removal',
-  status: index % 3 == 0 ? 'Archived' : 'Active',
-));
-
-//view enum
-enum PatientsView { main, addPatient, addClinicalRecord }
-
-//main screen
 class PatientDashboard extends StatefulWidget {
   const PatientDashboard({super.key});
 
@@ -63,7 +30,7 @@ class _PatientDashboardState extends State<PatientDashboard> {
   ClinicalRecordCompanion? _draftClinicalRecord; // create a patient + clinical record
   PatientsView _currentView = PatientsView.main;
 
-    void _goToAddPatient() {
+  void _goToAddPatient() {
     setState(() => _currentView = PatientsView.addPatient);
   }
 
@@ -137,42 +104,22 @@ class _PatientDashboardState extends State<PatientDashboard> {
     );
   }
 
-//table row
-Widget _buildTableRow(PatientRecord patient) {
-  return PatientRecordBar(
-    fullName: patient.name, 
-    sex: patient.sex, 
-    age: int.parse(patient.age.replaceAll(' yo', '')),
-    address: patient.address, 
-    contact: patient.contactNumber, 
-    procedure: patient.procedure,
-    onMenuSelected: (value){
-      if (value == 'add_clinical_record') _goToAddClinicalRecord();
-      //TODO: other actions
-    }
-  );
-}
-
-// empty state
-Widget _buildEmptyState() {
-  return Center(
-    child: Padding(
-      padding: const EdgeInsets.symmetric(vertical: 48),
+  Widget _buildMainDashboard() {
+    return Container(
+      padding: const EdgeInsets.all(24),
       child: Column(
         mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(height: 16),
-          Text(
-            _searchController.text.isNotEmpty
-                ? "Sorry, We couldn't find anything that matches '${_searchController.text}'"
-                : 'No records found',
-            style: AppTheme.textTheme.bodyMedium?.copyWith(
-              color: AppTheme.gray400,
-            ),
-          ),
+          const Text("Records Index", style: TextStyle(fontSize: 24)),
+          const SizedBox(height: 20),
+          Button(
+              label: "Add Patient",
+              variant: ButtonVariant.primary,
+              width: double.infinity,
+              onPressed: _goToAddPatient),
         ],
       ),
-    ),
-  );
-}
+    );
+  }
 }

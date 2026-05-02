@@ -153,18 +153,14 @@ class _SidebarState extends State<MainLayout> {
                 if (index >= pages.length) return const Center(child: Text('Not Found'));
 
                 return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  //only show the header if it's not the patient records
-                  if (_controller.selectedIndex != 1)
-                    PageHeader(
-                      title: pages[index].title,
-                      type: PageHeaderType.plain,
-                    ),
-                  
-                  Expanded(child: pages[index].screen),
-                ],
-              );
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    PageHeader(title: pages[index].title,
+                    type: PageHeaderType.plain,),
+                    
+                    Expanded(child: pages[index].screen),
+                  ],
+                );
               },
             ),
           ),

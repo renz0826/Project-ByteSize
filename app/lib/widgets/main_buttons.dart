@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../style/theme.dart';
-import 'package:heroicons/heroicons.dart';
 
 // Define Button enums
 enum ButtonVariant {
@@ -21,12 +20,9 @@ class Button extends StatelessWidget {
   final String label;
   final ButtonVariant variant;
   final IconData? icon;
-  final HeroIcons? heroIcon;
-  final HeroIconStyle heroIconStyle;
   final IconPlacement iconPlacement;
   final double width;
   final bool isLoading;
-  final double? fontSize;
 
   const Button({
     super.key,
@@ -34,24 +30,10 @@ class Button extends StatelessWidget {
     this.label = "",
     this.variant = ButtonVariant.primary,
     this.icon,
-    this.heroIcon,
-    this.heroIconStyle = HeroIconStyle.outline,
     this.iconPlacement = IconPlacement.left,
     this.width = 0,
     this.isLoading = false,
-    this.fontSize,
   });
-
-  // shared icon builder
-    Widget _buildIcon() {
-      if (heroIcon != null) {
-        return HeroIcon(heroIcon!, style: heroIconStyle, size: 20);
-      }
-      if (icon != null) {
-        return Icon(icon, size: 20);
-      }
-      return const SizedBox.shrink();
-}
 
   @override
   Widget build(BuildContext context) {
@@ -77,8 +59,11 @@ class Button extends StatelessWidget {
           ),
         ] else ...[
           // Places the icon on the left
-          if ((icon != null || heroIcon != null) && iconPlacement == IconPlacement.left) ...[
-            _buildIcon(),
+          if (icon != null && iconPlacement == IconPlacement.left) ...[
+            Icon(
+              icon,
+              size: 20,
+            ),
             const SizedBox(
               width: 12,
             )
@@ -86,15 +71,18 @@ class Button extends StatelessWidget {
 
           Text(
             label,
-            style: TextStyle(fontSize: fontSize ?? 16, fontWeight: FontWeight.w600),
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
           ),
 
           // Places the icon on the right
-          if ((icon != null || heroIcon != null) && iconPlacement == IconPlacement.right) ...[
+          if (icon != null && iconPlacement == IconPlacement.right) ...[
             const SizedBox(
               width: 12,
             ),
-            _buildIcon(),
+            Icon(
+              icon,
+              size: 20,
+            ),
           ],
         ]
       ],
@@ -146,8 +134,6 @@ class Button extends StatelessWidget {
                 elevation: 0,
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                    minimumSize: Size.zero, 
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap, 
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(24))),
             child: buttonContent);
@@ -164,8 +150,6 @@ class Button extends StatelessWidget {
                 elevation: 0,
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                    minimumSize: Size.zero, 
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap, 
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(24))),
             child: buttonContent);
@@ -227,11 +211,9 @@ class Button extends StatelessWidget {
             child: buttonContent);
     }
 
-    return width == 0
-        ? buttonWidget
-        : SizedBox(
-            width: width,
-            child: buttonWidget,
-          );
+    return SizedBox(
+      width: width,
+      child: buttonWidget,
+    );
   }
 }
