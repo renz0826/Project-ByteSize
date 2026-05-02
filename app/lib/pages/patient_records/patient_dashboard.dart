@@ -6,7 +6,11 @@ import '/../widgets/app_pagination.dart';
 import '/../widgets/main_buttons.dart';
 import '/../widgets/filter_dropdown.dart';
 import 'add_patient.dart';
-import '../../widgets/attribute_read_view.dart';
+import 'add_clinical_record.dart';
+import '/../widgets/page_header.dart';
+import 'package:heroicons/heroicons.dart';
+import '/../widgets/app_info_bar.dart';
+import 'package:drift/drift.dart' as drift;
 
 //data model
 //TODO: replace with Patient Data when database is connected
@@ -55,6 +59,8 @@ class PatientDashboard extends StatefulWidget {
 
 class _PatientDashboardState extends State<PatientDashboard> {
   // Functions to change patients screen states
+  PatientCompanion? _draftPatient; // create a patient record 
+  ClinicalRecordCompanion? _draftClinicalRecord; // create a patient + clinical record
   PatientsView _currentView = PatientsView.main;
 
     void _goToAddPatient() {
@@ -105,11 +111,17 @@ class _PatientDashboardState extends State<PatientDashboard> {
           //     'birthday': '1995-08-24', // ! If this is enabled, the birthdate field will not show
           //     'firstName': 'John',
           //   },
-          onNext: _goToAddClinicalRecord, onBack: _goBackToMain,
+          onNext: (data) => _goToAddClinicalRecord(data), // brings the patient data into the add clinical record page
+          onBack: () => setState(() => _currentView = PatientsView.main), 
         );
+        break;
       case PatientsView.addClinicalRecord:
         activeScreen = AddClinicalRecordForm(
-            onPrevious: _goToAddPatient, onFinish: _goBackToMain);
+          patientId: 0, // set the patientID to 0 (since were using atomic saving, this doesnt matter, its more of a safety precaution)
+          onPrevious: _goToAddPatient,
+          onFinish: (clinicalData) => _goBackToMain(
+              clinicalData), // use a wrapper to pass clinicalData argument
+        );
         break;
       case PatientsView.main:
         activeScreen = _buildMainDashboard();
