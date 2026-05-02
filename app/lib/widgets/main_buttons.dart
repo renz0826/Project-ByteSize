@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../style/theme.dart';
+import 'package:heroicons/heroicons.dart';
 
 // Define Button enums
 enum ButtonVariant {
@@ -20,6 +21,8 @@ class Button extends StatelessWidget {
   final String label;
   final ButtonVariant variant;
   final IconData? icon;
+  final HeroIcons? heroIcon;
+  final HeroIconStyle heroIconStyle;
   final IconPlacement iconPlacement;
   final double width;
   final bool isLoading;
@@ -31,11 +34,24 @@ class Button extends StatelessWidget {
     this.label = "",
     this.variant = ButtonVariant.primary,
     this.icon,
+    this.heroIcon,
+    this.heroIconStyle = HeroIconStyle.outline,
     this.iconPlacement = IconPlacement.left,
     this.width = 0,
     this.isLoading = false,
     this.fontSize,
   });
+
+  // shared icon builder
+    Widget _buildIcon() {
+      if (heroIcon != null) {
+        return HeroIcon(heroIcon!, style: heroIconStyle, size: 20);
+      }
+      if (icon != null) {
+        return Icon(icon, size: 20);
+      }
+      return const SizedBox.shrink();
+}
 
   @override
   Widget build(BuildContext context) {
@@ -61,11 +77,8 @@ class Button extends StatelessWidget {
           ),
         ] else ...[
           // Places the icon on the left
-          if (icon != null && iconPlacement == IconPlacement.left) ...[
-            Icon(
-              icon,
-              size: 20,
-            ),
+          if ((icon != null || heroIcon != null) && iconPlacement == IconPlacement.left) ...[
+            _buildIcon(),
             const SizedBox(
               width: 12,
             )
@@ -77,14 +90,11 @@ class Button extends StatelessWidget {
           ),
 
           // Places the icon on the right
-          if (icon != null && iconPlacement == IconPlacement.right) ...[
+          if ((icon != null || heroIcon != null) && iconPlacement == IconPlacement.right) ...[
             const SizedBox(
               width: 12,
             ),
-            Icon(
-              icon,
-              size: 20,
-            ),
+            _buildIcon(),
           ],
         ]
       ],
