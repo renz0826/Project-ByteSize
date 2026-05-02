@@ -1,4 +1,5 @@
 import 'package:dentcity_management_system/pages/patient_records/add_clinical_record.dart';
+import '../../db/database.dart';
 import 'package:flutter/material.dart';
 import '../../widgets/main_buttons.dart';
 import 'add_patient.dart';
@@ -27,9 +28,11 @@ class _PatientDashboardState extends State<PatientDashboard> {
     setState(() => _currentView = PatientsView.addPatient);
   }
 
-  void _goToAddClinicalRecord() {
-    setState(() => _currentView = PatientsView.addClinicalRecord);
-  }
+  void _goToAddClinicalRecord(PatientCompanion patientData) {
+  setState(() {
+    _currentView = PatientsView.addClinicalRecord;
+  });
+}
 
   // TODO: Make the save button functional and return to the main dashboard.
   void _goBackToMain() {
