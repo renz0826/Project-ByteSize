@@ -6,7 +6,7 @@ class Patient extends Table { // Patient Entity
 
 // Full Name 
   TextColumn get firstName => text()();
-  TextColumn get middleName => text()();
+  TextColumn get middleName => text().nullable()();
   TextColumn get lastName => text()();
 
 // Demographic ]
