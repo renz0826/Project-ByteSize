@@ -9,7 +9,6 @@ import '../../services/locations_ph.dart';
 import '../../services/date_service.dart';
 import '../../services/date_helper.dart';
 
-
 class AddPatientForm extends StatefulWidget {
   final Function(PatientCompanion) onNext; // pass the data object itself
   final VoidCallback onBack;
@@ -57,14 +56,8 @@ class _AddPatientFormState extends State<AddPatientForm> {
   String? _selectedBarangay;
 
   void _handleNext() {
-    DateTime birthDate = DateTime.now();
-
-    if (_selectedYear != null &&
-        _selectedMonth != null &&
-        _selectedDay != null) {
-      birthDate = DateHelper.convertToDateTime(
-          _selectedMonth!, _selectedDay!, _selectedYear!);
-    }
+    
+    DateTime birthDate = DateHelper.convertToDateTime(_selectedMonth!, _selectedDay!, _selectedYear!);
 
     final patientEntry = PatientCompanion.insert(
       firstName: _firstNameController.text,

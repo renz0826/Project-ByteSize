@@ -12,7 +12,7 @@ import '/../widgets/app_info_bar.dart';
 import '../../db/database.dart';
 import 'package:drift/drift.dart' as drift;
 import '../../repositories/patient_repository.dart'; 
-
+import '../../services/date_helper.dart';
 //view enum
 enum PatientsView { main, addPatient, addClinicalRecord }
 
@@ -377,10 +377,10 @@ class _PatientDashboardState extends State<PatientDashboard> {
       fullName: '${patient.firstName} ${patient.lastName}',
       sex: patient.sex,
       // Safely calculate age based on database birthDate
-      age: DateTime.now().year - patient.birthDate.year,
-      address: '${patient.streetAddress ?? ''}, ${patient.barangay ?? ''}',
+      age: DateHelper.calculateAge(patient.birthDate),
+      address: '${patient.province ?? ''}, ${patient.cityMunicipality ?? ''}',
       contact: patient.contactNumber,
-      procedure: 'Consultation', // Placeholder until linked to Clinical Records
+      procedure: 'Consultation', // Placeholder (still trying to link this to clinical record)
       onMenuSelected: (value) {
         if (value == 'add_clinical_record') {
           // Convert the existing real data back into a Companion for the form
