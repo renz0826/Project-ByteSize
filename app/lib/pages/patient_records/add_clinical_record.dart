@@ -1,22 +1,83 @@
+import 'package:dentcity_management_system/db/database.dart';
 import 'package:dentcity_management_system/style/theme.dart';
+import 'package:drift/drift.dart' as drift;
 import 'package:flutter/material.dart';
 import '/../widgets/main_buttons.dart';
 import '/../widgets/input_field.dart';
 import '/../widgets/radio_buttons.dart';
 
 class AddClinicalRecordForm extends StatefulWidget {
-  final VoidCallback onFinish;
+  final int patientId;
+  final Function(ClinicalRecordCompanion) onFinish;
   final VoidCallback onPrevious;
   const AddClinicalRecordForm(
-      {super.key, required this.onFinish, required this.onPrevious});
+      {super.key,
+      required this.patientId, 
+      required this.onFinish,
+      required this.onPrevious});
 
   @override
   State<AddClinicalRecordForm> createState() => _AddClinicalRecordFormState();
 }
 
 class _AddClinicalRecordFormState extends State<AddClinicalRecordForm> {
-  String? _defaultSelection;
-  int _teethExtracted = 0;
+// Medical Background Controller
+  final _pastIllnessController = TextEditingController();
+  final _presentIllnessController = TextEditingController();
+  final _allergiesController = TextEditingController();
+  final _medicationController = TextEditingController();
+
+// Treatment Procedure (Radio Boxes): Setting this false as default
+  bool _hasDebris = false;
+  bool _hasCalculus = false;
+  bool _hasGingivitis = false;
+  bool _hasPeriodontalPocket = false;
+  bool _hasDentofacialAnomaly = false;
+
+// Tooth Count
+  int _cariesFilling = 0;
+  int _cariesExtraction = 0;
+  int _missingDueToCaries = 0;
+  int _rootFragment = 0;
+  int _filledOrRestored = 0;
+
+// Clinical Notes
+  final _clinicalNotesController = TextEditingController();
+
+  void _handleSave() {
+    final recordEntry = ClinicalRecordCompanion.insert(
+      patientId: widget.patientId // required 
+      ,
+      // Medical Background
+      pastIllness: drift.Value(_pastIllnessController.text),
+      presentIllness: drift.Value(_presentIllnessController.text),
+      allergies: drift.Value(_allergiesController.text),
+      currentMedication: drift.Value(_medicationController.text),
+
+      // Treatment Procedure (Booleans)
+      hasOralDebris: drift.Value(_hasDebris),
+      hasCalculus: drift.Value(_hasCalculus),
+      hasGingivitis: drift.Value(_hasGingivitis),
+      hasPeriodontalPocket: drift.Value(_hasPeriodontalPocket),
+      hasDentofacialAnomaly: drift.Value(_hasDentofacialAnomaly),
+
+      // Tooth Counts (Integers)
+      cariesForFilling: drift.Value(_cariesFilling),
+      cariesForExtraction: drift.Value(_cariesExtraction),
+      rootFragment: drift.Value(_rootFragment),
+      missingDueToCaries: drift.Value(_missingDueToCaries),
+      filledOrRestored: drift.Value(_filledOrRestored),
+
+      // Notes
+      clinicalNotes: drift.Value(_clinicalNotesController.text),
+
+      // Metadata
+      createdAt: drift.Value(DateTime.now()),
+    );
+
+    // Send the bundled data back to the dashboard
+    widget.onFinish(recordEntry);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,13 +116,18 @@ class _AddClinicalRecordFormState extends State<AddClinicalRecordForm> {
                     children: [
                       Expanded(
                           child: InputField(
-                              label: "Past Illnesses",
-                              hintText: "Enter patient's past illnesses")),
+                        label: "Past Illnesses",
+                        hintText: "Enter patient's past illnesses",
+                        controller: _pastIllnessController,
+                      )),
                       const SizedBox(width: 20),
                       Expanded(
                           child: InputField(
-                              label: "Present Illnesses",
-                              hintText: "Enter patient's present illnesses")),
+                        label: "Present Illnesses",
+                        hintText: "Enter patient's present illnesses",
+                        controller:
+                            _presentIllnessController, // present illness controller
+                      )),
                     ],
                   ),
 
@@ -73,13 +139,17 @@ class _AddClinicalRecordFormState extends State<AddClinicalRecordForm> {
                     children: [
                       Expanded(
                           child: InputField(
-                              label: "Allergies",
-                              hintText: "Enter patient's allergies")),
+                        label: "Allergies",
+                        hintText: "Enter patient's allergies",
+                        controller: _allergiesController,
+                      )), // present illness controller
                       const SizedBox(width: 20),
                       Expanded(
                           child: InputField(
-                              label: "Current Medication",
-                              hintText: "Enter patient's current medication")),
+                        label: "Current Medication",
+                        hintText: "Enter patient's current medication",
+                        controller: _medicationController,
+                      )),
                     ],
                   ),
 
@@ -103,33 +173,31 @@ class _AddClinicalRecordFormState extends State<AddClinicalRecordForm> {
                             RadioGroupField(
                               label: "Presence of Oral Debris",
                               options: const ["Present", "None"],
-                              selectedValue: _defaultSelection,
-                              onChanged: (String value) {
-                                setState(() {
-                                  _defaultSelection = value;
-                                });
+                              selectedValue: _hasDebris ? "Present" : "None",
+                              onChanged: (value) {
+                                setState(
+                                    () => _hasDebris = (value == "Present"));
                               },
                             ),
                             const SizedBox(width: 100),
                             RadioGroupField(
-                              label: "Presence of Oral Debris",
+                              label: "Presence of Calculus",
                               options: const ["Present", "None"],
-                              selectedValue: _defaultSelection,
-                              onChanged: (String value) {
-                                setState(() {
-                                  _defaultSelection = value;
-                                });
+                              selectedValue: _hasCalculus ? "Present" : "None",
+                              onChanged: (value) {
+                                setState(
+                                    () => _hasCalculus = (value == "Present"));
                               },
                             ),
                             const SizedBox(width: 100),
                             RadioGroupField(
-                              label: "Presence of Oral Debris",
+                              label: "Presence of Gingivitis",
                               options: const ["Present", "None"],
-                              selectedValue: _defaultSelection,
-                              onChanged: (String value) {
-                                setState(() {
-                                  _defaultSelection = value;
-                                });
+                              selectedValue:
+                                  _hasGingivitis ? "Present" : "None",
+                              onChanged: (value) {
+                                setState(() =>
+                                    _hasGingivitis = (value == "Present"));
                               },
                             ),
                           ],
@@ -144,10 +212,11 @@ class _AddClinicalRecordFormState extends State<AddClinicalRecordForm> {
                             RadioGroupField(
                               label: "Presence of Periodontal Pocket",
                               options: const ["Present", "None"],
-                              selectedValue: _defaultSelection,
+                              selectedValue:
+                                  _hasPeriodontalPocket ? "Present" : "None",
                               onChanged: (String value) {
                                 setState(() {
-                                  _defaultSelection = value;
+                                  _hasPeriodontalPocket = (value == "Present");
                                 });
                               },
                             ),
@@ -155,10 +224,11 @@ class _AddClinicalRecordFormState extends State<AddClinicalRecordForm> {
                             RadioGroupField(
                               label: "Presence of Dentofacial Anomaly",
                               options: const ["Present", "None"],
-                              selectedValue: _defaultSelection,
+                              selectedValue:
+                                  _hasDentofacialAnomaly ? "Present" : "None",
                               onChanged: (String value) {
                                 setState(() {
-                                  _defaultSelection = value;
+                                  _hasDentofacialAnomaly = (value == "Present");
                                 });
                               },
                             ),
@@ -189,12 +259,13 @@ class _AddClinicalRecordFormState extends State<AddClinicalRecordForm> {
                               child: InputField(
                                 label: "Caries Indicated for Filling",
                                 variant: InputVariant.counter,
-                                counterValue: _teethExtracted,
+                                counterValue:
+                                    _cariesFilling, // changed to _carriesFilling
                                 counterMin: 0,
                                 counterMax: 32,
                                 onCounterChanged: (newValue) {
                                   setState(() {
-                                    _teethExtracted = newValue;
+                                    _cariesFilling = newValue;
                                   });
                                 },
                               ),
@@ -204,12 +275,13 @@ class _AddClinicalRecordFormState extends State<AddClinicalRecordForm> {
                               child: InputField(
                                 label: "Caries Indicated for Extraction",
                                 variant: InputVariant.counter,
-                                counterValue: _teethExtracted,
+                                counterValue:
+                                    _cariesExtraction, // changed to _carriesExtraction
                                 counterMin: 0,
                                 counterMax: 32,
                                 onCounterChanged: (newValue) {
                                   setState(() {
-                                    _teethExtracted = newValue;
+                                    _cariesExtraction = newValue;
                                   });
                                 },
                               ),
@@ -219,12 +291,13 @@ class _AddClinicalRecordFormState extends State<AddClinicalRecordForm> {
                               child: InputField(
                                 label: "Root Fragment",
                                 variant: InputVariant.counter,
-                                counterValue: _teethExtracted,
+                                counterValue:
+                                    _rootFragment, // changed to _rootFragment
                                 counterMin: 0,
                                 counterMax: 32,
                                 onCounterChanged: (newValue) {
                                   setState(() {
-                                    _teethExtracted = newValue;
+                                    _rootFragment = newValue;
                                   });
                                 },
                               ),
@@ -244,12 +317,13 @@ class _AddClinicalRecordFormState extends State<AddClinicalRecordForm> {
                                 child: InputField(
                                   label: "Missing Due to Caries",
                                   variant: InputVariant.counter,
-                                  counterValue: _teethExtracted,
+                                  counterValue:
+                                      _missingDueToCaries, // changed to _missingDueToCaries
                                   counterMin: 0,
                                   counterMax: 32,
                                   onCounterChanged: (newValue) {
                                     setState(() {
-                                      _teethExtracted = newValue;
+                                      _missingDueToCaries = newValue;
                                     });
                                   },
                                 ),
@@ -259,12 +333,13 @@ class _AddClinicalRecordFormState extends State<AddClinicalRecordForm> {
                                 child: InputField(
                                   label: "Filled or Restored",
                                   variant: InputVariant.counter,
-                                  counterValue: _teethExtracted,
+                                  counterValue:
+                                      _filledOrRestored, // changed to _filledOrRestored
                                   counterMin: 0,
                                   counterMax: 32,
                                   onCounterChanged: (newValue) {
                                     setState(() {
-                                      _teethExtracted = newValue;
+                                      _filledOrRestored = newValue;
                                     });
                                   },
                                 ),
@@ -290,6 +365,7 @@ class _AddClinicalRecordFormState extends State<AddClinicalRecordForm> {
                         "Write important clinical notes during the appointment",
                     label: "Clinical Notes",
                     maxLines: 10,
+                    controller: _clinicalNotesController,
                   ),
 
                   const SizedBox(height: 32),
@@ -314,7 +390,7 @@ class _AddClinicalRecordFormState extends State<AddClinicalRecordForm> {
                           width: 140,
                           icon: Icons.save_alt_outlined,
                           iconPlacement: IconPlacement.left,
-                          onPressed: widget.onFinish,
+                          onPressed: _handleSave,
                         ),
                       ])
                 ],

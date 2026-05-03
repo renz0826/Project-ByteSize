@@ -1,25 +1,25 @@
 import 'package:drift/drift.dart';
 
-class Patient extends Table { // Patient Entity
+class Patient extends Table {
+  // Patient Entity
 // Primary Key
-  IntColumn get patientId=> integer().autoIncrement()();
+  IntColumn get patientId => integer().autoIncrement()();
 
-// Full Name 
+// Full Name
   TextColumn get firstName => text()();
-  TextColumn get middleName => text()();
+  TextColumn get middleName => text().nullable()();
   TextColumn get lastName => text()();
 
-// Demographic ]
-  DateTimeColumn get birthDate => dateTime()();
+// Demographic
+  DateTimeColumn get birthDay => dateTime()();
   TextColumn get sex => text().withLength(min: 1, max: 10)();
   TextColumn get civilStatus => text()();
 
 // Contacts
   TextColumn get contactNumber => text().withLength(min: 10, max: 11)();
-  TextColumn get emergencyContactNo => text().nullable()();
-  TextColumn get referredBy => text().nullable()();
-  TextColumn get relationship => text().nullable()();
-
+  TextColumn get emergencyContactNo => text()();
+  TextColumn get referredBy => text()();
+  TextColumn get relationship => text()();
 // Address
   TextColumn get streetAddress => text()();
   TextColumn get barangay => text()();
@@ -28,17 +28,19 @@ class Patient extends Table { // Patient Entity
   TextColumn get zipCode => text()();
 
 // Flags
-BoolColumn get isArchived => boolean().withDefault(const Constant(false))();
-BoolColumn get isSeniorOrPWD => boolean().withDefault(const Constant(false))();
+  BoolColumn get isArchived => boolean().withDefault(const Constant(false))();
+  BoolColumn get isSeniorOrPWD =>
+      boolean().withDefault(const Constant(false))();
 
 // Metadata
-DateTimeColumn get createdAt => dateTime()();
-DateTimeColumn get updatedAt => dateTime()();
+  DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
 }
 
-class ClinicalStaff extends Table {// Dentist and Staff Entity
+class ClinicalStaff extends Table {
+  // Dentist and Staff Entity
 // Primary Key
-  IntColumn get staffId => integer()(); 
+  IntColumn get staffId => integer()();
 
 // Other Data
   TextColumn get name => text()();
@@ -46,32 +48,36 @@ class ClinicalStaff extends Table {// Dentist and Staff Entity
   // PIN is already located in auth_provider
 }
 
-class Appointment extends Table { // Appointment entity
+class Appointment extends Table {
+  // Appointment entity
 // Primary Key
   IntColumn get appointmentId => integer().autoIncrement()();
 
 // Foreign Key
   IntColumn get patientId => integer().references(Patient, #patientId)();
-  IntColumn get staffId => integer().nullable().references(ClinicalStaff, #staffId)();
+  IntColumn get staffId =>
+      integer().nullable().references(ClinicalStaff, #staffId)();
 
   // Date and Time
   DateTimeColumn get scheduleDateTime => dateTime()();
 
   // Reason for Visit
   TextColumn get reasonForVisit => text()();
-  
+
   // Status (Scheduled, Completed, & Cancelled)
   TextColumn get status => text().withDefault(const Constant('Scheduled'))();
 }
 
-class Invoice extends Table { // Billing Entity
+class Invoice extends Table {
+  // Billing Entity
   // Primary Key
   IntColumn get invoiceId => integer().autoIncrement()();
 
   // Foreign Keys
   IntColumn get patientId => integer().references(Patient, #patientId)();
   IntColumn get chargeId => integer().references(ProcedureCharge, #chargeId)();
-  IntColumn get transactionId => integer().references(PaymentTransaction, #transactionId)();
+  IntColumn get transactionId =>
+      integer().references(PaymentTransaction, #transactionId)();
 
   // Issued Date
   DateTimeColumn get issuedDate => dateTime().withDefault(currentDateAndTime)();
@@ -109,9 +115,10 @@ class PaymentTransaction extends Table {
 
 // How the patient pays (cash, card, e-wallet)
   TextColumn get modeOfPayment => text()();
-  
+
 // Payment Date
-  DateTimeColumn get paymentDate => dateTime().withDefault(currentDateAndTime)();
+  DateTimeColumn get paymentDate =>
+      dateTime().withDefault(currentDateAndTime)();
 }
 
 class ClinicalRecord extends Table {
@@ -124,28 +131,32 @@ class ClinicalRecord extends Table {
   // Timestamp
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 
-  // Medical History 
+  // Medical History
   TextColumn get pastIllness => text().nullable()();
   TextColumn get presentIllness => text().nullable()();
   TextColumn get allergies => text().nullable()();
   TextColumn get currentMedication => text().nullable()();
 
-  // Dental Exam 
-  BoolColumn get hasOralDebris => boolean().withDefault(const Constant(false))();
+  // Dental Exam
+  BoolColumn get hasOralDebris =>
+      boolean().withDefault(const Constant(false))();
   BoolColumn get hasCalculus => boolean().withDefault(const Constant(false))();
-  BoolColumn get hasPeriodontalPocket => boolean().withDefault(const Constant(false))();
-  BoolColumn get hasGingivitis => boolean().withDefault(const Constant(false))();
-  BoolColumn get hasDentofacialAnomaly => boolean().withDefault(const Constant(false))();
+  BoolColumn get hasPeriodontalPocket =>
+      boolean().withDefault(const Constant(false))();
+  BoolColumn get hasGingivitis =>
+      boolean().withDefault(const Constant(false))();
+  BoolColumn get hasDentofacialAnomaly =>
+      boolean().withDefault(const Constant(false))();
 
   // Tooth Counters (Integers)
   IntColumn get cariesForFilling => integer().withDefault(const Constant(0))();
-  IntColumn get cariesForExtraction => integer().withDefault(const Constant(0))();
+  IntColumn get cariesForExtraction =>
+      integer().withDefault(const Constant(0))();
   IntColumn get rootFragment => integer().withDefault(const Constant(0))();
-  IntColumn get missingDueToCaries => integer().withDefault(const Constant(0))();
+  IntColumn get missingDueToCaries =>
+      integer().withDefault(const Constant(0))();
   IntColumn get filledOrRestored => integer().withDefault(const Constant(0))();
 
   // Doctor's Narrative
   TextColumn get clinicalNotes => text().nullable()();
 }
-
-
