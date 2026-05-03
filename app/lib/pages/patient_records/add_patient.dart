@@ -1,15 +1,17 @@
+import 'package:dentcity_management_system/db/database.dart';
 import 'package:dentcity_management_system/style/theme.dart';
 import 'package:flutter/material.dart';
+import 'package:drift/drift.dart' as drift;
 import '/../widgets/main_buttons.dart';
 import '/../widgets/input_field.dart';
 import '/../widgets/radio_buttons.dart';
 import '../../services/locations_ph.dart';
 import '../../services/date_service.dart';
+import '../../services/date_helper.dart';
 
-// TODO: For the add patient onNext, make sure that the data is saved temporarily where it does not restart.
 
 class AddPatientForm extends StatefulWidget {
-  final VoidCallback onNext;
+  final Function(PatientCompanion) onNext; // pass the data object itself
   final VoidCallback onBack;
   final Map<String, dynamic>? existingPatient;
 
@@ -25,16 +27,72 @@ class AddPatientForm extends StatefulWidget {
 
 class _AddPatientFormState extends State<AddPatientForm> {
   bool get isEditing => widget.existingPatient != null;
-  String? _defaultSelection;
 
-  // State for Month/Day Dynamic System
-  String? _selectedMonth; // selected month to change days
-  String? _selectedDay; // selected day
+  // Name controllers
+  final _firstNameController = TextEditingController();
+  final _middleNameController = TextEditingController();
+  final _lastNameController = TextEditingController();
 
-  // State for Barangay, Municipality, and Province
+  // Contact controllers
+  final _contactNumberController = TextEditingController();
+  final _emergencyContactController = TextEditingController();
+  final _referredByController = TextEditingController();
+  final _relationshipController = TextEditingController();
+
+  // Address controllers
+  final _streetController = TextEditingController();
+  final _zipController = TextEditingController();
+  final _barangayController = TextEditingController();
+  final _cityController = TextEditingController();
+  final _provinceController = TextEditingController();
+
+  // Dropdown state variables (already have these)
+  String? _selectedMonth;
+  String? _selectedDay;
+  String? _selectedYear;
+  String? _selectedSex;
+  String? _selectedStatus;
   String? _selectedProvince;
   String? _selectedCity;
   String? _selectedBarangay;
+
+  void _handleNext() {
+    DateTime birthDate = DateTime.now();
+
+    if (_selectedYear != null &&
+        _selectedMonth != null &&
+        _selectedDay != null) {
+      birthDate = DateHelper.convertToDateTime(
+          _selectedMonth!, _selectedDay!, _selectedYear!);
+    }
+
+    final patientEntry = PatientCompanion.insert(
+      firstName: _firstNameController.text,
+      middleName: drift.Value(_middleNameController.text), // keep this nullable
+      lastName: _lastNameController.text,
+      birthDate: birthDate,
+      sex: _selectedSex ?? "Other",
+      civilStatus: _selectedStatus ?? "Single",
+      contactNumber: _contactNumberController.text,
+      emergencyContactNo: drift.Value(_emergencyContactController.text),
+      referredBy: drift.Value(_referredByController.text),
+      relationship: drift.Value(_relationshipController.text),
+
+      // Address - using your dropdown values or controllers
+      streetAddress: _streetController.text,
+      barangay: _selectedBarangay ?? _barangayController.text,
+      cityMunicipality: _selectedCity ?? _cityController.text,
+      province: _selectedProvince ?? _provinceController.text,
+      zipCode: _zipController.text,
+
+      // Metadata
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    );
+
+    // 3. Send the data to the PatientDashboard
+    widget.onNext(patientEntry);
+  }
 
   Map<String, String> rowSelections = {
     // this is to ensure that they all don't use defaultSelection
@@ -75,17 +133,22 @@ class _AddPatientFormState extends State<AddPatientForm> {
                 label: "First Name",
                 hintText: "Enter first name",
                 isRequired: true,
+                controller: _firstNameController, // first name controller
               )),
               const SizedBox(width: 20),
               Expanded(
                   child: InputField(
-                      label: "Middle Name", hintText: "Enter middle name")),
+                label: "Middle Name",
+                hintText: "Enter middle name",
+                controller: _middleNameController, // middle name controller
+              )),
               const SizedBox(width: 20),
               Expanded(
                   child: InputField(
                 label: "Last Name",
                 hintText: "Enter last name",
                 isRequired: true,
+                controller: _lastNameController, // last name controller
               )),
             ],
           ),
@@ -144,21 +207,24 @@ class _AddPatientFormState extends State<AddPatientForm> {
                     hintText: "Select a year",
                     label: "Year",
                     variant: InputVariant.dropdown,
-                    dropdownValue: _defaultSelection,
+                    dropdownValue: _selectedYear,
                     isHidden: isEditing,
                     isRequired: true,
                     dropdownItems: List.generate(
-                      // dynamic list, updates using the DateTime of the client's PC
-                      (DateTime.now().year - 1900) +
-                          1, // adds 2027 to the option list, and so on with other years
-                      (index) => (DateTime.now().year - index).toString(),
+                      (DateTime.now().year - 1900) + 1,
+                      (index) => (DateTime.now().year - index)
+                          .toString(), // function to use PC's datetime to add when a new year comes
                     ),
+                    onDropdownChanged: (value) {
+                      setState(() {
+                        _selectedYear = value;
+                      });
+                    },
                   ),
                 ),
-              ],
+              ], // This bracket closes the Row
             ),
           ],
-
           const SizedBox(height: 20),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -168,7 +234,12 @@ class _AddPatientFormState extends State<AddPatientForm> {
                   hintText: "Select a sex",
                   label: "Sex",
                   variant: InputVariant.dropdown,
-                  dropdownValue: _defaultSelection,
+                  dropdownValue: _selectedSex,
+                  onDropdownChanged: (value) {
+                    setState(() {
+                      _selectedSex = value;
+                    });
+                  },
                   isRequired: true,
                   dropdownItems: const ["Male", "Female"],
                 ),
@@ -179,7 +250,12 @@ class _AddPatientFormState extends State<AddPatientForm> {
                   hintText: "Select a civil status",
                   label: "Civil Status",
                   variant: InputVariant.dropdown,
-                  dropdownValue: _defaultSelection,
+                  dropdownValue: _selectedStatus,
+                  onDropdownChanged: (value) {
+                    setState(() {
+                      _selectedStatus = value;
+                    });
+                  },
                   dropdownItems: const [
                     "Single",
                     "Married",
@@ -192,10 +268,7 @@ class _AddPatientFormState extends State<AddPatientForm> {
               Expanded(
                 child: RadioGroupField(
                   label: "PWD Status",
-                  options: const [
-                    "Applicable",
-                    "Not Applicable"
-                  ], // edit this if u want tochange
+                  options: const ["Applicable", "Not Applicable"],
                   selectedValue: rowSelections["PWD"]!,
                   onChanged: (value) {
                     setState(() {
@@ -221,6 +294,7 @@ class _AddPatientFormState extends State<AddPatientForm> {
                 label: "Mobile Number",
                 hintText: "Enter mobile number",
                 isRequired: true,
+                controller: _contactNumberController,
               )),
               const SizedBox(width: 20),
               Expanded(
@@ -228,6 +302,8 @@ class _AddPatientFormState extends State<AddPatientForm> {
                 label: "Emergency Contact Number",
                 hintText: "Enter emergency number",
                 isRequired: true,
+                controller:
+                    _emergencyContactController, // Emergency Contact Controller
               )),
             ],
           ),
@@ -237,12 +313,17 @@ class _AddPatientFormState extends State<AddPatientForm> {
             children: [
               Expanded(
                   child: InputField(
-                      label: "Referred By", hintText: "Enter referral")),
+                label: "Referred By",
+                hintText: "Enter referral",
+                controller: _referredByController,
+              )),
               const SizedBox(width: 20),
               Expanded(
                   child: InputField(
-                      label: "Relationship",
-                      hintText: "Relationship with referral")),
+                label: "Relationship",
+                hintText: "Relationship with referral",
+                controller: _relationshipController,
+              )),
             ],
           ),
 
@@ -261,6 +342,7 @@ class _AddPatientFormState extends State<AddPatientForm> {
               InputField(
                 hintText: "Enter Patient Street Address",
                 label: "Street Address",
+                controller: _streetController,
               ),
               const SizedBox(height: 20),
 
@@ -271,24 +353,19 @@ class _AddPatientFormState extends State<AddPatientForm> {
                 children: [
                   Expanded(
                     child: InputField(
-                      key: ValueKey(
-                          _selectedCity), // this key resets ALL queries on new province selection
-                      hintText: "Select a Barangay",
-                      label: "Barangay",
+                      hintText: "Select a Province",
+                      label: "Province",
                       variant: InputVariant.dropdown,
                       dropdownValue:
-                          _selectedBarangay, // dropdown barangays from city/municipality selected
-                      dropdownItems:
-                          (_selectedProvince != null && _selectedCity != null)
-                              ? PhAddressService.getBarangaysByLocation(
-                                  // call from services
-                                  provinceName: _selectedProvince!,
-                                  cityName: _selectedCity!,
-                                )
-                              : [],
+                          _selectedProvince, // dropdown all provinces
+                      dropdownItems: PhAddressService
+                          .getAllProvinceNames(), // call function from services
                       onDropdownChanged: (value) {
                         setState(() {
-                          _selectedBarangay = value;
+                          // set state everytime user changes province (reset query function basically)
+                          _selectedProvince = value;
+                          _selectedCity = null;
+                          _selectedBarangay = null;
                         });
                       },
                     ),
@@ -330,19 +407,24 @@ class _AddPatientFormState extends State<AddPatientForm> {
                 children: [
                   Expanded(
                     child: InputField(
-                      hintText: "Select a Province",
-                      label: "Province",
+                      key: ValueKey(
+                          _selectedCity), // this key resets ALL queries on new province selection
+                      hintText: "Select a Barangay",
+                      label: "Barangay",
                       variant: InputVariant.dropdown,
                       dropdownValue:
-                          _selectedProvince, // dropdown all provinces
-                      dropdownItems: PhAddressService
-                          .getAllProvinceNames(), // call function from services
+                          _selectedBarangay, // dropdown barangays from city/municipality selected
+                      dropdownItems:
+                          (_selectedProvince != null && _selectedCity != null)
+                              ? PhAddressService.getBarangaysByLocation(
+                                  // call from services
+                                  provinceName: _selectedProvince!,
+                                  cityName: _selectedCity!,
+                                )
+                              : [],
                       onDropdownChanged: (value) {
                         setState(() {
-                          // set state everytime user changes province (reset query function basically)
-                          _selectedProvince = value;
-                          _selectedCity = null;
-                          _selectedBarangay = null;
+                          _selectedBarangay = value;
                         });
                       },
                     ),
@@ -355,6 +437,7 @@ class _AddPatientFormState extends State<AddPatientForm> {
                       label: "ZIP Code",
                       variant: InputVariant.primary,
                       keyboardType: TextInputType.number,
+                      controller: _zipController, // Zip Code Controller
                     ),
                   ),
                 ],
@@ -386,7 +469,7 @@ class _AddPatientFormState extends State<AddPatientForm> {
                   width: double.infinity,
                   icon: Icons.arrow_forward,
                   iconPlacement: IconPlacement.right,
-                  onPressed: widget.onNext,
+                  onPressed: _handleNext, // changed to handle atomic saving
                 ),
               )
             ],
