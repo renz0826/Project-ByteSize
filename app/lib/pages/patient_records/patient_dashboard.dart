@@ -1,18 +1,19 @@
-import '/../style/theme.dart';
 import 'package:flutter/material.dart';
+import 'package:drift/drift.dart' as drift;
+import '/../style/theme.dart';
 import '/../widgets/search_bar.dart';
 import '/../widgets/app_pagination.dart';
 import '/../widgets/main_buttons.dart';
 import '/../widgets/filter_dropdown.dart';
-import 'add_patient.dart';
-import 'add_clinical_record.dart';
 import '/../widgets/page_header.dart';
-import 'package:heroicons/heroicons.dart';
 import '/../widgets/app_info_bar.dart';
 import '../../db/database.dart';
-import 'package:drift/drift.dart' as drift;
 import '../../repositories/patient_repository.dart'; 
 import '../../services/date_helper.dart';
+import 'add_patient.dart';
+import 'add_clinical_record.dart';
+import 'package:heroicons/heroicons.dart';
+
 //view enum
 enum PatientsView { main, addPatient, addClinicalRecord }
 
@@ -51,13 +52,13 @@ class _PatientDashboardState extends State<PatientDashboard> {
     _loadPatients();
   }
 
-  // Fetch real data from the database
+  // Fetch real data from the database 
   Future<void> _loadPatients() async {
     final patients = await _repository.getAllPatients();
     setState(() {
       _allPatients = patients;
       _filteredRecords = patients;
-      _applyFilters(); // apply the filters here
+      _applyFilters(); // function to apply the sorting filters
     });
   }
 
@@ -125,7 +126,7 @@ class _PatientDashboardState extends State<PatientDashboard> {
     final query = _searchController.text.toLowerCase();
     
     _filteredRecords = _allPatients.where((p) {
-      final fullName = '${p.firstName} ${p.lastName}'.toLowerCase();
+      final fullName = '${p.firstName}${p.lastName}'.toLowerCase();
       final matchesSearch = fullName.contains(query);
       
       // Assuming 'isArchived' is a boolean in your database based on the repository file
@@ -374,7 +375,7 @@ class _PatientDashboardState extends State<PatientDashboard> {
   // table row using real PatientData
   Widget _buildTableRow(PatientData patient) {
     return PatientRecordBar(
-      fullName: '${patient.firstName} ${patient.lastName}',
+      fullName: '${patient.firstName}${patient.lastName}',
       sex: patient.sex,
       // Safely calculate age based on database birthDate
       age: DateHelper.calculateAge(patient.birthDate),
