@@ -33,4 +33,3 @@ Future<int> archivePatient(int id) =>
     (db.update(db.patient)..where((t) => t.patientId.equals(id)))
     .write(PatientCompanion(isArchived: Value(true)));
 }
-
