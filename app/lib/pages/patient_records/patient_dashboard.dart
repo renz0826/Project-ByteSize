@@ -9,6 +9,8 @@ import 'add_clinical_record.dart';
 import '/../widgets/page_header.dart';
 import 'package:heroicons/heroicons.dart';
 import '/../widgets/app_info_bar.dart';
+import '../../db/database.dart';
+import 'package:drift/drift.dart' as drift;
 
 //data model
 //TODO: replace with Patient Data when database is connected
@@ -56,19 +58,44 @@ class PatientDashboard extends StatefulWidget {
 }
 
 class _PatientDashboardState extends State<PatientDashboard> {
+  // Functions to change patients screen states
+  PatientCompanion? _draftPatient; // create a patient record 
+  ClinicalRecordCompanion? _draftClinicalRecord; // create a patient + clinical record
   PatientsView _currentView = PatientsView.main;
 
     void _goToAddPatient() {
     setState(() => _currentView = PatientsView.addPatient);
   }
 
-  void _goToAddClinicalRecord() {
-    setState(() => _currentView = PatientsView.addClinicalRecord);
+   void _goToAddClinicalRecord(PatientCompanion patientData) {
+    setState(() {
+      _draftPatient = patientData;
+      _currentView = PatientsView.addClinicalRecord;
+    });
   }
 
-  // TODO: Make the save button functional and return to the main dashboard.
-  void _goBackToMain() {
-    setState(() => _currentView = PatientsView.main);
+  void _goBackToMain(ClinicalRecordCompanion clinicalData) async { 
+    /* updated: once both pages were finished, saves to database
+     and sends the user back to the main dashboard
+     */ 
+
+    final db = AppDatabase();
+
+    try {
+      final newPatientId = await db.into(db.patient).insert(_draftPatient!); // add to database
+      final recordWithId = clinicalData.copyWith( // add to database with new patient data
+        patientId: drift.Value(newPatientId),
+      );
+
+      await db.into(db.clinicalRecord).insert(recordWithId);
+
+      setState(() {
+        _draftClinicalRecord = clinicalData;
+        _currentView = PatientsView.main;
+      });
+    } catch (e) {
+      print("Database Error: $e"); // print this in case any error comes up and notify @fons immediately
+    }
   }
 
   //state for search, filter, and pagination
@@ -187,8 +214,8 @@ Widget build(BuildContext context) {
           Transform.translate(
             offset: const Offset(0, -20), //pulls form up to reduce gap below header
             child: AddPatientForm(
-            onNext: _goToAddClinicalRecord,
-            onBack: _goBackToMain,
+            onNext: (data) => _goToAddClinicalRecord(data),
+            onBack: () => setState(() => _currentView = PatientsView.main),
           ),
           ),
         ],
@@ -206,7 +233,8 @@ Widget build(BuildContext context) {
             child: AddClinicalRecordForm(
               patientId: 0,
               onPrevious: _goToAddPatient,
-              onFinish: _goBackToMain,
+            onFinish: (clinicalData) => _goBackToMain(
+              clinicalData), // use a wrapper to pass clinicalData argument
             ),
           ),
         ],
