@@ -12,6 +12,9 @@ dependencies:
     sdk: flutter
   flutter_svg: ^2.0.10
   
+  easy_radio: ^0.0.3
+  table_calendar: ^3.1.2
+
   # Database
   drift: ^2.14.0
   sqflite_common_ffi: ^2.3.0
