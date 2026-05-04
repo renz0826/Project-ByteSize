@@ -37,14 +37,17 @@ class _AddPatientFormState extends State<AddPatientForm> {
   final _lastNameController = TextEditingController();
 
   // Contact controllers
-  final _contactNumberController = TextEditingController();
-  final _emergencyContactController = TextEditingController();
+  final _contactNumberController =
+      TextEditingController(); // TODO: Limit to numeric string input only.
+  final _emergencyContactController =
+      TextEditingController(); // TODO: Limit to numeric string input only.
   final _referredByController = TextEditingController();
   final _relationshipController = TextEditingController();
 
   // Address controllers
   final _streetController = TextEditingController();
-  final _zipController = TextEditingController();
+  final _zipController =
+      TextEditingController(); // TODO: Limit to numeric string input only.
   final _barangayController = TextEditingController();
   final _cityController = TextEditingController();
   final _provinceController = TextEditingController();
