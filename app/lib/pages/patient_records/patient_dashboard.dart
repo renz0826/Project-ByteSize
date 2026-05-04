@@ -14,9 +14,6 @@ import 'add_patient.dart';
 import 'add_clinical_record.dart';
 import 'package:heroicons/heroicons.dart';
 
-//view enum
-enum PatientsView { main, addPatient, addClinicalRecord }
-
 //main screen
 class PatientDashboard extends StatefulWidget {
   const PatientDashboard({super.key});
@@ -37,7 +34,9 @@ class _PatientDashboardState extends State<PatientDashboard> {
   // Functions to change patients screen states
   PatientCompanion? _draftPatient; // create a patient record
   ClinicalRecordCompanion? _draftClinicalRecord; // create a patient + clinical record
-  PatientsView _currentView = PatientsView.main;
+  
+  // Bug Fix: Using IndexedStack to prevent form data from being deleted when clicking back
+  int _currentIndex = 0;
 
   //state for search, filter, and pagination
   final TextEditingController _searchController = TextEditingController();
@@ -63,13 +62,13 @@ class _PatientDashboardState extends State<PatientDashboard> {
   }
 
   void _goToAddPatient() {
-    setState(() => _currentView = PatientsView.addPatient);
+    setState(() => _currentIndex = 1); // set index to 1 when adding a new patient record
   }
 
   void _goToAddClinicalRecord(PatientCompanion patientData) {
     setState(() {
       _draftPatient = patientData;
-      _currentView = PatientsView.addClinicalRecord;
+      _currentIndex = 2; // show clinical record form
     });
   }
 
@@ -87,7 +86,7 @@ class _PatientDashboardState extends State<PatientDashboard> {
 
       setState(() {
         _draftClinicalRecord = clinicalData;
-        _currentView = PatientsView.main;
+        _currentIndex = 0; // Return to Main Dashboard
       });
     } catch (e) {
       print("Database Error: $e"); // print this in case any error comes up and notify @fons immediately
@@ -146,12 +145,13 @@ class _PatientDashboardState extends State<PatientDashboard> {
     super.dispose();
   }
 
-  //build method with switch case for different views
   @override
   Widget build(BuildContext context) {
-    return switch (_currentView) {
-      //main dashboard view
-      PatientsView.main => Scaffold(
+    return IndexedStack( // Bug Fix: fixes the bug where it deletes patient data when clicking "back" in clinical records
+      index: _currentIndex,
+      children: [
+        // Index 0: 
+        Scaffold(
           backgroundColor: AppTheme.gray200,
           body: CustomScrollView(
             slivers: [
@@ -206,8 +206,8 @@ class _PatientDashboardState extends State<PatientDashboard> {
           ),
         ),
 
-      //add patient view
-      PatientsView.addPatient => SingleChildScrollView(
+        // Index 1: 
+        SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -218,7 +218,7 @@ class _PatientDashboardState extends State<PatientDashboard> {
                   onNext: (data) => _goToAddClinicalRecord(data),
                   onBack: () {
                     _loadPatients(); // Refresh list when returning
-                    setState(() => _currentView = PatientsView.main);
+                    setState(() => _currentIndex = 0); // Back to Dashboard
                   } 
                 ),
               ),
@@ -226,8 +226,8 @@ class _PatientDashboardState extends State<PatientDashboard> {
           ),
         ),
 
-      //add clinical record view
-      PatientsView.addClinicalRecord => SingleChildScrollView(
+        // Index 2: Add Clinical Record View
+        SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -236,14 +236,17 @@ class _PatientDashboardState extends State<PatientDashboard> {
                 offset: const Offset(0, -20),
                 child: AddClinicalRecordForm(
                   patientId: 0,
-                  onPrevious: _goToAddPatient,
+                  onPrevious: () {
+                    setState(() => _currentIndex = 1); // when back is clicked, will return to previous page with data saved
+                  }, 
                   onFinish: (clinicalData) => _goBackToMain(clinicalData), 
                 ),
               ),
             ],
           ),
         ),
-    };
+      ],
+    );
   }
 
   //search bar
@@ -374,7 +377,7 @@ class _PatientDashboardState extends State<PatientDashboard> {
   // table row using real PatientData
   Widget _buildTableRow(PatientData patient) {
     return PatientRecordBar(
-      fullName: '${patient.firstName}${patient.lastName}',
+      fullName: '${patient.firstName} ${patient.lastName}', // Added a space here so names format nicely!
       sex: patient.sex,
       // Safely calculate age based on database birthDate
       age: DateHelper.calculateAge(patient.birthDate),
