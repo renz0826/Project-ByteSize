@@ -21,4 +21,17 @@ class DateHelper {
       int.parse(day),
     );
   }
+
+  static int calculateAge(DateTime birthDate) {
+    DateTime today = DateTime.now();
+    int age = today.year - birthDate.year;
+
+    // If the birth month/day hasn't happened yet this year, subtract 1
+    if (today.month < birthDate.month ||
+        (today.month == birthDate.month && today.day < birthDate.day)) {
+      age--;
+    }
+
+    return age;
+  }
 }

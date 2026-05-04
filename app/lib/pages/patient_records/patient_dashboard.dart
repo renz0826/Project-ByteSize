@@ -1,52 +1,18 @@
-import '/../style/theme.dart';
 import 'package:flutter/material.dart';
+import 'package:drift/drift.dart' as drift;
+import '/../style/theme.dart';
 import '/../widgets/search_bar.dart';
 import '/../widgets/app_pagination.dart';
 import '/../widgets/main_buttons.dart';
 import '/../widgets/filter_dropdown.dart';
-import 'add_patient.dart';
-import 'add_clinical_record.dart';
 import '/../widgets/page_header.dart';
-import 'package:heroicons/heroicons.dart';
 import '/../widgets/app_info_bar.dart';
 import '../../db/database.dart';
-import 'package:drift/drift.dart' as drift;
-
-//data model
-//TODO: replace with Patient Data when database is connected
-class PatientRecord {
-  final String name;
-  final String sex;
-  final String age;
-  final String address;
-  final String contactNumber;
-  final String procedure;
-  final String status;
-
-  PatientRecord({
-    required this.name,
-    required this.sex,
-    required this.age,
-    required this.address,
-    required this.contactNumber,
-    required this.procedure,
-    required this.status,
-  });
-}
-
-//sample data
-//TODO: remove this and fetch real data from database when connected
-final List<PatientRecord> patientRecords = List.generate(
-    20,
-    (index) => PatientRecord(
-          name: 'Full Name Here',
-          sex: index.isEven ? 'Male' : 'Female',
-          age: '100 yo',
-          address: 'Luna St., La Paz, Iloilo City',
-          contactNumber: '09123456780',
-          procedure: 'Teeth Removal',
-          status: index % 3 == 0 ? 'Archived' : 'Active',
-        ));
+import '../../repositories/patient_repository.dart'; 
+import '../../services/date_helper.dart';
+import 'add_patient.dart';
+import 'add_clinical_record.dart';
+import 'package:heroicons/heroicons.dart';
 
 //view enum
 enum PatientsView { main, addPatient, addClinicalRecord }
@@ -60,18 +26,47 @@ class PatientDashboard extends StatefulWidget {
 }
 
 class _PatientDashboardState extends State<PatientDashboard> {
+  // Database & Repository
+  late PatientRepository _repository;
+  final AppDatabase _db = AppDatabase();
+  
+  // Real Database Lists
+  List<PatientData> _allPatients = [];
+  List<PatientData> _filteredRecords = []; // Choosing the sort option on the top-right
+
   // Functions to change patients screen states
   PatientCompanion? _draftPatient; // create a patient record
-  ClinicalRecordCompanion?
-      _draftClinicalRecord; // create a patient + clinical record
+  ClinicalRecordCompanion? _draftClinicalRecord; // create a patient + clinical record
   PatientsView _currentView = PatientsView.main;
+
+  //state for search, filter, and pagination
+  final TextEditingController _searchController = TextEditingController();
+  int _currentPage = 1;
+  final int _recordsPerPage = 8;
+  String? _selectedStatus; //for filter chips
+
+  @override
+  void initState() {
+    super.initState();
+    _repository = PatientRepository(_db);
+    _loadPatients();
+  }
+
+  // Fetch real data from the database 
+  Future<void> _loadPatients() async {
+    final patients = await _repository.getAllPatients();
+    setState(() {
+      _allPatients = patients;
+      _filteredRecords = patients;
+      _applyFilters(); // function to apply the sorting filters
+    });
+  }
 
   void _goToAddPatient() {
     setState(() => _currentView = PatientsView.addPatient);
   }
 
   void _goToAddClinicalRecord(PatientCompanion patientData) {
-    // Use the prefix here
     setState(() {
       _draftPatient = patientData;
       _currentView = PatientsView.addClinicalRecord;
@@ -79,79 +74,71 @@ class _PatientDashboardState extends State<PatientDashboard> {
   }
 
   void _goBackToMain(ClinicalRecordCompanion clinicalData) async {
-    /* updated: once both pages were finished, saves to database
-     and sends the user back to the main dashboard
-     */
-
-    final db = AppDatabase();
-
     try {
-      final newPatientId =
-          await db.into(db.patient).insert(_draftPatient!); // add to database
-      final recordWithId = clinicalData.copyWith(
-        // add to database with new patient data
+      final newPatientId = await _db.into(_db.patient).insert(_draftPatient!); // add to database
+      final recordWithId = clinicalData.copyWith(// add to database with new patient data
         patientId: drift.Value(newPatientId),
       );
 
-      await db.into(db.clinicalRecord).insert(recordWithId);
+      await _db.into(_db.clinicalRecord).insert(recordWithId);
+
+      // Refresh the list immediately after a successful save
+      await _loadPatients(); 
 
       setState(() {
         _draftClinicalRecord = clinicalData;
         _currentView = PatientsView.main;
       });
     } catch (e) {
-      print(
-          "Database Error: $e"); // print this in case any error comes up and notify @fons immediately
+      print("Database Error: $e"); // print this in case any error comes up and notify @fons immediately
     }
   }
 
-  //state for search, filter, and pagination
-  final TextEditingController _searchController = TextEditingController();
-  List<PatientRecord> _filteredRecords = patientRecords;
-  int _currentPage = 1;
-  final int _recordsPerPage = 8;
-  String? _selectedStatus; //for filter chips
-
   //number of items to show per page
-  List<PatientRecord> get _currentPageRecords {
+  List<PatientData> get _currentPageRecords {
     final start = (_currentPage - 1) * _recordsPerPage;
-    final end = (start + _recordsPerPage).clamp(
-        0,
-        _filteredRecords
-            .length); //to ensure end does not exceed the length of the filtered records
+    final end = (start + _recordsPerPage).clamp(0, _filteredRecords.length); 
     return _filteredRecords.sublist(start, end);
   }
 
   //total number of pages based on the filtered records
   int get _totalPages => (_filteredRecords.length / _recordsPerPage).ceil();
 
-//TODO: create search function
+  // Search logic
   void _onSearch(String query) {
     setState(() {
       _currentPage = 1;
-      _filteredRecords = patientRecords.where((p) {
-        final matchesSearch =
-            p.name.toLowerCase().contains(query.toLowerCase());
-        final matchesStatus =
-            _selectedStatus == null || p.status == _selectedStatus;
-        return matchesSearch && matchesStatus;
-      }).toList();
+      _applyFilters();
     });
   }
 
-  //filter function for the status chips
+  // Filter function for the status chips
   void _onFilter(String? status) {
     setState(() {
       _currentPage = 1;
       _selectedStatus = status;
-      _filteredRecords = patientRecords.where((p) {
-        final matchesSearch =
-            p.name.toLowerCase().contains(_searchController.text.toLowerCase());
-        final matchesStatus =
-            _selectedStatus == null || p.status == _selectedStatus;
-        return matchesSearch && matchesStatus;
-      }).toList();
+      _applyFilters();
     });
+  }
+
+  // Centralized filter logic applied to real data
+  void _applyFilters() {
+    final query = _searchController.text.toLowerCase();
+    
+    _filteredRecords = _allPatients.where((p) {
+      final fullName = '${p.firstName}${p.lastName}'.toLowerCase();
+      final matchesSearch = fullName.contains(query);
+      
+      // Assuming 'isArchived' is a boolean in your database based on the repository file
+      bool matchesStatus = true;
+      if (_selectedStatus == 'Active') {
+        matchesStatus = p.isArchived == false || p.isArchived == null;
+      } else if (_selectedStatus == 'Archived') {
+        matchesStatus = p.isArchived == true;
+      }
+
+      return matchesSearch && matchesStatus;
+    }).toList();
   }
 
   @override
@@ -160,7 +147,7 @@ class _PatientDashboardState extends State<PatientDashboard> {
     super.dispose();
   }
 
-//build method with switch case for different views
+  //build method with switch case for different views
   @override
   Widget build(BuildContext context) {
     return switch (_currentView) {
@@ -227,12 +214,13 @@ class _PatientDashboardState extends State<PatientDashboard> {
             children: [
               PageHeader(title: 'Patient Records', type: PageHeaderType.plain),
               Transform.translate(
-                offset: const Offset(
-                    0, -20), //pulls form up to reduce gap below header
+                offset: const Offset(0, -20), //pulls form up to reduce gap below header
                 child: AddPatientForm(
                   onNext: (data) => _goToAddClinicalRecord(data),
-                  onBack: () =>
-                      setState(() => _currentView = PatientsView.main),
+                  onBack: () {
+                    _loadPatients(); // Refresh list when returning
+                    setState(() => _currentView = PatientsView.main);
+                  } 
                 ),
               ),
             ],
@@ -250,8 +238,7 @@ class _PatientDashboardState extends State<PatientDashboard> {
                 child: AddClinicalRecordForm(
                   patientId: 0,
                   onPrevious: _goToAddPatient,
-                  onFinish: (clinicalData) => _goBackToMain(
-                      clinicalData), // use a wrapper to pass clinicalData argument
+                  onFinish: (clinicalData) => _goBackToMain(clinicalData), 
                 ),
               ),
             ],
@@ -260,7 +247,7 @@ class _PatientDashboardState extends State<PatientDashboard> {
     };
   }
 
-//search bar
+  //search bar
   Widget _buildSearchBar() {
     return Column(
       children: [
@@ -282,7 +269,6 @@ class _PatientDashboardState extends State<PatientDashboard> {
                 data: Theme.of(context).copyWith(
                   elevatedButtonTheme: ElevatedButtonThemeData(
                     style: ElevatedButton.styleFrom(
-                      //overrides the internal padding
                       padding: EdgeInsets.zero,
                     ),
                   ),
@@ -302,7 +288,6 @@ class _PatientDashboardState extends State<PatientDashboard> {
         //filter chips and sort dropdown
         Row(
           children: [
-            //filter chips
             _buildFilterChips(),
             const Spacer(),
             AppSortDropdown(
@@ -310,22 +295,21 @@ class _PatientDashboardState extends State<PatientDashboard> {
                 setState(() {
                   switch (value) {
                     case 'Name (A-Z)':
-                      _filteredRecords.sort((a, b) => a.name.compareTo(b.name));
+                      _filteredRecords.sort((a, b) => a.firstName.compareTo(b.firstName));
                       break;
                     case 'Name (Z-A)':
-                      _filteredRecords.sort((a, b) => b.name.compareTo(a.name));
+                      _filteredRecords.sort((a, b) => b.firstName.compareTo(a.firstName));
                       break;
                     case 'Oldest First':
-                      //TODO: sort by birthDate when real data is connected
+                      _filteredRecords.sort((a, b) => a.birthDate.compareTo(b.birthDate));
                       break;
                     case 'Youngest First':
-                      //TODO: sort by birthDate when real data is connected
+                      _filteredRecords.sort((a, b) => b.birthDate.compareTo(a.birthDate));
                       break;
                     case 'Female':
                     case 'Male':
-                      //filter by sex
-                      _filteredRecords =
-                          patientRecords.where((p) => p.sex == value).toList();
+                      _applyFilters(); // Reset base filters
+                      _filteredRecords = _filteredRecords.where((p) => p.sex == value).toList();
                       break;
                   }
                 });
@@ -337,7 +321,7 @@ class _PatientDashboardState extends State<PatientDashboard> {
     );
   }
 
-//filter chips - all/archived/active
+  //filter chips - all/archived/active
   Widget _buildFilterChips() {
     final filters = ['All', 'Active', 'Archived'];
     return Row(
@@ -367,7 +351,7 @@ class _PatientDashboardState extends State<PatientDashboard> {
     );
   }
 
-//table header
+  //table header
   Widget _buildTableHeader() {
     final headerStyle = AppTheme.textTheme.bodyLarge;
 
@@ -381,48 +365,33 @@ class _PatientDashboardState extends State<PatientDashboard> {
           Expanded(flex: 5, child: Text('Address', style: headerStyle)),
           Expanded(flex: 3, child: Text('Contact No.', style: headerStyle)),
           Expanded(flex: 2, child: Text('Procedure', style: headerStyle)),
-          Expanded(flex: 2, child: SizedBox()),
+          Expanded(flex: 2, child: const SizedBox()),
           SizedBox(width: 70, child: Text('Actions', style: headerStyle)),
         ],
       ),
     );
   }
 
-// table row
-  Widget _buildTableRow(PatientRecord patient) {
+  // table row using real PatientData
+  Widget _buildTableRow(PatientData patient) {
     return PatientRecordBar(
-      fullName: patient.name,
+      fullName: '${patient.firstName}${patient.lastName}',
       sex: patient.sex,
-      // Parses '100 yo' into 100
-      age: int.parse(patient.age.replaceAll(' yo', '')),
-      address: patient.address,
+      // Safely calculate age based on database birthDate
+      age: DateHelper.calculateAge(patient.birthDate),
+      address: '${patient.province ?? ''}, ${patient.cityMunicipality ?? ''}',
       contact: patient.contactNumber,
-      procedure: patient.procedure,
+      procedure: 'Consultation', // Placeholder (still trying to link this to clinical record)
       onMenuSelected: (value) {
         if (value == 'add_clinical_record') {
-          _goToAddClinicalRecord(
-            PatientCompanion.insert(
-              firstName: patient.name.split(' ').first,
-              lastName: patient.name.split(' ').last,
-              birthDate: DateTime.now(),
-              sex: patient.sex,
-              civilStatus: 'Single',
-              contactNumber: patient.contactNumber,
-              streetAddress: patient.address,
-              barangay: 'N/A',
-              cityMunicipality: 'N/A',
-              province: 'N/A',
-              zipCode: 'N/A',
-              createdAt: DateTime.now(),
-              updatedAt: DateTime.now(),
-            ),
-          );
+          // Convert the existing real data back into a Companion for the form
+          _goToAddClinicalRecord(patient.toCompanion(true));
         }
       },
     );
   }
 
-// empty state
+  // empty state
   Widget _buildEmptyState() {
     return Center(
       child: Padding(
