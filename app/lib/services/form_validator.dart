@@ -1,5 +1,5 @@
 class FormValidator {
-  static List<String> getMissingPatientFields({
+  static List<String> getMissingPatientFields({ // form validator for missing patient fields
     required String firstName,
     required String lastName,
     required DateTime? birthDate,
