@@ -12,7 +12,7 @@ class AddClinicalRecordForm extends StatefulWidget {
   final VoidCallback onPrevious;
   const AddClinicalRecordForm(
       {super.key,
-      required this.patientId, 
+      required this.patientId,
       required this.onFinish,
       required this.onPrevious});
 
@@ -46,7 +46,7 @@ class _AddClinicalRecordFormState extends State<AddClinicalRecordForm> {
 
   void _handleSave() {
     final recordEntry = ClinicalRecordCompanion.insert(
-      patientId: widget.patientId // required 
+      patientId: widget.patientId // required
       ,
       // Medical Background
       pastIllness: drift.Value(_pastIllnessController.text),
@@ -371,9 +371,20 @@ class _AddClinicalRecordFormState extends State<AddClinicalRecordForm> {
                   const SizedBox(height: 32),
 
                   Row(
+                      spacing: 16,
                       mainAxisAlignment: MainAxisAlignment.end,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        SizedBox(
+                          width: 100,
+                          child: Button(
+                            variant: ButtonVariant.secondary,
+                            label: "Clear",
+                            width: double.infinity,
+                            onPressed:
+                                _handleSave, // TODO: Change to clear input.
+                          ),
+                        ),
                         Button(
                           variant: ButtonVariant.secondary,
                           label: "Previous",
@@ -381,9 +392,6 @@ class _AddClinicalRecordFormState extends State<AddClinicalRecordForm> {
                           icon: Icons.arrow_back,
                           iconPlacement: IconPlacement.left,
                           onPressed: widget.onPrevious,
-                        ),
-                        SizedBox(
-                          width: 24,
                         ),
                         Button(
                           label: "Save",

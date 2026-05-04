@@ -117,42 +117,49 @@ class _AddPatientFormState extends State<AddPatientForm> {
       return; // Stops the function from saving
     }
 
-    // Step 4: Duplicate Patient Records 
+    // Step 4: Duplicate Patient Records
     // TODO: @Frontend, give your opinions on this, and improve the design
     // TODO: This is not final yet, will ask the group about this feature.
     final db = AppDatabase();
     final repository = PatientRepository(db);
     final firstName = _firstNameController.text.trim();
     final lastName = _lastNameController.text.trim();
-    final isDuplicate = await repository.isDuplicatePatient(firstName, lastName); // gotten from patient_repository 
+    final isDuplicate = await repository.isDuplicatePatient(
+        firstName, lastName); // gotten from patient_repository
 
-    if (isDuplicate) { // Show warning popup
+    if (isDuplicate) {
+      // Show warning popup
       bool proceedAnyway = await showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text('Possible Duplicate Found'),
-            content: Text(
-                'A patient named "$firstName $lastName" already exists in the database.\n\nAre you sure you want to add this record?'),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(false), // Cancel
-                child: const Text('Cancel'),
-              ),
-              ElevatedButton(
-                onPressed: () => Navigator.of(context).pop(true), // Proceed
-                style: ElevatedButton.styleFrom(backgroundColor: AppTheme.white500), // change this color aswell
-                child: const Text('Proceed Anyway', style: TextStyle(color: Colors.white)),
-              ),
-            ],
-          );
-        },
-      ) ?? false; // Defaults to false if user dismisses the dialog
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: const Text('Possible Duplicate Found'),
+                content: Text(
+                    'A patient named "$firstName $lastName" already exists in the database.\n\nAre you sure you want to add this record?'),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(false), // Cancel
+                    child: const Text('Cancel'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () => Navigator.of(context).pop(true), // Proceed
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor:
+                            AppTheme.white500), // change this color aswell
+                    child: const Text('Proceed Anyway',
+                        style: TextStyle(color: Colors.white)),
+                  ),
+                ],
+              );
+            },
+          ) ??
+          false; // Defaults to false if user dismisses the dialog
 
       // If they clicked "Cancel", stop the saving process
       if (!proceedAnyway) {
-        return; 
+        return;
       }
     }
 
@@ -544,19 +551,18 @@ class _AddPatientFormState extends State<AddPatientForm> {
 
           // --- ACTION BUTTON ---
           Row(
+            spacing: 16,
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              // ! A temporary button that returns to back to main
-              // SizedBox(
-              //   width: 160,
-              //   child: Button(
-              //     label: "Back",
-              //     width: double.infinity,
-              //     icon: Icons.arrow_forward,
-              //     iconPlacement: IconPlacement.right,
-              //     onPressed: widget.onBack,
-              //   ),
-              // ),
+              SizedBox(
+                width: 100,
+                child: Button(
+                  variant: ButtonVariant.secondary,
+                  label: "Clear",
+                  width: double.infinity,
+                  onPressed: _handleNext, // TODO: Change to clear input.
+                ),
+              ),
               SizedBox(
                 width: 140,
                 child: Button(
