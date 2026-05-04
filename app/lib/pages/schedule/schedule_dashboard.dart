@@ -37,6 +37,10 @@ class _ScheduleDashboardState extends State<ScheduleDashboard> {
     switch (_currentView) {
       case SchedulesView.scheduleAppointment:
         activeScreen = ScheduleAppointmentForm(
+          // ! If this is enabled, the Patient fullname will not show
+          // existingPatient: {
+          //   'fullName': 'Alfonso Dolutan',
+          // },
           onSave: _goBackToMain,
         );
       case SchedulesView.main:

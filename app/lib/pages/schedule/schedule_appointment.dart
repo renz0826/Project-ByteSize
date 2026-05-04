@@ -46,34 +46,34 @@ class _ScheduleAppointmentFormState extends State<ScheduleAppointmentForm> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Schedule an Appointment",
+          Text(
+              !isEditing
+                  ? "Schedule an Appointment"
+                  : ("Edit ${widget.existingPatient?['fullName']}'s Schedule "),
               style: Theme.of(context).textTheme.headlineLarge),
 
           const SizedBox(height: 32),
 
           // --- PATIENT NAME ---
-          const SizedBox(height: 12),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: InputField(
-                  hintText: "Select a patient",
-                  label: "Patient Full Name",
-                  variant: InputVariant.dropdown,
-                  dropdownValue: _selectedPatient,
-                  isRequired: true,
-                  dropdownItems: ["Renz", "Alfonso"],
+          if (!isEditing) ...[
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: InputField(
+                    hintText: "Select a patient",
+                    label: "Patient Full Name",
+                    variant: InputVariant.dropdown,
+                    dropdownValue: _selectedPatient,
+                    isRequired: true,
+                    dropdownItems: ["Renz", "Alfonso"],
+                  ),
                 ),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 32),
-
+              ],
+            ),
+            const SizedBox(height: 32),
+          ],
           // --- APPOINTMENT SCHEDULE ---
-          const SizedBox(height: 12),
-
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -150,9 +150,10 @@ class _ScheduleAppointmentFormState extends State<ScheduleAppointmentForm> {
               SizedBox(
                 width: 280,
                 child: Button(
-                  label: "Schedule Appointment",
+                  label:
+                      !isEditing ? "Schedule Appointment" : "Update Schedule",
                   width: double.infinity,
-                  icon: Icons.check,
+                  icon: !isEditing ? Icons.check : Icons.save_alt_outlined,
                   iconPlacement: IconPlacement.left,
                   onPressed: widget.onSave,
                 ),
