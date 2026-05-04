@@ -8,7 +8,8 @@ enum ButtonVariant {
   secondary,
   smallPrimary,
   smallSecondary,
-  danger,
+  dangerPrimary,
+  dangerSecondary,
   revert,
   text,
   dangerText
@@ -43,15 +44,15 @@ class Button extends StatelessWidget {
   });
 
   // shared icon builder
-    Widget _buildIcon() {
-      if (heroIcon != null) {
-        return HeroIcon(heroIcon!, style: heroIconStyle, size: 20);
-      }
-      if (icon != null) {
-        return Icon(icon, size: 20);
-      }
-      return const SizedBox.shrink();
-}
+  Widget _buildIcon() {
+    if (heroIcon != null) {
+      return HeroIcon(heroIcon!, style: heroIconStyle, size: 20);
+    }
+    if (icon != null) {
+      return Icon(icon, size: 20);
+    }
+    return const SizedBox.shrink();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -77,7 +78,8 @@ class Button extends StatelessWidget {
           ),
         ] else ...[
           // Places the icon on the left
-          if ((icon != null || heroIcon != null) && iconPlacement == IconPlacement.left) ...[
+          if ((icon != null || heroIcon != null) &&
+              iconPlacement == IconPlacement.left) ...[
             _buildIcon(),
             const SizedBox(
               width: 12,
@@ -86,11 +88,13 @@ class Button extends StatelessWidget {
 
           Text(
             label,
-            style: TextStyle(fontSize: fontSize ?? 16, fontWeight: FontWeight.w600),
+            style: TextStyle(
+                fontSize: fontSize ?? 16, fontWeight: FontWeight.w600),
           ),
 
           // Places the icon on the right
-          if ((icon != null || heroIcon != null) && iconPlacement == IconPlacement.right) ...[
+          if ((icon != null || heroIcon != null) &&
+              iconPlacement == IconPlacement.right) ...[
             const SizedBox(
               width: 12,
             ),
@@ -146,8 +150,8 @@ class Button extends StatelessWidget {
                 elevation: 0,
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                    minimumSize: Size.zero, 
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap, 
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(24))),
             child: buttonContent);
@@ -164,20 +168,36 @@ class Button extends StatelessWidget {
                 elevation: 0,
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                    minimumSize: Size.zero, 
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap, 
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(24))),
             child: buttonContent);
         break;
 
       // Danger Button
-      case ButtonVariant.danger:
+      case ButtonVariant.dangerPrimary:
         buttonWidget = ElevatedButton(
             onPressed: action,
             style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.red600,
                 foregroundColor: AppTheme.white500,
+                elevation: 0,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(24))),
+            child: buttonContent);
+        break;
+
+      // Secondary Button
+      case ButtonVariant.dangerSecondary:
+        buttonWidget = ElevatedButton(
+            onPressed: action,
+            style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.white500,
+                foregroundColor: AppTheme.red600,
+                side: BorderSide(color: AppTheme.red600, width: 1),
                 elevation: 0,
                 padding:
                     const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
