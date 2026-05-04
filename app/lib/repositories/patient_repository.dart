@@ -39,16 +39,14 @@ class PatientRepository {
   Future<void> registerPatient(PatientCompanion p, ClinicalRecordCompanion c) =>
       onboardingService.registerNewPatient(patientData: p, clinicalData: c);
 
-// Put this inside your PatientRepository class
+// Duplicate Patient Name Detector Function 
   Future<bool> isDuplicatePatient(String firstName, String lastName) async {
     final query = db.select(db.patient)
       ..where((t) => 
           t.firstName.equals(firstName) & 
           t.lastName.equals(lastName)
       );
-      
     final results = await query.get();
-  
     return results.isNotEmpty;  // returns true if a duplicate is found, if list is empty
   }
 }

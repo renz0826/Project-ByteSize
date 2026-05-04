@@ -119,7 +119,7 @@ class _AddPatientFormState extends State<AddPatientForm> {
 
     // Step 4: Duplicate Patient Records 
     // TODO: @Frontend, give your opinions on this, and improve the design
-    // TODO: This is not final yet, will ask the group about this feature
+    // TODO: This is not final yet, will ask the group about this feature.
     final db = AppDatabase();
     final repository = PatientRepository(db);
     final firstName = _firstNameController.text.trim();
