@@ -8,6 +8,7 @@ import '/../widgets/radio_buttons.dart';
 import '../../services/locations_ph.dart';
 import '../../services/date_service.dart';
 import '../../services/date_helper.dart';
+import '../../services/form_validator.dart';
 
 class AddPatientForm extends StatefulWidget {
   final Function(PatientCompanion) onNext; // pass the data object itself
@@ -45,7 +46,7 @@ class _AddPatientFormState extends State<AddPatientForm> {
   final _cityController = TextEditingController();
   final _provinceController = TextEditingController();
 
-  // Dropdown state variables (already have these)
+  // Dropdown state variables
   String? _selectedMonth;
   String? _selectedDay;
   String? _selectedYear;
@@ -55,45 +56,94 @@ class _AddPatientFormState extends State<AddPatientForm> {
   String? _selectedCity;
   String? _selectedBarangay;
 
-  void _handleNext() {
-    
-    DateTime birthDate = DateHelper.convertToDateTime(_selectedMonth!, _selectedDay!, _selectedYear!);
+  void _handleNext() { // What happens when the user clicks the NEXT button
 
-    final patientEntry = PatientCompanion.insert(
-      firstName: _firstNameController.text,
-      middleName: drift.Value(_middleNameController.text), // keep this nullable
-      lastName: _lastNameController.text,
+    // Step 1: Calculate Patient's Age based on User Input
+    DateTime? birthDate;
+    if (_selectedMonth != null &&
+        _selectedDay != null &&
+        _selectedYear != null) {
+      birthDate = DateHelper.convertToDateTime(
+          _selectedMonth!, _selectedDay!, _selectedYear!); 
+    }
+
+    // Step 2: Use the FormValidator Service file to check for missing NOT NULL data
+    List<String> missing = FormValidator.getMissingPatientFields(
+      firstName: _firstNameController.text.trim(),
+      lastName: _lastNameController.text.trim(),
       birthDate: birthDate,
-      sex: _selectedSex ?? "Other",
-      civilStatus: _selectedStatus ?? "Single",
-      contactNumber: _contactNumberController.text,
-      emergencyContactNo: drift.Value(_emergencyContactController.text),
-      referredBy: drift.Value(_referredByController.text),
-      relationship: drift.Value(_relationshipController.text),
+      sex: _selectedSex,
+      civilStatus: _selectedStatus,
+      contactNumber: _contactNumberController.text.trim(),
+      streetAddress: _streetController.text.trim(),
+      barangay: _selectedBarangay ?? _barangayController.text.trim(),
+      cityMunicipality: _selectedCity ?? _cityController.text.trim(),
+      province: _selectedProvince ?? _provinceController.text.trim(),
+      zipCode: _zipController.text.trim(),
+    );
 
-      // Address - using your dropdown values or controllers
-      streetAddress: _streetController.text,
-      barangay: _selectedBarangay ?? _barangayController.text,
-      cityMunicipality: _selectedCity ?? _cityController.text,
-      province: _selectedProvince ?? _provinceController.text,
-      zipCode: _zipController.text,
+    // Step 3: If there is any missing data, it will be displayed in a popup
+    // TODO: @Frontend, if you can make this look better, or make this a widget, better. - Fons
+    if (missing.isNotEmpty) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Missing Information'),
+            content: Text(
+                'Please fill out the following required fields:\n\n• ${missing.join('\n• ')}'),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Closes the popup
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+      return; // Stops the function from saving!
+    }
+
+    // Step 4: Once all error checks have been completed -> Insert data to Patient Companion and move to add clinical page.
+    final patientEntry = PatientCompanion.insert(
+      firstName: _firstNameController.text.trim(),
+      middleName: drift.Value(_middleNameController.text.trim()),
+      lastName: _lastNameController.text.trim(),
+      birthDate:
+          birthDate!, // Safe to use '!' because the missing check guarantees it isn't null
+      sex: _selectedSex!,
+      civilStatus: _selectedStatus ?? "Single",
+      contactNumber: _contactNumberController.text.trim(),
+      emergencyContactNo: drift.Value(_emergencyContactController.text.trim()),
+      referredBy: drift.Value(_referredByController.text.trim()),
+      relationship: drift.Value(_relationshipController.text.trim()),
+
+      // Address
+      streetAddress: _streetController.text.trim(),
+      barangay: _selectedBarangay ?? _barangayController.text.trim(),
+      cityMunicipality: _selectedCity ?? _cityController.text.trim(),
+      province: _selectedProvince ?? _provinceController.text.trim(),
+      zipCode: _zipController.text.trim(),
 
       // Metadata
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
     );
 
-    // 3. Send the data to the PatientDashboard
+    // Step 5: Send data to the Patient Dashboard
     widget.onNext(patientEntry);
   }
 
-  Map<String, String> rowSelections = {
-    // this is to ensure that they all don't use defaultSelection
+  // TODO: for @Fons, find a better fix for this
+  Map<String, String> rowSelections = { // this is to ensure that they all don't use defaultSelection
     "PWD": "Not Applicable",
     "Senior": "Not Applicable",
   };
 
-  // TODO : Connect all text fields to the appropriate db
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -242,6 +292,7 @@ class _AddPatientFormState extends State<AddPatientForm> {
                 child: InputField(
                   hintText: "Select a civil status",
                   label: "Civil Status",
+                  isRequired: true,
                   variant: InputVariant.dropdown,
                   dropdownValue: _selectedStatus,
                   onDropdownChanged: (value) {
@@ -294,7 +345,6 @@ class _AddPatientFormState extends State<AddPatientForm> {
                   child: InputField(
                 label: "Emergency Contact Number",
                 hintText: "Enter emergency number",
-                isRequired: true,
                 controller:
                     _emergencyContactController, // Emergency Contact Controller
               )),
@@ -335,6 +385,7 @@ class _AddPatientFormState extends State<AddPatientForm> {
               InputField(
                 hintText: "Enter Patient Street Address",
                 label: "Street Address",
+                isRequired: true,
                 controller: _streetController,
               ),
               const SizedBox(height: 20),
@@ -348,6 +399,7 @@ class _AddPatientFormState extends State<AddPatientForm> {
                     child: InputField(
                       hintText: "Select a Province",
                       label: "Province",
+                      isRequired: true,
                       variant: InputVariant.dropdown,
                       dropdownValue:
                           _selectedProvince, // dropdown all provinces
@@ -370,6 +422,7 @@ class _AddPatientFormState extends State<AddPatientForm> {
                           _selectedProvince), // this key resets ALL queries on new province selection
                       hintText: "Select a City/Municipality",
                       label: "City/Municipality",
+                      isRequired: true,
                       variant: InputVariant.dropdown,
                       dropdownValue:
                           _selectedCity, // dropdown cities from the province selected
@@ -404,6 +457,7 @@ class _AddPatientFormState extends State<AddPatientForm> {
                           _selectedCity), // this key resets ALL queries on new province selection
                       hintText: "Select a Barangay",
                       label: "Barangay",
+                      isRequired: true,
                       variant: InputVariant.dropdown,
                       dropdownValue:
                           _selectedBarangay, // dropdown barangays from city/municipality selected
@@ -428,6 +482,7 @@ class _AddPatientFormState extends State<AddPatientForm> {
                     child: InputField(
                       hintText: "e.g. 5000",
                       label: "ZIP Code",
+                      isRequired: true,
                       variant: InputVariant.primary,
                       keyboardType: TextInputType.number,
                       controller: _zipController, // Zip Code Controller

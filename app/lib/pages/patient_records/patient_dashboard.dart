@@ -129,7 +129,6 @@ class _PatientDashboardState extends State<PatientDashboard> {
       final fullName = '${p.firstName}${p.lastName}'.toLowerCase();
       final matchesSearch = fullName.contains(query);
       
-      // Assuming 'isArchived' is a boolean in your database based on the repository file
       bool matchesStatus = true;
       if (_selectedStatus == 'Active') {
         matchesStatus = p.isArchived == false || p.isArchived == null;
