@@ -8,7 +8,7 @@ import '/../widgets/filter_dropdown.dart';
 import '/../widgets/page_header.dart';
 import '/../widgets/app_info_bar.dart';
 import '../../db/database.dart';
-import '../../repositories/patient_repository.dart'; 
+import '../../repositories/patient_repository.dart';
 import '../../services/date_helper.dart';
 import 'add_patient.dart';
 import 'add_clinical_record.dart';
@@ -26,15 +26,17 @@ class _PatientDashboardState extends State<PatientDashboard> {
   // Database & Repository
   late PatientRepository _repository;
   final AppDatabase _db = AppDatabase();
-  
+
   // Real Database Lists
   List<PatientData> _allPatients = [];
-  List<PatientData> _filteredRecords = []; // Choosing the sort option on the top-right
+  List<PatientData> _filteredRecords =
+      []; // Choosing the sort option on the top-right
 
   // Functions to change patients screen states
   PatientCompanion? _draftPatient; // create a patient record
-  ClinicalRecordCompanion? _draftClinicalRecord; // create a patient + clinical record
-  
+  ClinicalRecordCompanion?
+      _draftClinicalRecord; // create a patient + clinical record
+
   // Bug Fix: Using IndexedStack to prevent form data from being deleted when clicking back
   int _currentIndex = 0;
 
@@ -51,7 +53,7 @@ class _PatientDashboardState extends State<PatientDashboard> {
     _loadPatients();
   }
 
-  // Fetch real data from the database 
+  // Fetch real data from the database
   Future<void> _loadPatients() async {
     final patients = await _repository.getAllPatients();
     setState(() {
@@ -61,10 +63,13 @@ class _PatientDashboardState extends State<PatientDashboard> {
     });
   }
 
+  // Send user to add_patient.dart
   void _goToAddPatient() {
-    setState(() => _currentIndex = 1); // set index to 1 when adding a new patient record
+    setState(() =>
+        _currentIndex = 1); // set index to 1 when adding a new patient record
   }
 
+  // Send user to add_clinical_record.dart
   void _goToAddClinicalRecord(PatientCompanion patientData) {
     setState(() {
       _draftPatient = patientData;
@@ -72,31 +77,35 @@ class _PatientDashboardState extends State<PatientDashboard> {
     });
   }
 
+  // Send user back to this page
   void _goBackToMain(ClinicalRecordCompanion clinicalData) async {
     try {
-      final newPatientId = await _db.into(_db.patient).insert(_draftPatient!); // add to database
-      final recordWithId = clinicalData.copyWith(// add to database with new patient data
+      final newPatientId =
+          await _db.into(_db.patient).insert(_draftPatient!); // add to database
+      final recordWithId = clinicalData.copyWith(
+        // add to database with new patient data
         patientId: drift.Value(newPatientId),
       );
 
       await _db.into(_db.clinicalRecord).insert(recordWithId);
 
-      // Refresh the list immediately after a successful save
-      await _loadPatients(); 
+      // Once saved, refresh the main dashboard for any changes to the patients
+      await _loadPatients();
 
       setState(() {
         _draftClinicalRecord = clinicalData;
         _currentIndex = 0; // Return to Main Dashboard
       });
     } catch (e) {
-      print("Database Error: $e"); // print this in case any error comes up and notify @fons immediately
+      print(
+          "Database Error: $e"); // Just a precaution: message @Fons immediately if this prints in your console
     }
   }
 
   //number of items to show per page
   List<PatientData> get _currentPageRecords {
     final start = (_currentPage - 1) * _recordsPerPage;
-    final end = (start + _recordsPerPage).clamp(0, _filteredRecords.length); 
+    final end = (start + _recordsPerPage).clamp(0, _filteredRecords.length);
     return _filteredRecords.sublist(start, end);
   }
 
@@ -123,11 +132,11 @@ class _PatientDashboardState extends State<PatientDashboard> {
   // Centralized filter logic applied to real data
   void _applyFilters() {
     final query = _searchController.text.toLowerCase();
-    
+
     _filteredRecords = _allPatients.where((p) {
       final fullName = '${p.firstName}${p.lastName}'.toLowerCase();
       final matchesSearch = fullName.contains(query);
-      
+
       bool matchesStatus = true;
       if (_selectedStatus == 'Active') {
         matchesStatus = p.isArchived == false || p.isArchived == null;
@@ -147,10 +156,11 @@ class _PatientDashboardState extends State<PatientDashboard> {
 
   @override
   Widget build(BuildContext context) {
-    return IndexedStack( // Bug Fix: fixes the bug where it deletes patient data when clicking "back" in clinical records
+    return IndexedStack(
+      // Bug Fix: fixes the bug where it deletes patient data when clicking "back" in clinical records
       index: _currentIndex,
       children: [
-        // Index 0: 
+        // Set this as Index 0: The Main Patient Dashboard
         Scaffold(
           backgroundColor: AppTheme.gray200,
           body: CustomScrollView(
@@ -206,27 +216,27 @@ class _PatientDashboardState extends State<PatientDashboard> {
           ),
         ),
 
-        // Index 1: 
+        // Setting this as Index 1: When user clicks add record
         SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               PageHeader(title: 'Patient Records', type: PageHeaderType.plain),
               Transform.translate(
-                offset: const Offset(0, -20), //pulls form up to reduce gap below header
+                offset: const Offset(
+                    0, -20), //pulls form up to reduce gap below header
                 child: AddPatientForm(
-                  onNext: (data) => _goToAddClinicalRecord(data),
-                  onBack: () {
-                    _loadPatients(); // Refresh list when returning
-                    setState(() => _currentIndex = 0); // Back to Dashboard
-                  } 
-                ),
+                    onNext: (data) => _goToAddClinicalRecord(data),
+                    onBack: () {
+                      _loadPatients(); // Refresh list when returning
+                      setState(() => _currentIndex = 0); // Back to Dashboard
+                    }),
               ),
             ],
           ),
         ),
 
-        // Index 2: Add Clinical Record View
+        // Setting this as Index 2: When user clicks next after adding a patient record
         SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -237,9 +247,10 @@ class _PatientDashboardState extends State<PatientDashboard> {
                 child: AddClinicalRecordForm(
                   patientId: 0,
                   onPrevious: () {
-                    setState(() => _currentIndex = 1); // when back is clicked, will return to previous page with data saved
-                  }, 
-                  onFinish: (clinicalData) => _goBackToMain(clinicalData), 
+                    setState(() => _currentIndex = 1);
+                    // when back is clicked, will return to previous page with data saved
+                  },
+                  onFinish: (clinicalData) => _goBackToMain(clinicalData),
                 ),
               ),
             ],
@@ -297,21 +308,27 @@ class _PatientDashboardState extends State<PatientDashboard> {
                 setState(() {
                   switch (value) {
                     case 'Name (A-Z)':
-                      _filteredRecords.sort((a, b) => a.firstName.compareTo(b.firstName));
+                      _filteredRecords
+                          .sort((a, b) => a.firstName.compareTo(b.firstName));
                       break;
                     case 'Name (Z-A)':
-                      _filteredRecords.sort((a, b) => b.firstName.compareTo(a.firstName));
+                      _filteredRecords
+                          .sort((a, b) => b.firstName.compareTo(a.firstName));
                       break;
                     case 'Oldest First':
-                      _filteredRecords.sort((a, b) => a.birthDate.compareTo(b.birthDate));
+                      _filteredRecords
+                          .sort((a, b) => a.birthDate.compareTo(b.birthDate));
                       break;
                     case 'Youngest First':
-                      _filteredRecords.sort((a, b) => b.birthDate.compareTo(a.birthDate));
+                      _filteredRecords
+                          .sort((a, b) => b.birthDate.compareTo(a.birthDate));
                       break;
                     case 'Female':
                     case 'Male':
                       _applyFilters(); // Reset base filters
-                      _filteredRecords = _filteredRecords.where((p) => p.sex == value).toList();
+                      _filteredRecords = _filteredRecords
+                          .where((p) => p.sex == value)
+                          .toList();
                       break;
                   }
                 });
@@ -377,13 +394,15 @@ class _PatientDashboardState extends State<PatientDashboard> {
   // table row using real PatientData
   Widget _buildTableRow(PatientData patient) {
     return PatientRecordBar(
-      fullName: '${patient.firstName} ${patient.lastName}', // Added a space here so names format nicely!
+      fullName:
+          '${patient.firstName} ${patient.lastName}', // Added a space here so names format nicely!
       sex: patient.sex,
       // Safely calculate age based on database birthDate
       age: DateHelper.calculateAge(patient.birthDate),
       address: '${patient.province ?? ''}, ${patient.cityMunicipality ?? ''}',
       contact: patient.contactNumber,
-      procedure: 'Consultation', // Placeholder (still trying to link this to clinical record)
+      procedure:
+          'Consultation', //TODO: @Renz please delete this and try to adjust the table values to make it uniform - Fons
       onMenuSelected: (value) {
         if (value == 'add_clinical_record') {
           // Convert the existing real data back into a Companion for the form

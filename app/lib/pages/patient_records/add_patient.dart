@@ -12,17 +12,19 @@ import '../../services/form_validator.dart';
 
 class AddPatientForm extends StatefulWidget {
   final Function(PatientCompanion) onNext; // pass the data object itself
-  final VoidCallback onBack;
+  final VoidCallback onBack; //TODO: Please add a back button here @Dawn - Fons
   final Map<String, dynamic>? existingPatient;
 
   const AddPatientForm(
+      // Constructor
       {super.key,
       this.existingPatient,
       required this.onNext,
       required this.onBack});
 
   @override
-  State<AddPatientForm> createState() => _AddPatientFormState();
+  State<AddPatientForm> createState() =>
+      _AddPatientFormState(); // add patient form state
 }
 
 class _AddPatientFormState extends State<AddPatientForm> {
@@ -56,7 +58,11 @@ class _AddPatientFormState extends State<AddPatientForm> {
   String? _selectedCity;
   String? _selectedBarangay;
 
-  void _handleNext() { // What happens when the user clicks the NEXT button
+  // PWD
+  bool _isPWD = false;
+
+  void _handleNext() {
+    // What happens when the user clicks the NEXT button
 
     // Step 1: Calculate Patient's Age based on User Input
     DateTime? birthDate;
@@ -64,12 +70,13 @@ class _AddPatientFormState extends State<AddPatientForm> {
         _selectedDay != null &&
         _selectedYear != null) {
       birthDate = DateHelper.convertToDateTime(
-          _selectedMonth!, _selectedDay!, _selectedYear!); 
+          _selectedMonth!, _selectedDay!, _selectedYear!);
     }
 
-    // Step 2: Use the FormValidator Service file to check for missing NOT NULL data
+    // Step 2: Use FormValidator.dart in the services folder to check for missing NOT NULL data
     List<String> missing = FormValidator.getMissingPatientFields(
-      firstName: _firstNameController.text.trim(),
+      firstName: _firstNameController.text
+          .trim(), // checks all required controllers to see if theres anything missing
       lastName: _lastNameController.text.trim(),
       birthDate: birthDate,
       sex: _selectedSex,
@@ -89,7 +96,7 @@ class _AddPatientFormState extends State<AddPatientForm> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: const Text('Missing Information'),
+            title: const Text('Missing Information'), // header
             content: Text(
                 'Please fill out the following required fields:\n\n• ${missing.join('\n• ')}'),
             shape:
@@ -97,7 +104,8 @@ class _AddPatientFormState extends State<AddPatientForm> {
             actions: [
               TextButton(
                 onPressed: () {
-                  Navigator.of(context).pop(); // Closes the popup
+                  Navigator.of(context)
+                      .pop(); // This closes the popup (Prompt lang ni ang frontend)
                 },
                 child: const Text('OK'),
               ),
@@ -111,10 +119,10 @@ class _AddPatientFormState extends State<AddPatientForm> {
     // Step 4: Once all error checks have been completed -> Insert data to Patient Companion and move to add clinical page.
     final patientEntry = PatientCompanion.insert(
       firstName: _firstNameController.text.trim(),
-      middleName: drift.Value(_middleNameController.text.trim()),
+      middleName: drift.Value(_middleNameController.text
+          .trim()), // ones with drift.Value means null values are allowed
       lastName: _lastNameController.text.trim(),
-      birthDate:
-          birthDate!, // Safe to use '!' because the missing check guarantees it isn't null
+      birthDate: birthDate!,
       sex: _selectedSex!,
       civilStatus: _selectedStatus ?? "Single",
       contactNumber: _contactNumberController.text.trim(),
@@ -129,6 +137,9 @@ class _AddPatientFormState extends State<AddPatientForm> {
       province: _selectedProvince ?? _provinceController.text.trim(),
       zipCode: _zipController.text.trim(),
 
+      // PWD
+      isSeniorOrPWD: drift.Value(_isPWD),
+
       // Metadata
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
@@ -137,12 +148,6 @@ class _AddPatientFormState extends State<AddPatientForm> {
     // Step 5: Send data to the Patient Dashboard
     widget.onNext(patientEntry);
   }
-
-  // TODO: for @Fons, find a better fix for this
-  Map<String, String> rowSelections = { // this is to ensure that they all don't use defaultSelection
-    "PWD": "Not Applicable",
-    "Senior": "Not Applicable",
-  };
 
   @override
   Widget build(BuildContext context) {
@@ -313,10 +318,12 @@ class _AddPatientFormState extends State<AddPatientForm> {
                 child: RadioGroupField(
                   label: "PWD Status",
                   options: const ["Applicable", "Not Applicable"],
-                  selectedValue: rowSelections["PWD"]!,
+                  // If _isPwd is true, select "Applicable", otherwise "Not Applicable"
+                  selectedValue: _isPWD ? "Applicable" : "Not Applicable",
                   onChanged: (value) {
                     setState(() {
-                      rowSelections["PWD"] = value;
+                      // Convert the string back to a boolean for your logic
+                      _isPWD = value == "Applicable";
                     });
                   },
                 ),
