@@ -45,6 +45,7 @@ class _PatientDashboardState extends State<PatientDashboard> {
   int _currentPage = 1;
   final int _recordsPerPage = 8;
   String? _selectedStatus; //for filter chips
+  int _formSessionId = 0;
 
   @override
   void initState() {
@@ -99,6 +100,40 @@ class _PatientDashboardState extends State<PatientDashboard> {
     } catch (e) {
       print(
           "Database Error: $e"); // Just a precaution: message @Fons immediately if this prints in your console
+    }
+  }
+
+  // Popup when clicking back to dashboard
+  // TODO: @Frontend, please design this to match our applications theme - Fons
+  Future<void> _confirmReturnToDashboard() async {
+    final bool? shouldDiscard = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Discard Changes?'),
+          content: const Text(
+              'Are you sure you want to return to the dashboard? Any unsaved data will be lost.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false), 
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true), 
+              child: const Text(
+                'Discard',
+                style: TextStyle(color: Colors.red),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    // 2. If they clicked "Discard", execute the return code
+    if (shouldDiscard == true) {
+      _loadPatients();
+      setState(() => _currentIndex = 0);
     }
   }
 
@@ -225,6 +260,7 @@ class _PatientDashboardState extends State<PatientDashboard> {
                   title: 'Back to Records',
                   type: PageHeaderType.withBack,
                   onBack: () {
+                    _confirmReturnToDashboard();
                     _loadPatients();
                     setState(() => _currentIndex = 0);
                   }),
@@ -232,6 +268,7 @@ class _PatientDashboardState extends State<PatientDashboard> {
                 offset: const Offset(
                     0, -30), //pulls form up to reduce gap below header
                 child: AddPatientForm(
+                    key: ValueKey(_formSessionId),
                     onNext: (data) => _goToAddClinicalRecord(data),
                     onBack: () {
                       _loadPatients(); // Refresh list when returning
@@ -251,6 +288,7 @@ class _PatientDashboardState extends State<PatientDashboard> {
                 title: 'Back to Records',
                 type: PageHeaderType.withBack,
                 onBack: () {
+                  _confirmReturnToDashboard();
                   _loadPatients();
                   setState(() => _currentIndex = 0);
                 },
@@ -259,6 +297,7 @@ class _PatientDashboardState extends State<PatientDashboard> {
                 offset: const Offset(0, -30),
                 child: AddClinicalRecordForm(
                   patientId: 0,
+                  key: ValueKey(_formSessionId),
                   onPrevious: () {
                     setState(() => _currentIndex = 1);
                   },
@@ -302,7 +341,13 @@ class _PatientDashboardState extends State<PatientDashboard> {
                   label: 'Add New Record',
                   variant: ButtonVariant.primary,
                   heroIcon: HeroIcons.documentPlus,
-                  onPressed: _goToAddPatient,
+                  // --- CHANGED THIS SECTION ---
+                  onPressed: () {
+                    setState(() {
+                      _formSessionId++;
+                    });
+                    _goToAddPatient();
+                  },
                 ),
               ),
             )
