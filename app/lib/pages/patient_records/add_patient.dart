@@ -63,7 +63,7 @@ class _AddPatientFormState extends State<AddPatientForm> {
   // PWD
   bool _isPWD = false;
 
-  void _clearForm() { // clears all the text editing controllers
+  void _clearFormPatientRecord() { // clears all the text editing controllers
     setState(() {
       // Clear all text controllers
       _firstNameController.clear();
@@ -635,7 +635,7 @@ class _AddPatientFormState extends State<AddPatientForm> {
                   variant: ButtonVariant.secondary,
                   label: "Clear",
                   width: double.infinity,
-                  onPressed: _clearForm, // Calls the new clear form function
+                  onPressed: _clearFormPatientRecord, // Calls the new clear form function
                 ),
               ),
               SizedBox(

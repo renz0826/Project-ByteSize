@@ -44,6 +44,32 @@ class _AddClinicalRecordFormState extends State<AddClinicalRecordForm> {
 // Clinical Notes
   final _clinicalNotesController = TextEditingController();
 
+  void _clearFormforClinicalRecord() {
+    setState(() {
+      // 1. Clear Medical Background & Notes
+      _pastIllnessController.clear();
+      _presentIllnessController.clear();
+      _allergiesController.clear();
+      _medicationController.clear();
+      _clinicalNotesController.clear();
+
+      // 2. Reset Treatment Procedures (Booleans)
+      _hasDebris = false;
+      _hasCalculus = false;
+      _hasGingivitis = false;
+      _hasPeriodontalPocket = false;
+      _hasDentofacialAnomaly = false;
+
+      // 3. Reset Tooth Counts (Integers)
+      _cariesFilling = 0;
+      _cariesExtraction = 0;
+      _missingDueToCaries = 0;
+      _rootFragment = 0;
+      _filledOrRestored = 0;
+    });
+  }
+  // -----------------------------
+
   void _handleSave() {
     final recordEntry = ClinicalRecordCompanion.insert(
       patientId: widget.patientId // required
@@ -382,7 +408,7 @@ class _AddClinicalRecordFormState extends State<AddClinicalRecordForm> {
                             label: "Clear",
                             width: double.infinity,
                             onPressed:
-                                _handleSave, // TODO: Change to clear input.
+                                _clearFormforClinicalRecord, 
                           ),
                         ),
                         Button(
