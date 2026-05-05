@@ -2,6 +2,7 @@ import 'package:dentcity_management_system/db/database.dart';
 import 'package:dentcity_management_system/style/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:drift/drift.dart' as drift;
+import 'package:flutter/services.dart';
 import '/../widgets/main_buttons.dart';
 import '/../widgets/input_field.dart';
 import '/../widgets/radio_buttons.dart';
@@ -62,7 +63,7 @@ class _AddPatientFormState extends State<AddPatientForm> {
   // PWD
   bool _isPWD = false;
 
-  void _clearForm() {
+  void _clearForm() { // clears all the text editing controllers
     setState(() {
       // Clear all text controllers
       _firstNameController.clear();
@@ -456,14 +457,21 @@ class _AddPatientFormState extends State<AddPatientForm> {
                 hintText: "Enter mobile number",
                 isRequired: true,
                 controller: _contactNumberController,
+                keyboardType: TextInputType.number, 
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly, // Filters out character inputs 
+                  LengthLimitingTextInputFormatter(11)], // Only 11 digits are allowed
               )),
               const SizedBox(width: 20),
               Expanded(
                   child: InputField(
                 label: "Emergency Contact Number",
                 hintText: "Enter emergency number",
-                controller:
-                    _emergencyContactController, // Emergency Contact Controller
+                controller: _emergencyContactController, // Emergency Contact Controller
+                keyboardType: TextInputType.number, 
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly, // numerical inputs only
+                  LengthLimitingTextInputFormatter(11)], // Limited to 11 digits only
               )),
             ],
           ),
@@ -601,8 +609,12 @@ class _AddPatientFormState extends State<AddPatientForm> {
                       label: "ZIP Code",
                       isRequired: true,
                       variant: InputVariant.primary,
-                      keyboardType: TextInputType.number,
                       controller: _zipController, // Zip Code Controller
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly,
+                        LengthLimitingTextInputFormatter(4)
+                      ], // numerical inputs only
                     ),
                   ),
                 ],
