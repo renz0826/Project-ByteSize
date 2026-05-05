@@ -44,7 +44,7 @@ class _AddClinicalRecordFormState extends State<AddClinicalRecordForm> {
 // Clinical Notes
   final _clinicalNotesController = TextEditingController();
 
-  void _clearFormforClinicalRecord() {
+  void _clearFormforClinicalRecord() { // clear these text fields onClick
     setState(() {
       // 1. Clear Medical Background & Notes
       _pastIllnessController.clear();
@@ -68,7 +68,6 @@ class _AddClinicalRecordFormState extends State<AddClinicalRecordForm> {
       _filledOrRestored = 0;
     });
   }
-  // -----------------------------
 
   void _handleSave() {
     final recordEntry = ClinicalRecordCompanion.insert(
