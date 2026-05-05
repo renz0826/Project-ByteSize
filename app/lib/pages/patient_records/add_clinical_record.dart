@@ -144,6 +144,7 @@ class _AddClinicalRecordFormState extends State<AddClinicalRecordForm> {
                         label: "Past Illnesses",
                         hintText: "Enter patient's past illnesses",
                         controller: _pastIllnessController,
+                        
                       )),
                       const SizedBox(width: 20),
                       Expanded(

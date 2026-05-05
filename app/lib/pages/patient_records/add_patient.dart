@@ -38,14 +38,14 @@ class _AddPatientFormState extends State<AddPatientForm> {
   final _lastNameController = TextEditingController();
 
   // Contact controllers
-  final _contactNumberController = TextEditingController(); // TODO: Limit to numeric string input only.
-  final _emergencyContactController =TextEditingController(); // TODO: Limit to numeric string input only.
+  final _contactNumberController = TextEditingController(); 
+  final _emergencyContactController =TextEditingController();
   final _referredByController = TextEditingController();
   final _relationshipController = TextEditingController();
 
   // Address controllers
   final _streetController = TextEditingController();
-  final _zipController = TextEditingController(); // TODO: Limit to numeric string input only.
+  final _zipController = TextEditingController(); 
   final _barangayController = TextEditingController();
   final _cityController = TextEditingController();
   final _provinceController = TextEditingController();
@@ -92,8 +92,7 @@ class _AddPatientFormState extends State<AddPatientForm> {
     });
   }
 
-  void _handleNext() async {
-    // What happens when the user clicks the NEXT button
+  void _handleNext() async { // What happens when the user clicks the NEXT button
 
     // Step 1: Calculate Patient's Age based on User Input
     DateTime? birthDate;
@@ -191,6 +190,7 @@ class _AddPatientFormState extends State<AddPatientForm> {
     }
 
     // Step 5: Soft Check
+    // TODO: @Frontend, improve this popup please - Fons
     final isNameDuplicate =
         await repository.isNameDuplicate(firstName, lastName);
 
@@ -293,6 +293,9 @@ class _AddPatientFormState extends State<AddPatientForm> {
                 hintText: "Enter first name",
                 isRequired: true,
                 controller: _firstNameController, // first name controller
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')) // makes it so that only characters can be inputted
+                ], 
               )),
               const SizedBox(width: 20),
               Expanded(
@@ -300,6 +303,9 @@ class _AddPatientFormState extends State<AddPatientForm> {
                 label: "Middle Name",
                 hintText: "Enter middle name",
                 controller: _middleNameController, // middle name controller
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')) // makes it so that only characters can be inputted
+                ], 
               )),
               const SizedBox(width: 20),
               Expanded(
@@ -308,6 +314,9 @@ class _AddPatientFormState extends State<AddPatientForm> {
                 hintText: "Enter last name",
                 isRequired: true,
                 controller: _lastNameController, // last name controller
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')) // makes it so that only characters can be inputted
+                ],
               )),
             ],
           ),
@@ -457,21 +466,24 @@ class _AddPatientFormState extends State<AddPatientForm> {
                 hintText: "Enter mobile number",
                 isRequired: true,
                 controller: _contactNumberController,
-                keyboardType: TextInputType.number, 
+                keyboardType: TextInputType.number,
                 inputFormatters: [
-                  FilteringTextInputFormatter.digitsOnly, // Filters out character inputs 
-                  LengthLimitingTextInputFormatter(11)], // Only 11 digits are allowed
+                  FilteringTextInputFormatter.digitsOnly, // Filters out character inputs
+                  LengthLimitingTextInputFormatter(11)
+                ], // Only 11 digits are allowed
               )),
               const SizedBox(width: 20),
               Expanded(
                   child: InputField(
                 label: "Emergency Contact Number",
                 hintText: "Enter emergency number",
-                controller: _emergencyContactController, // Emergency Contact Controller
-                keyboardType: TextInputType.number, 
+                controller:
+                    _emergencyContactController, // Emergency Contact Controller
+                keyboardType: TextInputType.number,
                 inputFormatters: [
                   FilteringTextInputFormatter.digitsOnly, // numerical inputs only
-                  LengthLimitingTextInputFormatter(11)], // Limited to 11 digits only
+                  LengthLimitingTextInputFormatter(11)
+                ], // Limited to 11 digits only
               )),
             ],
           ),
@@ -484,6 +496,9 @@ class _AddPatientFormState extends State<AddPatientForm> {
                 label: "Referred By",
                 hintText: "Enter referral",
                 controller: _referredByController,
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')) // makes it so that only characters can be inputted
+                ],
               )),
               const SizedBox(width: 20),
               Expanded(
@@ -491,6 +506,9 @@ class _AddPatientFormState extends State<AddPatientForm> {
                 label: "Relationship",
                 hintText: "Relationship with referral",
                 controller: _relationshipController,
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')) // makes it so that only characters can be inputted
+                ],
               )),
             ],
           ),
@@ -635,7 +653,8 @@ class _AddPatientFormState extends State<AddPatientForm> {
                   variant: ButtonVariant.secondary,
                   label: "Clear",
                   width: double.infinity,
-                  onPressed: _clearFormPatientRecord, // Calls the new clear form function
+                  onPressed:
+                      _clearFormPatientRecord, // Calls the new clear form function
                 ),
               ),
               SizedBox(
