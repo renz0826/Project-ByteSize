@@ -116,7 +116,7 @@ class _PatientDashboardState extends State<PatientDashboard> {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false), 
-              child: const Text('Cancel'),
+              child: const Text('Cancel'), // cancel keeps them on the page
             ),
             TextButton(
               onPressed: () => Navigator.of(context).pop(true), 
@@ -130,7 +130,7 @@ class _PatientDashboardState extends State<PatientDashboard> {
       },
     );
 
-    // 2. If they clicked "Discard", execute the return code
+    // If discard was clicked, remove the information and load patients table
     if (shouldDiscard == true) {
       _loadPatients();
       setState(() => _currentIndex = 0);
