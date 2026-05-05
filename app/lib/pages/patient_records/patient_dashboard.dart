@@ -221,10 +221,14 @@ class _PatientDashboardState extends State<PatientDashboard> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              PageHeader(title: 'Patient Records', type: PageHeaderType.plain),
+              PageHeader(title: 'Back to Records', type: PageHeaderType.withBack,
+              onBack: (){
+                _loadPatients();
+                setState(() => _currentIndex = 0);
+              }),
               Transform.translate(
                 offset: const Offset(
-                    0, -20), //pulls form up to reduce gap below header
+                    0, -30), //pulls form up to reduce gap below header
                 child: AddPatientForm(
                     onNext: (data) => _goToAddClinicalRecord(data),
                     onBack: () {
@@ -241,9 +245,9 @@ class _PatientDashboardState extends State<PatientDashboard> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              PageHeader(title: 'Patient Records', type: PageHeaderType.plain),
+              PageHeader(title: 'Back to Records', type: PageHeaderType.withBack, onBack: _goToAddPatient,),
               Transform.translate(
-                offset: const Offset(0, -20),
+                offset: const Offset(0, -30),
                 child: AddClinicalRecordForm(
                   patientId: 0,
                   onPrevious: () {
