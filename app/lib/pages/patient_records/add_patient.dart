@@ -315,7 +315,7 @@ class _AddPatientFormState extends State<AddPatientForm> {
                 isRequired: true,
                 controller: _lastNameController, // last name controller
                 inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')) // makes it so that only characters can be inputted
+                  FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s\-]')) // makes it so that only characters can be inputted
                 ],
               )),
             ],
