@@ -13,7 +13,7 @@ import '../../repositories/patient_repository.dart';
 
 class AddPatientForm extends StatefulWidget {
   final Function(PatientCompanion) onNext; // pass the data object itself
-  final VoidCallback onBack; //TODO: Please add a back button here @Dawn - Fons
+  final VoidCallback onBack;
   final Map<String, dynamic>? existingPatient;
 
   const AddPatientForm(
@@ -37,17 +37,14 @@ class _AddPatientFormState extends State<AddPatientForm> {
   final _lastNameController = TextEditingController();
 
   // Contact controllers
-  final _contactNumberController =
-      TextEditingController(); // TODO: Limit to numeric string input only.
-  final _emergencyContactController =
-      TextEditingController(); // TODO: Limit to numeric string input only.
+  final _contactNumberController = TextEditingController(); // TODO: Limit to numeric string input only.
+  final _emergencyContactController =TextEditingController(); // TODO: Limit to numeric string input only.
   final _referredByController = TextEditingController();
   final _relationshipController = TextEditingController();
 
   // Address controllers
   final _streetController = TextEditingController();
-  final _zipController =
-      TextEditingController(); // TODO: Limit to numeric string input only.
+  final _zipController = TextEditingController(); // TODO: Limit to numeric string input only.
   final _barangayController = TextEditingController();
   final _cityController = TextEditingController();
   final _provinceController = TextEditingController();
@@ -65,12 +62,46 @@ class _AddPatientFormState extends State<AddPatientForm> {
   // PWD
   bool _isPWD = false;
 
+  void _clearForm() {
+    setState(() {
+      // Clear all text controllers
+      _firstNameController.clear();
+      _middleNameController.clear();
+      _lastNameController.clear();
+      _contactNumberController.clear();
+      _emergencyContactController.clear();
+      _referredByController.clear();
+      _relationshipController.clear();
+      _streetController.clear();
+      _zipController.clear();
+      _barangayController.clear();
+      _provinceController.clear();
+
+      // Reset all dropdowns & booleans
+      _selectedMonth = null;
+      _selectedDay = null;
+      _selectedYear = null;
+      _selectedSex = null;
+      _selectedStatus = null;
+      _selectedProvince = null;
+      _selectedCity = null;
+      _selectedBarangay = null;
+
+      _isPWD = false;
+    });
+  }
+
   void _handleNext() async {
     // What happens when the user clicks the NEXT button
 
     // Step 1: Calculate Patient's Age based on User Input
     DateTime? birthDate;
-    if (_selectedMonth != null &&
+
+    if (isEditing &&
+        widget.existingPatient != null &&
+        widget.existingPatient!['birthDate'] != null) {
+      birthDate = widget.existingPatient!['birthDate'] as DateTime;
+    } else if (_selectedMonth != null &&
         _selectedDay != null &&
         _selectedYear != null) {
       birthDate = DateHelper.convertToDateTime(
@@ -120,25 +151,56 @@ class _AddPatientFormState extends State<AddPatientForm> {
       return; // Stops the function from saving
     }
 
-    // Step 4: Duplicate Patient Records
-    // TODO: @Frontend, give your opinions on this, and improve the design
-    // TODO: This is not final yet, will ask the group about this feature.
+    // Step 4: Strict Check
+    // TODO: @Frontend, improve this popup please - Fons
     final db = AppDatabase();
     final repository = PatientRepository(db);
     final firstName = _firstNameController.text.trim();
     final lastName = _lastNameController.text.trim();
-    final isDuplicate = await repository.isDuplicatePatient(
-        firstName, lastName); // gotten from patient_repository
+    final isDuplicate = await repository.isExactDuplicate(
+        // updated repository function
+        firstName,
+        lastName,
+        birthDate!);
 
     if (isDuplicate) {
-      // Show warning popup
+      // shows a warning popup when first name, last name, and dob already match an existing record
+      await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Patient Already Exists'),
+            content: Text(
+                'A patient named "$firstName $lastName" born on ${birthDate!.month}/${birthDate.day}/${birthDate.year} is already in the system.\n\nPlease search for this patient in the dashboard to edit their existing profile or add a new clinical record.'),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            actions: [
+              ElevatedButton(
+                onPressed: () => Navigator.of(context).pop(),
+                style:
+                    ElevatedButton.styleFrom(backgroundColor: AppTheme.blue200),
+                child: const Text('Understood',
+                    style: TextStyle(color: Colors.white)),
+              ),
+            ],
+          );
+        },
+      );
+      return; // use return to stop the function
+    }
+
+    // Step 5: Soft Check
+    final isNameDuplicate =
+        await repository.isNameDuplicate(firstName, lastName);
+
+    if (isNameDuplicate) {
       bool proceedAnyway = await showDialog(
             context: context,
             builder: (BuildContext context) {
               return AlertDialog(
-                title: const Text('Possible Duplicate Found'),
+                title: const Text('Similar Name Found'),
                 content: Text(
-                    'A patient named "$firstName $lastName" already exists in the database.\n\nAre you sure you want to add this record?'),
+                    'Another patient named "$firstName $lastName" already exists in the system (with a different birth date).\n\nAre you sure this is a different person?'),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12)),
                 actions: [
@@ -149,30 +211,28 @@ class _AddPatientFormState extends State<AddPatientForm> {
                   ElevatedButton(
                     onPressed: () => Navigator.of(context).pop(true), // Proceed
                     style: ElevatedButton.styleFrom(
-                        backgroundColor:
-                            AppTheme.white500), // change this color aswell
-                    child: const Text('Proceed Anyway',
+                        backgroundColor: AppTheme.white500),
+                    child: const Text('Yes, Proceed',
                         style: TextStyle(color: Colors.white)),
                   ),
                 ],
               );
             },
           ) ??
-          false; // Defaults to false if user dismisses the dialog
+          false;
 
-      // If they clicked "Cancel", stop the saving process
       if (!proceedAnyway) {
-        return;
+        return; // Stop saving if they clicked Cancel
       }
     }
 
-    // Step 4: Once all error checks have been completed -> Insert data to Patient Companion and move to add clinical page.
+    // Step 6: Once all error checks have been completed -> Insert data to Patient Companion and move to add clinical page.
     final patientEntry = PatientCompanion.insert(
       firstName: _firstNameController.text.trim(),
       middleName: drift.Value(_middleNameController.text
           .trim()), // ones with drift.Value means null values are allowed
       lastName: _lastNameController.text.trim(),
-      birthDate: birthDate!,
+      birthDate: birthDate,
       sex: _selectedSex!,
       civilStatus: _selectedStatus ?? "Single",
       contactNumber: _contactNumberController.text.trim(),
@@ -195,7 +255,7 @@ class _AddPatientFormState extends State<AddPatientForm> {
       updatedAt: DateTime.now(),
     );
 
-    // Step 5: Send data to the Patient Dashboard
+    // Step 7: Send data to the Patient Dashboard
     widget.onNext(patientEntry);
   }
 
@@ -563,7 +623,7 @@ class _AddPatientFormState extends State<AddPatientForm> {
                   variant: ButtonVariant.secondary,
                   label: "Clear",
                   width: double.infinity,
-                  onPressed: _handleNext, // TODO: Change to clear input.
+                  onPressed: _clearForm, // Calls the new clear form function
                 ),
               ),
               SizedBox(
