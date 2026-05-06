@@ -25,8 +25,7 @@ class AddPatientForm extends StatefulWidget {
       required this.onBack});
 
   @override
-  State<AddPatientForm> createState() =>
-      _AddPatientFormState(); // add patient form state
+  State<AddPatientForm> createState() => _AddPatientFormState(); // add patient form state
 }
 
 class _AddPatientFormState extends State<AddPatientForm> {
@@ -63,7 +62,7 @@ class _AddPatientFormState extends State<AddPatientForm> {
   // PWD
   bool _isPWD = false;
 
-  void _clearFormPatientRecord() { // clears all the text editing controllers
+  void _clearFormPatientRecord() { // clears all text from the patients form 
     setState(() {
       // Clear all text controllers
       _firstNameController.clear();

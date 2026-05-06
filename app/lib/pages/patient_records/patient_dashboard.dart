@@ -29,13 +29,11 @@ class _PatientDashboardState extends State<PatientDashboard> {
 
   // Real Database Lists
   List<PatientData> _allPatients = [];
-  List<PatientData> _filteredRecords =
-      []; // Choosing the sort option on the top-right
+  List<PatientData> _filteredRecords = []; // Choosing the sort option on the top-right
 
   // Functions to change patients screen states
   PatientCompanion? _draftPatient; // create a patient record
-  ClinicalRecordCompanion?
-      _draftClinicalRecord; // create a patient + clinical record
+  ClinicalRecordCompanion? _draftClinicalRecord; // create a patient + clinical record
 
   // Bug Fix: Using IndexedStack to prevent form data from being deleted when clicking back
   int _currentIndex = 0;
@@ -50,7 +48,7 @@ class _PatientDashboardState extends State<PatientDashboard> {
   @override
   void initState() {
     super.initState();
-    _repository = PatientRepository(_db);
+    _repository = PatientRepository(_db); // initiate patients repository here
     _loadPatients();
   }
 
