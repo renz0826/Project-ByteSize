@@ -461,8 +461,7 @@ class _PatientDashboardState extends State<PatientDashboard> {
       procedure:
           'Consultation', //TODO: @Renz please delete this and try to adjust the table values to make it uniform - Fons
       onMenuSelected: (value) {
-        if (value == 'add_clinical_record') {
-          // Convert the existing real data back into a Companion for the form
+        if (value == 'add_clinical_record') {// Convert the existing real data back into a Companion for the form
           _goToAddClinicalRecord(patient.toCompanion(true));
         }
       },
