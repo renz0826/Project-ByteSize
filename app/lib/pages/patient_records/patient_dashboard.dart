@@ -91,6 +91,15 @@ class _PatientDashboardState extends State<PatientDashboard> {
       // Once saved, refresh the main dashboard for any changes to the patients
       await _loadPatients();
 
+      // TODO: @Frontend, if you can make this snackbar similar to our theme, better - Fons 
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Patient and Clinical Record Saved Successfully!"),
+          ),
+        );
+      }
+
       setState(() {
         _draftClinicalRecord = clinicalData;
         _currentIndex = 0; // Return to Main Dashboard
