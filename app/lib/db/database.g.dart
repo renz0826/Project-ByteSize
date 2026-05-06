@@ -1238,6 +1238,12 @@ class $AppointmentTable extends Appointment
       type: DriftSqlType.string,
       requiredDuringInsert: false,
       defaultValue: const Constant('Scheduled'));
+  static const VerificationMeta _timeSlotMeta =
+      const VerificationMeta('timeSlot');
+  @override
+  late final GeneratedColumn<String> timeSlot = GeneratedColumn<String>(
+      'time_slot', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
   @override
   List<GeneratedColumn> get $columns => [
         appointmentId,
@@ -1245,7 +1251,8 @@ class $AppointmentTable extends Appointment
         staffId,
         scheduleDateTime,
         reasonForVisit,
-        status
+        status,
+        timeSlot
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1293,6 +1300,12 @@ class $AppointmentTable extends Appointment
       context.handle(_statusMeta,
           status.isAcceptableOrUnknown(data['status']!, _statusMeta));
     }
+    if (data.containsKey('time_slot')) {
+      context.handle(_timeSlotMeta,
+          timeSlot.isAcceptableOrUnknown(data['time_slot']!, _timeSlotMeta));
+    } else if (isInserting) {
+      context.missing(_timeSlotMeta);
+    }
     return context;
   }
 
@@ -1314,6 +1327,8 @@ class $AppointmentTable extends Appointment
           DriftSqlType.string, data['${effectivePrefix}reason_for_visit'])!,
       status: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}status'])!,
+      timeSlot: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}time_slot'])!,
     );
   }
 
@@ -1330,13 +1345,15 @@ class AppointmentData extends DataClass implements Insertable<AppointmentData> {
   final DateTime scheduleDateTime;
   final String reasonForVisit;
   final String status;
+  final String timeSlot;
   const AppointmentData(
       {required this.appointmentId,
       required this.patientId,
       this.staffId,
       required this.scheduleDateTime,
       required this.reasonForVisit,
-      required this.status});
+      required this.status,
+      required this.timeSlot});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -1348,6 +1365,7 @@ class AppointmentData extends DataClass implements Insertable<AppointmentData> {
     map['schedule_date_time'] = Variable<DateTime>(scheduleDateTime);
     map['reason_for_visit'] = Variable<String>(reasonForVisit);
     map['status'] = Variable<String>(status);
+    map['time_slot'] = Variable<String>(timeSlot);
     return map;
   }
 
@@ -1361,6 +1379,7 @@ class AppointmentData extends DataClass implements Insertable<AppointmentData> {
       scheduleDateTime: Value(scheduleDateTime),
       reasonForVisit: Value(reasonForVisit),
       status: Value(status),
+      timeSlot: Value(timeSlot),
     );
   }
 
@@ -1374,6 +1393,7 @@ class AppointmentData extends DataClass implements Insertable<AppointmentData> {
       scheduleDateTime: serializer.fromJson<DateTime>(json['scheduleDateTime']),
       reasonForVisit: serializer.fromJson<String>(json['reasonForVisit']),
       status: serializer.fromJson<String>(json['status']),
+      timeSlot: serializer.fromJson<String>(json['timeSlot']),
     );
   }
   @override
@@ -1386,6 +1406,7 @@ class AppointmentData extends DataClass implements Insertable<AppointmentData> {
       'scheduleDateTime': serializer.toJson<DateTime>(scheduleDateTime),
       'reasonForVisit': serializer.toJson<String>(reasonForVisit),
       'status': serializer.toJson<String>(status),
+      'timeSlot': serializer.toJson<String>(timeSlot),
     };
   }
 
@@ -1395,7 +1416,8 @@ class AppointmentData extends DataClass implements Insertable<AppointmentData> {
           Value<int?> staffId = const Value.absent(),
           DateTime? scheduleDateTime,
           String? reasonForVisit,
-          String? status}) =>
+          String? status,
+          String? timeSlot}) =>
       AppointmentData(
         appointmentId: appointmentId ?? this.appointmentId,
         patientId: patientId ?? this.patientId,
@@ -1403,6 +1425,7 @@ class AppointmentData extends DataClass implements Insertable<AppointmentData> {
         scheduleDateTime: scheduleDateTime ?? this.scheduleDateTime,
         reasonForVisit: reasonForVisit ?? this.reasonForVisit,
         status: status ?? this.status,
+        timeSlot: timeSlot ?? this.timeSlot,
       );
   AppointmentData copyWithCompanion(AppointmentCompanion data) {
     return AppointmentData(
@@ -1418,6 +1441,7 @@ class AppointmentData extends DataClass implements Insertable<AppointmentData> {
           ? data.reasonForVisit.value
           : this.reasonForVisit,
       status: data.status.present ? data.status.value : this.status,
+      timeSlot: data.timeSlot.present ? data.timeSlot.value : this.timeSlot,
     );
   }
 
@@ -1429,14 +1453,15 @@ class AppointmentData extends DataClass implements Insertable<AppointmentData> {
           ..write('staffId: $staffId, ')
           ..write('scheduleDateTime: $scheduleDateTime, ')
           ..write('reasonForVisit: $reasonForVisit, ')
-          ..write('status: $status')
+          ..write('status: $status, ')
+          ..write('timeSlot: $timeSlot')
           ..write(')'))
         .toString();
   }
 
   @override
   int get hashCode => Object.hash(appointmentId, patientId, staffId,
-      scheduleDateTime, reasonForVisit, status);
+      scheduleDateTime, reasonForVisit, status, timeSlot);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1446,7 +1471,8 @@ class AppointmentData extends DataClass implements Insertable<AppointmentData> {
           other.staffId == this.staffId &&
           other.scheduleDateTime == this.scheduleDateTime &&
           other.reasonForVisit == this.reasonForVisit &&
-          other.status == this.status);
+          other.status == this.status &&
+          other.timeSlot == this.timeSlot);
 }
 
 class AppointmentCompanion extends UpdateCompanion<AppointmentData> {
@@ -1456,6 +1482,7 @@ class AppointmentCompanion extends UpdateCompanion<AppointmentData> {
   final Value<DateTime> scheduleDateTime;
   final Value<String> reasonForVisit;
   final Value<String> status;
+  final Value<String> timeSlot;
   const AppointmentCompanion({
     this.appointmentId = const Value.absent(),
     this.patientId = const Value.absent(),
@@ -1463,6 +1490,7 @@ class AppointmentCompanion extends UpdateCompanion<AppointmentData> {
     this.scheduleDateTime = const Value.absent(),
     this.reasonForVisit = const Value.absent(),
     this.status = const Value.absent(),
+    this.timeSlot = const Value.absent(),
   });
   AppointmentCompanion.insert({
     this.appointmentId = const Value.absent(),
@@ -1471,9 +1499,11 @@ class AppointmentCompanion extends UpdateCompanion<AppointmentData> {
     required DateTime scheduleDateTime,
     required String reasonForVisit,
     this.status = const Value.absent(),
+    required String timeSlot,
   })  : patientId = Value(patientId),
         scheduleDateTime = Value(scheduleDateTime),
-        reasonForVisit = Value(reasonForVisit);
+        reasonForVisit = Value(reasonForVisit),
+        timeSlot = Value(timeSlot);
   static Insertable<AppointmentData> custom({
     Expression<int>? appointmentId,
     Expression<int>? patientId,
@@ -1481,6 +1511,7 @@ class AppointmentCompanion extends UpdateCompanion<AppointmentData> {
     Expression<DateTime>? scheduleDateTime,
     Expression<String>? reasonForVisit,
     Expression<String>? status,
+    Expression<String>? timeSlot,
   }) {
     return RawValuesInsertable({
       if (appointmentId != null) 'appointment_id': appointmentId,
@@ -1489,6 +1520,7 @@ class AppointmentCompanion extends UpdateCompanion<AppointmentData> {
       if (scheduleDateTime != null) 'schedule_date_time': scheduleDateTime,
       if (reasonForVisit != null) 'reason_for_visit': reasonForVisit,
       if (status != null) 'status': status,
+      if (timeSlot != null) 'time_slot': timeSlot,
     });
   }
 
@@ -1498,7 +1530,8 @@ class AppointmentCompanion extends UpdateCompanion<AppointmentData> {
       Value<int?>? staffId,
       Value<DateTime>? scheduleDateTime,
       Value<String>? reasonForVisit,
-      Value<String>? status}) {
+      Value<String>? status,
+      Value<String>? timeSlot}) {
     return AppointmentCompanion(
       appointmentId: appointmentId ?? this.appointmentId,
       patientId: patientId ?? this.patientId,
@@ -1506,6 +1539,7 @@ class AppointmentCompanion extends UpdateCompanion<AppointmentData> {
       scheduleDateTime: scheduleDateTime ?? this.scheduleDateTime,
       reasonForVisit: reasonForVisit ?? this.reasonForVisit,
       status: status ?? this.status,
+      timeSlot: timeSlot ?? this.timeSlot,
     );
   }
 
@@ -1530,6 +1564,9 @@ class AppointmentCompanion extends UpdateCompanion<AppointmentData> {
     if (status.present) {
       map['status'] = Variable<String>(status.value);
     }
+    if (timeSlot.present) {
+      map['time_slot'] = Variable<String>(timeSlot.value);
+    }
     return map;
   }
 
@@ -1541,7 +1578,8 @@ class AppointmentCompanion extends UpdateCompanion<AppointmentData> {
           ..write('staffId: $staffId, ')
           ..write('scheduleDateTime: $scheduleDateTime, ')
           ..write('reasonForVisit: $reasonForVisit, ')
-          ..write('status: $status')
+          ..write('status: $status, ')
+          ..write('timeSlot: $timeSlot')
           ..write(')'))
         .toString();
   }
@@ -4340,6 +4378,7 @@ typedef $$AppointmentTableCreateCompanionBuilder = AppointmentCompanion
   required DateTime scheduleDateTime,
   required String reasonForVisit,
   Value<String> status,
+  required String timeSlot,
 });
 typedef $$AppointmentTableUpdateCompanionBuilder = AppointmentCompanion
     Function({
@@ -4349,6 +4388,7 @@ typedef $$AppointmentTableUpdateCompanionBuilder = AppointmentCompanion
   Value<DateTime> scheduleDateTime,
   Value<String> reasonForVisit,
   Value<String> status,
+  Value<String> timeSlot,
 });
 
 final class $$AppointmentTableReferences
@@ -4408,6 +4448,9 @@ class $$AppointmentTableFilterComposer
 
   ColumnFilters<String> get status => $composableBuilder(
       column: $table.status, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get timeSlot => $composableBuilder(
+      column: $table.timeSlot, builder: (column) => ColumnFilters(column));
 
   $$PatientTableFilterComposer get patientId {
     final $$PatientTableFilterComposer composer = $composerBuilder(
@@ -4474,6 +4517,9 @@ class $$AppointmentTableOrderingComposer
   ColumnOrderings<String> get status => $composableBuilder(
       column: $table.status, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get timeSlot => $composableBuilder(
+      column: $table.timeSlot, builder: (column) => ColumnOrderings(column));
+
   $$PatientTableOrderingComposer get patientId {
     final $$PatientTableOrderingComposer composer = $composerBuilder(
         composer: this,
@@ -4535,6 +4581,9 @@ class $$AppointmentTableAnnotationComposer
 
   GeneratedColumn<String> get status =>
       $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<String> get timeSlot =>
+      $composableBuilder(column: $table.timeSlot, builder: (column) => column);
 
   $$PatientTableAnnotationComposer get patientId {
     final $$PatientTableAnnotationComposer composer = $composerBuilder(
@@ -4606,6 +4655,7 @@ class $$AppointmentTableTableManager extends RootTableManager<
             Value<DateTime> scheduleDateTime = const Value.absent(),
             Value<String> reasonForVisit = const Value.absent(),
             Value<String> status = const Value.absent(),
+            Value<String> timeSlot = const Value.absent(),
           }) =>
               AppointmentCompanion(
             appointmentId: appointmentId,
@@ -4614,6 +4664,7 @@ class $$AppointmentTableTableManager extends RootTableManager<
             scheduleDateTime: scheduleDateTime,
             reasonForVisit: reasonForVisit,
             status: status,
+            timeSlot: timeSlot,
           ),
           createCompanionCallback: ({
             Value<int> appointmentId = const Value.absent(),
@@ -4622,6 +4673,7 @@ class $$AppointmentTableTableManager extends RootTableManager<
             required DateTime scheduleDateTime,
             required String reasonForVisit,
             Value<String> status = const Value.absent(),
+            required String timeSlot,
           }) =>
               AppointmentCompanion.insert(
             appointmentId: appointmentId,
@@ -4630,6 +4682,7 @@ class $$AppointmentTableTableManager extends RootTableManager<
             scheduleDateTime: scheduleDateTime,
             reasonForVisit: reasonForVisit,
             status: status,
+            timeSlot: timeSlot,
           ),
           withReferenceMapper: (p0) => p0
               .map((e) => (
