@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import '/../widgets/main_buttons.dart';
 import 'schedule_appointment.dart';
+import 'view_appointment.dart';
 
 // enum of different schedule views
 // TODO: Add different Edit and View Patient Record Views
-enum SchedulesView {
-  main,
-  scheduleAppointment,
-}
+enum SchedulesView { main, scheduleAppointment, viewAppointment }
 
 class ScheduleDashboard extends StatefulWidget {
   const ScheduleDashboard({super.key});
@@ -22,6 +20,10 @@ class _ScheduleDashboardState extends State<ScheduleDashboard> {
 
   void _goToScheduleAppointment() {
     setState(() => _currentView = SchedulesView.scheduleAppointment);
+  }
+
+  void _goToViewAppointment() {
+    setState(() => _currentView = SchedulesView.viewAppointment);
   }
 
   void _goBackToMain() {
@@ -43,6 +45,8 @@ class _ScheduleDashboardState extends State<ScheduleDashboard> {
           // },
           onSave: _goBackToMain,
         );
+      case SchedulesView.viewAppointment:
+        activeScreen = ViewAppointment(onSave: _goBackToMain);
       case SchedulesView.main:
         activeScreen = _buildMainDashboard();
         break;
@@ -68,6 +72,12 @@ class _ScheduleDashboardState extends State<ScheduleDashboard> {
               variant: ButtonVariant.primary,
               width: double.infinity,
               onPressed: _goToScheduleAppointment),
+          SizedBox(height: 20),
+          Button(
+              label: "View Appointment",
+              variant: ButtonVariant.primary,
+              width: double.infinity,
+              onPressed: _goToViewAppointment),
         ],
       ),
     );
