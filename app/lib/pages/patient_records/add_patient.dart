@@ -468,8 +468,8 @@ class _AddPatientFormState extends State<AddPatientForm> {
                 keyboardType: TextInputType.number,
                 inputFormatters: [
                   FilteringTextInputFormatter.digitsOnly, // Filters out character inputs
-                  LengthLimitingTextInputFormatter(11)
-                ], // Only 11 digits are allowed
+                  LengthLimitingTextInputFormatter(11) // Only 11 digits are allowed
+                ], 
               )),
               const SizedBox(width: 20),
               Expanded(
@@ -481,8 +481,8 @@ class _AddPatientFormState extends State<AddPatientForm> {
                 keyboardType: TextInputType.number,
                 inputFormatters: [
                   FilteringTextInputFormatter.digitsOnly, // numerical inputs only
-                  LengthLimitingTextInputFormatter(11)
-                ], // Limited to 11 digits only
+                  LengthLimitingTextInputFormatter(11)  // Limited to 11 digits only
+                ],
               )),
             ],
           ),
