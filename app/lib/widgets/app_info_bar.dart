@@ -139,7 +139,6 @@ class _MoreOptions extends StatelessWidget {
 class AppointmentBar extends StatelessWidget {
   final String fullName;
   final String time;
-  final String procedure;
   final BadgeStatus status;
   final VoidCallback? onAction; // action depends on status (e.g. cancel / done)
 
@@ -147,7 +146,6 @@ class AppointmentBar extends StatelessWidget {
     super.key,
     required this.fullName,
     required this.time,
-    required this.procedure,
     required this.status,
     this.onAction,
   });
@@ -167,7 +165,6 @@ class AppointmentBar extends StatelessWidget {
       children: [
         _BarText(fullName, flex: 3, ellipsis: true,), // name
         _BarText(time), // time
-        _BarText(procedure), // procedure
 
         // status badge + action button pushed to right
         Row(
@@ -235,7 +232,6 @@ class PatientRecordBar extends StatelessWidget {
         _BarText('$age yo', flex: 2),
         _BarText(address, flex: 5, ellipsis: true),
         _BarText(contact, flex: 3),
-        _BarText(procedure, flex: 2),
         Expanded(flex:2, child: const SizedBox()),
 
         // more options: Add New Clinical Record, Add Schedule, View Record, Edit Personal Details, Archive Record

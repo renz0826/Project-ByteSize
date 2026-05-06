@@ -88,19 +88,29 @@ class PageHeader extends StatelessWidget {
         mainAxisSize: MainAxisSize.max,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          GestureDetector(
+          IntrinsicWidth(
+            child: MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: GestureDetector(
+            behavior: HitTestBehavior.opaque, //to make the padding also clickable
             onTap: onBack ?? () => Navigator.of(context).pop(),
-            child: const Icon(Icons.arrow_back_rounded, color: AppTheme.black500, size: 32),
-          ),
-          const SizedBox(width: 12),
-          Text(
-            title,
-            style: GoogleFonts.beVietnamPro(
-            fontSize: 20,
-            fontWeight: FontWeight.w700, 
-            color: AppTheme.black500,
-            letterSpacing: 0.2,
-          ),
+          child: Row(
+            children: [
+              const Icon(Icons.arrow_back_rounded, color: AppTheme.black500, size: 32),
+              const SizedBox(width: 12),
+              Text(
+              title,
+              style: GoogleFonts.beVietnamPro(
+              fontSize: 20,
+              fontWeight: FontWeight.w700, 
+              color: AppTheme.black500,
+              letterSpacing: 0.2,
+            ),
+            ),
+            ],
+            ),
+            ),
+            ),
           ),
         ],
       ),

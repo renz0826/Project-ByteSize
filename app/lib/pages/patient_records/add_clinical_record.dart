@@ -2,6 +2,7 @@ import 'package:dentcity_management_system/db/database.dart';
 import 'package:dentcity_management_system/style/theme.dart';
 import 'package:drift/drift.dart' as drift;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '/../widgets/main_buttons.dart';
 import '/../widgets/input_field.dart';
 import '/../widgets/radio_buttons.dart';
@@ -12,7 +13,7 @@ class AddClinicalRecordForm extends StatefulWidget {
   final VoidCallback onPrevious;
   const AddClinicalRecordForm(
       {super.key,
-      required this.patientId, 
+      required this.patientId,
       required this.onFinish,
       required this.onPrevious});
 
@@ -44,9 +45,35 @@ class _AddClinicalRecordFormState extends State<AddClinicalRecordForm> {
 // Clinical Notes
   final _clinicalNotesController = TextEditingController();
 
+  void _clearFormforClinicalRecord() {
+    // clear these text fields onClick
+    setState(() {
+      // 1. Clear Medical Background & Notes
+      _pastIllnessController.clear();
+      _presentIllnessController.clear();
+      _allergiesController.clear();
+      _medicationController.clear();
+      _clinicalNotesController.clear();
+
+      // 2. Reset Treatment Procedures (Booleans)
+      _hasDebris = false;
+      _hasCalculus = false;
+      _hasGingivitis = false;
+      _hasPeriodontalPocket = false;
+      _hasDentofacialAnomaly = false;
+
+      // 3. Reset Tooth Counts (Integers)
+      _cariesFilling = 0;
+      _cariesExtraction = 0;
+      _missingDueToCaries = 0;
+      _rootFragment = 0;
+      _filledOrRestored = 0;
+    });
+  }
+
   void _handleSave() {
     final recordEntry = ClinicalRecordCompanion.insert(
-      patientId: widget.patientId // required 
+      patientId: widget.patientId // required
       ,
       // Medical Background
       pastIllness: drift.Value(_pastIllnessController.text),
@@ -119,6 +146,10 @@ class _AddClinicalRecordFormState extends State<AddClinicalRecordForm> {
                         label: "Past Illnesses",
                         hintText: "Enter patient's past illnesses",
                         controller: _pastIllnessController,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(
+                              RegExp(r'[a-zA-Z\s]'))
+                        ],
                       )),
                       const SizedBox(width: 20),
                       Expanded(
@@ -127,6 +158,10 @@ class _AddClinicalRecordFormState extends State<AddClinicalRecordForm> {
                         hintText: "Enter patient's present illnesses",
                         controller:
                             _presentIllnessController, // present illness controller
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(
+                              RegExp(r'[a-zA-Z\s]'))
+                        ],
                       )),
                     ],
                   ),
@@ -141,14 +176,22 @@ class _AddClinicalRecordFormState extends State<AddClinicalRecordForm> {
                           child: InputField(
                         label: "Allergies",
                         hintText: "Enter patient's allergies",
-                        controller: _allergiesController,
-                      )), // present illness controller
+                        controller: _allergiesController, // allergies controller
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(
+                              RegExp(r'[a-zA-Z\s]'))
+                        ],
+                      )), 
                       const SizedBox(width: 20),
                       Expanded(
                           child: InputField(
                         label: "Current Medication",
                         hintText: "Enter patient's current medication",
                         controller: _medicationController,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(
+                              RegExp(r'[a-zA-Z\s]'))
+                        ],
                       )),
                     ],
                   ),
@@ -371,9 +414,19 @@ class _AddClinicalRecordFormState extends State<AddClinicalRecordForm> {
                   const SizedBox(height: 32),
 
                   Row(
+                      spacing: 16,
                       mainAxisAlignment: MainAxisAlignment.end,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        SizedBox(
+                          width: 100,
+                          child: Button(
+                            variant: ButtonVariant.secondary,
+                            label: "Clear",
+                            width: double.infinity,
+                            onPressed: _clearFormforClinicalRecord,
+                          ),
+                        ),
                         Button(
                           variant: ButtonVariant.secondary,
                           label: "Previous",
@@ -381,9 +434,6 @@ class _AddClinicalRecordFormState extends State<AddClinicalRecordForm> {
                           icon: Icons.arrow_back,
                           iconPlacement: IconPlacement.left,
                           onPressed: widget.onPrevious,
-                        ),
-                        SizedBox(
-                          width: 24,
                         ),
                         Button(
                           label: "Save",

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../style/theme.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter_spinbox/flutter_spinbox.dart';
+import 'package:flutter/services.dart'; // allows to use inputformatters
 
 // Define Input Field Variants
 enum InputVariant {
@@ -35,12 +36,16 @@ class InputField extends StatelessWidget {
   final int counterMin;
   final int counterMax;
 
+  // Props for Numerical Input Only
+  final List<TextInputFormatter>? inputFormatters;
+
   const InputField(
       {super.key,
       required this.label,
       this.variant = InputVariant.primary,
       this.hintText,
       this.controller,
+      this.inputFormatters,
       this.keyboardType = TextInputType.text,
       this.obscureText = false,
       this.dropdownItems,
@@ -89,6 +94,7 @@ class InputField extends StatelessWidget {
             controller: controller,
             keyboardType: keyboardType,
             obscureText: obscureText,
+            inputFormatters: inputFormatters,
             style:
                 theme.textTheme.bodySmall?.copyWith(color: AppTheme.black500),
             decoration: inputStyle);

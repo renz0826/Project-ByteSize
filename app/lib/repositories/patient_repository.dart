@@ -38,4 +38,30 @@ class PatientRepository {
 // Uses the onboarding service for the multi-step save process
   Future<void> registerPatient(PatientCompanion p, ClinicalRecordCompanion c) =>
       onboardingService.registerNewPatient(patientData: p, clinicalData: c);
+
+// Strict Check: Duplicate First Name, Last Name, and DOB entry
+  Future<bool> isExactDuplicate(String firstName, String lastName, DateTime birthDate) async {
+    final query = db.select(db.patient)
+      ..where((t) => 
+          t.firstName.equals(firstName) & 
+          t.lastName.equals(lastName) &
+          t.birthDate.equals(birthDate) // Added Birth Date check
+      );
+      
+    final results = await query.get();
+    return results.isNotEmpty; 
+  }
+
+// Soft Check: Duplicate First Name, and Last Name
+  Future<bool> isNameDuplicate(String firstName, String lastName) async {
+    final query = db.select(db.patient)
+      ..where((t) => 
+          t.firstName.equals(firstName) & 
+          t.lastName.equals(lastName)
+      );
+    final results = await query.get();
+    return results.isNotEmpty; 
+  }
+
 }
+
