@@ -45,7 +45,7 @@ class _PatientDashboardState extends State<PatientDashboard> {
   int _currentPage = 1;
   final int _recordsPerPage = 8;
   String? _selectedStatus; //for filter chips
-  int _formSessionId = 0;
+  int _formSessionId = 0; // Bug Fix: Form saving past patient identification
 
   @override
   void initState() {
@@ -115,11 +115,11 @@ class _PatientDashboardState extends State<PatientDashboard> {
               'Are you sure you want to return to the dashboard? Any unsaved data will be lost.'),
           actions: [
             TextButton(
-              onPressed: () => Navigator.of(context).pop(false), 
+              onPressed: () => Navigator.of(context).pop(false),
               child: const Text('Cancel'), // cancel keeps them on the page
             ),
             TextButton(
-              onPressed: () => Navigator.of(context).pop(true), 
+              onPressed: () => Navigator.of(context).pop(true),
               child: const Text(
                 'Discard',
                 style: TextStyle(color: Colors.red),
@@ -257,13 +257,10 @@ class _PatientDashboardState extends State<PatientDashboard> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               PageHeader(
-                  title: 'Back to Records',
-                  type: PageHeaderType.withBack,
-                  onBack: () {
-                    _confirmReturnToDashboard();
-                    _loadPatients();
-                    setState(() => _currentIndex = 0);
-                  }),
+                title: 'Back to Records',
+                type: PageHeaderType.withBack,
+                onBack: _confirmReturnToDashboard,
+              ),
               Transform.translate(
                 offset: const Offset(
                     0, -30), //pulls form up to reduce gap below header
@@ -287,11 +284,7 @@ class _PatientDashboardState extends State<PatientDashboard> {
               PageHeader(
                 title: 'Back to Records',
                 type: PageHeaderType.withBack,
-                onBack: () {
-                  _confirmReturnToDashboard();
-                  _loadPatients();
-                  setState(() => _currentIndex = 0);
-                },
+                onBack: _confirmReturnToDashboard,
               ),
               Transform.translate(
                 offset: const Offset(0, -30),
@@ -435,12 +428,12 @@ class _PatientDashboardState extends State<PatientDashboard> {
       padding: const EdgeInsets.only(left: 16, right: 16, top: 8, bottom: 20),
       child: Row(
         children: [
+          // TODO: @Frontend, if you can balance these headers better, please do - Fons
           Expanded(flex: 3, child: Text('Patient', style: headerStyle)),
           Expanded(flex: 2, child: Text('Sex', style: headerStyle)),
           Expanded(flex: 2, child: Text('Age', style: headerStyle)),
           Expanded(flex: 5, child: Text('Address', style: headerStyle)),
           Expanded(flex: 3, child: Text('Contact No.', style: headerStyle)),
-          Expanded(flex: 2, child: Text('Procedure', style: headerStyle)),
           Expanded(flex: 2, child: const SizedBox()),
           SizedBox(width: 70, child: Text('Actions', style: headerStyle)),
         ],
@@ -459,9 +452,10 @@ class _PatientDashboardState extends State<PatientDashboard> {
       address: '${patient.province ?? ''}, ${patient.cityMunicipality ?? ''}',
       contact: patient.contactNumber,
       procedure:
-          'Consultation', //TODO: @Renz please delete this and try to adjust the table values to make it uniform - Fons
+          'Consultation', // Removed this, but kept it here in case something goes wrong
       onMenuSelected: (value) {
-        if (value == 'add_clinical_record') {// Convert the existing real data back into a Companion for the form
+        if (value == 'add_clinical_record') {
+          // Convert the existing real data back into a Companion for the form
           _goToAddClinicalRecord(patient.toCompanion(true));
         }
       },
