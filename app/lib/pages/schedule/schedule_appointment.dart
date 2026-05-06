@@ -1,5 +1,6 @@
 import 'package:dentcity_management_system/style/theme.dart';
 import 'package:flutter/material.dart';
+import '../../db/database.dart';
 import '/../widgets/main_buttons.dart';
 import '/../widgets/input_field.dart';
 import '../../services/date_service.dart';
@@ -8,8 +9,13 @@ class ScheduleAppointmentForm extends StatefulWidget {
   final VoidCallback onSave;
   final Map<String, dynamic>? existingPatient;
 
+  final List<PatientData> activePatients;
+
   const ScheduleAppointmentForm(
-      {super.key, this.existingPatient, required this.onSave});
+      {super.key,
+      this.existingPatient,
+      required this.onSave,
+      required this.activePatients});
 
   @override
   State<ScheduleAppointmentForm> createState() =>
@@ -19,17 +25,16 @@ class ScheduleAppointmentForm extends StatefulWidget {
 class _ScheduleAppointmentFormState extends State<ScheduleAppointmentForm> {
   bool get isEditing => widget.existingPatient != null;
 
-  // State for selected patient
+  // Selected Patient
   String? _selectedPatient;
 
-  // State for Month/Day Dynamic System
-  String? _selectedMonth; // selected month to change days
-  String? _selectedDay; // selected day
+  // Month/Day System
+  String? _selectedMonth; 
+  String? _selectedDay; 
 
-  // State for selected patient
-  String? _selectedTimeSlot; // selected day
+  // Selected Timeslot
+  String? _selectedTimeSlot; 
 
-  // TODO : Connect all text fields to the appropriate db
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -57,7 +62,6 @@ class _ScheduleAppointmentFormState extends State<ScheduleAppointmentForm> {
           // --- PATIENT NAME ---
           if (!isEditing) ...[
             Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
                   child: InputField(
@@ -66,7 +70,12 @@ class _ScheduleAppointmentFormState extends State<ScheduleAppointmentForm> {
                     variant: InputVariant.dropdown,
                     dropdownValue: _selectedPatient,
                     isRequired: true,
-                    dropdownItems: ["Renz", "Alfonso"],
+                    dropdownItems: widget.activePatients
+                        .map((p) => '${p.firstName} ${p.lastName}') // turns the patient entity into these strings
+                        .toList(), // list on the dropdown menu
+                    onDropdownChanged: (value) {
+                      setState(() => _selectedPatient = value);
+                    },
                   ),
                 ),
               ],
