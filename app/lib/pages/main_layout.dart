@@ -22,7 +22,7 @@ class _SidebarState extends State<MainLayout> {
   @override
   void initState() {
     super.initState();
-    // Initialize controller state
+// Initialize controller state
     _controller = SidebarXController(selectedIndex: 0, extended: true);
   }
 

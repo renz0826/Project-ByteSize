@@ -207,7 +207,7 @@ class _ScheduleAppointmentFormState
                     dropdownValue: _selectedPatient,
                     isRequired: true,
                     dropdownItems: widget.activePatients
-                        .map((p) => '${p.firstName} ${p.lastName}')
+                        .map((p) => '${p.lastName}, ${p.firstName}')
                         .toList(),
                     onDropdownChanged: (value) {
                       setState(() => _selectedPatient = value);
