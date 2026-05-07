@@ -24,15 +24,13 @@ class ScheduleDashboard extends ConsumerStatefulWidget {
 }
 
 class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
-  // Real Database Lists
+  // Real Database Lists // TODO: Connect to schedule db
   List<PatientData> _allPatients = [];
   List<PatientData> _filteredRecords = [];
 
   // Functions to change patients screen states
   PatientCompanion? _draftPatient;
-  ClinicalRecordCompanion? _draftClinicalRecord;
 
-  // Bug Fix: Using IndexedStack to prevent form data from being deleted when clicking back
   int _currentIndex = 0;
 
   //state for search, filter, and pagination
@@ -60,16 +58,8 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
   }
 
   // Send user to add_patient.dart
-  void _goToAddPatient() {
+  void _goToScheduleAppointment() {
     setState(() => _currentIndex = 1);
-  }
-
-  // Send user to add_clinical_record.dart
-  void _goToAddClinicalRecord(PatientCompanion patientData) {
-    setState(() {
-      _draftPatient = patientData;
-      _currentIndex = 2;
-    });
   }
 
   // Send user back to this page
@@ -92,11 +82,6 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
           ),
         );
       }
-
-      setState(() {
-        _draftClinicalRecord = clinicalData;
-        _currentIndex = 0;
-      });
     } catch (e) {
       print("Database Error: $e");
     }
@@ -261,7 +246,7 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
                 offset: const Offset(0, -30),
                 child: AddPatientForm(
                     key: ValueKey(_formSessionId),
-                    onNext: (data) => _goToAddClinicalRecord(data),
+                    onNext: (data) => _goToScheduleAppointment(),
                     onBack: () {
                       _loadPatients();
                       setState(() => _currentIndex = 0);
@@ -332,7 +317,7 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
                     setState(() {
                       _formSessionId++;
                     });
-                    _goToAddPatient();
+                    _goToScheduleAppointment();
                   },
                 ),
               ),
@@ -440,11 +425,6 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
       address: '${patient.province ?? ''}, ${patient.cityMunicipality ?? ''}',
       contact: patient.contactNumber,
       procedure: 'Consultation',
-      onMenuSelected: (value) {
-        if (value == 'add_clinical_record') {
-          _goToAddClinicalRecord(patient.toCompanion(true));
-        }
-      },
     );
   }
 
