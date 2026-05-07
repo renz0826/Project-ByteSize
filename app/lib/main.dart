@@ -1,47 +1,64 @@
-import '../../style/theme.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'pages/login_page.dart';
-import 'pages/main_layout.dart';
-import 'db/database.dart';
+import 'style/theme.dart'; 
+// Fixed path to point to your actual file location
+import 'widgets/calendar.dart'; 
 
-void main() async {
-  
-  WidgetsFlutterBinding.ensureInitialized();
-
-  final database = AppDatabase(); // call database from the db file
-
-  try { // Poke Query
-    await database.customSelect('SELECT 1').getSingle();
-    debugPrint("Database has been created");
-  } catch (e) {
-    debugPrint("Database creation failed: $e");
-  }
-
-  // 4. Start the app
-  runApp(
-    const ProviderScope(
-      child: DentalApp(),
-    ),
-  );
+void main() {
+  runApp(const MyApp());
 }
 
-
-
-class DentalApp extends StatelessWidget {
-  const DentalApp({super.key});
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      title: 'ByteSize Calendar Test',
       debugShowCheckedModeBanner: false,
-      title: 'Dental Management System',
-      theme: AppTheme.lightTheme,
-      initialRoute: '/',
-      routes: {
-        '/': (context) => const LoginPage(),
-        '/dashboard': (context) => const MainLayout(),
-      },
+      theme: AppTheme.lightTheme, 
+      home: const CalendarPreviewPage(),
+    );
+  }
+}
+
+class CalendarPreviewPage extends StatefulWidget {
+  const CalendarPreviewPage({super.key});
+
+  @override
+  State<CalendarPreviewPage> createState() => _CalendarPreviewPageState();
+}
+
+class _CalendarPreviewPageState extends State<CalendarPreviewPage> {
+  DateTime _selectedDay = DateTime.now();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Calendar Widget",
+                style: AppTheme.textTheme.headlineLarge,
+              ),
+              const SizedBox(height: 20),
+              // Fixed the name from 'calen' to 'AppCalendar'
+              AppCalendar(
+                selectedDay: _selectedDay,
+                onDaySelected: (day) {
+                  setState(() {
+                    _selectedDay = day;
+                  });
+                  print("User selected: $day");
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
