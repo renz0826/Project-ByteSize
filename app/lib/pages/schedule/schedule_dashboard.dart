@@ -171,46 +171,86 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
               type: PageHeaderType.plain,
             ),
           ),
-          //search bar, filter, and table header
-          SliverPadding(
-            padding: const EdgeInsets.only(left: 24, right: 24),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate([
-                _buildSearchBar(),
-                const SizedBox(height: 8),
-                _buildTableHeader(),
-              ]),
-            ),
-          ),
-          //table rows
-          SliverPadding(
-            padding: const EdgeInsets.only(left: 24, right: 24),
-            sliver: _currentPageRecords.isEmpty
-                ? SliverToBoxAdapter(
-                    child: _buildEmptyState(),
-                  )
-                : SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) =>
-                          _buildTableRow(_currentPageRecords[index]),
-                      childCount: _currentPageRecords.length,
+          SliverCrossAxisGroup(
+            slivers: [
+              SliverCrossAxisExpanded(
+                  flex: 2,
+                  sliver: SliverMainAxisGroup(slivers: [
+                    //search bar, filter, and table header
+                    SliverPadding(
+                      padding: const EdgeInsets.only(left: 24, right: 24),
+                      sliver: SliverList(
+                        delegate: SliverChildListDelegate([
+                          _buildSearchBar(),
+                          const SizedBox(height: 8),
+                          _buildTableHeader(),
+                        ]),
+                      ),
                     ),
-                  ),
-          ),
-          //pagination
-          SliverPadding(
-            padding:
-                const EdgeInsets.only(left: 24, right: 24, bottom: 24, top: 16),
-            sliver: SliverToBoxAdapter(
-              child: _filteredRecords.isEmpty
-                  ? const SizedBox.shrink()
-                  : AppPagination(
-                      currentPage: _currentPage,
-                      totalPages: _totalPages,
-                      onPageChanged: (newPage) =>
-                          setState(() => _currentPage = newPage),
+                    //table rows
+                    SliverPadding(
+                      padding: const EdgeInsets.only(left: 24, right: 24),
+                      sliver: _currentPageRecords.isEmpty
+                          ? SliverToBoxAdapter(
+                              child: _buildEmptyState(),
+                            )
+                          : SliverList(
+                              delegate: SliverChildBuilderDelegate(
+                                (context, index) =>
+                                    _buildTableRow(_currentPageRecords[index]),
+                                childCount: _currentPageRecords.length,
+                              ),
+                            ),
                     ),
-            ),
+                    //pagination
+                    SliverPadding(
+                      padding: const EdgeInsets.only(
+                          left: 24, right: 24, bottom: 24, top: 16),
+                      sliver: SliverToBoxAdapter(
+                        child: _filteredRecords.isEmpty
+                            ? const SizedBox.shrink()
+                            : AppPagination(
+                                currentPage: _currentPage,
+                                totalPages: _totalPages,
+                                onPageChanged: (newPage) =>
+                                    setState(() => _currentPage = newPage),
+                              ),
+                      ),
+                    ),
+                  ])),
+              SliverCrossAxisExpanded(
+                  flex: 1,
+                  sliver: SliverMainAxisGroup(slivers: [
+                    // calendar and button
+                    SliverPadding(
+                        padding: const EdgeInsets.only(left: 24, right: 24),
+                        sliver: SliverList(
+                          delegate:
+                              SliverChildBuilderDelegate((context, index) {
+                            return Column(
+                              spacing: 20,
+                              children: [
+                                AppCalendar(),
+                                SizedBox(
+                                  child: Button(
+                                    label: 'Schedule an Appointment',
+                                    variant: ButtonVariant.primary,
+                                    heroIcon: HeroIcons.calendar,
+                                    width: double.infinity,
+                                    onPressed: () {
+                                      setState(() {
+                                        _formSessionId++;
+                                      });
+                                      _goToScheduleAppointment();
+                                    },
+                                  ),
+                                ),
+                              ],
+                            );
+                          }, childCount: 1),
+                        )),
+                  ])),
+            ],
           ),
         ],
       ),
@@ -330,8 +370,8 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
             const SizedBox(height: 16),
             Text(
               _searchController.text.isNotEmpty
-                  ? "Sorry, We couldn't find anything that matches '${_searchController.text}'"
-                  : 'No records found',
+                  ? "Sorry, We couldn't find anything that matches '${_searchController.text}'."
+                  : 'No records found.',
               style: AppTheme.textTheme.bodyMedium?.copyWith(
                 color: AppTheme.gray400,
               ),
