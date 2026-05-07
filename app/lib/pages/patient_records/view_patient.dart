@@ -1,0 +1,531 @@
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:heroicons/heroicons.dart';
+import '/../style/theme.dart';
+import '/../db/database.dart';
+
+// Used in PatientDashboard as Index 3
+// USAGE:
+//   ViewPatientScreen(
+//     patient: patientData,         // PatientData from Drift
+//     clinicalRecords: records,     // List<ClinicalRecordData> from Drift
+//     onBack: () { ... },           // callback to return to main dashboard
+//   )
+
+class ViewPatientScreen extends StatelessWidget {
+  final PatientData patient;
+  final List<ClinicalRecordData> clinicalRecords;
+  final VoidCallback onBack;
+
+  const ViewPatientScreen({
+    super.key,
+    required this.patient,
+    required this.clinicalRecords,
+    required this.onBack,
+  });
+
+  //date helpers
+  String _formatDate(DateTime date) => DateFormat('MMMM d, y').format(date);
+
+  String _formatAppointment(DateTime date) =>
+      DateFormat("MMMM d, y '–' h:mm a").format(date);
+
+  int _calculateAge(DateTime birthDate) {
+    final now = DateTime.now();
+    int age = now.year - birthDate.year;
+    if (now.month < birthDate.month ||
+        (now.month == birthDate.month && now.day < birthDate.day)) {
+      age--;
+    }
+    return age;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: AppTheme.gray200,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          //patient name header
+          _buildNameHeader(context),
+          const SizedBox(height: 8),
+
+          //personal details
+          _buildPersonalDetailsCard(context),
+          const SizedBox(height: 16),
+
+          //clinical record
+          if (clinicalRecords.isEmpty)
+            _buildNoClinicalRecordCard(context)
+          else
+            ...clinicalRecords.map(
+              (record) => Column(
+                children: [
+                  _buildClinicalRecordCard(context, record),
+                  const SizedBox(height: 16),
+                ],
+              ),
+            ),
+
+          const SizedBox(height: 32),
+        ],
+      ),
+    );
+  }
+
+  // name header 
+  Widget _buildNameHeader(BuildContext context) {
+    final fullName =
+        '${patient.firstName} ${patient.middleName ?? ''} ${patient.lastName}'
+            .trim();
+
+    return Container(
+      margin: const EdgeInsets.only(left: 24, right: 24, top: 24, bottom: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+      decoration: BoxDecoration(
+        color: AppTheme.white500,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: AppTheme.floatShadow,
+      ),
+      child: Row(
+        children: [
+          // patient full name
+          Expanded(
+            child: Text(
+              fullName,
+              style: Theme.of(context).textTheme.headlineLarge,
+            ),
+          ),
+
+          // actions menu
+          _MoreOptions(
+            items: [
+                BarMenuItem(value: 'add_clinical_record', icon: HeroIcons.documentPlus, label: 'Add New Clinical Record'),
+                BarMenuItem(value: 'add_schedule', icon: HeroIcons.calendar, label: 'Add Schedule'),
+                BarMenuItem(value: 'edit_details', icon: HeroIcons.pencilSquare, label: 'Edit Personal Details'),
+                BarMenuItem(value: 'archive', icon: HeroIcons.archiveBox, label: 'Archive Record', color: AppTheme.red600),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // personal details
+  Widget _buildPersonalDetailsCard(BuildContext context) {
+    return _BaseCard(
+      title: 'Personal Details',
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Row 1: DoB, age, sex, civil status
+          Row(
+            children: [
+              _InfoBlock(
+                label: 'Date of Birth',
+                value: _formatDate(patient.birthDate),
+              ),
+              _InfoBlock(
+                label: 'Age',
+                value: '${_calculateAge(patient.birthDate)}',
+              ),
+              _InfoBlock(label: 'Sex', value: patient.sex),
+              _InfoBlock(label: 'Civil Status', value: patient.civilStatus),
+            ],
+          ),
+          const SizedBox(height: 24),
+
+          // Row 2: phone, emergency contact, emergency contact relationship
+          Row(
+            children: [
+              _InfoBlock(
+                label: 'Phone No.',
+                value: patient.contactNumber,
+              ),
+              _InfoBlock(
+                label: 'Emergency Contact No.',
+                value: patient.emergencyContactNo ?? '—',
+              ),
+              //TODO: remove comment once defined in db 
+              // _InfoBlock(
+              //   label: 'Relationship to Patient',
+              //   value: patient.emergencyContactRelationship ?? '—',
+              // ),
+            ],
+          ),
+          const SizedBox(height: 24),
+
+          //Row 3: referred by, relationship
+          Row(
+            children: [
+              _InfoBlock(
+                label: 'Referred By',
+                value: patient.referredBy ?? '—',
+              ),
+              _InfoBlock(
+                label: 'Relationship',
+                value: patient.relationship ?? '—',
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+
+          // Row 4: full address
+          _InfoBlock(
+            label: 'Address',
+            value:
+                '${patient.streetAddress}, ${patient.barangay}, ${patient.cityMunicipality}, ${patient.province} ${patient.zipCode}',
+            flex: 0, //takes natural width
+          ),
+          const SizedBox(height: 24),
+        ],
+      ),
+    );
+  }
+
+  // clinical record card 
+  Widget _buildClinicalRecordCard(
+      BuildContext context, ClinicalRecordData record) {
+    return _BaseCard(
+      title: 'Clinical Record',
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Appointment Schedule dropdown (read-only)
+          _buildLabel(context, 'Appointment Schedule'),
+          const SizedBox(height: 8),
+          _buildFakeDropdown(_formatAppointment(record.createdAt)),
+          const SizedBox(height: 24),
+
+          // medical background
+          Text('Medical Background',
+              style: Theme.of(context).textTheme.titleLarge),
+          const SizedBox(height: 18),
+          Row(
+            children: [
+              _InfoBlock(
+                label: 'Past Illnesses',
+                value: record.pastIllness ?? 'None',
+              ),
+              _InfoBlock(
+                label: 'Present Illnesses',
+                value: record.presentIllness ?? 'None',
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              _InfoBlock(
+                label: 'Allergies',
+                value: record.allergies ?? 'None',
+              ),
+              _InfoBlock(
+                label: 'Current Medication',
+                value: record.currentMedication ?? 'None',
+              ),
+            ],
+          ),
+          const SizedBox(height: 40),
+
+          // treatmetn procedure
+          Text('Treatment Procedure',
+              style: Theme.of(context).textTheme.titleLarge),
+          const SizedBox(height: 16),
+
+          // Row 1: oral Debris, calculus, gingivitis
+          Row(
+            children: [
+              _InfoBlock(
+                label: 'Presence of Oral Debris',
+                value: record.hasOralDebris ? 'Present' : 'None',
+                isAlert: record.hasOralDebris,
+              ),
+              _InfoBlock(
+                label: 'Presence of Calculus',
+                value: record.hasCalculus ? 'Present' : 'None',
+                isAlert: record.hasCalculus,
+              ),
+              _InfoBlock(
+                label: 'Presence of Gingivitis',
+                value: record.hasGingivitis ? 'Present' : 'None',
+                isAlert: record.hasGingivitis,
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+
+          // Row 2: periodontal pocket, dentofacial anomaly
+          Row(
+            children: [
+              _InfoBlock(
+                label: 'Presence of Periodontal Pocket',
+                value: record.hasPeriodontalPocket ? 'Present' : 'None',
+                isAlert: record.hasPeriodontalPocket,
+              ),
+              _InfoBlock(
+                label: 'Presence of Dentofacial Anomaly',
+                value: record.hasDentofacialAnomaly ? 'Present' : 'None',
+                isAlert: record.hasDentofacialAnomaly,
+              ),
+              const Expanded(child: SizedBox()), // balance the row
+            ],
+          ),
+          const SizedBox(height: 40),
+
+          // tooth count
+          Text('Tooth Count', style: Theme.of(context).textTheme.titleLarge),
+          const SizedBox(height: 16),
+
+          // Row 1: filling, extraction, root fragment
+          Row(
+            children: [
+              _InfoBlock(
+                label: 'Carries Indicated for Filling',
+                value: record.cariesForFilling > 0
+                    ? '${record.cariesForFilling}'
+                    : 'None',
+                isAlert: record.cariesForFilling > 0,
+              ),
+              _InfoBlock(
+                label: 'Carries Indicated for Extraction',
+                value: record.cariesForExtraction > 0
+                    ? '${record.cariesForExtraction}'
+                    : 'None',
+                isAlert: record.cariesForExtraction > 0,
+              ),
+              _InfoBlock(
+                label: 'Root Fragment',
+                value: record.rootFragment > 0
+                    ? '${record.rootFragment}'
+                    : 'None',
+                isAlert: record.rootFragment > 0,
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+
+          // Row 2: missing, filled or restored
+          Row(
+            children: [
+              _InfoBlock(
+                label: 'Missing Due to Carries',
+                value: record.missingDueToCaries > 0
+                    ? '${record.missingDueToCaries}'
+                    : 'None',
+                isAlert: record.missingDueToCaries > 0,
+              ),
+              _InfoBlock(
+                label: 'Filled or Restored',
+                value: record.filledOrRestored > 0
+                    ? '${record.filledOrRestored}'
+                    : 'None',
+              ),
+              const Expanded(child: SizedBox()), // balance the row
+            ],
+          ),
+          const SizedBox(height: 40),
+
+          // clinical Notes 
+          _buildLabel(context, 'Clinical Notes',
+              textStyle: Theme.of(context).textTheme.titleLarge?.copyWith(
+              color: AppTheme.gray500,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.5,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            record.clinicalNotes ?? 'No notes provided.',
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  color: AppTheme.black500,
+                  height: 1.6,
+                ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // empty clinical record card
+  Widget _buildNoClinicalRecordCard(BuildContext context) {
+    return _BaseCard(
+      title: 'Clinical Record',
+      child: Text(
+        'No clinical records found for this patient.',
+        style: AppTheme.textTheme.bodySmall?.copyWith(color: AppTheme.gray400),
+      ),
+    );
+  }
+
+  //small gray label above a value
+  Widget _buildLabel(BuildContext context, String label, {TextStyle? textStyle}) {
+  return Text(
+    label,
+    style: textStyle ?? AppTheme.textTheme.bodySmall?.copyWith(
+      color: AppTheme.gray500,
+    ),
+  );
+}
+
+  //read-only dropdown display 
+  //TODO: not sure how to do this pa
+  Widget _buildFakeDropdown(String text) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        border: Border.all(color: AppTheme.gray400),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            text,
+            style: AppTheme.textTheme.bodySmall?.copyWith(
+              color: AppTheme.black500,
+            ),
+          ),
+          const SizedBox(width: 8),
+          const HeroIcon(
+            HeroIcons.chevronDown,
+            size: 16,
+            color: AppTheme.gray500,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+//shared menu item widget from app info bar
+class BarMenuItem {
+  final String value;
+  final HeroIcons icon;
+  final String label;
+  final Color? color;
+
+  const BarMenuItem({
+    required this.value,
+    required this.icon,
+    required this.label,
+    this.color,
+  });
+}
+
+// shared options button
+class _MoreOptions extends StatelessWidget {
+  final List<BarMenuItem> items; 
+  final ValueChanged<String>? onSelected;
+
+  const _MoreOptions({required this.items, this.onSelected});
+
+  @override
+  Widget build(BuildContext context) {
+    return PopupMenuButton<String>(
+      color: AppTheme.white500,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      padding: EdgeInsetsGeometry.zero,
+      icon: const HeroIcon(HeroIcons.ellipsisHorizontal, color: AppTheme.gray500, size: 30),
+      onSelected: onSelected,
+      itemBuilder: (_) => items.map(_buildItem).toList(),
+    );
+  }
+
+  PopupMenuItem<String>_buildItem(BarMenuItem item){
+    return PopupMenuItem<String>(
+      value: item.value,
+      height: 35,
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          HeroIcon(item.icon,
+          color: item.color ?? AppTheme.gray500,
+          size: 20,
+          ),
+          const SizedBox(width: 10),
+          Text(
+            item.label,
+            style: AppTheme.textTheme.bodySmall?.copyWith(
+              color: item.color ?? AppTheme.black500,
+            ),
+          )
+        ],
+      ),
+    );
+  }
+}
+
+// _BaseCard for personal details and clinical record cards.
+class _BaseCard extends StatelessWidget {
+  final String title;
+  final Widget child;
+
+  const _BaseCard({required this.title, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 24),
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: AppTheme.white500,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: AppTheme.cardShadow,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: Theme.of(context).textTheme.titleLarge),
+          const SizedBox(height: 32),
+          child,
+        ],
+      ),
+    );
+  }
+}
+
+// _InfoBlock 
+class _InfoBlock extends StatelessWidget {
+  final String label;
+  final String value;
+  final int flex;
+  final bool isAlert;
+
+  const _InfoBlock({
+    required this.label,
+    required this.value,
+    this.flex = 1,
+    this.isAlert = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final content = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: AppTheme.textTheme.bodySmall
+        ),
+        const SizedBox(height: 8),
+        Text(
+          value,
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w500,
+                color: isAlert ? AppTheme.red600 : AppTheme.black500,
+              ),
+        ),
+      ],
+    );
+
+    // flex: 0 = no Expanded (for full-width fields like address)
+    if (flex == 0) return content;
+    return Expanded(flex: flex, child: content);
+  }
+}
