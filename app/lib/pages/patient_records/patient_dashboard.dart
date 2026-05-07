@@ -14,7 +14,7 @@ import '../../providers/app_providers.dart';
 import 'add_patient.dart';
 import 'add_clinical_record.dart';
 import 'package:heroicons/heroicons.dart';
-import '/../widgets/discard_dialogue.dart';
+import '../../widgets/discard_dialog.dart';
 
 //main screen
 class PatientDashboard extends ConsumerStatefulWidget {
