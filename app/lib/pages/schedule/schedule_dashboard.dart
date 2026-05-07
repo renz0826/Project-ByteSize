@@ -249,6 +249,7 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
                       sliver: SliverToBoxAdapter(
                         child: _filteredRecords.isEmpty
                             ? const SizedBox.shrink()
+                            // * Utilize the defined _currentPage and remove the mockdata inorder for this to be visible.
                             : AppPagination(
                                 currentPage: _currentPage,
                                 totalPages: _totalPages,
