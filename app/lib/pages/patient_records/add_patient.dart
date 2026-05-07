@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:drift/drift.dart' as drift;
 import '/../widgets/main_buttons.dart';
 import '/../widgets/input_field.dart';
+import '/../widgets/missing_info_dialog.dart';
 import '/../widgets/radio_buttons.dart';
 import '../../services/locations_ph.dart';
 import '../../services/date_service.dart';
@@ -111,18 +112,8 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
     );
 
     if (missing.isNotEmpty) {
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Missing Information'),
-          content: Text('Please fill out:\n• ${missing.join('\n• ')}'),
-          actions: [
-            TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('OK'))
-          ],
-        ),
-      );
+      // ---> THE REFACTOR <---
+      MissingInfoDialog.show(context, missing);
       return;
     }
 
@@ -154,8 +145,7 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
       sex: _selectedSex!,
       civilStatus: _selectedStatus ?? "Single",
       contactNumber: _contactNumberController.text.trim(),
-      emergencyContactNo:
-          drift.Value(_emergencyContactController.text.trim()),
+      emergencyContactNo: drift.Value(_emergencyContactController.text.trim()),
       relationshipEmergency:
           drift.Value(_emergencyContactRelationshipController.text.trim()),
       referredBy: drift.Value(_referredByController.text.trim()),
@@ -207,8 +197,7 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
               Expanded(
                   flex: 2,
                   child: InputField(
-                      label: "Middle Name",
-                      controller: _middleNameController)),
+                      label: "Middle Name", controller: _middleNameController)),
               const SizedBox(width: 20),
               Expanded(
                   flex: 3,
@@ -224,8 +213,7 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
             ],
           ),
           const SizedBox(height: 32),
-          Text("Demographic",
-              style: Theme.of(context).textTheme.titleLarge),
+          Text("Demographic", style: Theme.of(context).textTheme.titleLarge),
           if (!isEditing) ...[
             const SizedBox(height: 12),
             Row(
@@ -280,14 +268,14 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
                     variant: InputVariant.dropdown,
                     dropdownValue: _selectedDay,
                     isRequired: true,
-                    dropdownItems: (_selectedYear == null ||
-                            _selectedMonth == null)
-                        ? []
-                        : List.generate(
-                            DateService.getDaysInMonth(
-                                _selectedMonth, _selectedYear),
-                            (index) => (index + 1).toString(),
-                          ),
+                    dropdownItems:
+                        (_selectedYear == null || _selectedMonth == null)
+                            ? []
+                            : List.generate(
+                                DateService.getDaysInMonth(
+                                    _selectedMonth, _selectedYear),
+                                (index) => (index + 1).toString(),
+                              ),
                     onDropdownChanged: (value) =>
                         setState(() => _selectedDay = value),
                   ),
@@ -328,8 +316,7 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
                   child: RadioGroupField(
                       label: "PWD Status",
                       options: const ["Applicable", "Not Applicable"],
-                      selectedValue:
-                          _isPWD ? "Applicable" : "Not Applicable",
+                      selectedValue: _isPWD ? "Applicable" : "Not Applicable",
                       onChanged: (v) =>
                           setState(() => _isPWD = v == "Applicable"))),
             ],
@@ -354,8 +341,7 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
               Expanded(
                   child: InputField(
                       label: "Relation to Patient",
-                      controller:
-                          _emergencyContactRelationshipController)),
+                      controller: _emergencyContactRelationshipController)),
             ],
           ),
           const SizedBox(height: 20),
@@ -363,8 +349,7 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
             children: [
               Expanded(
                   child: InputField(
-                      label: "Referred By",
-                      controller: _referredByController)),
+                      label: "Referred By", controller: _referredByController)),
               const SizedBox(width: 20),
               Expanded(
                   child: InputField(
@@ -421,12 +406,12 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
                       label: "Barangay",
                       variant: InputVariant.dropdown,
                       dropdownValue: _selectedBarangay,
-                      dropdownItems: (_selectedProvince != null &&
-                              _selectedCity != null)
-                          ? PhAddressService.getBarangaysByLocation(
-                              provinceName: _selectedProvince!,
-                              cityName: _selectedCity!)
-                          : [],
+                      dropdownItems:
+                          (_selectedProvince != null && _selectedCity != null)
+                              ? PhAddressService.getBarangaysByLocation(
+                                  provinceName: _selectedProvince!,
+                                  cityName: _selectedCity!)
+                              : [],
                       isRequired: true,
                       onDropdownChanged: (v) =>
                           setState(() => _selectedBarangay = v))),
