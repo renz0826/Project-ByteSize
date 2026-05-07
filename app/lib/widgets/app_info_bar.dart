@@ -209,7 +209,6 @@ class PatientRecordBar extends StatelessWidget {
   final int age;
   final String address;
   final String contact;
-  final String procedure;
   final ValueChanged<String>? onMenuSelected;
 
   const PatientRecordBar({
@@ -219,7 +218,6 @@ class PatientRecordBar extends StatelessWidget {
     required this.age,
     required this.address,
     required this.contact,
-    required this.procedure,
     this.onMenuSelected,
   });
 
