@@ -13,19 +13,18 @@ import '../../services/form_validator.dart';
 import '../../repositories/patient_repository.dart';
 
 class AddPatientForm extends StatefulWidget {
-  final Function(PatientCompanion) onNext; // pass the data object itself
+  final Function(PatientCompanion) onNext; 
   final VoidCallback onBack;
   final Map<String, dynamic>? existingPatient;
 
   const AddPatientForm(
-      // Constructor
       {super.key,
       this.existingPatient,
       required this.onNext,
       required this.onBack});
 
   @override
-  State<AddPatientForm> createState() => _AddPatientFormState(); // add patient form state
+  State<AddPatientForm> createState() => _AddPatientFormState();
 }
 
 class _AddPatientFormState extends State<AddPatientForm> {
@@ -35,12 +34,14 @@ class _AddPatientFormState extends State<AddPatientForm> {
   final _firstNameController = TextEditingController();
   final _middleNameController = TextEditingController();
   final _lastNameController = TextEditingController();
+  final _suffixController = TextEditingController();
 
   // Contact controllers
   final _contactNumberController = TextEditingController(); 
-  final _emergencyContactController =TextEditingController();
+  final _emergencyContactController = TextEditingController();
   final _referredByController = TextEditingController();
   final _relationshipController = TextEditingController();
+  final _emergencyContactRelationshipController = TextEditingController();
 
   // Address controllers
   final _streetController = TextEditingController();
@@ -59,25 +60,24 @@ class _AddPatientFormState extends State<AddPatientForm> {
   String? _selectedCity;
   String? _selectedBarangay;
 
-  // PWD
   bool _isPWD = false;
 
-  void _clearFormPatientRecord() { // clears all text from the patients form 
+  void _clearFormPatientRecord() { 
     setState(() {
-      // Clear all text controllers
       _firstNameController.clear();
       _middleNameController.clear();
       _lastNameController.clear();
+      _suffixController.clear();
       _contactNumberController.clear();
       _emergencyContactController.clear();
       _referredByController.clear();
       _relationshipController.clear();
+      _emergencyContactRelationshipController.clear();
       _streetController.clear();
       _zipController.clear();
       _barangayController.clear();
       _provinceController.clear();
 
-      // Reset all dropdowns & booleans
       _selectedMonth = null;
       _selectedDay = null;
       _selectedYear = null;
@@ -86,14 +86,11 @@ class _AddPatientFormState extends State<AddPatientForm> {
       _selectedProvince = null;
       _selectedCity = null;
       _selectedBarangay = null;
-
       _isPWD = false;
     });
   }
 
-  void _handleNext() async { // What happens when the user clicks the NEXT button
-
-    // Step 1: Calculate Patient's Age based on User Input
+  void _handleNext() async {
     DateTime? birthDate;
 
     if (isEditing &&
@@ -107,10 +104,9 @@ class _AddPatientFormState extends State<AddPatientForm> {
           _selectedMonth!, _selectedDay!, _selectedYear!);
     }
 
-    // Step 2: Use FormValidator.dart in the services folder to check for missing NOT NULL data
+    // Validation
     List<String> missing = FormValidator.getMissingPatientFields(
-      firstName: _firstNameController.text
-          .trim(), // checks all required controllers to see if theres anything missing
+      firstName: _firstNameController.text.trim(),
       lastName: _lastNameController.text.trim(),
       birthDate: birthDate,
       sex: _selectedSex,
@@ -123,139 +119,77 @@ class _AddPatientFormState extends State<AddPatientForm> {
       zipCode: _zipController.text.trim(),
     );
 
-    // Step 3: If there is any missing data, it will be displayed in a popup
-    // TODO: @Frontend, if you can make this look better, or make this a widget, better. - Fons
     if (missing.isNotEmpty) {
       showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: const Text('Missing Information'), // header
+            title: const Text('Missing Information'),
             content: Text(
                 'Please fill out the following required fields:\n\n• ${missing.join('\n• ')}'),
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             actions: [
               TextButton(
-                onPressed: () {
-                  Navigator.of(context)
-                      .pop(); // This closes the popup (Prompt lang ni ang frontend)
-                },
+                onPressed: () => Navigator.of(context).pop(),
                 child: const Text('OK'),
               ),
             ],
           );
         },
       );
-      return; // Stops the function from saving
+      return;
     }
 
-    // Step 4: Strict Check
-    // TODO: @Frontend, improve this popup please - Fons
+    // Duplicate Check
     final db = AppDatabase();
     final repository = PatientRepository(db);
     final firstName = _firstNameController.text.trim();
     final lastName = _lastNameController.text.trim();
-    final isDuplicate = await repository.isExactDuplicate(
-        // updated repository function
-        firstName,
-        lastName,
-        birthDate!);
+    final isDuplicate = await repository.isExactDuplicate(firstName, lastName, birthDate!);
 
     if (isDuplicate) {
-      // shows a warning popup when first name, last name, and dob already match an existing record
       await showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
             title: const Text('Patient Already Exists'),
-            content: Text(
-                'A patient named "$firstName $lastName" born on ${birthDate!.month}/${birthDate.day}/${birthDate.year} is already in the system.\n\nPlease search for this patient in the dashboard to edit their existing profile or add a new clinical record.'),
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            content: Text('A patient named "$firstName $lastName" is already in the system.'),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             actions: [
               ElevatedButton(
                 onPressed: () => Navigator.of(context).pop(),
-                style:
-                    ElevatedButton.styleFrom(backgroundColor: AppTheme.blue200),
-                child: const Text('Understood',
-                    style: TextStyle(color: Colors.white)),
+                child: const Text('Understood'),
               ),
             ],
           );
         },
       );
-      return; // use return to stop the function
+      return;
     }
 
-    // Step 5: Soft Check
-    // TODO: @Frontend, improve this popup please - Fons
-    final isNameDuplicate =
-        await repository.isNameDuplicate(firstName, lastName);
-
-    if (isNameDuplicate) {
-      bool proceedAnyway = await showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: const Text('Similar Name Found'),
-                content: Text(
-                    'Another patient named "$firstName $lastName" already exists in the system (with a different birth date).\n\nAre you sure this is a different person?'),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(false), // Cancel
-                    child: const Text('Cancel'),
-                  ),
-                  ElevatedButton(
-                    onPressed: () => Navigator.of(context).pop(true), // Proceed
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.white500),
-                    child: const Text('Yes, Proceed',
-                        style: TextStyle(color: Colors.white)),
-                  ),
-                ],
-              );
-            },
-          ) ??
-          false;
-
-      if (!proceedAnyway) {
-        return; // Stop saving if they clicked Cancel
-      }
-    }
-
-    // Step 6: Once all error checks have been completed -> Insert data to Patient Companion and move to add clinical page.
     final patientEntry = PatientCompanion.insert(
       firstName: _firstNameController.text.trim(),
-      middleName: drift.Value(_middleNameController.text
-          .trim()), // ones with drift.Value means null values are allowed
+      middleName: drift.Value(_middleNameController.text.trim()),
       lastName: _lastNameController.text.trim(),
+      suffix: drift.Value(_suffixController.text.trim()), 
       birthDate: birthDate,
       sex: _selectedSex!,
       civilStatus: _selectedStatus ?? "Single",
       contactNumber: _contactNumberController.text.trim(),
       emergencyContactNo: drift.Value(_emergencyContactController.text.trim()),
+      relationshipEmergency: drift.Value(_emergencyContactRelationshipController.text.trim()),
       referredBy: drift.Value(_referredByController.text.trim()),
       relationship: drift.Value(_relationshipController.text.trim()),
-
-      // Address
       streetAddress: _streetController.text.trim(),
       barangay: _selectedBarangay ?? _barangayController.text.trim(),
       cityMunicipality: _selectedCity ?? _cityController.text.trim(),
       province: _selectedProvince ?? _provinceController.text.trim(),
       zipCode: _zipController.text.trim(),
-
-      // PWD
       isSeniorOrPWD: drift.Value(_isPWD),
-
-      // Metadata
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
     );
 
-    // Step 7: Send data to the Patient Dashboard
     widget.onNext(patientEntry);
   }
 
@@ -275,56 +209,60 @@ class _AddPatientFormState extends State<AddPatientForm> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Personal Details",
-              style: Theme.of(context).textTheme.headlineLarge),
-
+          Text("Personal Details", style: Theme.of(context).textTheme.headlineLarge),
           const SizedBox(height: 32),
 
-          // --- FULL NAME ---
+          // --- FRONTEND: FULL NAME ROW ---
           Text("Full Name", style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 12),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
+                  flex: 3,
                   child: InputField(
-                label: "First Name",
-                hintText: "Enter first name",
-                isRequired: true,
-                controller: _firstNameController, // first name controller
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')) // makes it so that only characters can be inputted
-                ], 
+                    label: "First Name",
+                    hintText: "Enter first name",
+                    isRequired: true,
+                    controller: _firstNameController,
+                    inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]'))], 
               )),
               const SizedBox(width: 20),
               Expanded(
+                  flex: 2,
                   child: InputField(
-                label: "Middle Name",
-                hintText: "Enter middle name",
-                controller: _middleNameController, // middle name controller
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')) // makes it so that only characters can be inputted
-                ], 
+                    label: "Middle Name",
+                    hintText: "Enter middle name",
+                    controller: _middleNameController,
+                    inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]'))], 
               )),
               const SizedBox(width: 20),
               Expanded(
+                  flex: 3,
                   child: InputField(
-                label: "Last Name",
-                hintText: "Enter last name",
-                isRequired: true,
-                controller: _lastNameController, // last name controller
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s\-]')) // makes it so that only characters can be inputted
-                ],
+                    label: "Last Name",
+                    hintText: "Enter last name",
+                    isRequired: true,
+                    controller: _lastNameController,
+                    inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s\-]'))],
+              )),
+              const SizedBox(width: 20),
+              // TODO: @Frontend, please balance these input boxes - Fons
+              Expanded(
+                  flex: 1,
+                  child: InputField(
+                    label: "Suffix",
+                    hintText: "Enter Suffix",
+                    controller: _suffixController,
+                    inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s.]'))],
               )),
             ],
           ),
 
           const SizedBox(height: 32),
 
-          // --- DEMOGRAPHIC ---
+          // --- DEMOGRAPHIC SECTION ---
           Text("Demographic", style: Theme.of(context).textTheme.titleLarge),
-
           if (!isEditing) ...[
             const SizedBox(height: 12),
             Row(
@@ -336,7 +274,6 @@ class _AddPatientFormState extends State<AddPatientForm> {
                     label: "Month",
                     variant: InputVariant.dropdown,
                     dropdownValue: _selectedMonth,
-                    isHidden: isEditing,
                     isRequired: true,
                     dropdownItems: DateService.months,
                     onDropdownChanged: (value) {
@@ -355,16 +292,13 @@ class _AddPatientFormState extends State<AddPatientForm> {
                     label: "Day",
                     variant: InputVariant.dropdown,
                     dropdownValue: _selectedDay,
-                    isHidden: isEditing,
                     isRequired: true,
                     dropdownItems: List.generate(
                       DateService.getDaysInMonth(_selectedMonth),
                       (index) => (index + 1).toString(),
                     ),
                     onDropdownChanged: (value) {
-                      setState(() {
-                        _selectedDay = value;
-                      });
+                      setState(() => _selectedDay = value);
                     },
                   ),
                 ),
@@ -375,21 +309,17 @@ class _AddPatientFormState extends State<AddPatientForm> {
                     label: "Year",
                     variant: InputVariant.dropdown,
                     dropdownValue: _selectedYear,
-                    isHidden: isEditing,
                     isRequired: true,
                     dropdownItems: List.generate(
                       (DateTime.now().year - 1900) + 1,
-                      (index) => (DateTime.now().year - index)
-                          .toString(), // function to use PC's datetime to add when a new year comes
+                      (index) => (DateTime.now().year - index).toString(),
                     ),
                     onDropdownChanged: (value) {
-                      setState(() {
-                        _selectedYear = value;
-                      });
+                      setState(() => _selectedYear = value);
                     },
                   ),
                 ),
-              ], // This bracket closes the Row
+              ], 
             ),
           ],
           const SizedBox(height: 20),
@@ -402,11 +332,7 @@ class _AddPatientFormState extends State<AddPatientForm> {
                   label: "Sex",
                   variant: InputVariant.dropdown,
                   dropdownValue: _selectedSex,
-                  onDropdownChanged: (value) {
-                    setState(() {
-                      _selectedSex = value;
-                    });
-                  },
+                  onDropdownChanged: (value) => setState(() => _selectedSex = value),
                   isRequired: true,
                   dropdownItems: const ["Male", "Female"],
                 ),
@@ -419,17 +345,8 @@ class _AddPatientFormState extends State<AddPatientForm> {
                   isRequired: true,
                   variant: InputVariant.dropdown,
                   dropdownValue: _selectedStatus,
-                  onDropdownChanged: (value) {
-                    setState(() {
-                      _selectedStatus = value;
-                    });
-                  },
-                  dropdownItems: const [
-                    "Single",
-                    "Married",
-                    "Widowed",
-                    "Annulled"
-                  ],
+                  onDropdownChanged: (value) => setState(() => _selectedStatus = value),
+                  dropdownItems: const ["Single", "Married", "Widowed", "Annulled"],
                 ),
               ),
               const SizedBox(width: 20),
@@ -437,14 +354,8 @@ class _AddPatientFormState extends State<AddPatientForm> {
                 child: RadioGroupField(
                   label: "PWD Status",
                   options: const ["Applicable", "Not Applicable"],
-                  // If _isPwd is true, select "Applicable", otherwise "Not Applicable"
                   selectedValue: _isPWD ? "Applicable" : "Not Applicable",
-                  onChanged: (value) {
-                    setState(() {
-                      // Convert the string back to a boolean for your logic
-                      _isPWD = value == "Applicable";
-                    });
-                  },
+                  onChanged: (value) => setState(() => _isPWD = value == "Applicable"),
                 ),
               ),
             ],
@@ -452,37 +363,44 @@ class _AddPatientFormState extends State<AddPatientForm> {
 
           const SizedBox(height: 32),
 
-          // --- CONTACT INFO ---
-          Text("Contact Information",
-              style: Theme.of(context).textTheme.titleLarge),
+          // --- FRONTEND: CONTACT INFO SECTION ---
+          Text("Contact Information", style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 12),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
                   child: InputField(
-                label: "Mobile Number",
-                hintText: "Enter mobile number",
-                isRequired: true,
-                controller: _contactNumberController,
-                keyboardType: TextInputType.number,
-                inputFormatters: [
-                  FilteringTextInputFormatter.digitsOnly, // Filters out character inputs
-                  LengthLimitingTextInputFormatter(11) // Only 11 digits are allowed
-                ], 
+                    label: "Mobile Number",
+                    hintText: "Enter mobile number",
+                    isRequired: true,
+                    controller: _contactNumberController,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                      LengthLimitingTextInputFormatter(11)
+                    ], 
               )),
               const SizedBox(width: 20),
               Expanded(
                   child: InputField(
-                label: "Emergency Contact Number",
-                hintText: "Enter emergency number",
-                controller:
-                    _emergencyContactController, // Emergency Contact Controller
-                keyboardType: TextInputType.number,
-                inputFormatters: [
-                  FilteringTextInputFormatter.digitsOnly, // numerical inputs only
-                  LengthLimitingTextInputFormatter(11)  // Limited to 11 digits only
-                ],
+                    label: "Emergency Contact Number",
+                    hintText: "Enter emergency number",
+                    controller: _emergencyContactController,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                      LengthLimitingTextInputFormatter(11)
+                    ],
+              )),
+              // TODO: @Frontend, please balance these input boxes - Fons
+              const SizedBox(width: 20),
+              Expanded(
+                  child: InputField(
+                    label: "Relation to Patient",
+                    hintText: "Relationship with patient",
+                    controller: _emergencyContactRelationshipController,
+                    inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]'))],
               )),
             ],
           ),
@@ -495,9 +413,7 @@ class _AddPatientFormState extends State<AddPatientForm> {
                 label: "Referred By",
                 hintText: "Enter referral",
                 controller: _referredByController,
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')) // makes it so that only characters can be inputted
-                ],
+                inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]'))],
               )),
               const SizedBox(width: 20),
               Expanded(
@@ -505,25 +421,20 @@ class _AddPatientFormState extends State<AddPatientForm> {
                 label: "Relationship",
                 hintText: "Relationship with referral",
                 controller: _relationshipController,
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')) // makes it so that only characters can be inputted
-                ],
+                inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]'))],
               )),
             ],
           ),
 
           const SizedBox(height: 32),
 
-          // --- ADDRESS ---
+          // --- ADDRESS SECTION ---
           Text("Address", style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 12),
-
           Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Row 1: Street Address
-
               InputField(
                 hintText: "Enter Patient Street Address",
                 label: "Street Address",
@@ -531,9 +442,6 @@ class _AddPatientFormState extends State<AddPatientForm> {
                 controller: _streetController,
               ),
               const SizedBox(height: 20),
-
-              // Row 2: Barangay and City/Municipality
-
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -543,13 +451,10 @@ class _AddPatientFormState extends State<AddPatientForm> {
                       label: "Province",
                       isRequired: true,
                       variant: InputVariant.dropdown,
-                      dropdownValue:
-                          _selectedProvince, // dropdown all provinces
-                      dropdownItems: PhAddressService
-                          .getAllProvinceNames(), // call function from services
+                      dropdownValue: _selectedProvince,
+                      dropdownItems: PhAddressService.getAllProvinceNames(),
                       onDropdownChanged: (value) {
                         setState(() {
-                          // set state everytime user changes province (reset query function basically)
                           _selectedProvince = value;
                           _selectedCity = null;
                           _selectedBarangay = null;
@@ -560,23 +465,17 @@ class _AddPatientFormState extends State<AddPatientForm> {
                   const SizedBox(width: 20),
                   Expanded(
                     child: InputField(
-                      key: ValueKey(
-                          _selectedProvince), // this key resets ALL queries on new province selection
+                      key: ValueKey(_selectedProvince),
                       hintText: "Select a City/Municipality",
                       label: "City/Municipality",
                       isRequired: true,
                       variant: InputVariant.dropdown,
-                      dropdownValue:
-                          _selectedCity, // dropdown cities from the province selected
-                      dropdownItems: _selectedProvince !=
-                              null // only display if there is an answer to the query
-                          ? PhAddressService.getCitiesByProvince(
-                              // call from services
-                              _selectedProvince!)
+                      dropdownValue: _selectedCity,
+                      dropdownItems: _selectedProvince != null
+                          ? PhAddressService.getCitiesByProvince(_selectedProvince!)
                           : [],
                       onDropdownChanged: (value) {
                         setState(() {
-                          // set state everytime user changes province (reset query)
                           _selectedCity = value;
                           _selectedBarangay = null;
                         });
@@ -585,37 +484,25 @@ class _AddPatientFormState extends State<AddPatientForm> {
                   ),
                 ],
               ),
-
               const SizedBox(height: 20),
-
-              // Row 3: Province and ZIP Code
-
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(
                     child: InputField(
-                      key: ValueKey(
-                          _selectedCity), // this key resets ALL queries on new province selection
+                      key: ValueKey(_selectedCity),
                       hintText: "Select a Barangay",
                       label: "Barangay",
                       isRequired: true,
                       variant: InputVariant.dropdown,
-                      dropdownValue:
-                          _selectedBarangay, // dropdown barangays from city/municipality selected
-                      dropdownItems:
-                          (_selectedProvince != null && _selectedCity != null)
-                              ? PhAddressService.getBarangaysByLocation(
-                                  // call from services
-                                  provinceName: _selectedProvince!,
-                                  cityName: _selectedCity!,
-                                )
-                              : [],
-                      onDropdownChanged: (value) {
-                        setState(() {
-                          _selectedBarangay = value;
-                        });
-                      },
+                      dropdownValue: _selectedBarangay,
+                      dropdownItems: (_selectedProvince != null && _selectedCity != null)
+                          ? PhAddressService.getBarangaysByLocation(
+                              provinceName: _selectedProvince!,
+                              cityName: _selectedCity!,
+                            )
+                          : [],
+                      onDropdownChanged: (value) => setState(() => _selectedBarangay = value),
                     ),
                   ),
                   const SizedBox(width: 20),
@@ -626,12 +513,12 @@ class _AddPatientFormState extends State<AddPatientForm> {
                       label: "ZIP Code",
                       isRequired: true,
                       variant: InputVariant.primary,
-                      controller: _zipController, // Zip Code Controller
+                      controller: _zipController,
                       keyboardType: TextInputType.number,
                       inputFormatters: [
                         FilteringTextInputFormatter.digitsOnly,
                         LengthLimitingTextInputFormatter(4)
-                      ], // numerical inputs only
+                      ],
                     ),
                   ),
                 ],
@@ -641,7 +528,7 @@ class _AddPatientFormState extends State<AddPatientForm> {
 
           const SizedBox(height: 32),
 
-          // --- ACTION BUTTON ---
+          // --- ACTION BUTTONS ---
           Row(
             spacing: 16,
             mainAxisAlignment: MainAxisAlignment.end,
@@ -652,8 +539,7 @@ class _AddPatientFormState extends State<AddPatientForm> {
                   variant: ButtonVariant.secondary,
                   label: "Clear",
                   width: double.infinity,
-                  onPressed:
-                      _clearFormPatientRecord, // Calls the new clear form function
+                  onPressed: _clearFormPatientRecord,
                 ),
               ),
               SizedBox(
@@ -663,7 +549,7 @@ class _AddPatientFormState extends State<AddPatientForm> {
                   width: double.infinity,
                   icon: Icons.arrow_forward,
                   iconPlacement: IconPlacement.right,
-                  onPressed: _handleNext, // changed to handle atomic saving
+                  onPressed: _handleNext,
                 ),
               )
             ],
