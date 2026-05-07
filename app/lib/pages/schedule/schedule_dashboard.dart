@@ -378,10 +378,13 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
       child: Row(
         children: [
           Expanded(flex: 3, child: Text('Patient', style: headerStyle)),
+          SizedBox(width: 2),
           Expanded(flex: 2, child: Text('Date', style: headerStyle)),
+          SizedBox(width: 6),
           Expanded(flex: 2, child: Text('Time', style: headerStyle)),
-          Expanded(flex: 3, child: Text('Reason ', style: headerStyle)),
-          Expanded(flex: 3, child: Text('Actions ', style: headerStyle)),
+          SizedBox(width: 8),
+          Expanded(flex: 2, child: Text('Reason ', style: headerStyle)),
+          SizedBox(width: 62, child: Text('Actions', style: headerStyle)),
         ],
       ),
     );
