@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:drift/drift.dart' as drift;
 import '/../style/theme.dart';
 import '/../widgets/search_bar.dart';
@@ -8,32 +9,28 @@ import '/../widgets/filter_dropdown.dart';
 import '/../widgets/page_header.dart';
 import '/../widgets/app_info_bar.dart';
 import '../../db/database.dart';
-import '../../repositories/patient_repository.dart';
 import '../../services/date_helper.dart';
+import '../../providers/app_providers.dart';
 import 'add_patient.dart';
 import 'add_clinical_record.dart';
 import 'package:heroicons/heroicons.dart';
 
 //main screen
-class PatientDashboard extends StatefulWidget {
+class PatientDashboard extends ConsumerStatefulWidget {
   const PatientDashboard({super.key});
 
   @override
-  State<PatientDashboard> createState() => _PatientDashboardState();
+  ConsumerState<PatientDashboard> createState() => _PatientDashboardState();
 }
 
-class _PatientDashboardState extends State<PatientDashboard> {
-  // Database & Repository
-  late PatientRepository _repository;
-  final AppDatabase _db = AppDatabase();
-
+class _PatientDashboardState extends ConsumerState<PatientDashboard> {
   // Real Database Lists
   List<PatientData> _allPatients = [];
-  List<PatientData> _filteredRecords = []; // Choosing the sort option on the top-right
+  List<PatientData> _filteredRecords = [];
 
   // Functions to change patients screen states
-  PatientCompanion? _draftPatient; // create a patient record
-  ClinicalRecordCompanion? _draftClinicalRecord; // create a patient + clinical record
+  PatientCompanion? _draftPatient;
+  ClinicalRecordCompanion? _draftClinicalRecord;
 
   // Bug Fix: Using IndexedStack to prevent form data from being deleted when clicking back
   int _currentIndex = 0;
@@ -42,56 +39,52 @@ class _PatientDashboardState extends State<PatientDashboard> {
   final TextEditingController _searchController = TextEditingController();
   int _currentPage = 1;
   final int _recordsPerPage = 8;
-  String? _selectedStatus; //for filter chips
-  int _formSessionId = 0; // Bug Fix: Form saving past patient identification
+  String? _selectedStatus;
+  int _formSessionId = 0;
 
   @override
   void initState() {
     super.initState();
-    _repository = PatientRepository(_db); // initiate patients repository here
     _loadPatients();
   }
 
   // Fetch real data from the database
   Future<void> _loadPatients() async {
-    final patients = await _repository.getAllPatients();
+    final repository = ref.read(patientRepositoryProvider);
+    final patients = await repository.getAllPatients();
     setState(() {
       _allPatients = patients;
       _filteredRecords = patients;
-      _applyFilters(); // function to apply the sorting filters
+      _applyFilters();
     });
   }
 
   // Send user to add_patient.dart
   void _goToAddPatient() {
-    setState(() =>
-        _currentIndex = 1); // set index to 1 when adding a new patient record
+    setState(() => _currentIndex = 1);
   }
 
   // Send user to add_clinical_record.dart
   void _goToAddClinicalRecord(PatientCompanion patientData) {
     setState(() {
       _draftPatient = patientData;
-      _currentIndex = 2; // show clinical record form
+      _currentIndex = 2;
     });
   }
 
   // Send user back to this page
   void _goBackToMain(ClinicalRecordCompanion clinicalData) async {
     try {
-      final newPatientId =
-          await _db.into(_db.patient).insert(_draftPatient!); // add to database
+      final db = ref.read(databaseProvider);
+      final newPatientId = await db.into(db.patient).insert(_draftPatient!);
       final recordWithId = clinicalData.copyWith(
-        // add to database with new patient data
         patientId: drift.Value(newPatientId),
       );
 
-      await _db.into(_db.clinicalRecord).insert(recordWithId);
+      await db.into(db.clinicalRecord).insert(recordWithId);
 
-      // Once saved, refresh the main dashboard for any changes to the patients
       await _loadPatients();
 
-      // TODO: @Frontend, if you can make this snackbar similar to our theme, better - Fons 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -102,16 +95,14 @@ class _PatientDashboardState extends State<PatientDashboard> {
 
       setState(() {
         _draftClinicalRecord = clinicalData;
-        _currentIndex = 0; // Return to Main Dashboard
+        _currentIndex = 0;
       });
     } catch (e) {
-      print(
-          "Database Error: $e"); // Just a precaution: message @Fons immediately if this prints in your console
+      print("Database Error: $e");
     }
   }
 
   // Popup when clicking back to dashboard
-  // TODO: @Frontend, please design this to match our applications theme - Fons
   Future<void> _confirmReturnToDashboard() async {
     final bool? shouldDiscard = await showDialog<bool>(
       context: context,
@@ -123,7 +114,7 @@ class _PatientDashboardState extends State<PatientDashboard> {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Cancel'), // cancel keeps them on the page
+              child: const Text('Cancel'),
             ),
             TextButton(
               onPressed: () => Navigator.of(context).pop(true),
@@ -137,7 +128,6 @@ class _PatientDashboardState extends State<PatientDashboard> {
       },
     );
 
-    // If discard was clicked, remove the information and load patients table
     if (shouldDiscard == true) {
       _loadPatients();
       setState(() => _currentIndex = 0);
@@ -181,7 +171,7 @@ class _PatientDashboardState extends State<PatientDashboard> {
 
       bool matchesStatus = true;
       if (_selectedStatus == 'Active') {
-        matchesStatus = p.isArchived == false || p.isArchived == null;
+        matchesStatus = p.isArchived == false;
       } else if (_selectedStatus == 'Archived') {
         matchesStatus = p.isArchived == true;
       }
@@ -199,7 +189,6 @@ class _PatientDashboardState extends State<PatientDashboard> {
   @override
   Widget build(BuildContext context) {
     return IndexedStack(
-      // Bug Fix: fixes the bug where it deletes patient data when clicking "back" in clinical records
       index: _currentIndex,
       children: [
         // Set this as Index 0: The Main Patient Dashboard
@@ -269,14 +258,13 @@ class _PatientDashboardState extends State<PatientDashboard> {
                 onBack: _confirmReturnToDashboard,
               ),
               Transform.translate(
-                offset: const Offset(
-                    0, -30), //pulls form up to reduce gap below header
+                offset: const Offset(0, -30),
                 child: AddPatientForm(
                     key: ValueKey(_formSessionId),
                     onNext: (data) => _goToAddClinicalRecord(data),
                     onBack: () {
-                      _loadPatients(); // Refresh list when returning
-                      setState(() => _currentIndex = 0); // Back to Dashboard
+                      _loadPatients();
+                      setState(() => _currentIndex = 0);
                     }),
               ),
             ],
@@ -315,7 +303,6 @@ class _PatientDashboardState extends State<PatientDashboard> {
   Widget _buildSearchBar() {
     return Column(
       children: [
-        //search and add new record
         Row(
           children: [
             Expanded(
@@ -341,7 +328,6 @@ class _PatientDashboardState extends State<PatientDashboard> {
                   label: 'Add New Record',
                   variant: ButtonVariant.primary,
                   heroIcon: HeroIcons.documentPlus,
-                  // --- CHANGED THIS SECTION ---
                   onPressed: () {
                     setState(() {
                       _formSessionId++;
@@ -354,8 +340,6 @@ class _PatientDashboardState extends State<PatientDashboard> {
           ],
         ),
         const SizedBox(height: 20),
-
-        //filter chips and sort dropdown
         Row(
           children: [
             _buildFilterChips(),
@@ -382,7 +366,7 @@ class _PatientDashboardState extends State<PatientDashboard> {
                       break;
                     case 'Female':
                     case 'Male':
-                      _applyFilters(); // Reset base filters
+                      _applyFilters();
                       _filteredRecords = _filteredRecords
                           .where((p) => p.sex == value)
                           .toList();
@@ -435,7 +419,6 @@ class _PatientDashboardState extends State<PatientDashboard> {
       padding: const EdgeInsets.only(left: 16, right: 16, top: 8, bottom: 20),
       child: Row(
         children: [
-          // TODO: @Frontend, if you can balance these headers better, please do - Fons
           Expanded(flex: 3, child: Text('Patient', style: headerStyle)),
           Expanded(flex: 2, child: Text('Sex', style: headerStyle)),
           Expanded(flex: 2, child: Text('Age', style: headerStyle)),
@@ -451,18 +434,14 @@ class _PatientDashboardState extends State<PatientDashboard> {
   // table row using real PatientData
   Widget _buildTableRow(PatientData patient) {
     return PatientRecordBar(
-      fullName:
-          '${patient.firstName} ${patient.lastName}', // Added a space here so names format nicely!
+      fullName: '${patient.lastName}, ${patient.firstName}',
       sex: patient.sex,
-      // Safely calculate age based on database birthDate
       age: DateHelper.calculateAge(patient.birthDate),
       address: '${patient.province ?? ''}, ${patient.cityMunicipality ?? ''}',
       contact: patient.contactNumber,
-      procedure:
-          'Consultation', // Removed this, but kept it here in case something goes wrong
+      procedure: 'Consultation',
       onMenuSelected: (value) {
         if (value == 'add_clinical_record') {
-          // Convert the existing real data back into a Companion for the form
           _goToAddClinicalRecord(patient.toCompanion(true));
         }
       },
