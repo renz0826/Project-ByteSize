@@ -16,14 +16,14 @@ import '../patient_records/add_clinical_record.dart';
 import 'package:heroicons/heroicons.dart';
 
 //main screen
-class PatientDashboard extends ConsumerStatefulWidget {
-  const PatientDashboard({super.key});
+class ScheduleDashboard extends ConsumerStatefulWidget {
+  const ScheduleDashboard({super.key});
 
   @override
-  ConsumerState<PatientDashboard> createState() => _PatientDashboardState();
+  ConsumerState<ScheduleDashboard> createState() => _ScheduleDashboardState();
 }
 
-class _PatientDashboardState extends ConsumerState<PatientDashboard> {
+class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
   // Real Database Lists
   List<PatientData> _allPatients = [];
   List<PatientData> _filteredRecords = [];
