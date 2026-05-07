@@ -217,7 +217,9 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
                       sliver: SliverList(
                         delegate: SliverChildListDelegate([
                           _buildSearchBar(),
-                          const SizedBox(height: 8),
+                          const SizedBox(height: 24),
+                          _buildFilterChips(),
+                          const SizedBox(height: 24),
                           _buildTableHeader(),
                         ]),
                       ),
@@ -390,12 +392,11 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
     );
   }
 
-// Notice we changed the parameter to accept our Map!
+// Build Table Row
   Widget _buildTableRow(Map<String, dynamic> appointment) {
     return ScheduleBar(
-      // Dynamically injecting the data into your custom widget
       fullName: appointment['patientName'],
-      date: appointment['date'], // Assuming your ScheduleBar expects a DateTime
+      date: appointment['date'],
       time: appointment['time'],
       procedure: appointment['reason'],
     );
