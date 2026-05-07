@@ -8,6 +8,7 @@ class Patient extends Table { // Patient Entity
   TextColumn get firstName => text()();
   TextColumn get middleName => text().nullable()();
   TextColumn get lastName => text()();
+  TextColumn get suffix => text().nullable()();
 
 // Demographic ]
   DateTimeColumn get birthDate => dateTime()();
@@ -15,10 +16,11 @@ class Patient extends Table { // Patient Entity
   TextColumn get civilStatus => text()();
 
 // Contacts
-  TextColumn get contactNumber => text().withLength(min: 10, max: 11)();
+  TextColumn get contactNumber => text().withLength(min: 11, max: 11)();
   TextColumn get emergencyContactNo => text().nullable()();
   TextColumn get referredBy => text().nullable()();
   TextColumn get relationship => text().nullable()();
+  TextColumn get relationshipEmergency => text().nullable()();
 
 // Address
   TextColumn get streetAddress => text()();
