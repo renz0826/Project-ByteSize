@@ -12,7 +12,6 @@ class DiscardDialog extends StatelessWidget {
         'Are you sure you want to return to the dashboard? Any unsaved data will be lost.',
   });
 
-  /// A handy static method to call this dialog instantly from anywhere
   static Future<bool?> show(BuildContext context) {
     return showDialog<bool>(
       context: context,
@@ -23,7 +22,20 @@ class DiscardDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text(title, style: Theme.of(context).textTheme.titleLarge),
+      title: Row(
+        children: [
+          const Icon(
+            Icons.warning_amber_rounded,
+            color: AppTheme.red600,
+            size: 36,
+          ),
+          const SizedBox(width: 8),
+          Text(
+            title,
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
+        ],
+      ),
       content: SizedBox(
         width: 420,
         child: Text(content, style: Theme.of(context).textTheme.bodyMedium),
