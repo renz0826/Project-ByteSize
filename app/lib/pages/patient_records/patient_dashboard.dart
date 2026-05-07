@@ -14,6 +14,7 @@ import '../../providers/app_providers.dart';
 import 'add_patient.dart';
 import 'add_clinical_record.dart';
 import 'package:heroicons/heroicons.dart';
+import '/../widgets/discard_dialogue.dart';
 
 //main screen
 class PatientDashboard extends ConsumerStatefulWidget {
@@ -102,31 +103,9 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
     }
   }
 
-  // Popup when clicking back to dashboard
   Future<void> _confirmReturnToDashboard() async {
-    final bool? shouldDiscard = await showDialog<bool>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Discard Changes?'),
-          content: const Text(
-              'Are you sure you want to return to the dashboard? Any unsaved data will be lost.'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(true),
-              child: const Text(
-                'Discard',
-                style: TextStyle(color: Colors.red),
-              ),
-            ),
-          ],
-        );
-      },
-    );
+    // We use the handy static method we built into the class!
+    final bool? shouldDiscard = await DiscardDialog.show(context);
 
     if (shouldDiscard == true) {
       _loadPatients();
