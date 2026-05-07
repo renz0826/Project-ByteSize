@@ -66,6 +66,40 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
     setState(() => _currentIndex);
   }
 
+// ! Dummy data specifically for testing the Schedule Table UI
+  final List<Map<String, dynamic>> mockAppointments = [
+    {
+      'patientName': 'Dela Cruz, Juan',
+      'date': DateTime(2024, 11, 15),
+      'time': '09:00 AM',
+      'reason': 'Teeth Cleaning',
+    },
+    {
+      'patientName': 'Smith, Anna',
+      'date': DateTime(2024, 11, 15),
+      'time': '10:30 AM',
+      'reason': 'Root Canal',
+    },
+    {
+      'patientName': 'Garcia, Maria',
+      'date': DateTime(2024, 11, 16),
+      'time': '01:00 PM',
+      'reason': 'Initial Consultation',
+    },
+    {
+      'patientName': 'Lee, Jonathan',
+      'date': DateTime(2024, 11, 16),
+      'time': '03:15 PM',
+      'reason': 'Braces Adjustment',
+    },
+    {
+      'patientName': 'Santos, Miguel',
+      'date': DateTime(2024, 11, 17),
+      'time': '11:00 AM',
+      'reason': 'Tooth Extraction',
+    },
+  ];
+
   // Popup when clicking back to dashboard
   Future<void> _confirmReturnToDashboard() async {
     final bool? shouldDiscard = await showDialog<bool>(
@@ -178,7 +212,7 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
                   sliver: SliverMainAxisGroup(slivers: [
                     //search bar, filter, and table header
                     SliverPadding(
-                      padding: const EdgeInsets.only(left: 24, right: 24),
+                      padding: const EdgeInsets.only(left: 24, right: 12),
                       sliver: SliverList(
                         delegate: SliverChildListDelegate([
                           _buildSearchBar(),
@@ -190,15 +224,15 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
                     //table rows
                     SliverPadding(
                       padding: const EdgeInsets.only(left: 24, right: 24),
-                      sliver: _currentPageRecords.isEmpty
+                      sliver: mockAppointments.isEmpty
                           ? SliverToBoxAdapter(
                               child: _buildEmptyState(),
                             )
                           : SliverList(
                               delegate: SliverChildBuilderDelegate(
                                 (context, index) =>
-                                    _buildTableRow(_currentPageRecords[index]),
-                                childCount: _currentPageRecords.length,
+                                    _buildTableRow(mockAppointments[index]),
+                                childCount: mockAppointments.length,
                               ),
                             ),
                     ),
@@ -223,7 +257,7 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
                   sliver: SliverMainAxisGroup(slivers: [
                     // calendar and button
                     SliverPadding(
-                        padding: const EdgeInsets.only(left: 24, right: 24),
+                        padding: const EdgeInsets.only(left: 12, right: 24),
                         sliver: SliverList(
                           delegate:
                               SliverChildBuilderDelegate((context, index) {
@@ -349,13 +383,14 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
     );
   }
 
-  // table row using real PatientData
-  Widget _buildTableRow(PatientData patient) {
+// Notice we changed the parameter to accept our Map!
+  Widget _buildTableRow(Map<String, dynamic> appointment) {
     return ScheduleBar(
-      fullName: '${patient.lastName}, ${patient.firstName}',
-      date: DateTime.parse("2024-05-20T10:30:00Z"),
-      time: "10:00",
-      procedure: 'Consultation',
+      // Dynamically injecting the data into your custom widget
+      fullName: appointment['patientName'],
+      date: appointment['date'], // Assuming your ScheduleBar expects a DateTime
+      time: appointment['time'],
+      procedure: appointment['reason'],
     );
   }
 
