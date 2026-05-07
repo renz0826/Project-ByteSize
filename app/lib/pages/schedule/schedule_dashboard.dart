@@ -67,6 +67,7 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
   }
 
 // ! Dummy data specifically for testing the Schedule Table UI
+// TODO: Replace after testing.
   final List<Map<String, dynamic>> mockAppointments = [
     {
       'patientName': 'Dela Cruz, Juan',
@@ -224,15 +225,18 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
                     //table rows
                     SliverPadding(
                       padding: const EdgeInsets.only(left: 24, right: 24),
-                      sliver: mockAppointments.isEmpty
+                      sliver: mockAppointments
+                              .isEmpty // TODO: Connect to DB variable
                           ? SliverToBoxAdapter(
                               child: _buildEmptyState(),
                             )
                           : SliverList(
                               delegate: SliverChildBuilderDelegate(
-                                (context, index) =>
-                                    _buildTableRow(mockAppointments[index]),
-                                childCount: mockAppointments.length,
+                                (context, index) => _buildTableRow(
+                                    mockAppointments[
+                                        index]), // TODO: Connect to DB variable
+                                childCount: mockAppointments
+                                    .length, // TODO: Connect to DB variable
                               ),
                             ),
                     ),
