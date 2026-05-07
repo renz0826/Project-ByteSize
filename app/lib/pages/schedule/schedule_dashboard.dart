@@ -275,44 +275,6 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
             )
           ],
         ),
-        const SizedBox(height: 20),
-        Row(
-          children: [
-            _buildFilterChips(),
-            const Spacer(),
-            AppSortDropdown(
-              onSortChanged: (value) {
-                setState(() {
-                  switch (value) {
-                    case 'Name (A-Z)':
-                      _filteredRecords
-                          .sort((a, b) => a.firstName.compareTo(b.firstName));
-                      break;
-                    case 'Name (Z-A)':
-                      _filteredRecords
-                          .sort((a, b) => b.firstName.compareTo(a.firstName));
-                      break;
-                    case 'Oldest First':
-                      _filteredRecords
-                          .sort((a, b) => a.birthDate.compareTo(b.birthDate));
-                      break;
-                    case 'Youngest First':
-                      _filteredRecords
-                          .sort((a, b) => b.birthDate.compareTo(a.birthDate));
-                      break;
-                    case 'Female':
-                    case 'Male':
-                      _applyFilters();
-                      _filteredRecords = _filteredRecords
-                          .where((p) => p.sex == value)
-                          .toList();
-                      break;
-                  }
-                });
-              },
-            ),
-          ],
-        ),
       ],
     );
   }
