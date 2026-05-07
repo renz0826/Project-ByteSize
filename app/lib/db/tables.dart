@@ -62,6 +62,9 @@ class Appointment extends Table { // Appointment entity
   
   // Status (Scheduled, Completed, & Cancelled)
   TextColumn get status => text().withDefault(const Constant('Scheduled'))();
+
+  // Time-Slot
+  TextColumn get timeSlot => text()();
 }
 
 class Invoice extends Table { // Billing Entity
