@@ -1,3 +1,4 @@
+import 'package:dentcity_management_system/pages/schedule/schedule_appointment.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:drift/drift.dart' as drift;
@@ -61,28 +62,8 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
   }
 
   // Send user back to this page
-  void _goBackToMain(ClinicalRecordCompanion clinicalData) async {
-    try {
-      final db = ref.read(databaseProvider);
-      final newPatientId = await db.into(db.patient).insert(_draftPatient!);
-      final recordWithId = clinicalData.copyWith(
-        patientId: drift.Value(newPatientId),
-      );
-
-      await db.into(db.clinicalRecord).insert(recordWithId);
-
-      await _loadPatients();
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Patient and Clinical Record Saved Successfully!"),
-          ),
-        );
-      }
-    } catch (e) {
-      print("Database Error: $e");
-    }
+  void _goBackToMain() {
+    setState(() => _currentIndex);
   }
 
   // Popup when clicking back to dashboard
@@ -230,50 +211,22 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
           ),
         ),
 
-        // Setting this as Index 1: When user clicks add record
+        // Setting this as Index 1: When user clicks schedule appointment
         SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               PageHeader(
-                title: 'Back to Records',
+                title: 'Back to Schedules',
                 type: PageHeaderType.withBack,
                 onBack: _confirmReturnToDashboard,
               ),
               Transform.translate(
                 offset: const Offset(0, -30),
-                child: AddPatientForm(
+                child: ScheduleAppointmentForm(
+                    activePatients: [],
                     key: ValueKey(_formSessionId),
-                    onNext: (data) => _goToScheduleAppointment(),
-                    onBack: () {
-                      _loadPatients();
-                      setState(() => _currentIndex = 0);
-                    }),
-              ),
-            ],
-          ),
-        ),
-
-        // Setting this as Index 2: When user clicks next after adding a patient record
-        SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              PageHeader(
-                title: 'Back to Records',
-                type: PageHeaderType.withBack,
-                onBack: _confirmReturnToDashboard,
-              ),
-              Transform.translate(
-                offset: const Offset(0, -30),
-                child: AddClinicalRecordForm(
-                  patientId: 0,
-                  key: ValueKey(_formSessionId),
-                  onPrevious: () {
-                    setState(() => _currentIndex = 1);
-                  },
-                  onFinish: (clinicalData) => _goBackToMain(clinicalData),
-                ),
+                    onSave: _goBackToMain),
               ),
             ],
           ),
