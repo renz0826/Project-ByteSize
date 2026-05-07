@@ -329,12 +329,10 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
 
   // table row using real PatientData
   Widget _buildTableRow(PatientData patient) {
-    return PatientRecordBar(
+    return ScheduleBar(
       fullName: '${patient.lastName}, ${patient.firstName}',
-      sex: patient.sex,
-      age: DateHelper.calculateAge(patient.birthDate),
-      address: '${patient.province ?? ''}, ${patient.cityMunicipality ?? ''}',
-      contact: patient.contactNumber,
+      date: DateTime.parse("2024-05-20T10:30:00Z"),
+      time: "10:00",
       procedure: 'Consultation',
     );
   }
