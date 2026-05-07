@@ -281,7 +281,7 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
 
   //filter chips - all/archived/active
   Widget _buildFilterChips() {
-    final filters = ['All', 'Active', 'Archived'];
+    final filters = ['All', 'Upcoming', 'Completed'];
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: filters.map((filter) {
