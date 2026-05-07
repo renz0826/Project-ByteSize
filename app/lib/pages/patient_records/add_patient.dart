@@ -1,8 +1,9 @@
 import 'package:dentcity_management_system/db/database.dart';
+import 'package:dentcity_management_system/repositories/patient_repository.dart';
 import 'package:dentcity_management_system/style/theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:drift/drift.dart' as drift;
-import 'package:flutter/services.dart';
 import '/../widgets/main_buttons.dart';
 import '/../widgets/input_field.dart';
 import '/../widgets/radio_buttons.dart';
@@ -10,10 +11,10 @@ import '../../services/locations_ph.dart';
 import '../../services/date_service.dart';
 import '../../services/date_helper.dart';
 import '../../services/form_validator.dart';
-import '../../repositories/patient_repository.dart';
+import '../../providers/app_providers.dart';
 
-class AddPatientForm extends StatefulWidget {
-  final Function(PatientCompanion) onNext; 
+class AddPatientForm extends ConsumerStatefulWidget {
+  final Function(PatientCompanion) onNext;
   final VoidCallback onBack;
   final Map<String, dynamic>? existingPatient;
 
@@ -24,23 +25,23 @@ class AddPatientForm extends StatefulWidget {
       required this.onBack});
 
   @override
-  State<AddPatientForm> createState() => _AddPatientFormState();
+  ConsumerState<AddPatientForm> createState() => _AddPatientFormState();
 }
 
-class _AddPatientFormState extends State<AddPatientForm> {
+class _AddPatientFormState extends ConsumerState<AddPatientForm> {
   bool get isEditing => widget.existingPatient != null;
 
   final _firstNameController = TextEditingController();
   final _middleNameController = TextEditingController();
   final _lastNameController = TextEditingController();
   final _suffixController = TextEditingController();
-  final _contactNumberController = TextEditingController(); 
+  final _contactNumberController = TextEditingController();
   final _emergencyContactController = TextEditingController();
   final _referredByController = TextEditingController();
   final _relationshipController = TextEditingController();
   final _emergencyContactRelationshipController = TextEditingController();
   final _streetController = TextEditingController();
-  final _zipController = TextEditingController(); 
+  final _zipController = TextEditingController();
   final _barangayController = TextEditingController();
   final _cityController = TextEditingController();
   final _provinceController = TextEditingController();
@@ -55,7 +56,7 @@ class _AddPatientFormState extends State<AddPatientForm> {
   String? _selectedBarangay;
   bool _isPWD = false;
 
-  void _clearFormPatientRecord() { 
+  void _clearFormPatientRecord() {
     setState(() {
       _firstNameController.clear();
       _middleNameController.clear();
@@ -84,13 +85,17 @@ class _AddPatientFormState extends State<AddPatientForm> {
 
   void _handleNext() async {
     DateTime? birthDate;
-    if (isEditing && widget.existingPatient != null && widget.existingPatient!['birthDate'] != null) {
+    if (isEditing &&
+        widget.existingPatient != null &&
+        widget.existingPatient!['birthDate'] != null) {
       birthDate = widget.existingPatient!['birthDate'] as DateTime;
-    } else if (_selectedMonth != null && _selectedDay != null && _selectedYear != null) {
-      birthDate = DateHelper.convertToDateTime(_selectedMonth!, _selectedDay!, _selectedYear!);
+    } else if (_selectedMonth != null &&
+        _selectedDay != null &&
+        _selectedYear != null) {
+      birthDate = DateHelper.convertToDateTime(
+          _selectedMonth!, _selectedDay!, _selectedYear!);
     }
 
-    // Validation & Duplicate Check
     List<String> missing = FormValidator.getMissingPatientFields(
       firstName: _firstNameController.text.trim(),
       lastName: _lastNameController.text.trim(),
@@ -111,21 +116,30 @@ class _AddPatientFormState extends State<AddPatientForm> {
         builder: (context) => AlertDialog(
           title: const Text('Missing Information'),
           content: Text('Please fill out:\n• ${missing.join('\n• ')}'),
-          actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('OK'))],
+          actions: [
+            TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('OK'))
+          ],
         ),
       );
       return;
     }
 
-    final db = AppDatabase();
+    final db = ref.read(databaseProvider);
     final repository = PatientRepository(db);
-    if (await repository.isExactDuplicate(_firstNameController.text, _lastNameController.text, birthDate!)) {
+    if (await repository.isExactDuplicate(
+        _firstNameController.text, _lastNameController.text, birthDate!)) {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
           title: const Text('Patient Already Exists'),
           content: const Text('This patient is already in the system.'),
-          actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('OK'))],
+          actions: [
+            TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('OK'))
+          ],
         ),
       );
       return;
@@ -135,13 +149,15 @@ class _AddPatientFormState extends State<AddPatientForm> {
       firstName: _firstNameController.text.trim(),
       middleName: drift.Value(_middleNameController.text.trim()),
       lastName: _lastNameController.text.trim(),
-      suffix: drift.Value(_suffixController.text.trim()), 
+      suffix: drift.Value(_suffixController.text.trim()),
       birthDate: birthDate,
       sex: _selectedSex!,
       civilStatus: _selectedStatus ?? "Single",
       contactNumber: _contactNumberController.text.trim(),
-      emergencyContactNo: drift.Value(_emergencyContactController.text.trim()),
-      relationshipEmergency: drift.Value(_emergencyContactRelationshipController.text.trim()),
+      emergencyContactNo:
+          drift.Value(_emergencyContactController.text.trim()),
+      relationshipEmergency:
+          drift.Value(_emergencyContactRelationshipController.text.trim()),
       referredBy: drift.Value(_referredByController.text.trim()),
       relationship: drift.Value(_relationshipController.text.trim()),
       streetAddress: _streetController.text.trim(),
@@ -173,30 +189,48 @@ class _AddPatientFormState extends State<AddPatientForm> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Personal Details", style: Theme.of(context).textTheme.headlineLarge),
+          Text("Personal Details",
+              style: Theme.of(context).textTheme.headlineLarge),
           const SizedBox(height: 32),
           Text("Full Name", style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 12),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(flex: 3, child: InputField(label: "First Name", isRequired: true, controller: _firstNameController)),
+              Expanded(
+                  flex: 3,
+                  child: InputField(
+                      label: "First Name",
+                      isRequired: true,
+                      controller: _firstNameController)),
               const SizedBox(width: 20),
-              Expanded(flex: 2, child: InputField(label: "Middle Name", controller: _middleNameController)),
+              Expanded(
+                  flex: 2,
+                  child: InputField(
+                      label: "Middle Name",
+                      controller: _middleNameController)),
               const SizedBox(width: 20),
-              Expanded(flex: 3, child: InputField(label: "Last Name", isRequired: true, controller: _lastNameController)),
+              Expanded(
+                  flex: 3,
+                  child: InputField(
+                      label: "Last Name",
+                      isRequired: true,
+                      controller: _lastNameController)),
               const SizedBox(width: 20),
-              Expanded(flex: 1, child: InputField(label: "Suffix", controller: _suffixController)),
+              Expanded(
+                  flex: 1,
+                  child: InputField(
+                      label: "Suffix", controller: _suffixController)),
             ],
           ),
           const SizedBox(height: 32),
-          Text("Demographic", style: Theme.of(context).textTheme.titleLarge),
+          Text("Demographic",
+              style: Theme.of(context).textTheme.titleLarge),
           if (!isEditing) ...[
             const SizedBox(height: 12),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // 1. YEAR (Far Left)
                 Expanded(
                   child: InputField(
                     hintText: "Select Year",
@@ -204,105 +238,205 @@ class _AddPatientFormState extends State<AddPatientForm> {
                     variant: InputVariant.dropdown,
                     dropdownValue: _selectedYear,
                     isRequired: true,
-                    dropdownItems: List.generate(125, (i) => (DateTime.now().year - i).toString()),
+                    dropdownItems: List.generate(
+                        125, (i) => (DateTime.now().year - i).toString()),
                     onDropdownChanged: (value) {
                       setState(() {
                         _selectedYear = value;
-                        _selectedMonth = null; // Reset children
+                        _selectedMonth = null;
                         _selectedDay = null;
                       });
                     },
                   ),
                 ),
                 const SizedBox(width: 20),
-                // 2. MONTH (Middle)
                 Expanded(
                   child: InputField(
-                    hintText: _selectedYear == null ? "Select year first" : "Select Month",
+                    hintText: _selectedYear == null
+                        ? "Select year first"
+                        : "Select Month",
                     label: "Month",
                     variant: InputVariant.dropdown,
                     dropdownValue: _selectedMonth,
                     isRequired: true,
-                    dropdownItems: _selectedYear == null ? [] : DateService.months,
+                    dropdownItems:
+                        _selectedYear == null ? [] : DateService.months,
                     onDropdownChanged: (value) {
                       setState(() {
                         _selectedMonth = value;
-                        _selectedDay = null; // Reset child
+                        _selectedDay = null;
                       });
                     },
                   ),
                 ),
                 const SizedBox(width: 20),
-                // 3. DAY (Far Right)
                 Expanded(
                   child: InputField(
-                    key: ValueKey('$_selectedYear-$_selectedMonth'), // Rebuilds when parents change
-                    hintText: _selectedMonth == null ? "Select month first" : "Select Day",
+                    key: ValueKey('$_selectedYear-$_selectedMonth'),
+                    hintText: _selectedMonth == null
+                        ? "Select month first"
+                        : "Select Day",
                     label: "Day",
                     variant: InputVariant.dropdown,
                     dropdownValue: _selectedDay,
                     isRequired: true,
-                    dropdownItems: (_selectedYear == null || _selectedMonth == null)
+                    dropdownItems: (_selectedYear == null ||
+                            _selectedMonth == null)
                         ? []
                         : List.generate(
-                            DateService.getDaysInMonth(_selectedMonth, _selectedYear),
+                            DateService.getDaysInMonth(
+                                _selectedMonth, _selectedYear),
                             (index) => (index + 1).toString(),
                           ),
-                    onDropdownChanged: (value) => setState(() => _selectedDay = value),
+                    onDropdownChanged: (value) =>
+                        setState(() => _selectedDay = value),
                   ),
                 ),
-              ], 
+              ],
             ),
           ],
           const SizedBox(height: 20),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(child: InputField(label: "Sex", variant: InputVariant.dropdown, dropdownValue: _selectedSex, dropdownItems: const ["Male", "Female"], isRequired: true, onDropdownChanged: (v) => setState(() => _selectedSex = v))),
+              Expanded(
+                  child: InputField(
+                      label: "Sex",
+                      variant: InputVariant.dropdown,
+                      dropdownValue: _selectedSex,
+                      dropdownItems: const ["Male", "Female"],
+                      isRequired: true,
+                      onDropdownChanged: (v) =>
+                          setState(() => _selectedSex = v))),
               const SizedBox(width: 20),
-              Expanded(child: InputField(label: "Civil Status", variant: InputVariant.dropdown, dropdownValue: _selectedStatus, dropdownItems: const ["Single", "Married", "Widowed", "Annulled"], isRequired: true, onDropdownChanged: (v) => setState(() => _selectedStatus = v))),
+              Expanded(
+                  child: InputField(
+                      label: "Civil Status",
+                      variant: InputVariant.dropdown,
+                      dropdownValue: _selectedStatus,
+                      dropdownItems: const [
+                        "Single",
+                        "Married",
+                        "Widowed",
+                        "Annulled"
+                      ],
+                      isRequired: true,
+                      onDropdownChanged: (v) =>
+                          setState(() => _selectedStatus = v))),
               const SizedBox(width: 20),
-              Expanded(child: RadioGroupField(label: "PWD Status", options: const ["Applicable", "Not Applicable"], selectedValue: _isPWD ? "Applicable" : "Not Applicable", onChanged: (v) => setState(() => _isPWD = v == "Applicable"))),
+              Expanded(
+                  child: RadioGroupField(
+                      label: "PWD Status",
+                      options: const ["Applicable", "Not Applicable"],
+                      selectedValue:
+                          _isPWD ? "Applicable" : "Not Applicable",
+                      onChanged: (v) =>
+                          setState(() => _isPWD = v == "Applicable"))),
             ],
           ),
           const SizedBox(height: 32),
-          Text("Contact Information", style: Theme.of(context).textTheme.titleLarge),
+          Text("Contact Information",
+              style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 12),
           Row(
             children: [
-              Expanded(child: InputField(label: "Mobile Number", isRequired: true, controller: _contactNumberController)),
+              Expanded(
+                  child: InputField(
+                      label: "Mobile Number",
+                      isRequired: true,
+                      controller: _contactNumberController)),
               const SizedBox(width: 20),
-              Expanded(child: InputField(label: "Emergency Contact Number", controller: _emergencyContactController)),
+              Expanded(
+                  child: InputField(
+                      label: "Emergency Contact Number",
+                      controller: _emergencyContactController)),
               const SizedBox(width: 20),
-              Expanded(child: InputField(label: "Relation to Patient", controller: _emergencyContactRelationshipController)),
+              Expanded(
+                  child: InputField(
+                      label: "Relation to Patient",
+                      controller:
+                          _emergencyContactRelationshipController)),
             ],
           ),
           const SizedBox(height: 20),
           Row(
             children: [
-              Expanded(child: InputField(label: "Referred By", controller: _referredByController)),
+              Expanded(
+                  child: InputField(
+                      label: "Referred By",
+                      controller: _referredByController)),
               const SizedBox(width: 20),
-              Expanded(child: InputField(label: "Relationship", controller: _relationshipController)),
+              Expanded(
+                  child: InputField(
+                      label: "Relationship",
+                      controller: _relationshipController)),
             ],
           ),
           const SizedBox(height: 32),
           Text("Address", style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 12),
-          InputField(label: "Street Address", isRequired: true, controller: _streetController),
+          InputField(
+              label: "Street Address",
+              isRequired: true,
+              controller: _streetController),
           const SizedBox(height: 20),
           Row(
             children: [
-              Expanded(child: InputField(label: "Province", variant: InputVariant.dropdown, dropdownValue: _selectedProvince, dropdownItems: PhAddressService.getAllProvinceNames(), isRequired: true, onDropdownChanged: (v) => setState(() { _selectedProvince = v; _selectedCity = null; _selectedBarangay = null; }))),
+              Expanded(
+                  child: InputField(
+                      label: "Province",
+                      variant: InputVariant.dropdown,
+                      dropdownValue: _selectedProvince,
+                      dropdownItems: PhAddressService.getAllProvinceNames(),
+                      isRequired: true,
+                      onDropdownChanged: (v) => setState(() {
+                            _selectedProvince = v;
+                            _selectedCity = null;
+                            _selectedBarangay = null;
+                          }))),
               const SizedBox(width: 20),
-              Expanded(child: InputField(key: ValueKey(_selectedProvince), label: "City/Municipality", variant: InputVariant.dropdown, dropdownValue: _selectedCity, dropdownItems: _selectedProvince != null ? PhAddressService.getCitiesByProvince(_selectedProvince!) : [], isRequired: true, onDropdownChanged: (v) => setState(() { _selectedCity = v; _selectedBarangay = null; }))),
+              Expanded(
+                  child: InputField(
+                      key: ValueKey(_selectedProvince),
+                      label: "City/Municipality",
+                      variant: InputVariant.dropdown,
+                      dropdownValue: _selectedCity,
+                      dropdownItems: _selectedProvince != null
+                          ? PhAddressService.getCitiesByProvince(
+                              _selectedProvince!)
+                          : [],
+                      isRequired: true,
+                      onDropdownChanged: (v) => setState(() {
+                            _selectedCity = v;
+                            _selectedBarangay = null;
+                          }))),
             ],
           ),
           const SizedBox(height: 20),
           Row(
             children: [
-              Expanded(child: InputField(key: ValueKey(_selectedCity), label: "Barangay", variant: InputVariant.dropdown, dropdownValue: _selectedBarangay, dropdownItems: (_selectedProvince != null && _selectedCity != null) ? PhAddressService.getBarangaysByLocation(provinceName: _selectedProvince!, cityName: _selectedCity!) : [], isRequired: true, onDropdownChanged: (v) => setState(() => _selectedBarangay = v))),
+              Expanded(
+                  child: InputField(
+                      key: ValueKey(_selectedCity),
+                      label: "Barangay",
+                      variant: InputVariant.dropdown,
+                      dropdownValue: _selectedBarangay,
+                      dropdownItems: (_selectedProvince != null &&
+                              _selectedCity != null)
+                          ? PhAddressService.getBarangaysByLocation(
+                              provinceName: _selectedProvince!,
+                              cityName: _selectedCity!)
+                          : [],
+                      isRequired: true,
+                      onDropdownChanged: (v) =>
+                          setState(() => _selectedBarangay = v))),
               const SizedBox(width: 20),
-              Expanded(flex: 1, child: InputField(label: "ZIP Code", isRequired: true, controller: _zipController)),
+              Expanded(
+                  flex: 1,
+                  child: InputField(
+                      label: "ZIP Code",
+                      isRequired: true,
+                      controller: _zipController)),
             ],
           ),
           const SizedBox(height: 32),
@@ -310,8 +444,19 @@ class _AddPatientFormState extends State<AddPatientForm> {
             spacing: 16,
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              SizedBox(width: 100, child: Button(variant: ButtonVariant.secondary, label: "Clear", onPressed: _clearFormPatientRecord)),
-              SizedBox(width: 140, child: Button(label: "Next", icon: Icons.arrow_forward, iconPlacement: IconPlacement.right, onPressed: _handleNext)),
+              SizedBox(
+                  width: 100,
+                  child: Button(
+                      variant: ButtonVariant.secondary,
+                      label: "Clear",
+                      onPressed: _clearFormPatientRecord)),
+              SizedBox(
+                  width: 140,
+                  child: Button(
+                      label: "Next",
+                      icon: Icons.arrow_forward,
+                      iconPlacement: IconPlacement.right,
+                      onPressed: _handleNext)),
             ],
           ),
         ],
