@@ -19,37 +19,33 @@ class AppCalendar extends StatefulWidget {
 
 class _AppCalendarState extends State<AppCalendar> {
   late DateTime _focusedDay;
-  late DateTime _selectedDay;
+  DateTime? _selectedDay;
 
   @override
   void initState() {
     super.initState();
-    // Initialize with provided day or current date
-    _focusedDay = widget.selectedDay ?? DateTime.now();
-    _selectedDay = widget.selectedDay ?? DateTime.now();
+    _focusedDay = DateTime.now();
+    _selectedDay = DateTime.now(); // Default selection is today
   }
 
-  @override
-  void didUpdateWidget(AppCalendar oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    // Sync internal state if parent provides a new selected day
-    if (widget.selectedDay != oldWidget.selectedDay && widget.selectedDay != null) {
-      setState(() {
-        _selectedDay = widget.selectedDay!;
-        _focusedDay = widget.selectedDay!;
-      });
-    }
-  }
+  void _updateHeaderDate(DateTime day) {
+    final DateTime now = DateTime.now();
+    final bool isCurrentMonth = day.year == now.year && day.month == now.month;
+    
+    // Check if we are in the month where the user actually clicked a day
+    final bool isSelectedMonth = _selectedDay != null && 
+        day.year == _selectedDay!.year && 
+        day.month == _selectedDay!.month;
 
-  void _previousMonth() {
     setState(() {
-      _focusedDay = DateTime(_focusedDay.year, _focusedDay.month - 1);
-    });
-  }
-
-  void _nextMonth() {
-    setState(() {
-      _focusedDay = DateTime(_focusedDay.year, _focusedDay.month + 1);
+      if (isCurrentMonth) {
+        _focusedDay = now;
+      } else if (isSelectedMonth) {
+        _focusedDay = _selectedDay!;
+      } else {
+        // Reset state for other months: header shows the 1st
+        _focusedDay = DateTime(day.year, day.month, 1);
+      }
     });
   }
 
@@ -71,22 +67,23 @@ class _AppCalendarState extends State<AppCalendar> {
             children: [
               Text(
                 DateFormat.yMMMMd().format(_focusedDay),
-                style: AppTheme.textTheme.headlineLarge?.copyWith(
+                style: AppTheme.textTheme.titleLarge?.copyWith(
                   fontSize: 24,
                   fontWeight: FontWeight.w700,
                 ),
               ),
               Row(
                 children: [
+                  // Updated the arrows to left and right
                   IconButton(
-                    onPressed: _previousMonth,
-                    icon: const Icon(Icons.keyboard_arrow_up, size: 28),
+                    onPressed: () => _updateHeaderDate(DateTime(_focusedDay.year, _focusedDay.month - 1, 1)),
+                    icon: const Icon(Icons.chevron_left, size: 28), // Left Arrow
                     color: AppTheme.black500,
                     splashRadius: 24,
                   ),
                   IconButton(
-                    onPressed: _nextMonth,
-                    icon: const Icon(Icons.keyboard_arrow_down, size: 28),
+                    onPressed: () => _updateHeaderDate(DateTime(_focusedDay.year, _focusedDay.month + 1, 1)),
+                    icon: const Icon(Icons.chevron_right, size: 28), // Right Arrow
                     color: AppTheme.black500,
                     splashRadius: 24,
                   ),
@@ -95,53 +92,38 @@ class _AppCalendarState extends State<AppCalendar> {
             ],
           ),
           const SizedBox(height: 16),
-          
           Container(
             decoration: BoxDecoration(
               border: Border.all(color: AppTheme.black500, width: 1),
               borderRadius: BorderRadius.circular(32),
             ),
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 24),
             child: TableCalendar(
               firstDay: DateTime(2020),
               lastDay: DateTime(2030),
               focusedDay: _focusedDay,
+              // Only shows the blue circle if the month matches our selection
               selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
-              headerVisible: false, 
-              
-              onDaySelected: (selectedDay, focusedDay) {
+              headerVisible: false,
+              rowHeight: 52, // Fixed clipping
+              daysOfWeekHeight: 32, // Fixed clipping
+              onDaySelected: (selected, focused) {
                 setState(() {
-                  _selectedDay = selectedDay;
-                  _focusedDay = focusedDay;
+                  _selectedDay = selected;
+                  _focusedDay = selected;
                 });
-                widget.onDaySelected?.call(selectedDay);
+                widget.onDaySelected?.call(selected);
               },
-              
-              onPageChanged: (focusedDay) {
-                setState(() => _focusedDay = focusedDay);
-              },
-
-              // Days of Week (Sun, Mon, etc.)
+              onPageChanged: _updateHeaderDate,
               daysOfWeekStyle: DaysOfWeekStyle(
-                weekdayStyle: AppTheme.textTheme.bodyMedium!.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-                weekendStyle: AppTheme.textTheme.bodyMedium!.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+                weekdayStyle: AppTheme.textTheme.bodyMedium!.copyWith(fontWeight: FontWeight.bold),
+                weekendStyle: AppTheme.textTheme.bodyMedium!.copyWith(fontWeight: FontWeight.bold),
               ),
-
               calendarStyle: CalendarStyle(
-                // Selected Day styling
                 selectedDecoration: const BoxDecoration(
                   color: AppTheme.blue500,
                   shape: BoxShape.circle,
                 ),
-                selectedTextStyle: AppTheme.textTheme.labelMedium!.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-                
-                // Today styling: Outline only to distinguish from Selected
                 todayDecoration: BoxDecoration(
                   border: Border.all(color: AppTheme.blue500, width: 1.5),
                   shape: BoxShape.circle,
@@ -150,20 +132,9 @@ class _AppCalendarState extends State<AppCalendar> {
                   color: AppTheme.blue500,
                   fontWeight: FontWeight.bold,
                 ),
-                
-                defaultTextStyle: AppTheme.textTheme.bodyMedium!,
-                weekendTextStyle: AppTheme.textTheme.bodyMedium!,
-                
-                // Keep the UI clean by hiding days from other months
                 outsideDaysVisible: false,
-                cellMargin: const EdgeInsets.all(4),
+                cellMargin: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
               ),
-
-              // Month view only
-              calendarFormat: CalendarFormat.month,
-              availableCalendarFormats: const {
-                CalendarFormat.month: 'Month',
-              },
             ),
           ),
         ],
