@@ -40,7 +40,7 @@ class _ScheduleAppointmentFormState extends State<ScheduleAppointmentForm> {
 
   // Selected Timeslot
   String? _selectedTimeSlot;
-  List<String> _availableTimeSlots = []; // This list holds the filtered boxes
+  List<String> _availableTimeSlots = []; 
 
   // Controller for Reason for Visit text box
   final TextEditingController _reasonController = TextEditingController();
@@ -49,32 +49,37 @@ class _ScheduleAppointmentFormState extends State<ScheduleAppointmentForm> {
   void initState() {
     super.initState();
     _appointmentRepository =
-        AppointmentRepository(_db); // Initialize Repository
+        AppointmentRepository(_db); 
   }
 
-  // Dispose the controller to prevent memory leaks
   @override
   void dispose() {
     _reasonController.dispose();
     super.dispose();
   }
 
-  // Time Slot Logic
+  String _getInferredYear() { // Function to calculate if appointment is due this or next year to determine leap year dates
+    int year = DateTime.now().year;
+    if (_selectedMonth == null) return year.toString();
+
+    final currentMonth = DateTime.now().month;
+    final selectedMonthIndex = DateService.months.indexOf(_selectedMonth!) + 1;
+
+    // If selected month is earlier than the current month, assume it's for next year
+    if (selectedMonthIndex < currentMonth) {
+      year += 1;
+    }
+    return year.toString();
+  }
+
   DateTime? _parseSelectedDate() {
     if (_selectedMonth == null || _selectedDay == null) return null;
 
-    int year = DateTime.now().year;
-    final currentMonth = DateTime.now().month;
+    int year = int.parse(_getInferredYear());
     final selectedMonthIndex = DateService.months.indexOf(_selectedMonth!) + 1;
     final day = int.tryParse(_selectedDay!);
 
     if (selectedMonthIndex <= 0 || day == null) return null;
-
-    if (selectedMonthIndex < currentMonth) {
-      year +=
-          1; // if month selected is lesser than current month, this means appointment is booked for next year
-      // this logic was created so that if the month is December, but staff selects January.
-    }
 
     return DateTime(year, selectedMonthIndex, day);
   }
@@ -84,7 +89,6 @@ class _ScheduleAppointmentFormState extends State<ScheduleAppointmentForm> {
 
     if (selectedDate != null) {
       final allSlots = TimeSlotService.generateAllSlots();
-      // Ensure getBookedSlots is in your repository!
       final bookedSlots =
           await _appointmentRepository.getBookedSlots(selectedDate);
 
@@ -95,7 +99,7 @@ class _ScheduleAppointmentFormState extends State<ScheduleAppointmentForm> {
         );
 
         if (!_availableTimeSlots.contains(_selectedTimeSlot)) {
-          _selectedTimeSlot = null; // Clear if slot is no longer available
+          _selectedTimeSlot = null; 
         }
       });
     } else {
@@ -106,10 +110,7 @@ class _ScheduleAppointmentFormState extends State<ScheduleAppointmentForm> {
     }
   }
 
-  // Save Appointment Logic
   Future<void> _saveAppointment() async {
-    // Step 1: Validating all not-null fields
-    // TODO: @Frontend, please edit this to match our app's theme - Fons
     if (_selectedPatient == null ||
         _selectedMonth == null ||
         _selectedDay == null ||
@@ -123,52 +124,45 @@ class _ScheduleAppointmentFormState extends State<ScheduleAppointmentForm> {
             content: const Text(
                 "Please fill in all fields before scheduling the appointment."),
             shape: RoundedRectangleBorder(
-              borderRadius:
-                  BorderRadius.circular(16), 
+              borderRadius: BorderRadius.circular(16), 
             ),
             actions: [
               TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
+                onPressed: () => Navigator.of(context).pop(),
                 child: const Text("OK"),
               ),
             ],
           );
         },
       );
-      return; // Stops the save process
+      return; 
     }
 
-    // Step 2: Find all non-archived patients from the database
     final patient = widget.activePatients.firstWhere(
       (p) => '${p.firstName} ${p.lastName}' == _selectedPatient,
     );
 
-    // Step 3: Get the parsed DateTime here
     final scheduleDate = _parseSelectedDate();
     if (scheduleDate == null) return;
 
-    // Step 4: Create the Appointment Companion
     final newAppointment = AppointmentCompanion(
       patientId: drift.Value(patient.patientId),
       scheduleDateTime: drift.Value(scheduleDate),
       timeSlot: drift.Value(_selectedTimeSlot!),
       reasonForVisit: drift.Value(_reasonController.text.trim()),
-      status: const drift.Value("Pending"), // Default status
+      status: const drift.Value("Pending"),
+      // --- HARDCODED STAFF ID ---
+      staffId: const drift.Value(1),
     );
 
     await _appointmentRepository.addAppointment(newAppointment);
 
-    // Step 5: Show a success message
-    // TODO: @Frontend, try to fit this snackbar to our theme please - Fons
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Appointment Scheduled Successfully!")),
       );
     }
 
-    // Step 6: Clean up the form and save
     _resetForm();
     widget.onSave();
   }
@@ -180,7 +174,7 @@ class _ScheduleAppointmentFormState extends State<ScheduleAppointmentForm> {
       _selectedDay = null;
       _selectedTimeSlot = null;
       _availableTimeSlots = [];
-      _reasonController.clear(); // Clear the text field
+      _reasonController.clear();
     });
   }
 
@@ -208,7 +202,6 @@ class _ScheduleAppointmentFormState extends State<ScheduleAppointmentForm> {
 
           const SizedBox(height: 32),
 
-          // --- PATIENT NAME ---
           if (!isEditing) ...[
             Row(
               children: [
@@ -231,7 +224,6 @@ class _ScheduleAppointmentFormState extends State<ScheduleAppointmentForm> {
             ),
             const SizedBox(height: 32),
           ],
-          // --- APPOINTMENT SCHEDULE ---
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -246,38 +238,37 @@ class _ScheduleAppointmentFormState extends State<ScheduleAppointmentForm> {
                   onDropdownChanged: (value) {
                     setState(() {
                       _selectedMonth = value;
-                      _selectedDay = null; // Reset day when month changes
+                      _selectedDay = null; 
                     });
-                    _refreshTimeSlots(); // Trigger scan!
+                    _refreshTimeSlots();
                   },
                 ),
               ),
               const SizedBox(width: 20),
               Expanded(
                 child: InputField(
-                  key: ValueKey(_selectedMonth),
+                  // Use month and year as the key to refresh for Leap Years
+                  key: ValueKey('$_selectedMonth-${_getInferredYear()}'),
                   hintText: "Select a day",
                   label: "Day",
                   variant: InputVariant.dropdown,
                   dropdownValue: _selectedDay,
                   isRequired: true,
                   dropdownItems: List.generate(
-                    DateService.getDaysInMonth(_selectedMonth),
+                    // Pass inferred year to calculate correct days in month
+                    DateService.getDaysInMonth(_selectedMonth, _getInferredYear()),
                     (index) => (index + 1).toString(),
                   ),
                   onDropdownChanged: (value) {
-                    setState(() {
-                      _selectedDay = value;
-                    });
-                    _refreshTimeSlots(); // Trigger scan!
+                    setState(() => _selectedDay = value);
+                    _refreshTimeSlots();
                   },
                 ),
               ),
               const SizedBox(width: 20),
               Expanded(
                 child: InputField(
-                  key: ValueKey(
-                      '$_selectedMonth-$_selectedDay'), // Update key to force UI refresh
+                  key: ValueKey('$_selectedMonth-$_selectedDay'), 
                   hintText: "Select a time slot",
                   label: "Time Slot",
                   variant: InputVariant.dropdown,
@@ -288,9 +279,7 @@ class _ScheduleAppointmentFormState extends State<ScheduleAppointmentForm> {
                       : _availableTimeSlots,
                   onDropdownChanged: (value) {
                     if (value != "Select a date first") {
-                      setState(() {
-                        _selectedTimeSlot = value;
-                      });
+                      setState(() => _selectedTimeSlot = value);
                     }
                   },
                 ),
@@ -298,8 +287,7 @@ class _ScheduleAppointmentFormState extends State<ScheduleAppointmentForm> {
               const SizedBox(width: 20),
               Expanded(
                 child: InputField(
-                  controller:
-                      _reasonController, // reason controller 
+                  controller: _reasonController, 
                   hintText: "Enter reason for visit",
                   label: "Reason for visit",
                   isRequired: true,
@@ -310,20 +298,17 @@ class _ScheduleAppointmentFormState extends State<ScheduleAppointmentForm> {
 
           const SizedBox(height: 32),
 
-          // --- ACTION BUTTON ---
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               SizedBox(
                 width: 280,
                 child: Button(
-                  label:
-                      !isEditing ? "Schedule Appointment" : "Update Schedule",
+                  label: !isEditing ? "Schedule Appointment" : "Update Schedule",
                   width: double.infinity,
                   icon: !isEditing ? Icons.check : Icons.save_alt_outlined,
                   iconPlacement: IconPlacement.left,
-                  onPressed:
-                      _saveAppointment, // save function is created
+                  onPressed: _saveAppointment,
                 ),
               )
             ],

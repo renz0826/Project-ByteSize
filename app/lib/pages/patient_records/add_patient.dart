@@ -30,27 +30,21 @@ class AddPatientForm extends StatefulWidget {
 class _AddPatientFormState extends State<AddPatientForm> {
   bool get isEditing => widget.existingPatient != null;
 
-  // Name controllers
   final _firstNameController = TextEditingController();
   final _middleNameController = TextEditingController();
   final _lastNameController = TextEditingController();
   final _suffixController = TextEditingController();
-
-  // Contact controllers
   final _contactNumberController = TextEditingController(); 
   final _emergencyContactController = TextEditingController();
   final _referredByController = TextEditingController();
   final _relationshipController = TextEditingController();
   final _emergencyContactRelationshipController = TextEditingController();
-
-  // Address controllers
   final _streetController = TextEditingController();
   final _zipController = TextEditingController(); 
   final _barangayController = TextEditingController();
   final _cityController = TextEditingController();
   final _provinceController = TextEditingController();
 
-  // Dropdown state variables
   String? _selectedMonth;
   String? _selectedDay;
   String? _selectedYear;
@@ -59,7 +53,6 @@ class _AddPatientFormState extends State<AddPatientForm> {
   String? _selectedProvince;
   String? _selectedCity;
   String? _selectedBarangay;
-
   bool _isPWD = false;
 
   void _clearFormPatientRecord() { 
@@ -77,7 +70,6 @@ class _AddPatientFormState extends State<AddPatientForm> {
       _zipController.clear();
       _barangayController.clear();
       _provinceController.clear();
-
       _selectedMonth = null;
       _selectedDay = null;
       _selectedYear = null;
@@ -92,19 +84,13 @@ class _AddPatientFormState extends State<AddPatientForm> {
 
   void _handleNext() async {
     DateTime? birthDate;
-
-    if (isEditing &&
-        widget.existingPatient != null &&
-        widget.existingPatient!['birthDate'] != null) {
+    if (isEditing && widget.existingPatient != null && widget.existingPatient!['birthDate'] != null) {
       birthDate = widget.existingPatient!['birthDate'] as DateTime;
-    } else if (_selectedMonth != null &&
-        _selectedDay != null &&
-        _selectedYear != null) {
-      birthDate = DateHelper.convertToDateTime(
-          _selectedMonth!, _selectedDay!, _selectedYear!);
+    } else if (_selectedMonth != null && _selectedDay != null && _selectedYear != null) {
+      birthDate = DateHelper.convertToDateTime(_selectedMonth!, _selectedDay!, _selectedYear!);
     }
 
-    // Validation
+    // Validation & Duplicate Check
     List<String> missing = FormValidator.getMissingPatientFields(
       firstName: _firstNameController.text.trim(),
       lastName: _lastNameController.text.trim(),
@@ -122,47 +108,25 @@ class _AddPatientFormState extends State<AddPatientForm> {
     if (missing.isNotEmpty) {
       showDialog(
         context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text('Missing Information'),
-            content: Text(
-                'Please fill out the following required fields:\n\n• ${missing.join('\n• ')}'),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text('OK'),
-              ),
-            ],
-          );
-        },
+        builder: (context) => AlertDialog(
+          title: const Text('Missing Information'),
+          content: Text('Please fill out:\n• ${missing.join('\n• ')}'),
+          actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('OK'))],
+        ),
       );
       return;
     }
 
-    // Duplicate Check
     final db = AppDatabase();
     final repository = PatientRepository(db);
-    final firstName = _firstNameController.text.trim();
-    final lastName = _lastNameController.text.trim();
-    final isDuplicate = await repository.isExactDuplicate(firstName, lastName, birthDate!);
-
-    if (isDuplicate) {
-      await showDialog(
+    if (await repository.isExactDuplicate(_firstNameController.text, _lastNameController.text, birthDate!)) {
+      showDialog(
         context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text('Patient Already Exists'),
-            content: Text('A patient named "$firstName $lastName" is already in the system.'),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            actions: [
-              ElevatedButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Understood'),
-              ),
-            ],
-          );
-        },
+        builder: (context) => AlertDialog(
+          title: const Text('Patient Already Exists'),
+          content: const Text('This patient is already in the system.'),
+          actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('OK'))],
+        ),
       );
       return;
     }
@@ -211,112 +175,80 @@ class _AddPatientFormState extends State<AddPatientForm> {
         children: [
           Text("Personal Details", style: Theme.of(context).textTheme.headlineLarge),
           const SizedBox(height: 32),
-
-          // --- FRONTEND: FULL NAME ROW ---
           Text("Full Name", style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 12),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                  flex: 3,
-                  child: InputField(
-                    label: "First Name",
-                    hintText: "Enter first name",
-                    isRequired: true,
-                    controller: _firstNameController,
-                    inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]'))], 
-              )),
+              Expanded(flex: 3, child: InputField(label: "First Name", isRequired: true, controller: _firstNameController)),
               const SizedBox(width: 20),
-              Expanded(
-                  flex: 2,
-                  child: InputField(
-                    label: "Middle Name",
-                    hintText: "Enter middle name",
-                    controller: _middleNameController,
-                    inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]'))], 
-              )),
+              Expanded(flex: 2, child: InputField(label: "Middle Name", controller: _middleNameController)),
               const SizedBox(width: 20),
-              Expanded(
-                  flex: 3,
-                  child: InputField(
-                    label: "Last Name",
-                    hintText: "Enter last name",
-                    isRequired: true,
-                    controller: _lastNameController,
-                    inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s\-]'))],
-              )),
+              Expanded(flex: 3, child: InputField(label: "Last Name", isRequired: true, controller: _lastNameController)),
               const SizedBox(width: 20),
-              // TODO: @Frontend, please balance these input boxes - Fons
-              Expanded(
-                  flex: 1,
-                  child: InputField(
-                    label: "Suffix",
-                    hintText: "Enter Suffix",
-                    controller: _suffixController,
-                    inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s.]'))],
-              )),
+              Expanded(flex: 1, child: InputField(label: "Suffix", controller: _suffixController)),
             ],
           ),
-
           const SizedBox(height: 32),
-
-          // --- DEMOGRAPHIC SECTION ---
           Text("Demographic", style: Theme.of(context).textTheme.titleLarge),
           if (!isEditing) ...[
             const SizedBox(height: 12),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // 1. YEAR (Far Left)
                 Expanded(
                   child: InputField(
-                    hintText: "Select a month",
-                    label: "Month",
+                    hintText: "Select Year",
+                    label: "Year",
                     variant: InputVariant.dropdown,
-                    dropdownValue: _selectedMonth,
+                    dropdownValue: _selectedYear,
                     isRequired: true,
-                    dropdownItems: DateService.months,
+                    dropdownItems: List.generate(125, (i) => (DateTime.now().year - i).toString()),
                     onDropdownChanged: (value) {
                       setState(() {
-                        _selectedMonth = value;
+                        _selectedYear = value;
+                        _selectedMonth = null; // Reset children
                         _selectedDay = null;
                       });
                     },
                   ),
                 ),
                 const SizedBox(width: 20),
+                // 2. MONTH (Middle)
                 Expanded(
                   child: InputField(
-                    key: ValueKey(_selectedMonth),
-                    hintText: "Select a day",
-                    label: "Day",
+                    hintText: _selectedYear == null ? "Select year first" : "Select Month",
+                    label: "Month",
                     variant: InputVariant.dropdown,
-                    dropdownValue: _selectedDay,
+                    dropdownValue: _selectedMonth,
                     isRequired: true,
-                    dropdownItems: List.generate(
-                      DateService.getDaysInMonth(_selectedMonth),
-                      (index) => (index + 1).toString(),
-                    ),
+                    dropdownItems: _selectedYear == null ? [] : DateService.months,
                     onDropdownChanged: (value) {
-                      setState(() => _selectedDay = value);
+                      setState(() {
+                        _selectedMonth = value;
+                        _selectedDay = null; // Reset child
+                      });
                     },
                   ),
                 ),
                 const SizedBox(width: 20),
+                // 3. DAY (Far Right)
                 Expanded(
                   child: InputField(
-                    hintText: "Select a year",
-                    label: "Year",
+                    key: ValueKey('$_selectedYear-$_selectedMonth'), // Rebuilds when parents change
+                    hintText: _selectedMonth == null ? "Select month first" : "Select Day",
+                    label: "Day",
                     variant: InputVariant.dropdown,
-                    dropdownValue: _selectedYear,
+                    dropdownValue: _selectedDay,
                     isRequired: true,
-                    dropdownItems: List.generate(
-                      (DateTime.now().year - 1900) + 1,
-                      (index) => (DateTime.now().year - index).toString(),
-                    ),
-                    onDropdownChanged: (value) {
-                      setState(() => _selectedYear = value);
-                    },
+                    dropdownItems: (_selectedYear == null || _selectedMonth == null)
+                        ? []
+                        : List.generate(
+                            DateService.getDaysInMonth(_selectedMonth, _selectedYear),
+                            (index) => (index + 1).toString(),
+                          ),
+                    onDropdownChanged: (value) => setState(() => _selectedDay = value),
                   ),
                 ),
               ], 
@@ -326,232 +258,60 @@ class _AddPatientFormState extends State<AddPatientForm> {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: InputField(
-                  hintText: "Select a sex",
-                  label: "Sex",
-                  variant: InputVariant.dropdown,
-                  dropdownValue: _selectedSex,
-                  onDropdownChanged: (value) => setState(() => _selectedSex = value),
-                  isRequired: true,
-                  dropdownItems: const ["Male", "Female"],
-                ),
-              ),
+              Expanded(child: InputField(label: "Sex", variant: InputVariant.dropdown, dropdownValue: _selectedSex, dropdownItems: const ["Male", "Female"], isRequired: true, onDropdownChanged: (v) => setState(() => _selectedSex = v))),
               const SizedBox(width: 20),
-              Expanded(
-                child: InputField(
-                  hintText: "Select a civil status",
-                  label: "Civil Status",
-                  isRequired: true,
-                  variant: InputVariant.dropdown,
-                  dropdownValue: _selectedStatus,
-                  onDropdownChanged: (value) => setState(() => _selectedStatus = value),
-                  dropdownItems: const ["Single", "Married", "Widowed", "Annulled"],
-                ),
-              ),
+              Expanded(child: InputField(label: "Civil Status", variant: InputVariant.dropdown, dropdownValue: _selectedStatus, dropdownItems: const ["Single", "Married", "Widowed", "Annulled"], isRequired: true, onDropdownChanged: (v) => setState(() => _selectedStatus = v))),
               const SizedBox(width: 20),
-              Expanded(
-                child: RadioGroupField(
-                  label: "PWD Status",
-                  options: const ["Applicable", "Not Applicable"],
-                  selectedValue: _isPWD ? "Applicable" : "Not Applicable",
-                  onChanged: (value) => setState(() => _isPWD = value == "Applicable"),
-                ),
-              ),
+              Expanded(child: RadioGroupField(label: "PWD Status", options: const ["Applicable", "Not Applicable"], selectedValue: _isPWD ? "Applicable" : "Not Applicable", onChanged: (v) => setState(() => _isPWD = v == "Applicable"))),
             ],
           ),
-
           const SizedBox(height: 32),
-
-          // --- FRONTEND: CONTACT INFO SECTION ---
           Text("Contact Information", style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 12),
           Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                  child: InputField(
-                    label: "Mobile Number",
-                    hintText: "Enter mobile number",
-                    isRequired: true,
-                    controller: _contactNumberController,
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [
-                      FilteringTextInputFormatter.digitsOnly,
-                      LengthLimitingTextInputFormatter(11)
-                    ], 
-              )),
+              Expanded(child: InputField(label: "Mobile Number", isRequired: true, controller: _contactNumberController)),
               const SizedBox(width: 20),
-              Expanded(
-                  child: InputField(
-                    label: "Emergency Contact Number",
-                    hintText: "Enter emergency number",
-                    controller: _emergencyContactController,
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [
-                      FilteringTextInputFormatter.digitsOnly,
-                      LengthLimitingTextInputFormatter(11)
-                    ],
-              )),
-              // TODO: @Frontend, please balance these input boxes - Fons
+              Expanded(child: InputField(label: "Emergency Contact Number", controller: _emergencyContactController)),
               const SizedBox(width: 20),
-              Expanded(
-                  child: InputField(
-                    label: "Relation to Patient",
-                    hintText: "Relationship with patient",
-                    controller: _emergencyContactRelationshipController,
-                    inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]'))],
-              )),
+              Expanded(child: InputField(label: "Relation to Patient", controller: _emergencyContactRelationshipController)),
             ],
           ),
           const SizedBox(height: 20),
           Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                  child: InputField(
-                label: "Referred By",
-                hintText: "Enter referral",
-                controller: _referredByController,
-                inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]'))],
-              )),
+              Expanded(child: InputField(label: "Referred By", controller: _referredByController)),
               const SizedBox(width: 20),
-              Expanded(
-                  child: InputField(
-                label: "Relationship",
-                hintText: "Relationship with referral",
-                controller: _relationshipController,
-                inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]'))],
-              )),
+              Expanded(child: InputField(label: "Relationship", controller: _relationshipController)),
             ],
           ),
-
           const SizedBox(height: 32),
-
-          // --- ADDRESS SECTION ---
           Text("Address", style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 12),
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
+          InputField(label: "Street Address", isRequired: true, controller: _streetController),
+          const SizedBox(height: 20),
+          Row(
             children: [
-              InputField(
-                hintText: "Enter Patient Street Address",
-                label: "Street Address",
-                isRequired: true,
-                controller: _streetController,
-              ),
-              const SizedBox(height: 20),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: InputField(
-                      hintText: "Select a Province",
-                      label: "Province",
-                      isRequired: true,
-                      variant: InputVariant.dropdown,
-                      dropdownValue: _selectedProvince,
-                      dropdownItems: PhAddressService.getAllProvinceNames(),
-                      onDropdownChanged: (value) {
-                        setState(() {
-                          _selectedProvince = value;
-                          _selectedCity = null;
-                          _selectedBarangay = null;
-                        });
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: 20),
-                  Expanded(
-                    child: InputField(
-                      key: ValueKey(_selectedProvince),
-                      hintText: "Select a City/Municipality",
-                      label: "City/Municipality",
-                      isRequired: true,
-                      variant: InputVariant.dropdown,
-                      dropdownValue: _selectedCity,
-                      dropdownItems: _selectedProvince != null
-                          ? PhAddressService.getCitiesByProvince(_selectedProvince!)
-                          : [],
-                      onDropdownChanged: (value) {
-                        setState(() {
-                          _selectedCity = value;
-                          _selectedBarangay = null;
-                        });
-                      },
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: InputField(
-                      key: ValueKey(_selectedCity),
-                      hintText: "Select a Barangay",
-                      label: "Barangay",
-                      isRequired: true,
-                      variant: InputVariant.dropdown,
-                      dropdownValue: _selectedBarangay,
-                      dropdownItems: (_selectedProvince != null && _selectedCity != null)
-                          ? PhAddressService.getBarangaysByLocation(
-                              provinceName: _selectedProvince!,
-                              cityName: _selectedCity!,
-                            )
-                          : [],
-                      onDropdownChanged: (value) => setState(() => _selectedBarangay = value),
-                    ),
-                  ),
-                  const SizedBox(width: 20),
-                  Expanded(
-                    flex: 1,
-                    child: InputField(
-                      hintText: "e.g. 5000",
-                      label: "ZIP Code",
-                      isRequired: true,
-                      variant: InputVariant.primary,
-                      controller: _zipController,
-                      keyboardType: TextInputType.number,
-                      inputFormatters: [
-                        FilteringTextInputFormatter.digitsOnly,
-                        LengthLimitingTextInputFormatter(4)
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+              Expanded(child: InputField(label: "Province", variant: InputVariant.dropdown, dropdownValue: _selectedProvince, dropdownItems: PhAddressService.getAllProvinceNames(), isRequired: true, onDropdownChanged: (v) => setState(() { _selectedProvince = v; _selectedCity = null; _selectedBarangay = null; }))),
+              const SizedBox(width: 20),
+              Expanded(child: InputField(key: ValueKey(_selectedProvince), label: "City/Municipality", variant: InputVariant.dropdown, dropdownValue: _selectedCity, dropdownItems: _selectedProvince != null ? PhAddressService.getCitiesByProvince(_selectedProvince!) : [], isRequired: true, onDropdownChanged: (v) => setState(() { _selectedCity = v; _selectedBarangay = null; }))),
             ],
           ),
-
+          const SizedBox(height: 20),
+          Row(
+            children: [
+              Expanded(child: InputField(key: ValueKey(_selectedCity), label: "Barangay", variant: InputVariant.dropdown, dropdownValue: _selectedBarangay, dropdownItems: (_selectedProvince != null && _selectedCity != null) ? PhAddressService.getBarangaysByLocation(provinceName: _selectedProvince!, cityName: _selectedCity!) : [], isRequired: true, onDropdownChanged: (v) => setState(() => _selectedBarangay = v))),
+              const SizedBox(width: 20),
+              Expanded(flex: 1, child: InputField(label: "ZIP Code", isRequired: true, controller: _zipController)),
+            ],
+          ),
           const SizedBox(height: 32),
-
-          // --- ACTION BUTTONS ---
           Row(
             spacing: 16,
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              SizedBox(
-                width: 100,
-                child: Button(
-                  variant: ButtonVariant.secondary,
-                  label: "Clear",
-                  width: double.infinity,
-                  onPressed: _clearFormPatientRecord,
-                ),
-              ),
-              SizedBox(
-                width: 140,
-                child: Button(
-                  label: "Next",
-                  width: double.infinity,
-                  icon: Icons.arrow_forward,
-                  iconPlacement: IconPlacement.right,
-                  onPressed: _handleNext,
-                ),
-              )
+              SizedBox(width: 100, child: Button(variant: ButtonVariant.secondary, label: "Clear", onPressed: _clearFormPatientRecord)),
+              SizedBox(width: 140, child: Button(label: "Next", icon: Icons.arrow_forward, iconPlacement: IconPlacement.right, onPressed: _handleNext)),
             ],
           ),
         ],
