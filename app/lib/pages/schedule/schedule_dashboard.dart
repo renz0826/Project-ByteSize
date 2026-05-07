@@ -154,86 +154,92 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
   Widget build(BuildContext context) {
     return IndexedStack(
       index: _currentIndex,
-      children: [
-        // Set this as Index 0: The Main Patient Dashboard
-        Scaffold(
-          backgroundColor: AppTheme.gray200,
-          body: CustomScrollView(
-            slivers: [
-              SliverToBoxAdapter(
-                child: PageHeader(
-                  title: 'Patient Schedules',
-                  type: PageHeaderType.plain,
-                ),
-              ),
-              //search bar, filter, and table header
-              SliverPadding(
-                padding: const EdgeInsets.only(left: 24, right: 24),
-                sliver: SliverList(
-                  delegate: SliverChildListDelegate([
-                    _buildSearchBar(),
-                    const SizedBox(height: 8),
-                    _buildTableHeader(),
-                  ]),
-                ),
-              ),
-              //table rows
-              SliverPadding(
-                padding: const EdgeInsets.only(left: 24, right: 24),
-                sliver: _currentPageRecords.isEmpty
-                    ? SliverToBoxAdapter(
-                        child: _buildEmptyState(),
-                      )
-                    : SliverList(
-                        delegate: SliverChildBuilderDelegate(
-                          (context, index) =>
-                              _buildTableRow(_currentPageRecords[index]),
-                          childCount: _currentPageRecords.length,
-                        ),
-                      ),
-              ),
-              //pagination
-              SliverPadding(
-                padding: const EdgeInsets.only(
-                    left: 24, right: 24, bottom: 24, top: 16),
-                sliver: SliverToBoxAdapter(
-                  child: _filteredRecords.isEmpty
-                      ? const SizedBox.shrink()
-                      : AppPagination(
-                          currentPage: _currentPage,
-                          totalPages: _totalPages,
-                          onPageChanged: (newPage) =>
-                              setState(() => _currentPage = newPage),
-                        ),
-                ),
-              ),
-            ],
-          ),
-        ),
-
-        // Setting this as Index 1: When user clicks schedule appointment
-        SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              PageHeader(
-                title: 'Back to Schedules',
-                type: PageHeaderType.withBack,
-                onBack: _confirmReturnToDashboard,
-              ),
-              Transform.translate(
-                offset: const Offset(0, -30),
-                child: ScheduleAppointmentForm(
-                    activePatients: [],
-                    key: ValueKey(_formSessionId),
-                    onSave: _goBackToMain),
-              ),
-            ],
-          ),
-        ),
-      ],
+      children: [_buildMainDashboard(), _buildScheduleForm()],
     );
   }
+
+// Main Schedule Dashboard
+  Widget _buildMainDashboard() {
+    return // Set this as Index 0: The Main Patient Dashboard
+        Scaffold(
+      backgroundColor: AppTheme.gray200,
+      body: CustomScrollView(
+        slivers: [
+          SliverToBoxAdapter(
+            child: PageHeader(
+              title: 'Patient Schedules',
+              type: PageHeaderType.plain,
+            ),
+          ),
+          //search bar, filter, and table header
+          SliverPadding(
+            padding: const EdgeInsets.only(left: 24, right: 24),
+            sliver: SliverList(
+              delegate: SliverChildListDelegate([
+                _buildSearchBar(),
+                const SizedBox(height: 8),
+                _buildTableHeader(),
+              ]),
+            ),
+          ),
+          //table rows
+          SliverPadding(
+            padding: const EdgeInsets.only(left: 24, right: 24),
+            sliver: _currentPageRecords.isEmpty
+                ? SliverToBoxAdapter(
+                    child: _buildEmptyState(),
+                  )
+                : SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) =>
+                          _buildTableRow(_currentPageRecords[index]),
+                      childCount: _currentPageRecords.length,
+                    ),
+                  ),
+          ),
+          //pagination
+          SliverPadding(
+            padding:
+                const EdgeInsets.only(left: 24, right: 24, bottom: 24, top: 16),
+            sliver: SliverToBoxAdapter(
+              child: _filteredRecords.isEmpty
+                  ? const SizedBox.shrink()
+                  : AppPagination(
+                      currentPage: _currentPage,
+                      totalPages: _totalPages,
+                      onPageChanged: (newPage) =>
+                          setState(() => _currentPage = newPage),
+                    ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildScheduleForm() {
+    // Setting this as Index 1: When user clicks schedule appointment
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          PageHeader(
+            title: 'Back to Schedules',
+            type: PageHeaderType.withBack,
+            onBack: _confirmReturnToDashboard,
+          ),
+          Transform.translate(
+            offset: const Offset(0, -30),
+            child: ScheduleAppointmentForm(
+                activePatients: [],
+                key: ValueKey(_formSessionId),
+                onSave: _goBackToMain),
+          ),
+        ],
+      ),
+    );
+  }
+  // Schedule Form
 
   //search bar
   Widget _buildSearchBar() {
@@ -249,30 +255,6 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
                 onFilter: () {},
               ),
             ),
-            const SizedBox(width: 26),
-            SizedBox(
-              height: 48,
-              child: Theme(
-                data: Theme.of(context).copyWith(
-                  elevatedButtonTheme: ElevatedButtonThemeData(
-                    style: ElevatedButton.styleFrom(
-                      padding: EdgeInsets.zero,
-                    ),
-                  ),
-                ),
-                child: Button(
-                  label: 'Schedule an Appointment',
-                  variant: ButtonVariant.primary,
-                  heroIcon: HeroIcons.calendar,
-                  onPressed: () {
-                    setState(() {
-                      _formSessionId++;
-                    });
-                    _goToScheduleAppointment();
-                  },
-                ),
-              ),
-            )
           ],
         ),
       ],
