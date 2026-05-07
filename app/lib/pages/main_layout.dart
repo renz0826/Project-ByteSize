@@ -142,29 +142,24 @@ class _SidebarState extends State<MainLayout> {
               builder: (context, child) {
                 //logic for selecting the page
                 final pages = [
-                  (title: 'Dashboard',       screen: DashboardPage()),
+                  (title: 'Dashboard', screen: DashboardPage()),
                   (title: 'Patient Records', screen: PatientDashboard()),
-                  (title: 'Billings',        screen: BillingDashboard()),
-                  (title: 'Scheduling',      screen: ScheduleDashboard()),
+                  (title: 'Billings', screen: BillingDashboard()),
+                  (title: 'Scheduling', screen: ScheduleDashboard()),
                 ];
 
                 final index = _controller.selectedIndex;
                 // Handle out-of-range index (e.g., when no item is selected)
-                if (index >= pages.length) return const Center(child: Text('Not Found'));
+                if (index >= pages.length) {
+                  return const Center(child: Text('Not Found'));
+                }
 
                 return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  //only show the header if it's not the patient records
-                  if (_controller.selectedIndex != 1)
-                    PageHeader(
-                      title: pages[index].title,
-                      type: PageHeaderType.plain,
-                    ),
-                  
-                  Expanded(child: pages[index].screen),
-                ],
-              );
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(child: pages[index].screen),
+                  ],
+                );
               },
             ),
           ),
