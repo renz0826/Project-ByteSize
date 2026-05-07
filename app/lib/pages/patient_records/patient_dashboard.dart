@@ -434,7 +434,7 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
   // table row using real PatientData
   Widget _buildTableRow(PatientData patient) {
     return PatientRecordBar(
-      fullName: '${patient.firstName} ${patient.lastName}',
+      fullName: '${patient.lastName}, ${patient.firstName}',
       sex: patient.sex,
       age: DateHelper.calculateAge(patient.birthDate),
       address: '${patient.province ?? ''}, ${patient.cityMunicipality ?? ''}',
