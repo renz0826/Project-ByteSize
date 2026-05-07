@@ -6,13 +6,13 @@ import '/../style/theme.dart';
 import '/../widgets/search_bar.dart';
 import '/../widgets/app_pagination.dart';
 import '/../widgets/main_buttons.dart';
-import '/../widgets/filter_dropdown.dart';
 import '/../widgets/page_header.dart';
 import '/../widgets/app_info_bar.dart';
 import '../../db/database.dart';
 import '../../services/date_helper.dart';
 import '../../providers/app_providers.dart';
 import 'package:heroicons/heroicons.dart';
+import '/../widgets/calendar.dart';
 
 //main screen
 class ScheduleDashboard extends ConsumerStatefulWidget {
@@ -162,7 +162,7 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
             slivers: [
               SliverToBoxAdapter(
                 child: PageHeader(
-                  title: 'Patient Records',
+                  title: 'Patient Schedules',
                   type: PageHeaderType.plain,
                 ),
               ),
