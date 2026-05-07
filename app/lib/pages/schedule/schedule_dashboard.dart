@@ -261,9 +261,9 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
                   ),
                 ),
                 child: Button(
-                  label: 'Add New Record',
+                  label: 'Schedule an Appointment',
                   variant: ButtonVariant.primary,
-                  heroIcon: HeroIcons.documentPlus,
+                  heroIcon: HeroIcons.calendar,
                   onPressed: () {
                     setState(() {
                       _formSessionId++;
