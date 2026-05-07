@@ -11,8 +11,6 @@ import '/../widgets/app_info_bar.dart';
 import '../../db/database.dart';
 import '../../services/date_helper.dart';
 import '../../providers/app_providers.dart';
-import '../patient_records/add_patient.dart';
-import '../patient_records/add_clinical_record.dart';
 import 'package:heroicons/heroicons.dart';
 
 //main screen
