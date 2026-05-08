@@ -214,7 +214,10 @@ class _ViewPatientScreenState extends State<ViewPatientScreen> {
         SizedBox(
           width: 300, 
           child: DropdownButtonFormField<int>(
-            value: _selectedRecordId,
+            //set the value if it actually exists in the list
+            value: widget.clinicalRecords.any((r) => r.recordId == _selectedRecordId) 
+                  ? _selectedRecordId 
+                  : null,
             isExpanded: true,
             icon: HeroIcon(
               _isDropdownOpen ? HeroIcons.chevronUp : HeroIcons.chevronDown, 
