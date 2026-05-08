@@ -35,7 +35,6 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
   final _firstNameController = TextEditingController();
   final _middleNameController = TextEditingController();
   final _lastNameController = TextEditingController();
-  // final _suffixController = TextEditingController(); // Safely removed
   final _contactNumberController = TextEditingController();
   final _emergencyContactController = TextEditingController();
   final _referredByController = TextEditingController();
@@ -112,6 +111,7 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
       zipCode: _zipController.text.trim(),
     );
 
+    // TODO: @Frontend, please refactor this, thank you - Fons
     if (missing.isNotEmpty) {
       showDialog(
         context: context,
@@ -128,6 +128,9 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
       return;
     }
 
+    
+
+    // TODO: @Frontend, please refactor this, thank you - Fons
     final db = ref.read(databaseProvider);
     final repository = PatientRepository(db);
     if (await repository.isExactDuplicate(
