@@ -4,6 +4,7 @@ import 'package:dentcity_management_system/style/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:drift/drift.dart' as drift;
+import 'package:flutter/services.dart';
 import '/../widgets/main_buttons.dart';
 import '/../widgets/input_field.dart';
 import '/../widgets/radio_buttons.dart';
@@ -34,7 +35,7 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
   final _firstNameController = TextEditingController();
   final _middleNameController = TextEditingController();
   final _lastNameController = TextEditingController();
-  final _suffixController = TextEditingController();
+  // final _suffixController = TextEditingController(); // Safely removed
   final _contactNumberController = TextEditingController();
   final _emergencyContactController = TextEditingController();
   final _referredByController = TextEditingController();
@@ -46,6 +47,7 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
   final _cityController = TextEditingController();
   final _provinceController = TextEditingController();
 
+  String? _selectedSuffix;
   String? _selectedMonth;
   String? _selectedDay;
   String? _selectedYear;
@@ -61,7 +63,6 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
       _firstNameController.clear();
       _middleNameController.clear();
       _lastNameController.clear();
-      _suffixController.clear();
       _contactNumberController.clear();
       _emergencyContactController.clear();
       _referredByController.clear();
@@ -71,6 +72,7 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
       _zipController.clear();
       _barangayController.clear();
       _provinceController.clear();
+      _selectedSuffix = null;
       _selectedMonth = null;
       _selectedDay = null;
       _selectedYear = null;
@@ -149,13 +151,12 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
       firstName: _firstNameController.text.trim(),
       middleName: drift.Value(_middleNameController.text.trim()),
       lastName: _lastNameController.text.trim(),
-      suffix: drift.Value(_suffixController.text.trim()),
+      suffix: drift.Value(_selectedSuffix ?? ""), // Using dropdown value
       birthDate: birthDate,
       sex: _selectedSex!,
       civilStatus: _selectedStatus ?? "Single",
       contactNumber: _contactNumberController.text.trim(),
-      emergencyContactNo:
-          drift.Value(_emergencyContactController.text.trim()),
+      emergencyContactNo: drift.Value(_emergencyContactController.text.trim()),
       relationshipEmergency:
           drift.Value(_emergencyContactRelationshipController.text.trim()),
       referredBy: drift.Value(_referredByController.text.trim()),
@@ -200,32 +201,59 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
               Expanded(
                   flex: 3,
                   child: InputField(
-                      label: "First Name",
-                      isRequired: true,
-                      controller: _firstNameController)),
+                    label: "First Name",
+                    hintText: "Enter First Name",
+                    isRequired: true,
+                    controller: _firstNameController,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(RegExp(
+                          r'[a-zA-Z\s]')), // Added \s back to allow spaces
+                    ],
+                  )),
               const SizedBox(width: 20),
               Expanded(
                   flex: 2,
                   child: InputField(
-                      label: "Middle Name",
-                      controller: _middleNameController)),
+                    label: "Middle Name",
+                    hintText: "Enter Middle Name",
+                    controller: _middleNameController,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')),
+                    ],
+                  )),
               const SizedBox(width: 20),
               Expanded(
                   flex: 3,
                   child: InputField(
-                      label: "Last Name",
-                      isRequired: true,
-                      controller: _lastNameController)),
+                    label: "Last Name",
+                    hintText: "Enter Last Name",
+                    isRequired: true,
+                    controller: _lastNameController,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(
+                          RegExp(r'[a-zA-Z\s\-]')),
+                    ],
+                  )),
               const SizedBox(width: 20),
               Expanded(
-                  flex: 1,
-                  child: InputField(
-                      label: "Suffix", controller: _suffixController)),
-            ],
-          ),
+                flex: 1,
+                child: InputField(
+                  label: "Suffix",
+                  hintText: "Enter Suffix",
+                  variant: InputVariant.dropdown,
+                  dropdownValue: _selectedSuffix,
+                  dropdownItems: const ["Jr.", "Sr.", "II", "III", "IV", "V"],
+                  onDropdownChanged: (value) {
+                    setState(() {
+                      _selectedSuffix = value == "None" ? null : value;
+                    });
+                  },
+                ),
+              ),
+            ], // <-- Added missing closing bracket for the Row
+          ), // <-- Added missing closing parenthesis for the Row
           const SizedBox(height: 32),
-          Text("Demographic",
-              style: Theme.of(context).textTheme.titleLarge),
+          Text("Demographic", style: Theme.of(context).textTheme.titleLarge),
           if (!isEditing) ...[
             const SizedBox(height: 12),
             Row(
@@ -253,7 +281,7 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
                 Expanded(
                   child: InputField(
                     hintText: _selectedYear == null
-                        ? "Select year first"
+                        ? "Select a year first"
                         : "Select Month",
                     label: "Month",
                     variant: InputVariant.dropdown,
@@ -274,20 +302,20 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
                   child: InputField(
                     key: ValueKey('$_selectedYear-$_selectedMonth'),
                     hintText: _selectedMonth == null
-                        ? "Select month first"
+                        ? "Select a month first"
                         : "Select Day",
                     label: "Day",
                     variant: InputVariant.dropdown,
                     dropdownValue: _selectedDay,
                     isRequired: true,
-                    dropdownItems: (_selectedYear == null ||
-                            _selectedMonth == null)
-                        ? []
-                        : List.generate(
-                            DateService.getDaysInMonth(
-                                _selectedMonth, _selectedYear),
-                            (index) => (index + 1).toString(),
-                          ),
+                    dropdownItems:
+                        (_selectedYear == null || _selectedMonth == null)
+                            ? []
+                            : List.generate(
+                                DateService.getDaysInMonth(
+                                    _selectedMonth, _selectedYear),
+                                (index) => (index + 1).toString(),
+                              ),
                     onDropdownChanged: (value) =>
                         setState(() => _selectedDay = value),
                   ),
@@ -328,8 +356,7 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
                   child: RadioGroupField(
                       label: "PWD Status",
                       options: const ["Applicable", "Not Applicable"],
-                      selectedValue:
-                          _isPWD ? "Applicable" : "Not Applicable",
+                      selectedValue: _isPWD ? "Applicable" : "Not Applicable",
                       onChanged: (v) =>
                           setState(() => _isPWD = v == "Applicable"))),
             ],
@@ -342,20 +369,36 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
             children: [
               Expanded(
                   child: InputField(
-                      label: "Mobile Number",
-                      isRequired: true,
-                      controller: _contactNumberController)),
+                label: "Mobile Number",
+                isRequired: true,
+                hintText: "Enter Mobile Number",
+                controller: _contactNumberController,
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                  LengthLimitingTextInputFormatter(11),
+                ],
+              )),
               const SizedBox(width: 20),
               Expanded(
                   child: InputField(
-                      label: "Emergency Contact Number",
-                      controller: _emergencyContactController)),
+                label: "Emergency Contact Number",
+                hintText: "Enter Emergency Contact Number",
+                controller: _emergencyContactController,
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                  LengthLimitingTextInputFormatter(11),
+                ],
+              )),
               const SizedBox(width: 20),
               Expanded(
                   child: InputField(
-                      label: "Relation to Patient",
-                      controller:
-                          _emergencyContactRelationshipController)),
+                label: "Relation to Patient",
+                hintText: "Enter Relation to Parent",
+                controller: _emergencyContactRelationshipController,
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]'))
+                ],
+              )),
             ],
           ),
           const SizedBox(height: 20),
@@ -363,13 +406,23 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
             children: [
               Expanded(
                   child: InputField(
-                      label: "Referred By",
-                      controller: _referredByController)),
+                label: "Referred By",
+                hintText: "Enter Referred By",
+                controller: _referredByController,
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]'))
+                ],
+              )),
               const SizedBox(width: 20),
               Expanded(
                   child: InputField(
-                      label: "Relationship",
-                      controller: _relationshipController)),
+                label: "Relationship",
+                hintText: "Enter Referred Relationship",
+                controller: _relationshipController,
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]'))
+                ],
+              )),
             ],
           ),
           const SizedBox(height: 32),
@@ -377,6 +430,7 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
           const SizedBox(height: 12),
           InputField(
               label: "Street Address",
+              hintText: "Enter Street Address",
               isRequired: true,
               controller: _streetController),
           const SizedBox(height: 20),
@@ -421,12 +475,12 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
                       label: "Barangay",
                       variant: InputVariant.dropdown,
                       dropdownValue: _selectedBarangay,
-                      dropdownItems: (_selectedProvince != null &&
-                              _selectedCity != null)
-                          ? PhAddressService.getBarangaysByLocation(
-                              provinceName: _selectedProvince!,
-                              cityName: _selectedCity!)
-                          : [],
+                      dropdownItems:
+                          (_selectedProvince != null && _selectedCity != null)
+                              ? PhAddressService.getBarangaysByLocation(
+                                  provinceName: _selectedProvince!,
+                                  cityName: _selectedCity!)
+                              : [],
                       isRequired: true,
                       onDropdownChanged: (v) =>
                           setState(() => _selectedBarangay = v))),
@@ -434,30 +488,44 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
               Expanded(
                   flex: 1,
                   child: InputField(
-                      label: "ZIP Code",
-                      isRequired: true,
-                      controller: _zipController)),
+                    label: "ZIP Code",
+                    hintText: "Enter ZIP Code",
+                    isRequired: true,
+                    controller: _zipController,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                      LengthLimitingTextInputFormatter(4),
+                    ],
+                  )),
             ],
           ),
           const SizedBox(height: 32),
-          Row(
-            spacing: 16,
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              SizedBox(
+          Align(
+            alignment: Alignment
+                .centerRight, 
+            child: Wrap(
+              spacing: 16,
+              runSpacing: 16,
+              alignment: WrapAlignment
+                  .end, 
+              children: [
+                SizedBox(
                   width: 100,
                   child: Button(
                       variant: ButtonVariant.secondary,
                       label: "Clear",
-                      onPressed: _clearFormPatientRecord)),
-              SizedBox(
+                      onPressed: _clearFormPatientRecord),
+                ),
+                SizedBox(
                   width: 140,
                   child: Button(
                       label: "Next",
                       icon: Icons.arrow_forward,
                       iconPlacement: IconPlacement.right,
-                      onPressed: _handleNext)),
-            ],
+                      onPressed: _handleNext),
+                ),
+              ],
+            ),
           ),
         ],
       ),
