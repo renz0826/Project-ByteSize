@@ -45,24 +45,22 @@ class _AddClinicalRecordFormState extends State<AddClinicalRecordForm> {
 // Clinical Notes
   final _clinicalNotesController = TextEditingController();
 
-  void _clearFormforClinicalRecord() {
-    // clear these text fields onClick
+  void _clearFormforClinicalRecord() { // clear these text fields onClick
     setState(() {
-      // 1. Clear Medical Background & Notes
+      // Clear Medical Background & Notes
       _pastIllnessController.clear();
       _presentIllnessController.clear();
       _allergiesController.clear();
       _medicationController.clear();
       _clinicalNotesController.clear();
 
-      // 2. Reset Treatment Procedures (Booleans)
+      // Reset Treatment Procedures (Booleans)
       _hasDebris = false;
       _hasCalculus = false;
       _hasGingivitis = false;
       _hasPeriodontalPocket = false;
       _hasDentofacialAnomaly = false;
 
-      // 3. Reset Tooth Counts (Integers)
       _cariesFilling = 0;
       _cariesExtraction = 0;
       _missingDueToCaries = 0;

@@ -47,19 +47,19 @@ class PageHeader extends StatelessWidget {
   });
 
   BoxDecoration get _containerDecoration => BoxDecoration(
-  color: AppTheme.white500,
-  borderRadius: const BorderRadius.only(
-    topLeft: Radius.circular(24),     
-    bottomLeft: Radius.circular(24),
-  ),
-  boxShadow: AppTheme.floatShadow,
-);
+        color: AppTheme.white500,
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(24),
+          bottomLeft: Radius.circular(24),
+        ),
+        boxShadow: AppTheme.floatShadow,
+      );
 
   @override
   Widget build(BuildContext context) {
     if (type == PageHeaderType.plain) {
       return Container(
-        height: 108,  
+        height: 108,
         margin: const EdgeInsets.only(left: 24, bottom: 40),
         padding: const EdgeInsets.only(left: 32),
         decoration: _containerDecoration,
@@ -68,14 +68,14 @@ class PageHeader extends StatelessWidget {
           child: Text(
             title,
             style: GoogleFonts.beVietnamPro(
-            fontSize: 20,
-            fontWeight: FontWeight.w700, 
-            color: AppTheme.black500,
-            letterSpacing: 0.2,
-          ),
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
+              color: AppTheme.black500,
+              letterSpacing: 0.2,
+            ),
           ),
         ),
-        );
+      );
     }
 
     // withBack
@@ -88,28 +88,33 @@ class PageHeader extends StatelessWidget {
         mainAxisSize: MainAxisSize.max,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          IntrinsicWidth(
+          Flexible(
             child: MouseRegion(
-            cursor: SystemMouseCursors.click,
-            child: GestureDetector(
-            behavior: HitTestBehavior.opaque, //to make the padding also clickable
-            onTap: onBack ?? () => Navigator.of(context).pop(),
-          child: Row(
-            children: [
-              const Icon(Icons.arrow_back_rounded, color: AppTheme.black500, size: 32),
-              const SizedBox(width: 12),
-              Text(
-              title,
-              style: GoogleFonts.beVietnamPro(
-              fontSize: 20,
-              fontWeight: FontWeight.w700, 
-              color: AppTheme.black500,
-              letterSpacing: 0.2,
-            ),
-            ),
-            ],
-            ),
-            ),
+              cursor: SystemMouseCursors.click,
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque, 
+                onTap: onBack ?? () => Navigator.of(context).pop(),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min, 
+                  children: [
+                    const Icon(Icons.arrow_back_rounded,
+                        color: AppTheme.black500, size: 32),
+                    const SizedBox(width: 12),
+                    Flexible(
+                      child: Text(
+                        title,
+                        style: GoogleFonts.beVietnamPro(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w700,
+                          color: AppTheme.black500,
+                          letterSpacing: 0.2,
+                        ),
+                        overflow: TextOverflow.ellipsis, 
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
         ],

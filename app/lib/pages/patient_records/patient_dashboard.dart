@@ -350,11 +350,11 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
                   switch (value) {
                     case 'Name (A-Z)':
                       _filteredRecords
-                          .sort((a, b) => a.firstName.compareTo(b.firstName));
+                          .sort((a, b) => a.firstName.compareTo(b.lastName));
                       break;
                     case 'Name (Z-A)':
                       _filteredRecords
-                          .sort((a, b) => b.firstName.compareTo(a.firstName));
+                          .sort((a, b) => b.firstName.compareTo(a.lastName));
                       break;
                     case 'Oldest First':
                       _filteredRecords
