@@ -19,6 +19,7 @@ class InputField extends StatelessWidget {
   final bool isRequired;
   final bool isHidden;
   final Widget? suffixIcon;
+  final Function(String)? onChanged;
 
   // Props for standard text input
   final TextEditingController? controller;
@@ -59,8 +60,7 @@ class InputField extends StatelessWidget {
       this.counterMin = 0, // Prevents negative numbers by default
       this.counterMax = 100,
       this.isHidden = false,
-      this.isRequired = false,
-      this.suffixIcon});
+      this.isRequired = false});
 
   @override
   Widget build(BuildContext context) {
