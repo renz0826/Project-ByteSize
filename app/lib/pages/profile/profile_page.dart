@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../../style/theme.dart';
 import '../../widgets/page_header.dart';
 import '../../widgets/input_field.dart'; 
+import '../../widgets/main_buttons.dart'; 
+import 'package:heroicons/heroicons.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -106,6 +108,17 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
 
                     const SizedBox(height: 32),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: Button(
+                        label: "Update Profile",
+                        variant: ButtonVariant.primary,
+                        heroIcon: HeroIcons.check,
+                        onPressed: () {
+                          // TO DO: Link to Database
+                        },
+                      )
+                    )
                   ],
                 ),
                 const SizedBox(height: 32),
