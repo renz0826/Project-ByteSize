@@ -63,6 +63,7 @@ class PatientRepository {
     return results.isNotEmpty; 
   }
 
+
   // Gets all non-archived patients to be listed on all the major functionalites
 Future<List<PatientData>> getActivePatients() =>
     (db.select(db.patient)
