@@ -11,6 +11,19 @@ import '../../db/database.dart';
 import '../../db/database_provider.dart';
 import '../../repositories/invoice_repository.dart';
 import 'newBill_form.dart';
+
+class BillingDashboard extends ConsumerStatefulWidget {
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '/../style/theme.dart';
+import '/../widgets/search_bar.dart';
+import '/../widgets/app_pagination.dart';
+import '/../widgets/main_buttons.dart';
+import '/../widgets/page_header.dart';
+import 'package:heroicons/heroicons.dart';
+import '../../db/database.dart';
+import '../../db/database_provider.dart';
+import '../../repositories/invoice_repository.dart';
+import 'newBill_form.dart';
 import 'process_payment.dart';
 import '../../providers/auth_provider.dart'; 
 import 'package:flutter/services.dart';
