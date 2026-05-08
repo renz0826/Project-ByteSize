@@ -39,7 +39,9 @@ class _ProfilePageState extends State<ProfilePage> {
         children: [
           Text(
             title,
-            style: AppTheme.textTheme.headlineLarge,
+            style: AppTheme.textTheme.headlineLarge?.copyWith(
+              fontWeight: FontWeight.w500
+            ),
           ),
           const SizedBox(height: 32),
           ...children,
@@ -62,16 +64,29 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
           ),
 
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(40.0),
-              child: Column(
-                children: const [
-                   Text("Hello"),
-                ],
-              ),
+          // Content Section
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 24),
+            sliver: SliverList(
+              delegate: SliverChildListDelegate([
+                // Personal Info Card
+                _buildSectionCard(
+                  title: "Personal Information", 
+                  children: [
+                    const Text (""), 
+                  ],
+                ),
+                const SizedBox(height: 32),
+                // Security Card
+                _buildSectionCard(
+                  title: "Security and Access", 
+                  children: [
+                    const Text (""),
+                  ],
+                )
+              ])
             ),
-          ),
+          )
         ],
       ),
     );
