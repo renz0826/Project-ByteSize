@@ -1,3 +1,4 @@
+import 'package:dentcity_management_system/db/tables.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:heroicons/heroicons.dart';
@@ -12,7 +13,7 @@ import '/../db/database.dart';
 //     onBack: () { ... },           // callback to return to main dashboard
 //   )
 
-class ViewPatientScreen extends StatelessWidget {
+class ViewPatientScreen extends StatefulWidget {
   final PatientData patient;
   final List<ClinicalRecordData> clinicalRecords;
   final VoidCallback onBack;
@@ -23,6 +24,27 @@ class ViewPatientScreen extends StatelessWidget {
     required this.clinicalRecords,
     required this.onBack,
   });
+
+  @override
+  State<ViewPatientScreen> createState() => _ViewPatientScreenState();
+}
+
+class _ViewPatientScreenState extends State<ViewPatientScreen> {
+  // ClinicalRecordData? _selectedRecord; // currently displayed record
+  bool _isDropdownOpen = false;
+  int? _selectedRecordId;
+
+  ClinicalRecordData? get _selectedRecord => 
+  widget.clinicalRecords.where((r) => r.recordId == _selectedRecordId).firstOrNull;
+
+  @override
+  void initState() {
+    super.initState();
+    // default is the most recent record
+    if (widget.clinicalRecords.isNotEmpty) {
+      _selectedRecordId = widget.clinicalRecords.first.recordId;
+    }
+  }
 
   //date helpers
   String _formatDate(DateTime date) => DateFormat('MMMM d, y').format(date);
@@ -55,18 +77,11 @@ class ViewPatientScreen extends StatelessWidget {
           _buildPersonalDetailsCard(context),
           const SizedBox(height: 16),
 
-          //clinical record
-          if (clinicalRecords.isEmpty)
+          //clinical record that only shows if there are records
+          if (widget.clinicalRecords.isEmpty)
             _buildNoClinicalRecordCard(context)
           else
-            ...clinicalRecords.map(
-              (record) => Column(
-                children: [
-                  _buildClinicalRecordCard(context, record),
-                  const SizedBox(height: 16),
-                ],
-              ),
-            ),
+            _buildClinicalRecordCard(context),
 
           const SizedBox(height: 32),
         ],
@@ -77,7 +92,7 @@ class ViewPatientScreen extends StatelessWidget {
   // name header 
   Widget _buildNameHeader(BuildContext context) {
     final fullName =
-        '${patient.firstName} ${patient.middleName ?? ''} ${patient.lastName}'
+        '${widget.patient.firstName} ${widget.patient.middleName ?? ''} ${widget.patient.lastName}'
             .trim();
 
     return Container(
@@ -124,14 +139,14 @@ class ViewPatientScreen extends StatelessWidget {
             children: [
               _InfoBlock(
                 label: 'Date of Birth',
-                value: _formatDate(patient.birthDate),
+                value: _formatDate(widget.patient.birthDate),
               ),
               _InfoBlock(
                 label: 'Age',
-                value: '${_calculateAge(patient.birthDate)}',
+                value: '${_calculateAge(widget.patient.birthDate)}',
               ),
-              _InfoBlock(label: 'Sex', value: patient.sex),
-              _InfoBlock(label: 'Civil Status', value: patient.civilStatus),
+              _InfoBlock(label: 'Sex', value: widget.patient.sex),
+              _InfoBlock(label: 'Civil Status', value: widget.patient.civilStatus),
             ],
           ),
           const SizedBox(height: 24),
@@ -141,11 +156,11 @@ class ViewPatientScreen extends StatelessWidget {
             children: [
               _InfoBlock(
                 label: 'Phone No.',
-                value: patient.contactNumber,
+                value: widget.patient.contactNumber,
               ),
               _InfoBlock(
                 label: 'Emergency Contact No.',
-                value: patient.emergencyContactNo ?? '—',
+                value: widget.patient.emergencyContactNo ?? '—',
               ),
               //TODO: remove comment once defined in db 
               // _InfoBlock(
@@ -161,11 +176,11 @@ class ViewPatientScreen extends StatelessWidget {
             children: [
               _InfoBlock(
                 label: 'Referred By',
-                value: patient.referredBy ?? '—',
+                value:widget. patient.referredBy ?? '—',
               ),
               _InfoBlock(
                 label: 'Relationship',
-                value: patient.relationship ?? '—',
+                value: widget.patient.relationship ?? '—',
               ),
             ],
           ),
@@ -175,7 +190,7 @@ class ViewPatientScreen extends StatelessWidget {
           _InfoBlock(
             label: 'Address',
             value:
-                '${patient.streetAddress}, ${patient.barangay}, ${patient.cityMunicipality}, ${patient.province} ${patient.zipCode}',
+                '${widget.patient.streetAddress}, ${widget.patient.barangay}, ${widget.patient.cityMunicipality}, ${widget.patient.province} ${widget.patient.zipCode}',
             flex: 0, //takes natural width
           ),
           const SizedBox(height: 24),
@@ -185,32 +200,77 @@ class ViewPatientScreen extends StatelessWidget {
   }
 
   // clinical record card 
-  Widget _buildClinicalRecordCard(
-      BuildContext context, ClinicalRecordData record) {
+  Widget _buildClinicalRecordCard(BuildContext context) {
     return _BaseCard(
       title: 'Clinical Record',
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Appointment Schedule dropdown (read-only)
-          _buildLabel(context, 'Appointment Schedule'),
-          const SizedBox(height: 8),
-          _buildFakeDropdown(_formatAppointment(record.createdAt)),
+          // Appointment Schedule dropdown 
+          Text('Appointment Schedule',
+            style: AppTheme.textTheme.bodySmall?.copyWith(color: AppTheme.gray500)),
+        const SizedBox(height: 8),
+          
+        SizedBox(
+          width: 300, 
+          child: DropdownButtonFormField<int>(
+            value: _selectedRecordId,
+            isExpanded: true,
+            icon: HeroIcon(
+              _isDropdownOpen ? HeroIcons.chevronUp : HeroIcons.chevronDown, 
+              size: 18,
+              color: AppTheme.gray500,
+            ),
+            decoration: InputDecoration(
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: const BorderSide(color: AppTheme.gray400),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: const BorderSide(color: AppTheme.gray400, width: 1.5),
+              ),
+              filled: true,
+              fillColor: AppTheme.white500,
+            ),
+            items: widget.clinicalRecords.map((record) {
+              return DropdownMenuItem<int>(
+                value: record.recordId,
+                child: Text(
+                  _formatAppointment(record.createdAt),
+                  style: AppTheme.textTheme.bodySmall?.copyWith(
+                    color: AppTheme.black500,
+                  ),
+                ),
+              );
+            }).toList(),
+            onTap: () => setState(() =>_isDropdownOpen = true),  
+            onChanged: (selected) {
+              setState(() {
+                _selectedRecordId = selected;
+                _isDropdownOpen = false; 
+              });
+            },
+          ),
+        ),
           const SizedBox(height: 24),
 
-          // medical background
-          Text('Medical Background',
+          // show clinical data only if a record is selected
+          if (_selectedRecord != null) ...[
+            Text('Medical Background',
               style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 18),
           Row(
             children: [
               _InfoBlock(
                 label: 'Past Illnesses',
-                value: record.pastIllness ?? 'None',
+                value: _selectedRecord!.pastIllness ?? 'None',
               ),
               _InfoBlock(
                 label: 'Present Illnesses',
-                value: record.presentIllness ?? 'None',
+                value: _selectedRecord!.presentIllness ?? 'None',
               ),
             ],
           ),
@@ -219,11 +279,11 @@ class ViewPatientScreen extends StatelessWidget {
             children: [
               _InfoBlock(
                 label: 'Allergies',
-                value: record.allergies ?? 'None',
+                value: _selectedRecord!.allergies ?? 'None',
               ),
               _InfoBlock(
                 label: 'Current Medication',
-                value: record.currentMedication ?? 'None',
+                value: _selectedRecord!.currentMedication ?? 'None',
               ),
             ],
           ),
@@ -239,18 +299,18 @@ class ViewPatientScreen extends StatelessWidget {
             children: [
               _InfoBlock(
                 label: 'Presence of Oral Debris',
-                value: record.hasOralDebris ? 'Present' : 'None',
-                isAlert: record.hasOralDebris,
+                value: _selectedRecord!.hasOralDebris ? 'Present' : 'None',
+                isAlert: _selectedRecord!.hasOralDebris,
               ),
               _InfoBlock(
                 label: 'Presence of Calculus',
-                value: record.hasCalculus ? 'Present' : 'None',
-                isAlert: record.hasCalculus,
+                value: _selectedRecord!.hasCalculus ? 'Present' : 'None',
+                isAlert: _selectedRecord!.hasCalculus,
               ),
               _InfoBlock(
                 label: 'Presence of Gingivitis',
-                value: record.hasGingivitis ? 'Present' : 'None',
-                isAlert: record.hasGingivitis,
+                value: _selectedRecord!.hasGingivitis ? 'Present' : 'None',
+                isAlert: _selectedRecord!.hasGingivitis,
               ),
             ],
           ),
@@ -261,13 +321,13 @@ class ViewPatientScreen extends StatelessWidget {
             children: [
               _InfoBlock(
                 label: 'Presence of Periodontal Pocket',
-                value: record.hasPeriodontalPocket ? 'Present' : 'None',
-                isAlert: record.hasPeriodontalPocket,
+                value: _selectedRecord!.hasPeriodontalPocket ? 'Present' : 'None',
+                isAlert: _selectedRecord!.hasPeriodontalPocket,
               ),
               _InfoBlock(
                 label: 'Presence of Dentofacial Anomaly',
-                value: record.hasDentofacialAnomaly ? 'Present' : 'None',
-                isAlert: record.hasDentofacialAnomaly,
+                value: _selectedRecord!.hasDentofacialAnomaly ? 'Present' : 'None',
+                isAlert: _selectedRecord!.hasDentofacialAnomaly,
               ),
               const Expanded(child: SizedBox()), // balance the row
             ],
@@ -283,24 +343,24 @@ class ViewPatientScreen extends StatelessWidget {
             children: [
               _InfoBlock(
                 label: 'Carries Indicated for Filling',
-                value: record.cariesForFilling > 0
-                    ? '${record.cariesForFilling}'
+                value: _selectedRecord!.cariesForFilling > 0
+                    ? '${_selectedRecord!.cariesForFilling}'
                     : 'None',
-                isAlert: record.cariesForFilling > 0,
+                isAlert: _selectedRecord!.cariesForFilling > 0,
               ),
               _InfoBlock(
                 label: 'Carries Indicated for Extraction',
-                value: record.cariesForExtraction > 0
-                    ? '${record.cariesForExtraction}'
+                value: _selectedRecord!.cariesForExtraction > 0
+                    ? '${_selectedRecord!.cariesForExtraction}'
                     : 'None',
-                isAlert: record.cariesForExtraction > 0,
+                isAlert: _selectedRecord!.cariesForExtraction > 0,
               ),
               _InfoBlock(
                 label: 'Root Fragment',
-                value: record.rootFragment > 0
-                    ? '${record.rootFragment}'
+                value: _selectedRecord!.rootFragment > 0
+                    ? '${_selectedRecord!.rootFragment}'
                     : 'None',
-                isAlert: record.rootFragment > 0,
+                isAlert: _selectedRecord!.rootFragment > 0,
               ),
             ],
           ),
@@ -311,15 +371,15 @@ class ViewPatientScreen extends StatelessWidget {
             children: [
               _InfoBlock(
                 label: 'Missing Due to Carries',
-                value: record.missingDueToCaries > 0
-                    ? '${record.missingDueToCaries}'
+                value: _selectedRecord!.missingDueToCaries > 0
+                    ? '${_selectedRecord!.missingDueToCaries}'
                     : 'None',
-                isAlert: record.missingDueToCaries > 0,
+                isAlert: _selectedRecord!.missingDueToCaries > 0,
               ),
               _InfoBlock(
                 label: 'Filled or Restored',
-                value: record.filledOrRestored > 0
-                    ? '${record.filledOrRestored}'
+                value: _selectedRecord!.filledOrRestored > 0
+                    ? '${_selectedRecord!.filledOrRestored}'
                     : 'None',
               ),
               const Expanded(child: SizedBox()), // balance the row
@@ -337,13 +397,14 @@ class ViewPatientScreen extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            record.clinicalNotes ?? 'No notes provided.',
+            _selectedRecord!.clinicalNotes ?? 'No notes provided.',
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   color: AppTheme.black500,
                   height: 1.6,
                 ),
           ),
         ],
+      ],
       ),
     );
   }
@@ -368,35 +429,6 @@ class ViewPatientScreen extends StatelessWidget {
     ),
   );
 }
-
-  //read-only dropdown display 
-  //TODO: not sure how to do this pa
-  Widget _buildFakeDropdown(String text) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: BoxDecoration(
-        border: Border.all(color: AppTheme.gray400),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            text,
-            style: AppTheme.textTheme.bodySmall?.copyWith(
-              color: AppTheme.black500,
-            ),
-          ),
-          const SizedBox(width: 8),
-          const HeroIcon(
-            HeroIcons.chevronDown,
-            size: 16,
-            color: AppTheme.gray500,
-          ),
-        ],
-      ),
-    );
-  }
 }
 
 //shared menu item widget from app info bar
