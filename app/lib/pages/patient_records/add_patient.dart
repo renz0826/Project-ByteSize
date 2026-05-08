@@ -281,7 +281,7 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
                 Expanded(
                   child: InputField(
                     hintText: _selectedYear == null
-                        ? "Select a year first"
+                        ? "Select a Year first"
                         : "Select Month",
                     label: "Month",
                     variant: InputVariant.dropdown,
@@ -302,7 +302,7 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
                   child: InputField(
                     key: ValueKey('$_selectedYear-$_selectedMonth'),
                     hintText: _selectedMonth == null
-                        ? "Select a month first"
+                        ? "Select a Month first"
                         : "Select Day",
                     label: "Day",
                     variant: InputVariant.dropdown,
@@ -439,6 +439,7 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
               Expanded(
                   child: InputField(
                       label: "Province",
+                      hintText: "Select A Province",
                       variant: InputVariant.dropdown,
                       dropdownValue: _selectedProvince,
                       dropdownItems: PhAddressService.getAllProvinceNames(),
@@ -453,6 +454,9 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
                   child: InputField(
                       key: ValueKey(_selectedProvince),
                       label: "City/Municipality",
+                      hintText: _selectedProvince == null
+                      ? "Select A Province First"
+                      : "Select A City",
                       variant: InputVariant.dropdown,
                       dropdownValue: _selectedCity,
                       dropdownItems: _selectedProvince != null
@@ -473,6 +477,9 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
                   child: InputField(
                       key: ValueKey(_selectedCity),
                       label: "Barangay",
+                      hintText: _selectedCity == null
+                      ? "Select a city first"
+                      : "Select a Barangay",
                       variant: InputVariant.dropdown,
                       dropdownValue: _selectedBarangay,
                       dropdownItems:
