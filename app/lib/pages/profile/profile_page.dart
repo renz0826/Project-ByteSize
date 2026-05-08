@@ -10,6 +10,44 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+  // Initialize with the user's current data
+  final _firstNameController = TextEditingController(text: "Reynaldo");
+  final _middleNameController = TextEditingController();
+  final _lastNameController = TextEditingController(text: "Tu");
+
+  @override
+  void dispose() {
+    // Clean up controllers when the page is closed
+    _firstNameController.dispose();
+    _middleNameController.dispose();
+    _lastNameController.dispose();
+    super.dispose();
+  }
+  
+  // Reusable card 
+  Widget _buildSectionCard({required String title, required List<Widget> children}) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(32),
+      decoration: BoxDecoration(
+        color: AppTheme.white500, // From your theme.dart
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: AppTheme.floatShadow, // The soft shadow you defined
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: AppTheme.textTheme.headlineLarge,
+          ),
+          const SizedBox(height: 32),
+          ...children,
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
