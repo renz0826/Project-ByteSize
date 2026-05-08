@@ -7,6 +7,7 @@ import 'package:drift/drift.dart' as drift;
 import '/../widgets/main_buttons.dart';
 import '/../widgets/input_field.dart';
 import '/../widgets/radio_buttons.dart';
+import '../../widgets/missing_info_dialog.dart';
 import '../../services/locations_ph.dart';
 import '../../services/date_service.dart';
 import '../../services/date_helper.dart';
@@ -110,19 +111,8 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
       zipCode: _zipController.text.trim(),
     );
 
-    if (missing.isNotEmpty) {
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Missing Information'),
-          content: Text('Please fill out:\n• ${missing.join('\n• ')}'),
-          actions: [
-            TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('OK'))
-          ],
-        ),
-      );
+  if (missing.isNotEmpty) {
+      MissingInfoDialog.show(context, missing);
       return;
     }
 
