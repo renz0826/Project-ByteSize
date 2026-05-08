@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../style/theme.dart';
 import '../../widgets/page_header.dart';
+import '../../widgets/input_field.dart'; 
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -73,7 +74,38 @@ class _ProfilePageState extends State<ProfilePage> {
                 _buildSectionCard(
                   title: "Personal Information", 
                   children: [
-                    const Text (""), 
+                    Text ("Update Full Name",
+                    style: AppTheme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500)
+                    ),
+                    const SizedBox(height: 24),
+
+                    Row(
+                      children: [
+                        // Expanded for equal length
+                        Expanded(
+                          child: InputField(
+                            label: "First Name",
+                            controller: _firstNameController,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: InputField(
+                            label: "Middle Name",
+                            controller: _middleNameController,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: InputField(
+                            label: "Last Name",
+                            controller: _lastNameController,
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 32),
                   ],
                 ),
                 const SizedBox(height: 32),
