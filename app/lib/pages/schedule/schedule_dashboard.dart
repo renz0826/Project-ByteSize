@@ -457,6 +457,23 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
           date: appointment['date'],
           time: appointment['time'],
           procedure: appointment['reason'],
+
+          // Makes the menu popup functional
+          onMenuSelected: (String actionValue) {
+            setState(() {
+              _selectedAppointment = appointment;
+            });
+
+            switch (actionValue) {
+              case 'view_appointment':
+                setState(() => _currentIndex = 2);
+              case 'edit_appointment':
+                _goToEditAppointment();
+                break;
+              case 'cancel_appointment':
+              // TODO: Make this functional
+            }
+          },
         ),
       ),
     );
