@@ -363,8 +363,8 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
           Transform.translate(
               offset: const Offset(0, -30),
               child: ViewAppointment(
-                appointmentData: _selectedAppointment,
-              )),
+                  appointmentData: _selectedAppointment,
+                  onEdit: _goToEditAppointment)),
         ],
       ),
     );
