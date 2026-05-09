@@ -36,6 +36,11 @@ class $PatientTable extends Patient with TableInfo<$PatientTable, PatientData> {
   late final GeneratedColumn<String> lastName = GeneratedColumn<String>(
       'last_name', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _suffixMeta = const VerificationMeta('suffix');
+  @override
+  late final GeneratedColumn<String> suffix = GeneratedColumn<String>(
+      'suffix', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _birthDateMeta =
       const VerificationMeta('birthDate');
   @override
@@ -62,7 +67,7 @@ class $PatientTable extends Patient with TableInfo<$PatientTable, PatientData> {
   late final GeneratedColumn<String> contactNumber = GeneratedColumn<String>(
       'contact_number', aliasedName, false,
       additionalChecks:
-          GeneratedColumn.checkTextLength(minTextLength: 10, maxTextLength: 11),
+          GeneratedColumn.checkTextLength(minTextLength: 11, maxTextLength: 11),
       type: DriftSqlType.string,
       requiredDuringInsert: true);
   static const VerificationMeta _emergencyContactNoMeta =
@@ -83,6 +88,12 @@ class $PatientTable extends Patient with TableInfo<$PatientTable, PatientData> {
   late final GeneratedColumn<String> relationship = GeneratedColumn<String>(
       'relationship', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _relationshipEmergencyMeta =
+      const VerificationMeta('relationshipEmergency');
+  @override
+  late final GeneratedColumn<String> relationshipEmergency =
+      GeneratedColumn<String>('relationship_emergency', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _streetAddressMeta =
       const VerificationMeta('streetAddress');
   @override
@@ -151,6 +162,7 @@ class $PatientTable extends Patient with TableInfo<$PatientTable, PatientData> {
         firstName,
         middleName,
         lastName,
+        suffix,
         birthDate,
         sex,
         civilStatus,
@@ -158,6 +170,7 @@ class $PatientTable extends Patient with TableInfo<$PatientTable, PatientData> {
         emergencyContactNo,
         referredBy,
         relationship,
+        relationshipEmergency,
         streetAddress,
         barangay,
         cityMunicipality,
@@ -199,6 +212,10 @@ class $PatientTable extends Patient with TableInfo<$PatientTable, PatientData> {
           lastName.isAcceptableOrUnknown(data['last_name']!, _lastNameMeta));
     } else if (isInserting) {
       context.missing(_lastNameMeta);
+    }
+    if (data.containsKey('suffix')) {
+      context.handle(_suffixMeta,
+          suffix.isAcceptableOrUnknown(data['suffix']!, _suffixMeta));
     }
     if (data.containsKey('birth_date')) {
       context.handle(_birthDateMeta,
@@ -245,6 +262,12 @@ class $PatientTable extends Patient with TableInfo<$PatientTable, PatientData> {
           _relationshipMeta,
           relationship.isAcceptableOrUnknown(
               data['relationship']!, _relationshipMeta));
+    }
+    if (data.containsKey('relationship_emergency')) {
+      context.handle(
+          _relationshipEmergencyMeta,
+          relationshipEmergency.isAcceptableOrUnknown(
+              data['relationship_emergency']!, _relationshipEmergencyMeta));
     }
     if (data.containsKey('street_address')) {
       context.handle(
@@ -321,6 +344,8 @@ class $PatientTable extends Patient with TableInfo<$PatientTable, PatientData> {
           .read(DriftSqlType.string, data['${effectivePrefix}middle_name']),
       lastName: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}last_name'])!,
+      suffix: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}suffix']),
       birthDate: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}birth_date'])!,
       sex: attachedDatabase.typeMapping
@@ -335,6 +360,9 @@ class $PatientTable extends Patient with TableInfo<$PatientTable, PatientData> {
           .read(DriftSqlType.string, data['${effectivePrefix}referred_by']),
       relationship: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}relationship']),
+      relationshipEmergency: attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}relationship_emergency']),
       streetAddress: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}street_address'])!,
       barangay: attachedDatabase.typeMapping
@@ -367,6 +395,7 @@ class PatientData extends DataClass implements Insertable<PatientData> {
   final String firstName;
   final String? middleName;
   final String lastName;
+  final String? suffix;
   final DateTime birthDate;
   final String sex;
   final String civilStatus;
@@ -374,6 +403,7 @@ class PatientData extends DataClass implements Insertable<PatientData> {
   final String? emergencyContactNo;
   final String? referredBy;
   final String? relationship;
+  final String? relationshipEmergency;
   final String streetAddress;
   final String barangay;
   final String cityMunicipality;
@@ -388,6 +418,7 @@ class PatientData extends DataClass implements Insertable<PatientData> {
       required this.firstName,
       this.middleName,
       required this.lastName,
+      this.suffix,
       required this.birthDate,
       required this.sex,
       required this.civilStatus,
@@ -395,6 +426,7 @@ class PatientData extends DataClass implements Insertable<PatientData> {
       this.emergencyContactNo,
       this.referredBy,
       this.relationship,
+      this.relationshipEmergency,
       required this.streetAddress,
       required this.barangay,
       required this.cityMunicipality,
@@ -413,6 +445,9 @@ class PatientData extends DataClass implements Insertable<PatientData> {
       map['middle_name'] = Variable<String>(middleName);
     }
     map['last_name'] = Variable<String>(lastName);
+    if (!nullToAbsent || suffix != null) {
+      map['suffix'] = Variable<String>(suffix);
+    }
     map['birth_date'] = Variable<DateTime>(birthDate);
     map['sex'] = Variable<String>(sex);
     map['civil_status'] = Variable<String>(civilStatus);
@@ -425,6 +460,9 @@ class PatientData extends DataClass implements Insertable<PatientData> {
     }
     if (!nullToAbsent || relationship != null) {
       map['relationship'] = Variable<String>(relationship);
+    }
+    if (!nullToAbsent || relationshipEmergency != null) {
+      map['relationship_emergency'] = Variable<String>(relationshipEmergency);
     }
     map['street_address'] = Variable<String>(streetAddress);
     map['barangay'] = Variable<String>(barangay);
@@ -446,6 +484,8 @@ class PatientData extends DataClass implements Insertable<PatientData> {
           ? const Value.absent()
           : Value(middleName),
       lastName: Value(lastName),
+      suffix:
+          suffix == null && nullToAbsent ? const Value.absent() : Value(suffix),
       birthDate: Value(birthDate),
       sex: Value(sex),
       civilStatus: Value(civilStatus),
@@ -459,6 +499,9 @@ class PatientData extends DataClass implements Insertable<PatientData> {
       relationship: relationship == null && nullToAbsent
           ? const Value.absent()
           : Value(relationship),
+      relationshipEmergency: relationshipEmergency == null && nullToAbsent
+          ? const Value.absent()
+          : Value(relationshipEmergency),
       streetAddress: Value(streetAddress),
       barangay: Value(barangay),
       cityMunicipality: Value(cityMunicipality),
@@ -479,6 +522,7 @@ class PatientData extends DataClass implements Insertable<PatientData> {
       firstName: serializer.fromJson<String>(json['firstName']),
       middleName: serializer.fromJson<String?>(json['middleName']),
       lastName: serializer.fromJson<String>(json['lastName']),
+      suffix: serializer.fromJson<String?>(json['suffix']),
       birthDate: serializer.fromJson<DateTime>(json['birthDate']),
       sex: serializer.fromJson<String>(json['sex']),
       civilStatus: serializer.fromJson<String>(json['civilStatus']),
@@ -487,6 +531,8 @@ class PatientData extends DataClass implements Insertable<PatientData> {
           serializer.fromJson<String?>(json['emergencyContactNo']),
       referredBy: serializer.fromJson<String?>(json['referredBy']),
       relationship: serializer.fromJson<String?>(json['relationship']),
+      relationshipEmergency:
+          serializer.fromJson<String?>(json['relationshipEmergency']),
       streetAddress: serializer.fromJson<String>(json['streetAddress']),
       barangay: serializer.fromJson<String>(json['barangay']),
       cityMunicipality: serializer.fromJson<String>(json['cityMunicipality']),
@@ -506,6 +552,7 @@ class PatientData extends DataClass implements Insertable<PatientData> {
       'firstName': serializer.toJson<String>(firstName),
       'middleName': serializer.toJson<String?>(middleName),
       'lastName': serializer.toJson<String>(lastName),
+      'suffix': serializer.toJson<String?>(suffix),
       'birthDate': serializer.toJson<DateTime>(birthDate),
       'sex': serializer.toJson<String>(sex),
       'civilStatus': serializer.toJson<String>(civilStatus),
@@ -513,6 +560,8 @@ class PatientData extends DataClass implements Insertable<PatientData> {
       'emergencyContactNo': serializer.toJson<String?>(emergencyContactNo),
       'referredBy': serializer.toJson<String?>(referredBy),
       'relationship': serializer.toJson<String?>(relationship),
+      'relationshipEmergency':
+          serializer.toJson<String?>(relationshipEmergency),
       'streetAddress': serializer.toJson<String>(streetAddress),
       'barangay': serializer.toJson<String>(barangay),
       'cityMunicipality': serializer.toJson<String>(cityMunicipality),
@@ -530,6 +579,7 @@ class PatientData extends DataClass implements Insertable<PatientData> {
           String? firstName,
           Value<String?> middleName = const Value.absent(),
           String? lastName,
+          Value<String?> suffix = const Value.absent(),
           DateTime? birthDate,
           String? sex,
           String? civilStatus,
@@ -537,6 +587,7 @@ class PatientData extends DataClass implements Insertable<PatientData> {
           Value<String?> emergencyContactNo = const Value.absent(),
           Value<String?> referredBy = const Value.absent(),
           Value<String?> relationship = const Value.absent(),
+          Value<String?> relationshipEmergency = const Value.absent(),
           String? streetAddress,
           String? barangay,
           String? cityMunicipality,
@@ -551,6 +602,7 @@ class PatientData extends DataClass implements Insertable<PatientData> {
         firstName: firstName ?? this.firstName,
         middleName: middleName.present ? middleName.value : this.middleName,
         lastName: lastName ?? this.lastName,
+        suffix: suffix.present ? suffix.value : this.suffix,
         birthDate: birthDate ?? this.birthDate,
         sex: sex ?? this.sex,
         civilStatus: civilStatus ?? this.civilStatus,
@@ -561,6 +613,9 @@ class PatientData extends DataClass implements Insertable<PatientData> {
         referredBy: referredBy.present ? referredBy.value : this.referredBy,
         relationship:
             relationship.present ? relationship.value : this.relationship,
+        relationshipEmergency: relationshipEmergency.present
+            ? relationshipEmergency.value
+            : this.relationshipEmergency,
         streetAddress: streetAddress ?? this.streetAddress,
         barangay: barangay ?? this.barangay,
         cityMunicipality: cityMunicipality ?? this.cityMunicipality,
@@ -578,6 +633,7 @@ class PatientData extends DataClass implements Insertable<PatientData> {
       middleName:
           data.middleName.present ? data.middleName.value : this.middleName,
       lastName: data.lastName.present ? data.lastName.value : this.lastName,
+      suffix: data.suffix.present ? data.suffix.value : this.suffix,
       birthDate: data.birthDate.present ? data.birthDate.value : this.birthDate,
       sex: data.sex.present ? data.sex.value : this.sex,
       civilStatus:
@@ -593,6 +649,9 @@ class PatientData extends DataClass implements Insertable<PatientData> {
       relationship: data.relationship.present
           ? data.relationship.value
           : this.relationship,
+      relationshipEmergency: data.relationshipEmergency.present
+          ? data.relationshipEmergency.value
+          : this.relationshipEmergency,
       streetAddress: data.streetAddress.present
           ? data.streetAddress.value
           : this.streetAddress,
@@ -619,6 +678,7 @@ class PatientData extends DataClass implements Insertable<PatientData> {
           ..write('firstName: $firstName, ')
           ..write('middleName: $middleName, ')
           ..write('lastName: $lastName, ')
+          ..write('suffix: $suffix, ')
           ..write('birthDate: $birthDate, ')
           ..write('sex: $sex, ')
           ..write('civilStatus: $civilStatus, ')
@@ -626,6 +686,7 @@ class PatientData extends DataClass implements Insertable<PatientData> {
           ..write('emergencyContactNo: $emergencyContactNo, ')
           ..write('referredBy: $referredBy, ')
           ..write('relationship: $relationship, ')
+          ..write('relationshipEmergency: $relationshipEmergency, ')
           ..write('streetAddress: $streetAddress, ')
           ..write('barangay: $barangay, ')
           ..write('cityMunicipality: $cityMunicipality, ')
@@ -640,27 +701,30 @@ class PatientData extends DataClass implements Insertable<PatientData> {
   }
 
   @override
-  int get hashCode => Object.hash(
-      patientId,
-      firstName,
-      middleName,
-      lastName,
-      birthDate,
-      sex,
-      civilStatus,
-      contactNumber,
-      emergencyContactNo,
-      referredBy,
-      relationship,
-      streetAddress,
-      barangay,
-      cityMunicipality,
-      province,
-      zipCode,
-      isArchived,
-      isSeniorOrPWD,
-      createdAt,
-      updatedAt);
+  int get hashCode => Object.hashAll([
+        patientId,
+        firstName,
+        middleName,
+        lastName,
+        suffix,
+        birthDate,
+        sex,
+        civilStatus,
+        contactNumber,
+        emergencyContactNo,
+        referredBy,
+        relationship,
+        relationshipEmergency,
+        streetAddress,
+        barangay,
+        cityMunicipality,
+        province,
+        zipCode,
+        isArchived,
+        isSeniorOrPWD,
+        createdAt,
+        updatedAt
+      ]);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -669,6 +733,7 @@ class PatientData extends DataClass implements Insertable<PatientData> {
           other.firstName == this.firstName &&
           other.middleName == this.middleName &&
           other.lastName == this.lastName &&
+          other.suffix == this.suffix &&
           other.birthDate == this.birthDate &&
           other.sex == this.sex &&
           other.civilStatus == this.civilStatus &&
@@ -676,6 +741,7 @@ class PatientData extends DataClass implements Insertable<PatientData> {
           other.emergencyContactNo == this.emergencyContactNo &&
           other.referredBy == this.referredBy &&
           other.relationship == this.relationship &&
+          other.relationshipEmergency == this.relationshipEmergency &&
           other.streetAddress == this.streetAddress &&
           other.barangay == this.barangay &&
           other.cityMunicipality == this.cityMunicipality &&
@@ -692,6 +758,7 @@ class PatientCompanion extends UpdateCompanion<PatientData> {
   final Value<String> firstName;
   final Value<String?> middleName;
   final Value<String> lastName;
+  final Value<String?> suffix;
   final Value<DateTime> birthDate;
   final Value<String> sex;
   final Value<String> civilStatus;
@@ -699,6 +766,7 @@ class PatientCompanion extends UpdateCompanion<PatientData> {
   final Value<String?> emergencyContactNo;
   final Value<String?> referredBy;
   final Value<String?> relationship;
+  final Value<String?> relationshipEmergency;
   final Value<String> streetAddress;
   final Value<String> barangay;
   final Value<String> cityMunicipality;
@@ -713,6 +781,7 @@ class PatientCompanion extends UpdateCompanion<PatientData> {
     this.firstName = const Value.absent(),
     this.middleName = const Value.absent(),
     this.lastName = const Value.absent(),
+    this.suffix = const Value.absent(),
     this.birthDate = const Value.absent(),
     this.sex = const Value.absent(),
     this.civilStatus = const Value.absent(),
@@ -720,6 +789,7 @@ class PatientCompanion extends UpdateCompanion<PatientData> {
     this.emergencyContactNo = const Value.absent(),
     this.referredBy = const Value.absent(),
     this.relationship = const Value.absent(),
+    this.relationshipEmergency = const Value.absent(),
     this.streetAddress = const Value.absent(),
     this.barangay = const Value.absent(),
     this.cityMunicipality = const Value.absent(),
@@ -735,6 +805,7 @@ class PatientCompanion extends UpdateCompanion<PatientData> {
     required String firstName,
     this.middleName = const Value.absent(),
     required String lastName,
+    this.suffix = const Value.absent(),
     required DateTime birthDate,
     required String sex,
     required String civilStatus,
@@ -742,6 +813,7 @@ class PatientCompanion extends UpdateCompanion<PatientData> {
     this.emergencyContactNo = const Value.absent(),
     this.referredBy = const Value.absent(),
     this.relationship = const Value.absent(),
+    this.relationshipEmergency = const Value.absent(),
     required String streetAddress,
     required String barangay,
     required String cityMunicipality,
@@ -769,6 +841,7 @@ class PatientCompanion extends UpdateCompanion<PatientData> {
     Expression<String>? firstName,
     Expression<String>? middleName,
     Expression<String>? lastName,
+    Expression<String>? suffix,
     Expression<DateTime>? birthDate,
     Expression<String>? sex,
     Expression<String>? civilStatus,
@@ -776,6 +849,7 @@ class PatientCompanion extends UpdateCompanion<PatientData> {
     Expression<String>? emergencyContactNo,
     Expression<String>? referredBy,
     Expression<String>? relationship,
+    Expression<String>? relationshipEmergency,
     Expression<String>? streetAddress,
     Expression<String>? barangay,
     Expression<String>? cityMunicipality,
@@ -791,6 +865,7 @@ class PatientCompanion extends UpdateCompanion<PatientData> {
       if (firstName != null) 'first_name': firstName,
       if (middleName != null) 'middle_name': middleName,
       if (lastName != null) 'last_name': lastName,
+      if (suffix != null) 'suffix': suffix,
       if (birthDate != null) 'birth_date': birthDate,
       if (sex != null) 'sex': sex,
       if (civilStatus != null) 'civil_status': civilStatus,
@@ -799,6 +874,8 @@ class PatientCompanion extends UpdateCompanion<PatientData> {
         'emergency_contact_no': emergencyContactNo,
       if (referredBy != null) 'referred_by': referredBy,
       if (relationship != null) 'relationship': relationship,
+      if (relationshipEmergency != null)
+        'relationship_emergency': relationshipEmergency,
       if (streetAddress != null) 'street_address': streetAddress,
       if (barangay != null) 'barangay': barangay,
       if (cityMunicipality != null) 'city_municipality': cityMunicipality,
@@ -816,6 +893,7 @@ class PatientCompanion extends UpdateCompanion<PatientData> {
       Value<String>? firstName,
       Value<String?>? middleName,
       Value<String>? lastName,
+      Value<String?>? suffix,
       Value<DateTime>? birthDate,
       Value<String>? sex,
       Value<String>? civilStatus,
@@ -823,6 +901,7 @@ class PatientCompanion extends UpdateCompanion<PatientData> {
       Value<String?>? emergencyContactNo,
       Value<String?>? referredBy,
       Value<String?>? relationship,
+      Value<String?>? relationshipEmergency,
       Value<String>? streetAddress,
       Value<String>? barangay,
       Value<String>? cityMunicipality,
@@ -837,6 +916,7 @@ class PatientCompanion extends UpdateCompanion<PatientData> {
       firstName: firstName ?? this.firstName,
       middleName: middleName ?? this.middleName,
       lastName: lastName ?? this.lastName,
+      suffix: suffix ?? this.suffix,
       birthDate: birthDate ?? this.birthDate,
       sex: sex ?? this.sex,
       civilStatus: civilStatus ?? this.civilStatus,
@@ -844,6 +924,8 @@ class PatientCompanion extends UpdateCompanion<PatientData> {
       emergencyContactNo: emergencyContactNo ?? this.emergencyContactNo,
       referredBy: referredBy ?? this.referredBy,
       relationship: relationship ?? this.relationship,
+      relationshipEmergency:
+          relationshipEmergency ?? this.relationshipEmergency,
       streetAddress: streetAddress ?? this.streetAddress,
       barangay: barangay ?? this.barangay,
       cityMunicipality: cityMunicipality ?? this.cityMunicipality,
@@ -871,6 +953,9 @@ class PatientCompanion extends UpdateCompanion<PatientData> {
     if (lastName.present) {
       map['last_name'] = Variable<String>(lastName.value);
     }
+    if (suffix.present) {
+      map['suffix'] = Variable<String>(suffix.value);
+    }
     if (birthDate.present) {
       map['birth_date'] = Variable<DateTime>(birthDate.value);
     }
@@ -891,6 +976,10 @@ class PatientCompanion extends UpdateCompanion<PatientData> {
     }
     if (relationship.present) {
       map['relationship'] = Variable<String>(relationship.value);
+    }
+    if (relationshipEmergency.present) {
+      map['relationship_emergency'] =
+          Variable<String>(relationshipEmergency.value);
     }
     if (streetAddress.present) {
       map['street_address'] = Variable<String>(streetAddress.value);
@@ -929,6 +1018,7 @@ class PatientCompanion extends UpdateCompanion<PatientData> {
           ..write('firstName: $firstName, ')
           ..write('middleName: $middleName, ')
           ..write('lastName: $lastName, ')
+          ..write('suffix: $suffix, ')
           ..write('birthDate: $birthDate, ')
           ..write('sex: $sex, ')
           ..write('civilStatus: $civilStatus, ')
@@ -936,6 +1026,7 @@ class PatientCompanion extends UpdateCompanion<PatientData> {
           ..write('emergencyContactNo: $emergencyContactNo, ')
           ..write('referredBy: $referredBy, ')
           ..write('relationship: $relationship, ')
+          ..write('relationshipEmergency: $relationshipEmergency, ')
           ..write('streetAddress: $streetAddress, ')
           ..write('barangay: $barangay, ')
           ..write('cityMunicipality: $cityMunicipality, ')
@@ -1238,6 +1329,12 @@ class $AppointmentTable extends Appointment
       type: DriftSqlType.string,
       requiredDuringInsert: false,
       defaultValue: const Constant('Scheduled'));
+  static const VerificationMeta _timeSlotMeta =
+      const VerificationMeta('timeSlot');
+  @override
+  late final GeneratedColumn<String> timeSlot = GeneratedColumn<String>(
+      'time_slot', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
   @override
   List<GeneratedColumn> get $columns => [
         appointmentId,
@@ -1245,7 +1342,8 @@ class $AppointmentTable extends Appointment
         staffId,
         scheduleDateTime,
         reasonForVisit,
-        status
+        status,
+        timeSlot
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1293,6 +1391,12 @@ class $AppointmentTable extends Appointment
       context.handle(_statusMeta,
           status.isAcceptableOrUnknown(data['status']!, _statusMeta));
     }
+    if (data.containsKey('time_slot')) {
+      context.handle(_timeSlotMeta,
+          timeSlot.isAcceptableOrUnknown(data['time_slot']!, _timeSlotMeta));
+    } else if (isInserting) {
+      context.missing(_timeSlotMeta);
+    }
     return context;
   }
 
@@ -1314,6 +1418,8 @@ class $AppointmentTable extends Appointment
           DriftSqlType.string, data['${effectivePrefix}reason_for_visit'])!,
       status: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}status'])!,
+      timeSlot: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}time_slot'])!,
     );
   }
 
@@ -1330,13 +1436,15 @@ class AppointmentData extends DataClass implements Insertable<AppointmentData> {
   final DateTime scheduleDateTime;
   final String reasonForVisit;
   final String status;
+  final String timeSlot;
   const AppointmentData(
       {required this.appointmentId,
       required this.patientId,
       this.staffId,
       required this.scheduleDateTime,
       required this.reasonForVisit,
-      required this.status});
+      required this.status,
+      required this.timeSlot});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -1348,6 +1456,7 @@ class AppointmentData extends DataClass implements Insertable<AppointmentData> {
     map['schedule_date_time'] = Variable<DateTime>(scheduleDateTime);
     map['reason_for_visit'] = Variable<String>(reasonForVisit);
     map['status'] = Variable<String>(status);
+    map['time_slot'] = Variable<String>(timeSlot);
     return map;
   }
 
@@ -1361,6 +1470,7 @@ class AppointmentData extends DataClass implements Insertable<AppointmentData> {
       scheduleDateTime: Value(scheduleDateTime),
       reasonForVisit: Value(reasonForVisit),
       status: Value(status),
+      timeSlot: Value(timeSlot),
     );
   }
 
@@ -1374,6 +1484,7 @@ class AppointmentData extends DataClass implements Insertable<AppointmentData> {
       scheduleDateTime: serializer.fromJson<DateTime>(json['scheduleDateTime']),
       reasonForVisit: serializer.fromJson<String>(json['reasonForVisit']),
       status: serializer.fromJson<String>(json['status']),
+      timeSlot: serializer.fromJson<String>(json['timeSlot']),
     );
   }
   @override
@@ -1386,6 +1497,7 @@ class AppointmentData extends DataClass implements Insertable<AppointmentData> {
       'scheduleDateTime': serializer.toJson<DateTime>(scheduleDateTime),
       'reasonForVisit': serializer.toJson<String>(reasonForVisit),
       'status': serializer.toJson<String>(status),
+      'timeSlot': serializer.toJson<String>(timeSlot),
     };
   }
 
@@ -1395,7 +1507,8 @@ class AppointmentData extends DataClass implements Insertable<AppointmentData> {
           Value<int?> staffId = const Value.absent(),
           DateTime? scheduleDateTime,
           String? reasonForVisit,
-          String? status}) =>
+          String? status,
+          String? timeSlot}) =>
       AppointmentData(
         appointmentId: appointmentId ?? this.appointmentId,
         patientId: patientId ?? this.patientId,
@@ -1403,6 +1516,7 @@ class AppointmentData extends DataClass implements Insertable<AppointmentData> {
         scheduleDateTime: scheduleDateTime ?? this.scheduleDateTime,
         reasonForVisit: reasonForVisit ?? this.reasonForVisit,
         status: status ?? this.status,
+        timeSlot: timeSlot ?? this.timeSlot,
       );
   AppointmentData copyWithCompanion(AppointmentCompanion data) {
     return AppointmentData(
@@ -1418,6 +1532,7 @@ class AppointmentData extends DataClass implements Insertable<AppointmentData> {
           ? data.reasonForVisit.value
           : this.reasonForVisit,
       status: data.status.present ? data.status.value : this.status,
+      timeSlot: data.timeSlot.present ? data.timeSlot.value : this.timeSlot,
     );
   }
 
@@ -1429,14 +1544,15 @@ class AppointmentData extends DataClass implements Insertable<AppointmentData> {
           ..write('staffId: $staffId, ')
           ..write('scheduleDateTime: $scheduleDateTime, ')
           ..write('reasonForVisit: $reasonForVisit, ')
-          ..write('status: $status')
+          ..write('status: $status, ')
+          ..write('timeSlot: $timeSlot')
           ..write(')'))
         .toString();
   }
 
   @override
   int get hashCode => Object.hash(appointmentId, patientId, staffId,
-      scheduleDateTime, reasonForVisit, status);
+      scheduleDateTime, reasonForVisit, status, timeSlot);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1446,7 +1562,8 @@ class AppointmentData extends DataClass implements Insertable<AppointmentData> {
           other.staffId == this.staffId &&
           other.scheduleDateTime == this.scheduleDateTime &&
           other.reasonForVisit == this.reasonForVisit &&
-          other.status == this.status);
+          other.status == this.status &&
+          other.timeSlot == this.timeSlot);
 }
 
 class AppointmentCompanion extends UpdateCompanion<AppointmentData> {
@@ -1456,6 +1573,7 @@ class AppointmentCompanion extends UpdateCompanion<AppointmentData> {
   final Value<DateTime> scheduleDateTime;
   final Value<String> reasonForVisit;
   final Value<String> status;
+  final Value<String> timeSlot;
   const AppointmentCompanion({
     this.appointmentId = const Value.absent(),
     this.patientId = const Value.absent(),
@@ -1463,6 +1581,7 @@ class AppointmentCompanion extends UpdateCompanion<AppointmentData> {
     this.scheduleDateTime = const Value.absent(),
     this.reasonForVisit = const Value.absent(),
     this.status = const Value.absent(),
+    this.timeSlot = const Value.absent(),
   });
   AppointmentCompanion.insert({
     this.appointmentId = const Value.absent(),
@@ -1471,9 +1590,11 @@ class AppointmentCompanion extends UpdateCompanion<AppointmentData> {
     required DateTime scheduleDateTime,
     required String reasonForVisit,
     this.status = const Value.absent(),
+    required String timeSlot,
   })  : patientId = Value(patientId),
         scheduleDateTime = Value(scheduleDateTime),
-        reasonForVisit = Value(reasonForVisit);
+        reasonForVisit = Value(reasonForVisit),
+        timeSlot = Value(timeSlot);
   static Insertable<AppointmentData> custom({
     Expression<int>? appointmentId,
     Expression<int>? patientId,
@@ -1481,6 +1602,7 @@ class AppointmentCompanion extends UpdateCompanion<AppointmentData> {
     Expression<DateTime>? scheduleDateTime,
     Expression<String>? reasonForVisit,
     Expression<String>? status,
+    Expression<String>? timeSlot,
   }) {
     return RawValuesInsertable({
       if (appointmentId != null) 'appointment_id': appointmentId,
@@ -1489,6 +1611,7 @@ class AppointmentCompanion extends UpdateCompanion<AppointmentData> {
       if (scheduleDateTime != null) 'schedule_date_time': scheduleDateTime,
       if (reasonForVisit != null) 'reason_for_visit': reasonForVisit,
       if (status != null) 'status': status,
+      if (timeSlot != null) 'time_slot': timeSlot,
     });
   }
 
@@ -1498,7 +1621,8 @@ class AppointmentCompanion extends UpdateCompanion<AppointmentData> {
       Value<int?>? staffId,
       Value<DateTime>? scheduleDateTime,
       Value<String>? reasonForVisit,
-      Value<String>? status}) {
+      Value<String>? status,
+      Value<String>? timeSlot}) {
     return AppointmentCompanion(
       appointmentId: appointmentId ?? this.appointmentId,
       patientId: patientId ?? this.patientId,
@@ -1506,6 +1630,7 @@ class AppointmentCompanion extends UpdateCompanion<AppointmentData> {
       scheduleDateTime: scheduleDateTime ?? this.scheduleDateTime,
       reasonForVisit: reasonForVisit ?? this.reasonForVisit,
       status: status ?? this.status,
+      timeSlot: timeSlot ?? this.timeSlot,
     );
   }
 
@@ -1530,6 +1655,9 @@ class AppointmentCompanion extends UpdateCompanion<AppointmentData> {
     if (status.present) {
       map['status'] = Variable<String>(status.value);
     }
+    if (timeSlot.present) {
+      map['time_slot'] = Variable<String>(timeSlot.value);
+    }
     return map;
   }
 
@@ -1541,7 +1669,8 @@ class AppointmentCompanion extends UpdateCompanion<AppointmentData> {
           ..write('staffId: $staffId, ')
           ..write('scheduleDateTime: $scheduleDateTime, ')
           ..write('reasonForVisit: $reasonForVisit, ')
-          ..write('status: $status')
+          ..write('status: $status, ')
+          ..write('timeSlot: $timeSlot')
           ..write(')'))
         .toString();
   }
@@ -3482,6 +3611,7 @@ typedef $$PatientTableCreateCompanionBuilder = PatientCompanion Function({
   required String firstName,
   Value<String?> middleName,
   required String lastName,
+  Value<String?> suffix,
   required DateTime birthDate,
   required String sex,
   required String civilStatus,
@@ -3489,6 +3619,7 @@ typedef $$PatientTableCreateCompanionBuilder = PatientCompanion Function({
   Value<String?> emergencyContactNo,
   Value<String?> referredBy,
   Value<String?> relationship,
+  Value<String?> relationshipEmergency,
   required String streetAddress,
   required String barangay,
   required String cityMunicipality,
@@ -3504,6 +3635,7 @@ typedef $$PatientTableUpdateCompanionBuilder = PatientCompanion Function({
   Value<String> firstName,
   Value<String?> middleName,
   Value<String> lastName,
+  Value<String?> suffix,
   Value<DateTime> birthDate,
   Value<String> sex,
   Value<String> civilStatus,
@@ -3511,6 +3643,7 @@ typedef $$PatientTableUpdateCompanionBuilder = PatientCompanion Function({
   Value<String?> emergencyContactNo,
   Value<String?> referredBy,
   Value<String?> relationship,
+  Value<String?> relationshipEmergency,
   Value<String> streetAddress,
   Value<String> barangay,
   Value<String> cityMunicipality,
@@ -3595,6 +3728,9 @@ class $$PatientTableFilterComposer
   ColumnFilters<String> get lastName => $composableBuilder(
       column: $table.lastName, builder: (column) => ColumnFilters(column));
 
+  ColumnFilters<String> get suffix => $composableBuilder(
+      column: $table.suffix, builder: (column) => ColumnFilters(column));
+
   ColumnFilters<DateTime> get birthDate => $composableBuilder(
       column: $table.birthDate, builder: (column) => ColumnFilters(column));
 
@@ -3616,6 +3752,10 @@ class $$PatientTableFilterComposer
 
   ColumnFilters<String> get relationship => $composableBuilder(
       column: $table.relationship, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get relationshipEmergency => $composableBuilder(
+      column: $table.relationshipEmergency,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get streetAddress => $composableBuilder(
       column: $table.streetAddress, builder: (column) => ColumnFilters(column));
@@ -3730,6 +3870,9 @@ class $$PatientTableOrderingComposer
   ColumnOrderings<String> get lastName => $composableBuilder(
       column: $table.lastName, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get suffix => $composableBuilder(
+      column: $table.suffix, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<DateTime> get birthDate => $composableBuilder(
       column: $table.birthDate, builder: (column) => ColumnOrderings(column));
 
@@ -3752,6 +3895,10 @@ class $$PatientTableOrderingComposer
 
   ColumnOrderings<String> get relationship => $composableBuilder(
       column: $table.relationship,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get relationshipEmergency => $composableBuilder(
+      column: $table.relationshipEmergency,
       builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get streetAddress => $composableBuilder(
@@ -3806,6 +3953,9 @@ class $$PatientTableAnnotationComposer
   GeneratedColumn<String> get lastName =>
       $composableBuilder(column: $table.lastName, builder: (column) => column);
 
+  GeneratedColumn<String> get suffix =>
+      $composableBuilder(column: $table.suffix, builder: (column) => column);
+
   GeneratedColumn<DateTime> get birthDate =>
       $composableBuilder(column: $table.birthDate, builder: (column) => column);
 
@@ -3826,6 +3976,9 @@ class $$PatientTableAnnotationComposer
 
   GeneratedColumn<String> get relationship => $composableBuilder(
       column: $table.relationship, builder: (column) => column);
+
+  GeneratedColumn<String> get relationshipEmergency => $composableBuilder(
+      column: $table.relationshipEmergency, builder: (column) => column);
 
   GeneratedColumn<String> get streetAddress => $composableBuilder(
       column: $table.streetAddress, builder: (column) => column);
@@ -3946,6 +4099,7 @@ class $$PatientTableTableManager extends RootTableManager<
             Value<String> firstName = const Value.absent(),
             Value<String?> middleName = const Value.absent(),
             Value<String> lastName = const Value.absent(),
+            Value<String?> suffix = const Value.absent(),
             Value<DateTime> birthDate = const Value.absent(),
             Value<String> sex = const Value.absent(),
             Value<String> civilStatus = const Value.absent(),
@@ -3953,6 +4107,7 @@ class $$PatientTableTableManager extends RootTableManager<
             Value<String?> emergencyContactNo = const Value.absent(),
             Value<String?> referredBy = const Value.absent(),
             Value<String?> relationship = const Value.absent(),
+            Value<String?> relationshipEmergency = const Value.absent(),
             Value<String> streetAddress = const Value.absent(),
             Value<String> barangay = const Value.absent(),
             Value<String> cityMunicipality = const Value.absent(),
@@ -3968,6 +4123,7 @@ class $$PatientTableTableManager extends RootTableManager<
             firstName: firstName,
             middleName: middleName,
             lastName: lastName,
+            suffix: suffix,
             birthDate: birthDate,
             sex: sex,
             civilStatus: civilStatus,
@@ -3975,6 +4131,7 @@ class $$PatientTableTableManager extends RootTableManager<
             emergencyContactNo: emergencyContactNo,
             referredBy: referredBy,
             relationship: relationship,
+            relationshipEmergency: relationshipEmergency,
             streetAddress: streetAddress,
             barangay: barangay,
             cityMunicipality: cityMunicipality,
@@ -3990,6 +4147,7 @@ class $$PatientTableTableManager extends RootTableManager<
             required String firstName,
             Value<String?> middleName = const Value.absent(),
             required String lastName,
+            Value<String?> suffix = const Value.absent(),
             required DateTime birthDate,
             required String sex,
             required String civilStatus,
@@ -3997,6 +4155,7 @@ class $$PatientTableTableManager extends RootTableManager<
             Value<String?> emergencyContactNo = const Value.absent(),
             Value<String?> referredBy = const Value.absent(),
             Value<String?> relationship = const Value.absent(),
+            Value<String?> relationshipEmergency = const Value.absent(),
             required String streetAddress,
             required String barangay,
             required String cityMunicipality,
@@ -4012,6 +4171,7 @@ class $$PatientTableTableManager extends RootTableManager<
             firstName: firstName,
             middleName: middleName,
             lastName: lastName,
+            suffix: suffix,
             birthDate: birthDate,
             sex: sex,
             civilStatus: civilStatus,
@@ -4019,6 +4179,7 @@ class $$PatientTableTableManager extends RootTableManager<
             emergencyContactNo: emergencyContactNo,
             referredBy: referredBy,
             relationship: relationship,
+            relationshipEmergency: relationshipEmergency,
             streetAddress: streetAddress,
             barangay: barangay,
             cityMunicipality: cityMunicipality,
@@ -4340,6 +4501,7 @@ typedef $$AppointmentTableCreateCompanionBuilder = AppointmentCompanion
   required DateTime scheduleDateTime,
   required String reasonForVisit,
   Value<String> status,
+  required String timeSlot,
 });
 typedef $$AppointmentTableUpdateCompanionBuilder = AppointmentCompanion
     Function({
@@ -4349,6 +4511,7 @@ typedef $$AppointmentTableUpdateCompanionBuilder = AppointmentCompanion
   Value<DateTime> scheduleDateTime,
   Value<String> reasonForVisit,
   Value<String> status,
+  Value<String> timeSlot,
 });
 
 final class $$AppointmentTableReferences
@@ -4408,6 +4571,9 @@ class $$AppointmentTableFilterComposer
 
   ColumnFilters<String> get status => $composableBuilder(
       column: $table.status, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get timeSlot => $composableBuilder(
+      column: $table.timeSlot, builder: (column) => ColumnFilters(column));
 
   $$PatientTableFilterComposer get patientId {
     final $$PatientTableFilterComposer composer = $composerBuilder(
@@ -4474,6 +4640,9 @@ class $$AppointmentTableOrderingComposer
   ColumnOrderings<String> get status => $composableBuilder(
       column: $table.status, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get timeSlot => $composableBuilder(
+      column: $table.timeSlot, builder: (column) => ColumnOrderings(column));
+
   $$PatientTableOrderingComposer get patientId {
     final $$PatientTableOrderingComposer composer = $composerBuilder(
         composer: this,
@@ -4535,6 +4704,9 @@ class $$AppointmentTableAnnotationComposer
 
   GeneratedColumn<String> get status =>
       $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<String> get timeSlot =>
+      $composableBuilder(column: $table.timeSlot, builder: (column) => column);
 
   $$PatientTableAnnotationComposer get patientId {
     final $$PatientTableAnnotationComposer composer = $composerBuilder(
@@ -4606,6 +4778,7 @@ class $$AppointmentTableTableManager extends RootTableManager<
             Value<DateTime> scheduleDateTime = const Value.absent(),
             Value<String> reasonForVisit = const Value.absent(),
             Value<String> status = const Value.absent(),
+            Value<String> timeSlot = const Value.absent(),
           }) =>
               AppointmentCompanion(
             appointmentId: appointmentId,
@@ -4614,6 +4787,7 @@ class $$AppointmentTableTableManager extends RootTableManager<
             scheduleDateTime: scheduleDateTime,
             reasonForVisit: reasonForVisit,
             status: status,
+            timeSlot: timeSlot,
           ),
           createCompanionCallback: ({
             Value<int> appointmentId = const Value.absent(),
@@ -4622,6 +4796,7 @@ class $$AppointmentTableTableManager extends RootTableManager<
             required DateTime scheduleDateTime,
             required String reasonForVisit,
             Value<String> status = const Value.absent(),
+            required String timeSlot,
           }) =>
               AppointmentCompanion.insert(
             appointmentId: appointmentId,
@@ -4630,6 +4805,7 @@ class $$AppointmentTableTableManager extends RootTableManager<
             scheduleDateTime: scheduleDateTime,
             reasonForVisit: reasonForVisit,
             status: status,
+            timeSlot: timeSlot,
           ),
           withReferenceMapper: (p0) => p0
               .map((e) => (

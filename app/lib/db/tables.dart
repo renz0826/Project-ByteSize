@@ -8,17 +8,19 @@ class Patient extends Table { // Patient Entity
   TextColumn get firstName => text()();
   TextColumn get middleName => text().nullable()();
   TextColumn get lastName => text()();
+  TextColumn get suffix => text().nullable()();
 
-// Demographic ]
+// Demographic 
   DateTimeColumn get birthDate => dateTime()();
   TextColumn get sex => text().withLength(min: 1, max: 10)();
   TextColumn get civilStatus => text()();
 
 // Contacts
-  TextColumn get contactNumber => text().withLength(min: 10, max: 11)();
+  TextColumn get contactNumber => text().withLength(min: 11, max: 11)();
   TextColumn get emergencyContactNo => text().nullable()();
   TextColumn get referredBy => text().nullable()();
   TextColumn get relationship => text().nullable()();
+  TextColumn get relationshipEmergency => text().nullable()();
 
 // Address
   TextColumn get streetAddress => text()();
@@ -62,6 +64,9 @@ class Appointment extends Table { // Appointment entity
   
   // Status (Scheduled, Completed, & Cancelled)
   TextColumn get status => text().withDefault(const Constant('Scheduled'))();
+
+  // Time-Slot
+  TextColumn get timeSlot => text()();
 }
 
 class Invoice extends Table { // Billing Entity
