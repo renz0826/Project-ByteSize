@@ -159,6 +159,16 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
     }
   }
 
+  // Send user to main dashboard
+  void _goBackFromView() {
+    _loadPatients();
+    setState(() {
+      _currentIndex = 0;
+      _patientToView = null;
+      _clinicalRecordsToView = [];
+    });
+  }
+
   //number of items to show per page
   List<PatientData> get _currentPageRecords {
     final start = (_currentPage - 1) * _recordsPerPage;
@@ -323,17 +333,22 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
 
         // NEW -> Setting this as Index 3: View Patient Details
         if (_patientToView != null)
-          ViewPatientScreen(
-            patient: _patientToView!,
-            clinicalRecords: _clinicalRecordsToView,
-            onBack: () {
-              // Return to dashboard and clear the temporary view data
-              setState(() {
-                _currentIndex = 0;
-                _patientToView = null;
-                _clinicalRecordsToView = [];
-              });
-            },
+          SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                PageHeader(
+                  title: 'Back to Records',
+                  type: PageHeaderType.withBack,
+                  onBack: _goBackFromView, 
+                ),
+                ViewPatientScreen(
+                  patient: _patientToView!,
+                  clinicalRecords: _clinicalRecordsToView,
+                  onBack: _goBackFromView, 
+                ),
+              ],
+            ),
           )
         else
           const SizedBox.shrink(), // Fallback if no patient is selected
@@ -475,7 +490,9 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
 
   // table row using real PatientData
   Widget _buildTableRow(PatientData patient) {
-    return PatientRecordBar(
+    return GestureDetector(
+      onTap: () => _goToViewPatient(patient), // to make the row tappable
+          child: PatientRecordBar(
       fullName: '${patient.lastName}, ${patient.firstName}',
       sex: patient.sex,
       age: DateHelper.calculateAge(patient.birthDate),
@@ -489,6 +506,7 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
           _goToViewPatient(patient);
         }
       },
+    ),
     );
   }
 
