@@ -32,6 +32,7 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
   // Functions to change patients screen states
   PatientCompanion? _draftPatient;
   ClinicalRecordCompanion? _draftClinicalRecord;
+  int? _existingPatientId; // ADDED: Holds ID if adding record to existing patient
 
   // NEW: Variables for View Patient screen
   PatientData? _patientToView;
@@ -66,13 +67,18 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
 
   // Send user to add_patient.dart
   void _goToAddPatient() {
-    setState(() => _currentIndex = 1);
+    setState(() {
+      _draftPatient = null;
+      _existingPatientId = null;
+      _currentIndex = 1;
+    });
   }
 
   // Send user to add_clinical_record.dart
-  void _goToAddClinicalRecord(PatientCompanion patientData) {
+  void _goToAddClinicalRecord({PatientCompanion? draftPatient, int? existingPatientId}) {
     setState(() {
-      _draftPatient = patientData;
+      _draftPatient = draftPatient;
+      _existingPatientId = existingPatientId;
       _currentIndex = 2;
     });
   }
@@ -148,9 +154,18 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
   void _goBackToMain(ClinicalRecordCompanion clinicalData) async {
     try {
       final db = ref.read(databaseProvider);
-      final newPatientId = await db.into(db.patient).insert(_draftPatient!);
+      int finalPatientId;
+
+      if (_existingPatientId != null) {
+        // SCENARIO 1: Adding to an EXISTING patient
+        finalPatientId = _existingPatientId!;
+      } else {
+        // SCENARIO 2: Brand NEW patient
+        finalPatientId = await db.into(db.patient).insert(_draftPatient!);
+      }
+
       final recordWithId = clinicalData.copyWith(
-        patientId: drift.Value(newPatientId),
+        patientId: drift.Value(finalPatientId),
       );
 
       await db.into(db.clinicalRecord).insert(recordWithId);
@@ -159,8 +174,10 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Patient and Clinical Record Saved Successfully!"), // confirmation message
+          SnackBar(
+            content: Text(_existingPatientId != null
+                ? "New Clinical Record added to patient successfully!"
+                : "Patient and Clinical Record Saved Successfully!"), // conditional confirmation message
           ),
         );
       }
@@ -343,7 +360,7 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
                 offset: const Offset(0, -30),
                 child: AddPatientForm(
                     key: ValueKey(_formSessionId),
-                    onNext: (data) => _goToAddClinicalRecord(data),
+                    onNext: (data) => _goToAddClinicalRecord(draftPatient: data), // MODIFIED
                     onBack: () {
                       _loadPatients();
                       setState(() => _currentIndex = 0);
@@ -366,10 +383,15 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
               Transform.translate(
                 offset: const Offset(0, -30),
                 child: AddClinicalRecordForm(
-                  patientId: 0,
+                  patientId: _existingPatientId ?? 0, // MODIFIED
                   key: ValueKey(_formSessionId),
                   onPrevious: () {
-                    setState(() => _currentIndex = 1);
+                    // MODIFIED: checks where the user came from
+                    if (_existingPatientId != null) {
+                       setState(() => _currentIndex = 0);
+                    } else {
+                       setState(() => _currentIndex = 1);
+                    }
                   },
                   onFinish: (clinicalData) => _goBackToMain(clinicalData),
                 ),
@@ -393,6 +415,14 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
                   patient: _patientToView!,
                   clinicalRecords: _clinicalRecordsToView,
                   onBack: _goBackFromView,
+                  // ADDED: Listens to actions triggered from the top-right menu
+                  onMenuAction: (value) {
+                    if (value == 'add_clinical_record') {
+                      _goToAddClinicalRecord(existingPatientId: _patientToView!.patientId);
+                    } else if (value == 'archive') {
+                      _archivePatient(_patientToView!);
+                    }
+                  },
                 ),
               ],
             ),
@@ -547,7 +577,7 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
         contact: patient.contactNumber,
         onMenuSelected: (value) {
           if (value == 'add_clinical_record') {
-            _goToAddClinicalRecord(patient.toCompanion(true));
+            _goToAddClinicalRecord(existingPatientId: patient.patientId); // MODIFIED
           } else if (value == 'view_record') {
             _goToViewPatient(patient);
           } else if (value == 'archive') {
