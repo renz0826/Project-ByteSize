@@ -11,7 +11,7 @@ class AddClinicalRecordForm extends StatefulWidget {
   final int patientId;
   final Function(ClinicalRecordCompanion) onFinish;
   final VoidCallback onPrevious;
-  final bool showPreviousButton; // NEW: Controls button visibility
+  final bool showPreviousButton; 
 
   const AddClinicalRecordForm({
     super.key,
@@ -429,7 +429,7 @@ class _AddClinicalRecordFormState extends State<AddClinicalRecordForm> {
                             onPressed: _clearFormforClinicalRecord,
                           ),
                         ),
-                        // NEW: Conditionally show the Previous button
+                        // Show the Previous Button based on conditions
                         if (widget.showPreviousButton)
                           Button(
                             variant: ButtonVariant.secondary,

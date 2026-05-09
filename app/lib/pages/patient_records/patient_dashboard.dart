@@ -34,7 +34,7 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
   ClinicalRecordCompanion? _draftClinicalRecord;
   int? _existingPatientId;
 
-  // NEW: Tracks where the user came from when adding a record
+  // This tracks where a user created a new record (to show/add the previous button)
   int _returnIndex = 0;
 
   // Variables for View Patient Screen
