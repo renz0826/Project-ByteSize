@@ -406,11 +406,9 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
   }
 
   Widget _buildTableHeader() {
-    final headerStyle = AppTheme.textTheme.bodyLarge
-        ?.copyWith(fontWeight: FontWeight.bold, color: AppTheme.black500);
+    final headerStyle = AppTheme.textTheme.bodyLarge;
     return Padding(
-      padding: const EdgeInsets.only(left: 16, right: 16, top: 8, bottom: 20),
-      child: Row(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12 ),
         children: [
           Expanded(flex: 2, child: Text('Invoice ID', style: headerStyle)),
           Expanded(flex: 3, child: Text('Patient', style: headerStyle)),
