@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:heroicons/heroicons.dart';
+import '../../widgets/app_info_bar.dart';
 import '/../style/theme.dart';
 import '/../db/database.dart';
 
@@ -8,14 +9,14 @@ class ViewPatientScreen extends StatefulWidget {
   final PatientData patient;
   final List<ClinicalRecordData> clinicalRecords;
   final VoidCallback onBack;
-  final ValueChanged<String> onMenuAction; // ADDED: For menu actions
+  final ValueChanged<String> onMenuAction; 
 
   const ViewPatientScreen({
     super.key,
     required this.patient,
     required this.clinicalRecords,
     required this.onBack,
-    required this.onMenuAction, // ADDED: Constructor requirement
+    required this.onMenuAction, 
   });
 
   @override
@@ -32,7 +33,6 @@ class _ViewPatientScreenState extends State<ViewPatientScreen> {
   @override
   void initState() {
     super.initState();
-    // default is the most recent record
     if (widget.clinicalRecords.isNotEmpty) {
       _selectedRecordId = widget.clinicalRecords.first.recordId;
     }
@@ -58,8 +58,7 @@ class _ViewPatientScreenState extends State<ViewPatientScreen> {
   Widget build(BuildContext context) {
     return Container(
       color: AppTheme.gray200,
-      // SingleChildScrollView HERE to make the view scrollable
-      child: SingleChildScrollView(
+      child: SingleChildScrollView( // add this to allow the page to be scrollable
         padding: const EdgeInsets.only(bottom: 40), 
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -88,7 +87,7 @@ class _ViewPatientScreenState extends State<ViewPatientScreen> {
   // name header 
   Widget _buildNameHeader(BuildContext context) {
     final fullName =
-        '${widget.patient.firstName} ${widget.patient.middleName ?? ''} ${widget.patient.lastName}'
+        '${widget.patient.lastName}, ${widget.patient.firstName ?? ''} ${widget.patient.middleName}'
             .trim();
 
     return Container(
@@ -426,20 +425,7 @@ class _ViewPatientScreenState extends State<ViewPatientScreen> {
   }
 }
 
-//shared menu item widget from app info bar
-class BarMenuItem {
-  final String value;
-  final HeroIcons icon;
-  final String label;
-  final Color? color;
 
-  const BarMenuItem({
-    required this.value,
-    required this.icon,
-    required this.label,
-    this.color,
-  });
-}
 
 // shared options button
 class _MoreOptions extends StatelessWidget {
@@ -551,7 +537,6 @@ class _InfoBlock extends StatelessWidget {
       ],
     );
 
-    // flex: 0 = no Expanded (for full-width fields like address)
     if (flex == 0) return content;
     return Expanded(flex: flex, child: content);
   }
