@@ -13,7 +13,7 @@ import '../../services/date_helper.dart';
 import '../../providers/app_providers.dart';
 import 'add_patient.dart';
 import 'add_clinical_record.dart';
-import 'view_patient.dart'; 
+import 'view_patient.dart';
 import 'package:heroicons/heroicons.dart';
 
 //main screen
@@ -32,7 +32,7 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
   // Functions to change patients screen states
   PatientCompanion? _draftPatient;
   ClinicalRecordCompanion? _draftClinicalRecord;
-  
+
   // NEW: Variables for View Patient screen
   PatientData? _patientToView;
   List<ClinicalRecordData> _clinicalRecordsToView = [];
@@ -77,11 +77,60 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
     });
   }
 
+  // Confirmation popup and database update for archiving
+  Future<void> _archivePatient(PatientData patient) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Archive Patient Record'),
+        content: Text(
+            'Are you sure you want to archive the record for ${patient.lastName}, ${patient.firstName}?\n\nYou can always restore this later from the Archived filter.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text('Cancel',
+                style: TextStyle(color: AppTheme.black500.withOpacity(0.6))),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.red600), // Red for destructive action
+            child: const Text('Archive', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      try {
+        final repository = ref.read(patientRepositoryProvider);
+
+        // Note: Based on your code, use patient.id or patient.patientId depending on Drift's generated name
+        await repository.archivePatient(patient.patientId);
+
+        await _loadPatients(); // Refresh the table list
+
+        // If they archived while inside the View page, send them back to the dashboard
+        if (_currentIndex == 3) {
+          setState(() => _currentIndex = 0);
+        }
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("${patient.firstName} has been archived.")),
+          );
+        }
+      } catch (e) {
+        debugPrint("Failed to archive patient: $e");
+      }
+    }
+  }
+
   // NEW: Send user to view_patient.dart and fetch their records
   Future<void> _goToViewPatient(PatientData patient) async {
     try {
       final db = ref.read(databaseProvider);
-      
+
       // Fetch all clinical records linked to this patient
       final records = await (db.select(db.clinicalRecord)
             ..where((t) => t.patientId.equals(patient.patientId)))
@@ -340,12 +389,12 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
                 PageHeader(
                   title: 'Back to Records',
                   type: PageHeaderType.withBack,
-                  onBack: _goBackFromView, 
+                  onBack: _goBackFromView,
                 ),
                 ViewPatientScreen(
                   patient: _patientToView!,
                   clinicalRecords: _clinicalRecordsToView,
-                  onBack: _goBackFromView, 
+                  onBack: _goBackFromView,
                 ),
               ],
             ),
@@ -492,21 +541,22 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
   Widget _buildTableRow(PatientData patient) {
     return GestureDetector(
       onTap: () => _goToViewPatient(patient), // to make the row tappable
-          child: PatientRecordBar(
-      fullName: '${patient.lastName}, ${patient.firstName}',
-      sex: patient.sex,
-      age: DateHelper.calculateAge(patient.birthDate),
-      address: '${patient.province ?? ''}, ${patient.cityMunicipality ?? ''}',
-      contact: patient.contactNumber,
-      onMenuSelected: (value) {
-        if (value == 'add_clinical_record') {
-          _goToAddClinicalRecord(patient.toCompanion(true));
-        } else if (value == 'view_record') { 
-          // NEW: Triggers the new _goToViewPatient method
-          _goToViewPatient(patient);
-        }
-      },
-    ),
+      child: PatientRecordBar(
+        fullName: '${patient.lastName}, ${patient.firstName}',
+        sex: patient.sex,
+        age: DateHelper.calculateAge(patient.birthDate),
+        address: '${patient.province ?? ''}, ${patient.cityMunicipality ?? ''}',
+        contact: patient.contactNumber,
+        onMenuSelected: (value) {
+          if (value == 'add_clinical_record') {
+            _goToAddClinicalRecord(patient.toCompanion(true));
+          } else if (value == 'view_record') {
+            _goToViewPatient(patient);
+          } else if (value == 'archive') {
+            _archivePatient(patient);
+          }
+        },
+      ),
     );
   }
 
