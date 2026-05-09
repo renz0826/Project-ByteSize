@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:drift/drift.dart' as drift;
+import 'package:heroicons/heroicons.dart';
 import '/../style/theme.dart';
 import '/../widgets/search_bar.dart';
 import '/../widgets/app_pagination.dart';
@@ -14,7 +15,6 @@ import '../../providers/app_providers.dart';
 import 'add_patient.dart';
 import 'add_clinical_record.dart';
 import 'view_patient.dart';
-import 'package:heroicons/heroicons.dart';
 
 //main screen
 class PatientDashboard extends ConsumerStatefulWidget {
@@ -32,9 +32,9 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
   // Functions to change patients screen states
   PatientCompanion? _draftPatient;
   ClinicalRecordCompanion? _draftClinicalRecord;
-  int? _existingPatientId; // ADDED: Holds ID if adding record to existing patient
+  int? _existingPatientId; 
 
-  // NEW: Variables for View Patient screen
+  // Variables for View Patient Screen
   PatientData? _patientToView;
   List<ClinicalRecordData> _clinicalRecordsToView = [];
 
@@ -130,12 +130,12 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
     }
   }
 
-  // NEW: Send user to view_patient.dart and fetch their records
+  // Send user to View Patient Page function
   Future<void> _goToViewPatient(PatientData patient) async {
     try {
       final db = ref.read(databaseProvider);
 
-      // Fetch all clinical records linked to this patient
+      // Fetch all clinical records linked to this patient (using the drop-down)
       final records = await (db.select(db.clinicalRecord)
             ..where((t) => t.patientId.equals(patient.patientId)))
           .get();
@@ -150,17 +150,15 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
     }
   }
 
-  // Send user back to this page
+  // Send user back to the main dashboard
   void _goBackToMain(ClinicalRecordCompanion clinicalData) async {
     try {
       final db = ref.read(databaseProvider);
       int finalPatientId;
 
-      if (_existingPatientId != null) {
-        // SCENARIO 1: Adding to an EXISTING patient
+      if (_existingPatientId != null) { // if an existingPatientId already exists
         finalPatientId = _existingPatientId!;
       } else {
-        // SCENARIO 2: Brand NEW patient
         finalPatientId = await db.into(db.patient).insert(_draftPatient!);
       }
 
