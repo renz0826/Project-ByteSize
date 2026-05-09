@@ -77,7 +77,9 @@ class _ProfilePageState extends State<ProfilePage> {
                   title: "Personal Information", 
                   children: [
                     Text ("Update Full Name",
-                    style: AppTheme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500)
+                    style: AppTheme.textTheme.bodyLarge?.copyWith(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600)
                     ),
                     const SizedBox(height: 24),
 
@@ -107,7 +109,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       ],
                     ),
 
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 40),
                     Align(
                       alignment: Alignment.centerRight,
                       child: Button(
