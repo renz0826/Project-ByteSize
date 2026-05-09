@@ -4,6 +4,7 @@ import 'package:heroicons/heroicons.dart';
 import '../../widgets/app_info_bar.dart';
 import '/../style/theme.dart';
 import '/../db/database.dart';
+import 'package:dropdown_search/dropdown_search.dart';
 
 class ViewPatientScreen extends StatefulWidget {
   final PatientData patient;
@@ -58,8 +59,8 @@ class _ViewPatientScreenState extends State<ViewPatientScreen> {
   Widget build(BuildContext context) {
     return Container(
       color: AppTheme.gray200,
-      child: SingleChildScrollView( // add this to allow the page to be scrollable
-        padding: const EdgeInsets.only(bottom: 40), 
+      child: SingleChildScrollView( // to allow the page to be scrollable
+        padding: const EdgeInsets.only(bottom: 30), 
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -136,13 +137,19 @@ class _ViewPatientScreenState extends State<ViewPatientScreen> {
               _InfoBlock(
                 label: 'Date of Birth',
                 value: _formatDate(widget.patient.birthDate),
+                flex: 2,
               ),
               _InfoBlock(
                 label: 'Age',
-                value: '${_calculateAge(widget.patient.birthDate)}',
+                value: (() {
+                  final age = _calculateAge(widget.patient.birthDate);
+                  // If age is 60 or more, the label will appear
+                  return age >= 60 ? '$age (Senior)' : '$age';
+                })(),
+                flex: 2,
               ),
-              _InfoBlock(label: 'Sex', value: widget.patient.sex),
-              _InfoBlock(label: 'Civil Status', value: widget.patient.civilStatus),
+              _InfoBlock(label: 'Sex', value: widget.patient.sex, flex: 1,),
+              _InfoBlock(label: 'Civil Status', value: widget.patient.civilStatus, flex: 2),
             ],
           ),
           const SizedBox(height: 24),
@@ -158,6 +165,10 @@ class _ViewPatientScreenState extends State<ViewPatientScreen> {
                 label: 'Emergency Contact No.',
                 value: widget.patient.emergencyContactNo ?? '—',
               ),
+              _InfoBlock(
+                label: 'Relationship to the Patient',
+                value: widget.patient.relationshipEmergency ?? '-',
+              ),
             ],
           ),
           const SizedBox(height: 24),
@@ -170,8 +181,12 @@ class _ViewPatientScreenState extends State<ViewPatientScreen> {
                 value:widget. patient.referredBy ?? '—',
               ),
               _InfoBlock(
-                label: 'Relationship',
+                label: 'Relationship to Referral',
                 value: widget.patient.relationship ?? '—',
+              ),
+              _InfoBlock(
+                label: 'PWD Status',
+                value: widget.patient.isSeniorOrPWD == true ? 'Applicable' : 'Not Applicable',
               ),
             ],
           ),
@@ -202,52 +217,85 @@ class _ViewPatientScreenState extends State<ViewPatientScreen> {
             style: AppTheme.textTheme.bodySmall?.copyWith(color: AppTheme.gray500)),
         const SizedBox(height: 8),
           
-        SizedBox(
+        GestureDetector(
+          onTap:() => setState(() => _isDropdownOpen = true),
+        child: SizedBox(
           width: 300, 
-          child: DropdownButtonFormField<int>(
-            //set the value if it actually exists in the list
-            value: widget.clinicalRecords.any((r) => r.recordId == _selectedRecordId) 
-                  ? _selectedRecordId 
-                  : null,
-            isExpanded: true,
-            icon: HeroIcon(
-              _isDropdownOpen ? HeroIcons.chevronUp : HeroIcons.chevronDown, 
-              size: 18,
-              color: AppTheme.gray500,
-            ),
-            decoration: InputDecoration(
-              contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(color: AppTheme.gray400),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(color: AppTheme.gray400, width: 1.5),
-              ),
-              filled: true,
-              fillColor: AppTheme.white500,
-            ),
-            items: widget.clinicalRecords.map((record) {
-              return DropdownMenuItem<int>(
-                value: record.recordId,
-                child: Text(
-                  _formatAppointment(record.createdAt),
-                  style: AppTheme.textTheme.bodySmall?.copyWith(
-                    color: AppTheme.black500,
-                  ),
-                ),
-              );
-            }).toList(),
-            onTap: () => setState(() =>_isDropdownOpen = true),  
-            onChanged: (selected) {
+          child: DropdownSearch<int>(
+            // list of record ids
+            items: (filter, loadProps) => 
+            widget.clinicalRecords.map((r) => r.recordId).toList(),
+            //pre-select most recent record
+            selectedItem: _selectedRecordId,
+            //display formatted appointment
+            itemAsString: (id) {
+              final record = widget.clinicalRecords
+              .where((r) => r.recordId == id).firstOrNull;
+              return record != null 
+              ? _formatAppointment(record.createdAt)
+              : '-';
+            },
+            onSelected: (selectedId) {
               setState(() {
-                _selectedRecordId = selected;
-                _isDropdownOpen = false; 
+                _selectedRecordId = selectedId;
+                _isDropdownOpen = false;
               });
             },
+
+            decoratorProps: DropDownDecoratorProps(
+              decoration: InputDecoration(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: const BorderSide(color: AppTheme.gray400),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: const BorderSide(color: AppTheme.gray400, width: 1.5)
+                ),
+                filled: true,
+                fillColor: AppTheme.white500,
+                suffixIcon: HeroIcon(
+                  _isDropdownOpen ? HeroIcons.chevronUp : HeroIcons.chevronDown,
+                  size: 18,
+                  color: AppTheme.gray500,
+                ),
+              ),
+            ),
+
+            popupProps: PopupProps.menu(
+              fit: FlexFit.loose,
+              constraints: const BoxConstraints(maxHeight: 200),
+              onDismissed: () => setState(() => _isDropdownOpen = false),
+              interceptCallBacks: true,
+              itemBuilder:(context, item, isDisabled, isSelected) {
+                final record = widget.clinicalRecords
+                .where((r) => r.recordId == item).firstOrNull;
+                return Container(
+                  height: 36,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    record != null ? _formatAppointment(record.createdAt) : '-',
+                    style: AppTheme.textTheme.bodySmall?.copyWith(
+                      color: isSelected ? AppTheme.blue500 : AppTheme.black500,
+                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                    ),
+                  ),
+                );
+              },
+              emptyBuilder: (context, searchEntry) => Container(
+                height: 48,
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'No appointments found.',
+                  style: AppTheme.textTheme.bodySmall,
+                ),
+              ),
+            ),
           ),
+        ),
         ),
           const SizedBox(height: 24),
 
@@ -375,6 +423,7 @@ class _ViewPatientScreenState extends State<ViewPatientScreen> {
                 value: _selectedRecord!.filledOrRestored > 0
                     ? '${_selectedRecord!.filledOrRestored}'
                     : 'None',
+                isAlert: _selectedRecord!.filledOrRestored > 0,
               ),
               const Expanded(child: SizedBox()), // balance the row
             ],
