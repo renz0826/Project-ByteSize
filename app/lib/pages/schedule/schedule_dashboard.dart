@@ -61,7 +61,18 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
 
   // Send user to add_patient.dart
   void _goToScheduleAppointment() {
-    setState(() => _currentIndex = 1);
+    setState(() {
+      _selectedAppointment = null;
+      _currentIndex = 1;
+    });
+  }
+
+  // Send user to add_patient.dart edit state
+  void _goToEditAppointment() {
+    setState(() {
+      _formSessionId++;
+      _currentIndex = 1;
+    });
   }
 
   // Send user back to this page
