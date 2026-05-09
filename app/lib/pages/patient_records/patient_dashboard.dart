@@ -77,7 +77,7 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
     });
   }
 
-  // Confirmation popup and database update for archiving
+  // Archive Function 
   Future<void> _archivePatient(PatientData patient) async {
     final confirm = await showDialog<bool>(
       context: context,
@@ -94,7 +94,7 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
           ElevatedButton(
             onPressed: () => Navigator.of(context).pop(true),
             style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.red600), // Red for destructive action
+                backgroundColor: AppTheme.red600), 
             child: const Text('Archive', style: TextStyle(color: Colors.white)),
           ),
         ],
@@ -105,19 +105,17 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
       try {
         final repository = ref.read(patientRepositoryProvider);
 
-        // Note: Based on your code, use patient.id or patient.patientId depending on Drift's generated name
         await repository.archivePatient(patient.patientId);
 
         await _loadPatients(); // Refresh the table list
 
-        // If they archived while inside the View page, send them back to the dashboard
         if (_currentIndex == 3) {
           setState(() => _currentIndex = 0);
         }
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text("${patient.firstName} has been archived.")),
+            SnackBar(content: Text("${patient.firstName} has been archived.")), // confirmation message
           );
         }
       } catch (e) {
@@ -139,7 +137,7 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
       setState(() {
         _patientToView = patient;
         _clinicalRecordsToView = records;
-        _currentIndex = 3; // Index 3 is our View screen
+        _currentIndex = 3; 
       });
     } catch (e) {
       debugPrint("Error fetching patient records: $e");
@@ -157,19 +155,19 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
 
       await db.into(db.clinicalRecord).insert(recordWithId);
 
-      await _loadPatients();
+      await _loadPatients(); // refresh table
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text("Patient and Clinical Record Saved Successfully!"),
+            content: Text("Patient and Clinical Record Saved Successfully!"), // confirmation message
           ),
         );
       }
 
       setState(() {
         _draftClinicalRecord = clinicalData;
-        _currentIndex = 0;
+        _currentIndex = 0; // reset the index back to 0
       });
     } catch (e) {
       print("Database Error: $e");
@@ -204,7 +202,7 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
 
     if (shouldDiscard == true) {
       _loadPatients();
-      setState(() => _currentIndex = 0);
+      setState(() => _currentIndex = 0); // set index back to 0
     }
   }
 
