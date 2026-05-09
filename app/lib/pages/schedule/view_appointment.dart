@@ -2,14 +2,11 @@ import 'package:dentcity_management_system/style/theme.dart';
 import 'package:flutter/material.dart';
 import '/../widgets/main_buttons.dart';
 import '/../widgets/attribute_read_view.dart';
-import '../../services/date_service.dart';
 
 class ViewAppointment extends StatefulWidget {
-  final VoidCallback onSave;
   final Map<String, dynamic>? existingPatient;
 
-  const ViewAppointment(
-      {super.key, this.existingPatient, required this.onSave});
+  const ViewAppointment({super.key, this.existingPatient});
 
   @override
   State<ViewAppointment> createState() => _ViewAppointmentState();
