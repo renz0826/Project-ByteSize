@@ -14,9 +14,9 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   // Personal Information Controller
-  final _firstNameController = TextEditingController(text: "Reynaldo");
+  final _firstNameController = TextEditingController();
   final _middleNameController = TextEditingController();
-  final _lastNameController = TextEditingController(text: "Tu");
+  final _lastNameController = TextEditingController();
 
   // Security Controller
   final _currentPinController = TextEditingController();
@@ -40,10 +40,11 @@ class _ProfilePageState extends State<ProfilePage> {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(32),
+      margin: const EdgeInsets.only(bottom: 24),
       decoration: BoxDecoration(
-        color: AppTheme.white500, // From your theme.dart
+        color: AppTheme.white500, 
         borderRadius: BorderRadius.circular(24),
-        boxShadow: AppTheme.floatShadow, // The soft shadow you defined
+        boxShadow: AppTheme.floatShadow,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -51,7 +52,8 @@ class _ProfilePageState extends State<ProfilePage> {
           Text(
             title,
             style: AppTheme.textTheme.headlineLarge?.copyWith(
-              fontWeight: FontWeight.w500
+              fontSize: 24,
+              fontWeight: FontWeight.w600
             ),
           ),
           const SizedBox(height: 32),
@@ -69,104 +71,102 @@ class _ProfilePageState extends State<ProfilePage> {
         child: Center(
           child: Container(
             constraints: const BoxConstraints(maxWidth: 1200),
-            margin: const EdgeInsets.all(24),
-            padding: const EdgeInsets.all(32),
-            decoration: BoxDecoration(
-              color: AppTheme.white500,
-              borderRadius: BorderRadius.circular(24),
-              boxShadow: AppTheme.floatShadow,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 24),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Account Settings", 
-                  style: AppTheme.textTheme.headlineLarge),
-                  const SizedBox(height: 32),
+                const PageHeader(
+                  title: 'Account Settings',
+                  type: PageHeaderType.plain,
+                ),
+
+                const SizedBox(height: 32),
                   
-                // Personal Info Card 
-                Text("Personal Information",
-                  style: AppTheme.textTheme.titleLarge),
-                  const SizedBox(height: 24),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: InputField(label: "First Name",
-                        controller: _firstNameController)),
-                        const SizedBox(width: 20),
-                      Expanded(
-                        child: InputField(label: "Middle Name",
-                        controller: _middleNameController)),
-                        const SizedBox(width: 20), 
-                      Expanded(
-                        child: InputField(label: "Last Name",
-                        controller: _lastNameController)), 
+                // Personal Info Card
+                _buildSectionCard(
+                  title: "Personal Information", 
+                  children: [
+                    Text("Update Full Name",
+                      style: AppTheme.textTheme.bodyLarge),
+                      const SizedBox(height: 24),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: InputField(label: "First Name",
+                            controller: _firstNameController)),
+                            const SizedBox(width: 20),
+                          Expanded(
+                            child: InputField(label: "Middle Name",
+                            controller: _middleNameController)),
+                            const SizedBox(width: 20), 
+                          Expanded(
+                            child: InputField(label: "Last Name",
+                            controller: _lastNameController)), 
+                          ],
+                        ),
+                        const SizedBox(height: 32),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: Button(
+                            label: "Update Profile",
+                            variant: ButtonVariant.primary,
+                            heroIcon: HeroIcons.check,
+                            onPressed: () {} // TO DO: Logic in updating Profile
+                          ),
+                        ),
                     ],
                   ),
-                  const SizedBox(height: 32),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: Button(
-                      label: "Update Profile",
-                      variant: ButtonVariant.primary,
-                      heroIcon: HeroIcons.check,
-                      onPressed: () {} // TO DO: Logic in updating Profile
-                    ),
-                  ),
-
-                  const SizedBox(height: 40),
-                  const Divider(color: AppTheme.gray200),
-                  const SizedBox(height: 40),
 
                   // Security and Access Card
-                  Text("Security and Access",
-                    style: AppTheme.textTheme.titleLarge),
-                    const SizedBox(height: 24),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: InputField(label: "CurrentPin",
-                          controller: _currentPinController,
-                          obscureText: true
-                          )
+                  _buildSectionCard(
+                    title: "Security and Access",
+                     children: [
+                      Text("Update Login PIN",
+                        style: AppTheme.textTheme.bodyLarge),
+                        const SizedBox(height: 24),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: InputField(label: "Current PIN",
+                              controller: _currentPinController,
+                              obscureText: true
+                              )
+                            ),
+                            const SizedBox(width: 20),
+                            Expanded(
+                              child: InputField(label: "New PIN",
+                              controller: _newPinController,
+                              obscureText: true
+                              )
+                            ),
+                            const SizedBox(width: 20),
+                            Expanded(
+                              child: InputField(label: "Confirm New PIN",
+                              controller: _confirmPinController,
+                              obscureText: true
+                              )
+                            ),
+                          ],
                         ),
-                        const SizedBox(width: 20),
-                        Expanded(
-                          child: InputField(label: "New PIN",
-                          controller: _newPinController,
-                          obscureText: true
-                          )
+                        const SizedBox(height: 32),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: Button(
+                            label: "Update PIN",
+                            variant: ButtonVariant.primary,
+                            heroIcon: HeroIcons.check,
+                            onPressed: () {} // TO DO: Logic for updating PIN
+                          ),
                         ),
-                        const SizedBox(width: 20),
-                        Expanded(
-                          child: InputField(label: "Confirm New PIN",
-                          controller: _confirmPinController,
-                          obscureText: true
-                          )
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 32),
-
-                    // Final button action
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Button(
-                          label: "Update PIN",
-                          width: 160,
-                          variant: ButtonVariant.primary,
-                          heroIcon: HeroIcons.lockClosed,
-                          onPressed: () {} // TO DO: Logic for 
-                        )
-                      ],
-                    ),
-                  ],
-                ),
-              ),
+                     ],
+                  ),
+              ],
             ),
           ),
-        );
-      }
-    }
+        ),
+      ),
+    );
+  }
+}
