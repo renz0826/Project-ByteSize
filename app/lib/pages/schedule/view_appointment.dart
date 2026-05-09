@@ -5,8 +5,10 @@ import '/../widgets/attribute_read_view.dart';
 
 class ViewAppointment extends StatefulWidget {
   final Map<String, dynamic>? appointmentData;
+  final VoidCallback onEdit;
 
-  const ViewAppointment({super.key, this.appointmentData});
+  const ViewAppointment(
+      {super.key, this.appointmentData, required this.onEdit});
 
   @override
   State<ViewAppointment> createState() => _ViewAppointmentState();
