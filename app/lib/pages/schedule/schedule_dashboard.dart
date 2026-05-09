@@ -62,6 +62,11 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
   }
 
   // Send user back to this page
+  void _goToViewAppointment() {
+    setState(() => _currentIndex = 2);
+  }
+
+  // Send user back to this page
   void _goBackToMain() {
     setState(() => _currentIndex);
   }
@@ -298,6 +303,7 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
     );
   }
 
+  // Schedule Form
   Widget _buildScheduleForm() {
     // Setting this as Index 1: When user clicks schedule appointment
     return SingleChildScrollView(
