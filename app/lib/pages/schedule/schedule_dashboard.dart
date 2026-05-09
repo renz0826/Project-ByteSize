@@ -1,4 +1,5 @@
-import 'package:dentcity_management_system/pages/schedule/schedule_appointment.dart';
+import '../schedule/schedule_appointment.dart';
+import '../schedule/view_appointment.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:drift/drift.dart' as drift;
@@ -26,6 +27,8 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
   // Real Database Lists // TODO: Connect to schedule db
   List<PatientData> _allPatients = [];
   List<PatientData> _filteredRecords = [];
+
+  Map<String, dynamic>? _selectedAppointment;
 
   // Functions to change patients screen states
   PatientCompanion? _draftPatient;
@@ -58,12 +61,23 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
 
   // Send user to add_patient.dart
   void _goToScheduleAppointment() {
-    setState(() => _currentIndex = 1);
+    setState(() {
+      _selectedAppointment = null;
+      _currentIndex = 1;
+    });
+  }
+
+  // Send user to add_patient.dart edit state
+  void _goToEditAppointment() {
+    setState(() {
+      _formSessionId++;
+      _currentIndex = 1;
+    });
   }
 
   // Send user back to this page
   void _goBackToMain() {
-    setState(() => _currentIndex);
+    setState(() => _currentIndex = 0);
   }
 
 // ! Dummy data specifically for testing the Schedule Table UI
@@ -189,7 +203,11 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
   Widget build(BuildContext context) {
     return IndexedStack(
       index: _currentIndex,
-      children: [_buildMainDashboard(), _buildScheduleForm()],
+      children: [
+        _buildMainDashboard(),
+        _buildScheduleForm(),
+        _buildViewAppointment()
+      ],
     );
   }
 
@@ -298,8 +316,17 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
     );
   }
 
+  // Schedule Form
   Widget _buildScheduleForm() {
     // Setting this as Index 1: When user clicks schedule appointment
+
+    // Map our mock appointment data to what the form expects for 'existingPatient'
+    Map<String, dynamic>? patientToEdit;
+    if (_selectedAppointment != null) {
+      patientToEdit = {
+        'fullName': _selectedAppointment!['patientName'],
+      };
+    }
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -314,13 +341,34 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
             child: ScheduleAppointmentForm(
                 activePatients: [],
                 key: ValueKey(_formSessionId),
+                existingPatient: patientToEdit,
                 onSave: _goBackToMain),
           ),
         ],
       ),
     );
   }
-  // Schedule Form
+
+  Widget _buildViewAppointment() {
+    // Setting this as Index 2: When user clicks an appointment bar
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          PageHeader(
+            title: 'Back to Schedules',
+            type: PageHeaderType.withBack,
+            onBack: _goBackToMain,
+          ),
+          Transform.translate(
+              offset: const Offset(0, -30),
+              child: ViewAppointment(
+                  appointmentData: _selectedAppointment,
+                  onEdit: _goToEditAppointment)),
+        ],
+      ),
+    );
+  }
 
   //search bar
   Widget _buildSearchBar() {
@@ -381,7 +429,7 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
       child: Row(
         children: [
           Expanded(flex: 3, child: Text('Patient', style: headerStyle)),
-          SizedBox(width: 2),
+          SizedBox(width: 6),
           Expanded(flex: 2, child: Text('Date', style: headerStyle)),
           SizedBox(width: 6),
           Expanded(flex: 2, child: Text('Time', style: headerStyle)),
@@ -395,11 +443,39 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
 
 // Build Table Row
   Widget _buildTableRow(Map<String, dynamic> appointment) {
-    return ScheduleBar(
-      fullName: appointment['patientName'],
-      date: appointment['date'],
-      time: appointment['time'],
-      procedure: appointment['reason'],
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _selectedAppointment = appointment;
+          _currentIndex = 2;
+        });
+      },
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: ScheduleBar(
+          fullName: appointment['patientName'],
+          date: appointment['date'],
+          time: appointment['time'],
+          procedure: appointment['reason'],
+
+          // Makes the menu popup functional
+          onMenuSelected: (String actionValue) {
+            setState(() {
+              _selectedAppointment = appointment;
+            });
+
+            switch (actionValue) {
+              case 'view_appointment':
+                setState(() => _currentIndex = 2);
+              case 'edit_appointment':
+                _goToEditAppointment();
+                break;
+              case 'cancel_appointment':
+              // TODO: Make this functional
+            }
+          },
+        ),
+      ),
     );
   }
 
