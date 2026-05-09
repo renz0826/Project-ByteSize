@@ -4,9 +4,9 @@ import '/../widgets/main_buttons.dart';
 import '/../widgets/attribute_read_view.dart';
 
 class ViewAppointment extends StatefulWidget {
-  final Map<String, dynamic>? existingPatient;
+  final Map<String, dynamic>? appointmentData;
 
-  const ViewAppointment({super.key, this.existingPatient});
+  const ViewAppointment({super.key, this.appointmentData});
 
   @override
   State<ViewAppointment> createState() => _ViewAppointmentState();
@@ -19,6 +19,18 @@ class _ViewAppointmentState extends State<ViewAppointment> {
   // TODO : Connect all reads to the approriate db
   @override
   Widget build(BuildContext context) {
+    // Extract data with fallback values
+    final appointment = widget.appointmentData ?? {};
+    final patientName = appointment['patientName'] ?? 'Unknown Patient';
+    final timeStr = appointment['time'] ?? '-';
+    final reason = appointment['reason'] ?? '-';
+
+    // !Basic date formatting (You can replace this with your DateService later)
+    final rawDate = appointment['date'];
+    final dateStr = rawDate != null
+        ? "${rawDate.year}-${rawDate.month.toString().padLeft(2, '0')}-${rawDate.day.toString().padLeft(2, '0')}"
+        : 'N/A';
+
     return Center(
         child: Container(
       margin: const EdgeInsets.all(24),
@@ -37,7 +49,7 @@ class _ViewAppointmentState extends State<ViewAppointment> {
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text("Renz Bedonia's Appointment",
+                  Text("$patientName's Appointment",
                       style: Theme.of(context).textTheme.headlineLarge),
                   Row(
                     spacing: 16,
@@ -78,12 +90,10 @@ class _ViewAppointmentState extends State<ViewAppointment> {
                     spacing: 300,
                     children: [
                       // TODO: Connect these info to the approriate db.
+                      AttributeReadView(label: "Date", content: dateStr),
+                      AttributeReadView(label: "Time Slot", content: timeStr),
                       AttributeReadView(
-                          label: "Date", content: "February 27, 2026"),
-                      AttributeReadView(
-                          label: "Time Slot", content: "10:00 AM"),
-                      AttributeReadView(
-                          label: "Reason for Visit", content: "Toothache")
+                          label: "Reason for Visit", content: reason)
                     ],
                   )
                 ]),
