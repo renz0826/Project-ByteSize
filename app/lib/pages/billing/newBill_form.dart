@@ -216,18 +216,12 @@ class _InvoiceFormState extends ConsumerState<InvoiceForm> {
 
             const SizedBox(height: 16),
             
-            OutlinedButton.icon(
+            Button(
               onPressed: _addProcedure,
-              icon: const Icon(Icons.add, size: 18),
-              label: const Text('Add Charge'),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: AppTheme.blue500,
-                side: const BorderSide(color: AppTheme.blue500),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              label: "Add Charge",
+              variant: ButtonVariant.smallSecondary,
+              icon: Icons.add,
               ),
-            ),
-            const SizedBox(height: 60),
 
             Align(
               alignment: Alignment.centerRight,
