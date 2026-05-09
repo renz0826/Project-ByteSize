@@ -279,8 +279,6 @@ class _InvoiceFormState extends ConsumerState<InvoiceForm> {
               variant: ButtonVariant.smallSecondary,
               icon: Icons.add,
               ),
-            ),
-            const SizedBox(height: 60),
 
             Align(
               alignment: Alignment.centerRight,
