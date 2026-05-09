@@ -8,7 +8,7 @@ class InvoiceRepository {
 
   // --------------------------------------------------
   // READ – all invoices with patient name, procedure
-  //         names, and computed grand total
+  //          names, and computed grand total
   // --------------------------------------------------
   Future<List<JoinedInvoice>> getAllInvoices() async {
     // 1. Fetch invoices joined with patient

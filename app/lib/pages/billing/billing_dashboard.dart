@@ -11,22 +11,7 @@ import '../../db/database.dart';
 import '../../db/database_provider.dart';
 import '../../repositories/invoice_repository.dart';
 import 'newBill_form.dart';
-
-class BillingDashboard extends ConsumerStatefulWidget {
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '/../style/theme.dart';
-import '/../widgets/search_bar.dart';
-import '/../widgets/app_pagination.dart';
-import '/../widgets/main_buttons.dart';
-import '/../widgets/page_header.dart';
-import 'package:heroicons/heroicons.dart';
-import '../../db/database.dart';
-import '../../db/database_provider.dart';
-import '../../repositories/invoice_repository.dart';
-import 'newBill_form.dart';
 import 'process_payment.dart';
-import '../../providers/auth_provider.dart'; 
-import 'package:flutter/services.dart';
 
 class BillingDashboard extends ConsumerStatefulWidget {
   const BillingDashboard({super.key});
@@ -37,6 +22,7 @@ class BillingDashboard extends ConsumerStatefulWidget {
 
 class _BillingDashboardState extends ConsumerState<BillingDashboard> {
   late InvoiceRepository _repository;
+
 
   List<JoinedInvoice> _allInvoices = [];
   List<JoinedInvoice> _filteredRecords = [];
@@ -242,7 +228,6 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
     return IndexedStack(
       index: _currentIndex,
       children: [
-        // INDEX 0: MAIN DASHBOARD
         Scaffold(
           backgroundColor: AppTheme.gray200,
           body: CustomScrollView(
@@ -420,6 +405,8 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
 
   Widget _buildTableHeader() {
     final headerStyle = AppTheme.textTheme.bodyLarge;
+    final headerStyle = AppTheme.textTheme.bodyLarge
+        ?.copyWith(fontWeight: FontWeight.bold, color: AppTheme.black500);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12 ),
         child: Row(
@@ -435,6 +422,20 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
         ),
       );
     }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 48),
+        child: Text(
+          _searchController.text.isNotEmpty
+              ? "Sorry, We couldn't find anything that matches '${_searchController.text}'"
+              : 'No records found',
+          style: AppTheme.textTheme.bodyMedium?.copyWith(color: AppTheme.gray400),
+        ),
+      ),
+    );
+  }
 
   Widget _buildEmptyState() {
     return Center(
@@ -468,8 +469,12 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
           Expanded(flex: 3, child: Text(invoiceInfo.patientName, maxLines: 1, overflow: TextOverflow.ellipsis, style: AppTheme.textTheme.bodyMedium)),
           Expanded(flex: 3, child: Text(invoiceInfo.procedureNames, maxLines: 1, overflow: TextOverflow.ellipsis, style: AppTheme.textTheme.bodyMedium)),
           Expanded(flex: 2, child: Text('₱ ${inv.totalBalance.toStringAsFixed(2)}', style: AppTheme.textTheme.bodyMedium)),
+          Expanded(flex: 3, child: Text(invoiceInfo.patientName, maxLines: 1, overflow: TextOverflow.ellipsis, style: AppTheme.textTheme.bodyMedium)),
+          Expanded(flex: 3, child: Text(invoiceInfo.procedureNames, maxLines: 1, overflow: TextOverflow.ellipsis, style: AppTheme.textTheme.bodyMedium)),
+          Expanded(flex: 2, child: Text('₱ ${inv.totalBalance.toStringAsFixed(2)}', style: AppTheme.textTheme.bodyMedium)),
           Expanded(flex: 2, child: Text(inv.issuedDate.toString().substring(0, 10), style: AppTheme.textTheme.bodyMedium)),
           Expanded(
+            flex: 2,
             flex: 2,
             child: Align(
               alignment: Alignment.centerLeft,

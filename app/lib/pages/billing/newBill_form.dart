@@ -84,6 +84,8 @@ class _InvoiceFormState extends ConsumerState<InvoiceForm> {
   }
 
   void _removeProcedure(int index) {
+    // Prevent removal of the last remaining row
+    if (_procedures.length <= 1) return;
     setState(() {
       _procedures[index].dispose();
       _procedures.removeAt(index);
@@ -96,7 +98,7 @@ class _InvoiceFormState extends ConsumerState<InvoiceForm> {
       _selectedPatientName = null;
       for (final row in _procedures) row.dispose();
       _procedures.clear();
-      _addProcedure();
+      _addProcedure(); // always leave one row
     });
   }
 
@@ -318,6 +320,7 @@ class _ProcedureRowWidget extends StatelessWidget {
   final int index;
   final _ProcedureRow row;
   final VoidCallback onRemove;
+  final bool canDelete;
 
   const _ProcedureRowWidget({required this.index, required this.row, required this.onRemove});
 
@@ -333,7 +336,16 @@ class _ProcedureRowWidget extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(flex: 3, child: InputField(label: 'Procedure', hintText: 'e.g. Tooth Extraction', controller: row.nameController)),
+          // 1. Procedure Name Input
+          Expanded(
+            flex: 3,
+            child: InputField(
+              label: 'Procedure',
+              hintText: 'e.g. Tooth Extraction',
+              controller: row.nameController,
+              isRequired: true,   // red asterisk now shown
+            ),
+          ),
           const SizedBox(width: 16),
           Expanded(
             flex: 2,
