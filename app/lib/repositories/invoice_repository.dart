@@ -8,7 +8,7 @@ class InvoiceRepository {
 
   // --------------------------------------------------
   // READ – all invoices with patient name, procedure
-  //        names, and computed grand total
+  //         names, and computed grand total
   // --------------------------------------------------
   Future<List<JoinedInvoice>> getAllInvoices() async {
     // 1. Fetch invoices joined with patient
@@ -63,8 +63,7 @@ class InvoiceRepository {
   }
 
   // --------------------------------------------------
-  // CREATE – invoice with multiple procedures and
-  //          an initial payment (can be 0)
+  // CREATE – invoice with multiple procedures
   // --------------------------------------------------
   Future<int> createInvoice({
     required int patientId,
@@ -73,17 +72,16 @@ class InvoiceRepository {
     required String modeOfPayment,
   }) async {
     return _db.transaction(() async {
-      // 1. Insert the invoice first (we need its ID)
-      //    We'll update totalBalance after we know the procedure charges
+      // 1. Insert the invoice first
       final invoiceId = await _db.into(_db.invoice).insert(
             InvoiceCompanion.insert(
               patientId: patientId,
-              totalBalance: 0, // temporary, will update after
+              totalBalance: 0, 
               status: 'Pending',
             ),
           );
 
-      // 2. Insert each procedure charge, linked to this invoice
+      // 2. Insert each procedure charge
       double totalCharges = 0;
       for (final proc in procedures) {
         final charge = proc['charge'] as double;
@@ -102,7 +100,7 @@ class InvoiceRepository {
             );
       }
 
-      // 3. Insert a payment transaction (even if amountReceived is 0)
+      // 3. Insert a payment transaction
       await _db.into(_db.paymentTransaction).insert(
             PaymentTransactionCompanion.insert(
               invoiceId: invoiceId,
@@ -125,11 +123,45 @@ class InvoiceRepository {
       return invoiceId;
     });
   }
+
+  // --------------------------------------------------
+  // UPDATE – Process a new payment session
+  // --------------------------------------------------
+  Future<void> processPayment({
+    required int invoiceId,
+    required double amountPaidNow,
+    required String modeOfPayment,
+  }) async {
+    return _db.transaction(() async {
+      // 1. Fetch current invoice state
+      final invoice = await (_db.select(_db.invoice)
+            ..where((t) => t.invoiceId.equals(invoiceId)))
+          .getSingle();
+
+      // 2. Insert the new payment record into the history
+      await _db.into(_db.paymentTransaction).insert(
+            PaymentTransactionCompanion.insert(
+              invoiceId: invoiceId,
+              amountReceived: amountPaidNow,
+              modeOfPayment: modeOfPayment,
+            ),
+          );
+
+      // 3. Calculate new balance
+      final newBalance = (invoice.totalBalance - amountPaidNow).clamp(0.0, double.infinity);
+      final newStatus = newBalance <= 0 ? 'Paid' : 'Pending';
+
+      // 4. Update the invoice record
+      await (_db.update(_db.invoice)
+            ..where((t) => t.invoiceId.equals(invoiceId)))
+          .write(InvoiceCompanion(
+            totalBalance: Value(newBalance),
+            status: Value(newStatus),
+          ));
+    });
+  }
 }
 
-// --------------------------------------------------
-// Data class for displaying invoices
-// --------------------------------------------------
 class JoinedInvoice {
   final InvoiceData invoice;
   final String patientName;

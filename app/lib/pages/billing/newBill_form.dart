@@ -28,7 +28,7 @@ class _InvoiceFormState extends ConsumerState<InvoiceForm> {
   void initState() {
     super.initState();
     _loadPatients();
-    _addProcedure(); // Add one empty procedure row by default
+    _addProcedure(); // start with one procedure row
   }
 
   Future<void> _loadPatients() async {
@@ -57,6 +57,8 @@ class _InvoiceFormState extends ConsumerState<InvoiceForm> {
   }
 
   void _removeProcedure(int index) {
+    // Prevent removal of the last remaining row
+    if (_procedures.length <= 1) return;
     setState(() {
       _procedures[index].dispose();
       _procedures.removeAt(index);
@@ -70,7 +72,7 @@ class _InvoiceFormState extends ConsumerState<InvoiceForm> {
         row.dispose();
       }
       _procedures.clear();
-      _addProcedure();
+      _addProcedure(); // always leave one row
     });
   }
 
@@ -118,7 +120,7 @@ class _InvoiceFormState extends ConsumerState<InvoiceForm> {
         modeOfPayment: 'Not Paid',
       );
       
-      widget.onFinish(); // Instantly returns to dashboard and triggers refresh
+      widget.onFinish(); // returns to dashboard and triggers refresh
       
     } catch (e) {
       if (mounted) {
@@ -175,18 +177,18 @@ class _InvoiceFormState extends ConsumerState<InvoiceForm> {
                 index: index,
                 row: _procedures[index],
                 onRemove: () => _removeProcedure(index),
+                canDelete: _procedures.length > 1,   // last row cannot be deleted
               );
             }),
 
             const SizedBox(height: 16),
             
-            // Replaced default OutlinedButton with custom styling
             OutlinedButton.icon(
               onPressed: _addProcedure,
               icon: const Icon(Icons.add, size: 18),
               label: const Text('Add Charge'),
               style: OutlinedButton.styleFrom(
-                foregroundColor: AppTheme.blue500, // Assuming your primary blue is here
+                foregroundColor: AppTheme.blue500,
                 side: const BorderSide(color: AppTheme.blue500),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
@@ -201,7 +203,6 @@ class _InvoiceFormState extends ConsumerState<InvoiceForm> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  // Total Balance Box (Keeps the 350px width restriction)
                   SizedBox(
                     width: 350, 
                     child: Container(
@@ -221,7 +222,6 @@ class _InvoiceFormState extends ConsumerState<InvoiceForm> {
                   ),
                   const SizedBox(height: 32),
                   
-                  // Standardized Buttons (Using Wrap to prevent overflow on any screen size)
                   Wrap(
                     spacing: 16,
                     runSpacing: 16,
@@ -291,19 +291,17 @@ class _ProcedureRowWidget extends StatelessWidget {
   final int index;
   final _ProcedureRow row;
   final VoidCallback onRemove;
+  final bool canDelete;
 
   const _ProcedureRowWidget({
     required this.index,
     required this.row,
     required this.onRemove,
+    required this.canDelete,
   });
 
   @override
   Widget build(BuildContext context) {
-    
-    // --- THE FIX: Label Style Matcher ---
-    // Change fontSize, fontWeight, or color here to perfectly 
-    // match your custom InputField widget's internal code!
     final labelStyle = AppTheme.textTheme.bodyMedium?.copyWith(
       fontSize: 12, 
       fontWeight: FontWeight.w600,
@@ -326,6 +324,7 @@ class _ProcedureRowWidget extends StatelessWidget {
               label: 'Procedure',
               hintText: 'e.g. Tooth Extraction',
               controller: row.nameController,
+              isRequired: true,   // red asterisk now shown
             ),
           ),
           const SizedBox(width: 16),
@@ -417,23 +416,24 @@ class _ProcedureRowWidget extends StatelessWidget {
             ),
           ),
           
-          const SizedBox(width: 16),
-          
-          // 5. Delete Row Button
-          Padding(
-            padding: const EdgeInsets.only(top: 26), 
-            child: Container(
-              height: 48,
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.red.shade300),
-                borderRadius: BorderRadius.circular(8),
+          // 5. Delete Row Button – hidden when only one row remains
+          if (canDelete)
+            Padding(
+              padding: const EdgeInsets.only(top: 26), 
+              child: Container(
+                height: 48,
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.red.shade300),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: IconButton(
+                  icon: Icon(Icons.remove, color: Colors.red.shade400),
+                  onPressed: onRemove,
+                ),
               ),
-              child: IconButton(
-                icon: Icon(Icons.remove, color: Colors.red.shade400),
-                onPressed: onRemove,
-              ),
-            ),
-          )
+            )
+          else
+            const SizedBox(width: 64), // maintain alignment
         ],
       ),
     );
