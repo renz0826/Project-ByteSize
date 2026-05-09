@@ -319,6 +319,14 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
   // Schedule Form
   Widget _buildScheduleForm() {
     // Setting this as Index 1: When user clicks schedule appointment
+
+    // Map our mock appointment data to what the form expects for 'existingPatient'
+    Map<String, dynamic>? patientToEdit;
+    if (_selectedAppointment != null) {
+      patientToEdit = {
+        'fullName': _selectedAppointment!['patientName'],
+      };
+    }
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -333,6 +341,7 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
             child: ScheduleAppointmentForm(
                 activePatients: [],
                 key: ValueKey(_formSessionId),
+                existingPatient: patientToEdit,
                 onSave: _goBackToMain),
           ),
         ],
