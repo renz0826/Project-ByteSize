@@ -214,8 +214,6 @@ class _InvoiceFormState extends ConsumerState<InvoiceForm> {
             ...List.generate(_procedures.length, (index) {
               return _ProcedureRowWidget(index: index, row: _procedures[index], onRemove: () => _removeProcedure(index));
             }),
-
-            const SizedBox(height: 16),
             
             Button(
               onPressed: _addProcedure,
@@ -377,7 +375,7 @@ class _ProcedureRowWidget extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(top: 26), 
             child: IconButtons(
-              variant: IconButtonVariant.remove, // FIX: Remove the 's' after IconButton
+              variant: IconButtonVariant.remove, 
               onPressed: onRemove,
             ),
           )
