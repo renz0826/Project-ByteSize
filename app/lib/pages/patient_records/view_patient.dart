@@ -50,7 +50,7 @@ class _ViewPatientScreenState extends State<ViewPatientScreen> {
   String _formatDate(DateTime date) => DateFormat('MMMM d, y').format(date);
 
   String _formatAppointment(DateTime date) =>
-      DateFormat("MMMM d, y '–' h:mm a").format(date);
+      DateFormat("MMMM d, y '-' h:mm a").format(date);
 
   int _calculateAge(DateTime birthDate) {
     final now = DateTime.now();
@@ -66,25 +66,29 @@ class _ViewPatientScreenState extends State<ViewPatientScreen> {
   Widget build(BuildContext context) {
     return Container(
       color: AppTheme.gray200,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          //patient name header
-          _buildNameHeader(context),
-          const SizedBox(height: 8),
+      // ADDED SingleChildScrollView HERE to make the view scrollable
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.only(bottom: 40), // Optional: adds breathing room at the bottom
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            //patient name header
+            _buildNameHeader(context),
+            const SizedBox(height: 8),
 
-          //personal details
-          _buildPersonalDetailsCard(context),
-          const SizedBox(height: 16),
+            //personal details
+            _buildPersonalDetailsCard(context),
+            const SizedBox(height: 16),
 
-          //clinical record that only shows if there are records
-          if (widget.clinicalRecords.isEmpty)
-            _buildNoClinicalRecordCard(context)
-          else
-            _buildClinicalRecordCard(context),
+            //clinical record that only shows if there are records
+            if (widget.clinicalRecords.isEmpty)
+              _buildNoClinicalRecordCard(context)
+            else
+              _buildClinicalRecordCard(context),
 
-          const SizedBox(height: 32),
-        ],
+            const SizedBox(height: 32),
+          ],
+        ),
       ),
     );
   }
@@ -292,7 +296,7 @@ class _ViewPatientScreenState extends State<ViewPatientScreen> {
           ),
           const SizedBox(height: 40),
 
-          // treatmetn procedure
+          // treatment procedure
           Text('Treatment Procedure',
               style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 16),
@@ -345,14 +349,14 @@ class _ViewPatientScreenState extends State<ViewPatientScreen> {
           Row(
             children: [
               _InfoBlock(
-                label: 'Carries Indicated for Filling',
+                label: 'Caries Indicated for Filling',
                 value: _selectedRecord!.cariesForFilling > 0
                     ? '${_selectedRecord!.cariesForFilling}'
                     : 'None',
                 isAlert: _selectedRecord!.cariesForFilling > 0,
               ),
               _InfoBlock(
-                label: 'Carries Indicated for Extraction',
+                label: 'Caries Indicated for Extraction',
                 value: _selectedRecord!.cariesForExtraction > 0
                     ? '${_selectedRecord!.cariesForExtraction}'
                     : 'None',
@@ -373,7 +377,7 @@ class _ViewPatientScreenState extends State<ViewPatientScreen> {
           Row(
             children: [
               _InfoBlock(
-                label: 'Missing Due to Carries',
+                label: 'Missing Due to Caries',
                 value: _selectedRecord!.missingDueToCaries > 0
                     ? '${_selectedRecord!.missingDueToCaries}'
                     : 'None',
@@ -425,13 +429,13 @@ class _ViewPatientScreenState extends State<ViewPatientScreen> {
 
   //small gray label above a value
   Widget _buildLabel(BuildContext context, String label, {TextStyle? textStyle}) {
-  return Text(
-    label,
-    style: textStyle ?? AppTheme.textTheme.bodySmall?.copyWith(
-      color: AppTheme.gray500,
-    ),
-  );
-}
+    return Text(
+      label,
+      style: textStyle ?? AppTheme.textTheme.bodySmall?.copyWith(
+        color: AppTheme.gray500,
+      ),
+    );
+  }
 }
 
 //shared menu item widget from app info bar

@@ -13,6 +13,7 @@ import '../../services/date_helper.dart';
 import '../../providers/app_providers.dart';
 import 'add_patient.dart';
 import 'add_clinical_record.dart';
+import 'view_patient.dart'; 
 import 'package:heroicons/heroicons.dart';
 
 //main screen
@@ -31,6 +32,10 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
   // Functions to change patients screen states
   PatientCompanion? _draftPatient;
   ClinicalRecordCompanion? _draftClinicalRecord;
+  
+  // NEW: Variables for View Patient screen
+  PatientData? _patientToView;
+  List<ClinicalRecordData> _clinicalRecordsToView = [];
 
   // Bug Fix: Using IndexedStack to prevent form data from being deleted when clicking back
   int _currentIndex = 0;
@@ -70,6 +75,26 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
       _draftPatient = patientData;
       _currentIndex = 2;
     });
+  }
+
+  // NEW: Send user to view_patient.dart and fetch their records
+  Future<void> _goToViewPatient(PatientData patient) async {
+    try {
+      final db = ref.read(databaseProvider);
+      
+      // Fetch all clinical records linked to this patient
+      final records = await (db.select(db.clinicalRecord)
+            ..where((t) => t.patientId.equals(patient.patientId)))
+          .get();
+
+      setState(() {
+        _patientToView = patient;
+        _clinicalRecordsToView = records;
+        _currentIndex = 3; // Index 3 is our View screen
+      });
+    } catch (e) {
+      debugPrint("Error fetching patient records: $e");
+    }
   }
 
   // Send user back to this page
@@ -295,6 +320,23 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
             ],
           ),
         ),
+
+        // NEW -> Setting this as Index 3: View Patient Details
+        if (_patientToView != null)
+          ViewPatientScreen(
+            patient: _patientToView!,
+            clinicalRecords: _clinicalRecordsToView,
+            onBack: () {
+              // Return to dashboard and clear the temporary view data
+              setState(() {
+                _currentIndex = 0;
+                _patientToView = null;
+                _clinicalRecordsToView = [];
+              });
+            },
+          )
+        else
+          const SizedBox.shrink(), // Fallback if no patient is selected
       ],
     );
   }
@@ -442,6 +484,9 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
       onMenuSelected: (value) {
         if (value == 'add_clinical_record') {
           _goToAddClinicalRecord(patient.toCompanion(true));
+        } else if (value == 'view_record') { 
+          // NEW: Triggers the new _goToViewPatient method
+          _goToViewPatient(patient);
         }
       },
     );
