@@ -5,6 +5,7 @@ import '../../widgets/app_info_bar.dart';
 import '/../style/theme.dart';
 import '/../db/database.dart';
 import 'package:dropdown_search/dropdown_search.dart';
+import '../../widgets/input_field.dart';
 
 class ViewPatientScreen extends StatefulWidget {
   final PatientData patient;
@@ -25,7 +26,6 @@ class ViewPatientScreen extends StatefulWidget {
 }
 
 class _ViewPatientScreenState extends State<ViewPatientScreen> {
-  bool _isDropdownOpen = false;
   int? _selectedRecordId;
 
   ClinicalRecordData? get _selectedRecord => 
@@ -213,89 +213,25 @@ class _ViewPatientScreenState extends State<ViewPatientScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Appointment Schedule dropdown 
-          Text('Appointment Schedule',
-            style: AppTheme.textTheme.bodySmall?.copyWith(color: AppTheme.gray500)),
-        const SizedBox(height: 8),
-          
-        GestureDetector(
-          onTap:() => setState(() => _isDropdownOpen = true),
-        child: SizedBox(
-          width: 300, 
-          child: DropdownSearch<int>(
-            // list of record ids
-            items: (filter, loadProps) => 
-            widget.clinicalRecords.map((r) => r.recordId).toList(),
-            //pre-select most recent record
-            selectedItem: _selectedRecordId,
-            //display formatted appointment
-            itemAsString: (id) {
-              final record = widget.clinicalRecords
-              .where((r) => r.recordId == id).firstOrNull;
-              return record != null 
-              ? _formatAppointment(record.createdAt)
-              : '-';
-            },
-            onSelected: (selectedId) {
-              setState(() {
-                _selectedRecordId = selectedId;
-                _isDropdownOpen = false;
-              });
-            },
-
-            decoratorProps: DropDownDecoratorProps(
-              decoration: InputDecoration(
-                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: const BorderSide(color: AppTheme.gray400),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: const BorderSide(color: AppTheme.gray400, width: 1.5)
-                ),
-                filled: true,
-                fillColor: AppTheme.white500,
-                suffixIcon: HeroIcon(
-                  _isDropdownOpen ? HeroIcons.chevronUp : HeroIcons.chevronDown,
-                  size: 18,
-                  color: AppTheme.gray500,
-                ),
-              ),
-            ),
-
-            popupProps: PopupProps.menu(
-              fit: FlexFit.loose,
-              constraints: const BoxConstraints(maxHeight: 200),
-              onDismissed: () => setState(() => _isDropdownOpen = false),
-              interceptCallBacks: true,
-              itemBuilder:(context, item, isDisabled, isSelected) {
-                final record = widget.clinicalRecords
-                .where((r) => r.recordId == item).firstOrNull;
-                return Container(
-                  height: 36,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    record != null ? _formatAppointment(record.createdAt) : '-',
-                    style: AppTheme.textTheme.bodySmall?.copyWith(
-                      color: isSelected ? AppTheme.blue500 : AppTheme.black500,
-                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                    ),
-                  ),
-                );
-              },
-              emptyBuilder: (context, searchEntry) => Container(
-                height: 48,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'No appointments found.',
-                  style: AppTheme.textTheme.bodySmall,
-                ),
-              ),
-            ),
-          ),
-        ),
+          InputField(
+            label: 'Appointment Schedule',
+            variant: InputVariant.dropdown,
+            // converted the recordId to formatted date strings
+            dropdownItems: widget.clinicalRecords
+            .map((r) => '${r.recordId}|${_formatAppointment(r.createdAt)}')
+            .toList(),
+            // show the formatted date of the selected record
+          dropdownValue: _selectedRecordId != null
+            ? widget.clinicalRecords
+            .where((r) => r.recordId == _selectedRecordId)
+            .map((r) => '${r.recordId}|${_formatAppointment(r.createdAt)}')
+            .firstOrNull : null,
+          onDropdownChanged: (value) {
+            if (value == null) return;
+            //parse the id bback to string
+            final id = int.tryParse(value.split('|').first);
+            setState(() => _selectedRecordId = id);
+          },
         ),
           const SizedBox(height: 24),
 
