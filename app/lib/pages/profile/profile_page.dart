@@ -13,10 +13,15 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  // Initialize with the user's current data
+  // Personal Information Controller
   final _firstNameController = TextEditingController(text: "Reynaldo");
   final _middleNameController = TextEditingController();
   final _lastNameController = TextEditingController(text: "Tu");
+
+  // Security Controller
+  final _currentPinController = TextEditingController();
+  final _newPinController = TextEditingController();
+  final _confirmPinController = TextEditingController();
 
   @override
   void dispose() {
@@ -24,6 +29,9 @@ class _ProfilePageState extends State<ProfilePage> {
     _firstNameController.dispose();
     _middleNameController.dispose();
     _lastNameController.dispose();
+    _currentPinController.dispose();
+    _newPinController.dispose();
+    _confirmPinController.dispose();
     super.dispose();
   }
   
@@ -128,7 +136,53 @@ class _ProfilePageState extends State<ProfilePage> {
                 _buildSectionCard(
                   title: "Security and Access", 
                   children: [
-                    const Text (""),
+                    Text (
+                      "Update Login PIN",
+                      style: AppTheme.textTheme.bodyLarge?.copyWith(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: InputField(
+                            label: "Current PIN",
+                            controller: _currentPinController,
+                            obscureText: true,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: InputField(
+                            label: "New PIN",
+                            controller: _newPinController,
+                            obscureText: true,
+                            ),
+                          ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: InputField(
+                            label: "Confirm New PIN",
+                            controller: _confirmPinController,
+                            obscureText: true,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 40),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: Button(
+                        label: "Update PIN",
+                        variant: ButtonVariant.primary,
+                        heroIcon: HeroIcons.lockClosed,
+                        onPressed: () {
+                          // Logic here
+                        },
+                      ),
+                    )
                   ],
                 )
               ])
