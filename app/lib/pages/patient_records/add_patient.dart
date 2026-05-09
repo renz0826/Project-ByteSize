@@ -112,12 +112,10 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
       zipCode: _zipController.text.trim(),
     );
 
-  if (missing.isNotEmpty) {
+    if (missing.isNotEmpty) {
       MissingInfoDialog.show(context, missing);
       return;
     }
-
-    
 
     // TODO: @Frontend, please refactor this, thank you - Fons
     final db = ref.read(databaseProvider);
@@ -231,7 +229,7 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
                 flex: 1,
                 child: InputField(
                   label: "Suffix",
-                  hintText: "Enter Suffix",
+                  hintText: "e.g. Jr.",
                   variant: InputVariant.dropdown,
                   dropdownValue: _selectedSuffix,
                   dropdownItems: const ["Jr.", "Sr.", "II", "III", "IV", "V"],
@@ -447,8 +445,8 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
                       key: ValueKey(_selectedProvince),
                       label: "City/Municipality",
                       hintText: _selectedProvince == null
-                      ? "Select A Province First"
-                      : "Select A City",
+                          ? "Select A Province First"
+                          : "Select A City",
                       variant: InputVariant.dropdown,
                       dropdownValue: _selectedCity,
                       dropdownItems: _selectedProvince != null
@@ -470,8 +468,8 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
                       key: ValueKey(_selectedCity),
                       label: "Barangay",
                       hintText: _selectedCity == null
-                      ? "Select a city first"
-                      : "Select a Barangay",
+                          ? "Select a city first"
+                          : "Select a Barangay",
                       variant: InputVariant.dropdown,
                       dropdownValue: _selectedBarangay,
                       dropdownItems:
@@ -500,13 +498,11 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
           ),
           const SizedBox(height: 32),
           Align(
-            alignment: Alignment
-                .centerRight, 
+            alignment: Alignment.centerRight,
             child: Wrap(
               spacing: 16,
               runSpacing: 16,
-              alignment: WrapAlignment
-                  .end, 
+              alignment: WrapAlignment.end,
               children: [
                 SizedBox(
                   width: 100,
