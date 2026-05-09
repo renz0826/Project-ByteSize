@@ -1,17 +1,8 @@
-import 'package:dentcity_management_system/db/tables.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:heroicons/heroicons.dart';
 import '/../style/theme.dart';
 import '/../db/database.dart';
-
-// Used in PatientDashboard as Index 3
-// USAGE:
-//   ViewPatientScreen(
-//     patient: patientData,         // PatientData from Drift
-//     clinicalRecords: records,     // List<ClinicalRecordData> from Drift
-//     onBack: () { ... },           // callback to return to main dashboard
-//   )
 
 class ViewPatientScreen extends StatefulWidget {
   final PatientData patient;
@@ -30,7 +21,6 @@ class ViewPatientScreen extends StatefulWidget {
 }
 
 class _ViewPatientScreenState extends State<ViewPatientScreen> {
-  // ClinicalRecordData? _selectedRecord; // currently displayed record
   bool _isDropdownOpen = false;
   int? _selectedRecordId;
 
@@ -166,11 +156,6 @@ class _ViewPatientScreenState extends State<ViewPatientScreen> {
                 label: 'Emergency Contact No.',
                 value: widget.patient.emergencyContactNo ?? '—',
               ),
-              //TODO: remove comment once defined in db 
-              // _InfoBlock(
-              //   label: 'Relationship to Patient',
-              //   value: patient.emergencyContactRelationship ?? '—',
-              // ),
             ],
           ),
           const SizedBox(height: 24),
