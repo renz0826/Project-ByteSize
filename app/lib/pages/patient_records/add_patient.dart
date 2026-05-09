@@ -407,7 +407,7 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
               Expanded(
                   child: InputField(
                 label: "Relationship",
-                hintText: "Enter Referred Relationship",
+                hintText: "Enter Referral Relationship",
                 controller: _relationshipController,
                 inputFormatters: [
                   FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]'))
