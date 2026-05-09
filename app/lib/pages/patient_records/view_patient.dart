@@ -8,12 +8,14 @@ class ViewPatientScreen extends StatefulWidget {
   final PatientData patient;
   final List<ClinicalRecordData> clinicalRecords;
   final VoidCallback onBack;
+  final ValueChanged<String> onMenuAction; // ADDED: For menu actions
 
   const ViewPatientScreen({
     super.key,
     required this.patient,
     required this.clinicalRecords,
     required this.onBack,
+    required this.onMenuAction, // ADDED: Constructor requirement
   });
 
   @override
@@ -56,9 +58,9 @@ class _ViewPatientScreenState extends State<ViewPatientScreen> {
   Widget build(BuildContext context) {
     return Container(
       color: AppTheme.gray200,
-      // ADDED SingleChildScrollView HERE to make the view scrollable
+      // SingleChildScrollView HERE to make the view scrollable
       child: SingleChildScrollView(
-        padding: const EdgeInsets.only(bottom: 40), // Optional: adds breathing room at the bottom
+        padding: const EdgeInsets.only(bottom: 40), 
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -109,6 +111,7 @@ class _ViewPatientScreenState extends State<ViewPatientScreen> {
 
           // actions menu
           _MoreOptions(
+            onSelected: widget.onMenuAction, // ADDED: Links menu to dashboard
             items: [
                 BarMenuItem(value: 'add_clinical_record', icon: HeroIcons.documentPlus, label: 'Add New Clinical Record'),
                 BarMenuItem(value: 'add_schedule', icon: HeroIcons.calendar, label: 'Add Schedule'),
