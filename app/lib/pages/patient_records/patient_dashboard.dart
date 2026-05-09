@@ -34,6 +34,9 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
   ClinicalRecordCompanion? _draftClinicalRecord;
   int? _existingPatientId; 
 
+  // NEW: Tracks where the user came from when adding a record
+  int _returnIndex = 0; 
+
   // Variables for View Patient Screen
   PatientData? _patientToView;
   List<ClinicalRecordData> _clinicalRecordsToView = [];
@@ -75,10 +78,11 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
   }
 
   // Send user to add_clinical_record.dart
-  void _goToAddClinicalRecord({PatientCompanion? draftPatient, int? existingPatientId}) {
+  void _goToAddClinicalRecord({PatientCompanion? draftPatient, int? existingPatientId, int returnIndex = 0}) {
     setState(() {
       _draftPatient = draftPatient;
       _existingPatientId = existingPatientId;
+      _returnIndex = returnIndex; // Remembers where we came from
       _currentIndex = 2;
     });
   }
@@ -137,7 +141,8 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
 
       // Fetch all clinical records linked to this patient (using the drop-down)
       final records = await (db.select(db.clinicalRecord)
-            ..where((t) => t.patientId.equals(patient.patientId)))
+            ..where((t) => t.patientId.equals(patient.patientId))
+            ..orderBy([(t) => drift.OrderingTerm(expression: t.createdAt, mode: drift.OrderingMode.desc)])) // Put newest first
           .get();
 
       setState(() {
@@ -180,24 +185,29 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
         );
       }
 
-      setState(() {
-        _draftClinicalRecord = clinicalData;
-        _currentIndex = 0; // reset the index back to 0
-      });
+      // If Clinical Record was created using the view screen
+      if (_returnIndex == 3 && _patientToView != null) {
+        _goToViewPatient(_patientToView!); 
+      } else {
+        setState(() {
+          _draftClinicalRecord = clinicalData;
+          _currentIndex = 0; // reset the index back to 0
+        });
+      }
     } catch (e) {
       print("Database Error: $e");
     }
   }
 
-  // Popup when clicking back to dashboard
-  Future<void> _confirmReturnToDashboard() async {
+  // Dynamic Popup when clicking back (Allows going back to View or Dashboard)
+  Future<void> _confirmReturnToDashboard({int targetIndex = 0}) async {
     final bool? shouldDiscard = await showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Discard Changes?'),
           content: const Text(
-              'Are you sure you want to return to the dashboard? Any unsaved data will be lost.'),
+              'Are you sure you want to discard your progress? Any unsaved data will be lost.'),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
@@ -217,7 +227,7 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
 
     if (shouldDiscard == true) {
       _loadPatients();
-      setState(() => _currentIndex = 0); // set index back to 0
+      setState(() => _currentIndex = targetIndex); // Uses the dynamic target index
     }
   }
 
@@ -352,13 +362,13 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
               PageHeader(
                 title: 'Back to Records',
                 type: PageHeaderType.withBack,
-                onBack: _confirmReturnToDashboard,
+                onBack: () => _confirmReturnToDashboard(targetIndex: 0),
               ),
               Transform.translate(
                 offset: const Offset(0, -30),
                 child: AddPatientForm(
                     key: ValueKey(_formSessionId),
-                    onNext: (data) => _goToAddClinicalRecord(draftPatient: data), // MODIFIED
+                    onNext: (data) => _goToAddClinicalRecord(draftPatient: data, returnIndex: 0), 
                     onBack: () {
                       _loadPatients();
                       setState(() => _currentIndex = 0);
@@ -374,9 +384,11 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               PageHeader(
-                title: 'Back to Records',
+                // Dynamic Title depending on where the user came from
+                title: _returnIndex == 3 ? 'Back to Patient View' : 'Back to Records',
                 type: PageHeaderType.withBack,
-                onBack: _confirmReturnToDashboard,
+                // Uses dynamic target index based on return path
+                onBack: () => _confirmReturnToDashboard(targetIndex: _returnIndex),
               ),
               Transform.translate(
                 offset: const Offset(0, -30),
@@ -384,9 +396,9 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
                   patientId: _existingPatientId ?? 0, // MODIFIED
                   key: ValueKey(_formSessionId),
                   onPrevious: () {
-                    // MODIFIED: checks where the user came from
+                    // Uses dynamic target index for the "Previous/Cancel" button
                     if (_existingPatientId != null) {
-                       setState(() => _currentIndex = 0);
+                       setState(() => _currentIndex = _returnIndex);
                     } else {
                        setState(() => _currentIndex = 1);
                     }
@@ -413,10 +425,13 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
                   patient: _patientToView!,
                   clinicalRecords: _clinicalRecordsToView,
                   onBack: _goBackFromView,
-                  // ADDED: Listens to actions triggered from the top-right menu
                   onMenuAction: (value) {
                     if (value == 'add_clinical_record') {
-                      _goToAddClinicalRecord(existingPatientId: _patientToView!.patientId);
+                      setState(() {
+                        _formSessionId++;
+                      });
+                      // Sends index "3" to let the form know we came from the view screen!
+                      _goToAddClinicalRecord(existingPatientId: _patientToView!.patientId, returnIndex: 3);
                     } else if (value == 'archive') {
                       _archivePatient(_patientToView!);
                     }
@@ -575,7 +590,11 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
         contact: patient.contactNumber,
         onMenuSelected: (value) {
           if (value == 'add_clinical_record') {
-            _goToAddClinicalRecord(existingPatientId: patient.patientId); // MODIFIED
+            // FIX: Increment form session ID to clear the form
+            setState(() {
+              _formSessionId++;
+            });
+            _goToAddClinicalRecord(existingPatientId: patient.patientId, returnIndex: 0); 
           } else if (value == 'view_record') {
             _goToViewPatient(patient);
           } else if (value == 'archive') {
