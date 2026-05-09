@@ -439,7 +439,6 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
       age: DateHelper.calculateAge(patient.birthDate),
       address: '${patient.province ?? ''}, ${patient.cityMunicipality ?? ''}',
       contact: patient.contactNumber,
-      procedure: 'Consultation',
       onMenuSelected: (value) {
         if (value == 'add_clinical_record') {
           _goToAddClinicalRecord(patient.toCompanion(true));
