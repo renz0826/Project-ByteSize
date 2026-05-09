@@ -428,11 +428,22 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
 
 // Build Table Row
   Widget _buildTableRow(Map<String, dynamic> appointment) {
-    return ScheduleBar(
-      fullName: appointment['patientName'],
-      date: appointment['date'],
-      time: appointment['time'],
-      procedure: appointment['reason'],
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _selectedAppointment = appointment;
+          _currentIndex = 2;
+        });
+      },
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: ScheduleBar(
+          fullName: appointment['patientName'],
+          date: appointment['date'],
+          time: appointment['time'],
+          procedure: appointment['reason'],
+        ),
+      ),
     );
   }
 
