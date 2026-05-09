@@ -194,11 +194,18 @@ class _SidebarState extends State<MainLayout> {
                 }
 
                 return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(child: pages[index].screen),
-                  ],
-                );
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  //only show the header if it's not the patient records
+                  if (_controller.selectedIndex != 1 && _controller.selectedIndex != 2)
+                    PageHeader(
+                      title: pages[index].title,
+                      type: PageHeaderType.plain,
+                    ),
+                  
+                  Expanded(child: pages[index].screen),
+                ],
+              );
               },
             ),
           ),

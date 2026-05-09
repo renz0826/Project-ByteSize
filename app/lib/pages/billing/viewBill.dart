@@ -11,12 +11,14 @@ class ViewBillScreen extends ConsumerStatefulWidget {
   final JoinedInvoice invoiceData;
   final VoidCallback onBack;
   final VoidCallback onProcessPayment;
+  final VoidCallback onEditInvoice; 
 
   const ViewBillScreen({
     super.key,
     required this.invoiceData,
     required this.onBack,
     required this.onProcessPayment,
+    required this.onEditInvoice, 
   });
 
   @override

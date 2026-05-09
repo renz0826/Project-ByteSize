@@ -160,6 +160,57 @@ class InvoiceRepository {
           ));
     });
   }
+
+// --------------------------------------------------
+  // UPDATE – Edit an existing invoice's procedures
+  // --------------------------------------------------
+  Future<void> updateInvoiceProcedures({
+    required int invoiceId,
+    required List<Map<String, dynamic>> procedures,
+  }) async {
+    return _db.transaction(() async {
+      // 1. Delete old procedures linked to this invoice
+      await (_db.delete(_db.procedureCharge)
+            ..where((t) => t.invoiceId.equals(invoiceId)))
+          .go();
+
+      // 2. Insert the new/updated procedures
+      double totalCharges = 0;
+      for (final proc in procedures) {
+        final charge = proc['charge'] as double;
+        final qty = proc['qty'] as int? ?? 1;
+        final subTotal = charge * qty;
+        totalCharges += subTotal;
+
+        await _db.into(_db.procedureCharge).insert(
+              ProcedureChargeCompanion.insert(
+                invoiceId: invoiceId,
+                procedureName: proc['name'] as String,
+                procedureCharge: charge,
+                quantity: Value(qty), // FIXED: Removed 'drift.'
+                totalProcedureCharge: subTotal,
+              ),
+            );
+      }
+
+      // 3. Calculate new remaining balance
+      final payments = await (_db.select(_db.paymentTransaction)
+            ..where((t) => t.invoiceId.equals(invoiceId)))
+          .get();
+      
+      double totalPaidSoFar = payments.fold(0.0, (sum, p) => sum + p.amountReceived);
+      final newRemainingBalance = (totalCharges - totalPaidSoFar).clamp(0.0, double.infinity);
+      final status = newRemainingBalance <= 0 ? 'Paid' : 'Pending';
+
+      // 4. Update the main invoice record
+      await (_db.update(_db.invoice)
+            ..where((t) => t.invoiceId.equals(invoiceId)))
+          .write(InvoiceCompanion(
+            totalBalance: Value(newRemainingBalance), // FIXED: Removed 'drift.'
+            status: Value(status), // FIXED: Removed 'drift.'
+          ));
+    });
+  }
 }
 
 class JoinedInvoice {

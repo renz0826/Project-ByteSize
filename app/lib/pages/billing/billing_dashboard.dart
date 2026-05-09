@@ -12,6 +12,8 @@ import '../../db/database_provider.dart';
 import '../../repositories/invoice_repository.dart';
 import 'newBill_form.dart';
 import 'process_payment.dart';
+import '../../providers/auth_provider.dart'; 
+import 'package:flutter/services.dart';
 
 class BillingDashboard extends ConsumerStatefulWidget {
   const BillingDashboard({super.key});
@@ -31,11 +33,12 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
   int _currentPage = 1;
   final int _recordsPerPage = 8;
   String _selectedStatus = 'All';
+  
+  // Session IDs to force screens to refresh with new data
   int _formSessionId = 0;
   int _paymentSessionId = 0; 
-  
-  // THE FIX: Added session ID to auto-refresh the View Bill screen
   int _viewSessionId = 0; 
+  
   JoinedInvoice? _selectInvoiceToView;
 
   @override
@@ -55,13 +58,13 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
       _filteredRecords = invoices;
       _applyFilters();
       
-      // THE FIX: Automatically update the active View Bill data with fresh database data
+      // Automatically update the active View Bill data with fresh database data
       if (_selectInvoiceToView != null) {
         try {
           _selectInvoiceToView = invoices.firstWhere(
             (inv) => inv.invoice.invoiceId == _selectInvoiceToView!.invoice.invoiceId
           );
-        } catch (e) {} // Failsafe
+        } catch (e) {} // Failsafe if invoice was deleted
       }
     });
   }
@@ -93,6 +96,7 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
 
   void _goToAddBill() {
     setState(() {
+      _selectInvoiceToView = null;
       _formSessionId++;
       _currentIndex = 1;
     });
@@ -113,6 +117,105 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
     if (shouldDiscard == true) setState(() => _currentIndex = 0);
   }
 
+ // --- PIN AUTHENTICATION FOR EDITING ---
+  Future<bool> _verifyPin() async {
+    final TextEditingController pinController = TextEditingController();
+
+    return await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(26)), 
+          title: const Text('Admin Authentication', textAlign: TextAlign.center),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('Enter your 4-digit PIN to edit this invoice.', textAlign: TextAlign.center),
+              const SizedBox(height: 24),
+              TextField(
+                controller: pinController,
+                obscureText: true,
+                keyboardType: TextInputType.number,
+                textAlign: TextAlign.center,
+                autofocus: true,
+  
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                  LengthLimitingTextInputFormatter(4)
+                ],
+                decoration: InputDecoration(
+                  contentPadding: const EdgeInsets.symmetric(vertical: 16.0),
+                  // THE FIX: Exact border styling from your login_page.dart
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30),
+                    borderSide: const BorderSide(color: Color(0xFFB5B5B5)),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30),
+                    borderSide: const BorderSide(color: Color(0xFFB5B5B5), width: 2),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          actionsAlignment: MainAxisAlignment.center,
+          actions: [
+            TextButton(
+              onPressed: () {
+                pinController.dispose();
+                Navigator.of(dialogContext).pop(false);
+              },
+              child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
+            ),
+            const SizedBox(width: 8),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.blue500,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12)
+              ),
+              onPressed: () {
+                final enteredPin = pinController.text.trim();
+                
+                if (enteredPin.length != 4) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('PIN must be exactly 4 digits.'))
+                  );
+                  return;
+                }
+
+                // THE FIX: Ask the AuthController if the PIN is correct!
+                final isValid = ref.read(authControllerProvider.notifier).verifyPin(enteredPin);
+
+                if (isValid) { 
+                  pinController.dispose();
+                  Navigator.of(dialogContext).pop(true);
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Incorrect PIN'))
+                  );
+                }
+              },
+              child: const Text('Verify', style: TextStyle(color: Colors.white)),
+            ),
+          ],
+        );
+      },
+    ) ?? false;
+  }
+
+  void _triggerEditInvoice(JoinedInvoice invoice) async {
+    bool isAuthorized = await _verifyPin();
+    if (isAuthorized) {
+      setState(() {
+        _selectInvoiceToView = invoice;
+        _formSessionId++; 
+        _currentIndex = 1;
+      });
+    }
+  }
+
   List<JoinedInvoice> get _currentPageRecords {
     final start = (_currentPage - 1) * _recordsPerPage;
     final end = (start + _recordsPerPage).clamp(0, _filteredRecords.length);
@@ -126,10 +229,18 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
     return IndexedStack(
       index: _currentIndex,
       children: [
+        // INDEX 0: MAIN DASHBOARD
         Scaffold(
           backgroundColor: AppTheme.gray200,
           body: CustomScrollView(
             slivers: [
+                const SliverToBoxAdapter(
+                  child: PageHeader(
+                    title: 'Billings',
+                    type: PageHeaderType.plain,
+                  ),
+                ),
+                
               SliverPadding(
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 sliver: SliverList(
@@ -167,6 +278,7 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
           ),
         ),
 
+        // INDEX 1: FORM (CREATE OR EDIT)
         SingleChildScrollView(
           child: Column(
             children: [
@@ -175,7 +287,8 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
                 offset: const Offset(0, -30),
                 child: InvoiceForm(
                   key: ValueKey(_formSessionId),
-                  onPrevious: _confirmReturnToDashboard,
+                  invoiceToEdit: _currentIndex == 1 && _selectInvoiceToView != null ? _selectInvoiceToView : null,
+                  onPrevious: () => setState(() => _currentIndex = 0),
                   onFinish: () {
                     _loadInvoices();
                     setState(() => _currentIndex = 0);
@@ -186,11 +299,11 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
           ),
         ),
 
+        // INDEX 2: VIEW BILL
         SingleChildScrollView(
           child: _selectInvoiceToView == null
               ? const SizedBox.shrink()
               : ViewBillScreen(
-                  // THE FIX: Added _viewSessionId to force the screen to rebuild and pull new data
                   key: ValueKey('view-${_selectInvoiceToView!.invoice.invoiceId}-$_viewSessionId'),
                   invoiceData: _selectInvoiceToView!,
                   onBack: () {
@@ -203,9 +316,11 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
                       _currentIndex = 3;
                     });
                   },
+                  onEditInvoice: () => _triggerEditInvoice(_selectInvoiceToView!),
                 ),
         ),
 
+        // INDEX 3: PROCESS PAYMENT
         SingleChildScrollView(
           child: _selectInvoiceToView == null
               ? const SizedBox.shrink()
@@ -213,11 +328,10 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
                   key: ValueKey('pay-${_selectInvoiceToView!.invoice.invoiceId}-$_paymentSessionId'),
                   invoiceData: _selectInvoiceToView!,
                   onBack: () {
-                    // THE FIX: Wait for the database to reload, THEN change the screen
                     _loadInvoices().then((_) {
                       setState(() {
-                        _viewSessionId++; // Force refresh
-                        _currentIndex = 2; // Return to View Bill
+                        _viewSessionId++; 
+                        _currentIndex = 2; 
                       });
                     });
                   },
@@ -226,6 +340,8 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
       ],
     );
   }
+
+  // --- UI HELPER METHODS ---
 
   Widget _buildSearchBar() {
     return Column(
@@ -358,18 +474,33 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
               icon: const Icon(Icons.more_horiz, color: AppTheme.gray400),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               onSelected: (String action) {
-                setState(() {
-                  _selectInvoiceToView = invoiceInfo;
-                  if (action == 'process_payment') {
-                    _paymentSessionId++; 
-                    _currentIndex = 3;
-                  } else if (action == 'view_bill') {
-                    _viewSessionId++; // THE FIX: Force reset when opening menu
-                    _currentIndex = 2;
-                  }
-                });
+                if (action == 'edit_invoice') {
+                  _triggerEditInvoice(invoiceInfo);
+                } else {
+                  setState(() {
+                    _selectInvoiceToView = invoiceInfo;
+                    if (action == 'process_payment') {
+                      _paymentSessionId++; 
+                      _currentIndex = 3;
+                    } else if (action == 'view_bill') {
+                      _viewSessionId++; 
+                      _currentIndex = 2;
+                    }
+                  });
+                }
               },
               itemBuilder: (context) => [
+                PopupMenuItem(
+                  value: 'edit_invoice',
+                  enabled: !isPaid,
+                  child: Row(
+                    children: [
+                      Icon(Icons.edit_outlined, color:isPaid ? Colors.grey.shade400  : Colors.grey.shade700, size: 22),
+                      const SizedBox(width: 12),
+                      Text('Edit Invoice', style: AppTheme.textTheme.bodyMedium?.copyWith(color: isPaid ? Colors.grey.shade400 : Colors.black87)),
+                    ],
+                  ),
+                ),
                 PopupMenuItem(
                   value: 'process_payment', 
                   enabled: !isPaid,
@@ -387,7 +518,7 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
                     children: [
                       Icon(Icons.description_outlined, color: Colors.grey.shade700, size: 22),
                       const SizedBox(width: 12),
-                      Text('View Bill', style: TextStyle(color: Colors.black87)),
+                      const Text('View Bill', style: TextStyle(color: Colors.black87)),
                     ],
                   ),
                 ),
