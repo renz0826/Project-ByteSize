@@ -20,6 +20,12 @@ class InvoiceForm extends ConsumerStatefulWidget {
     required this.onPrevious,
     this.invoiceToEdit,
   });
+  const InvoiceForm({
+    super.key, 
+    required this.onFinish, 
+    required this.onPrevious,
+    this.invoiceToEdit,
+  });
 
   @override
   ConsumerState<InvoiceForm> createState() => _InvoiceFormState();
@@ -32,10 +38,27 @@ class _InvoiceFormState extends ConsumerState<InvoiceForm> {
   bool _isLoading = false;
 
   bool get isEditing => widget.invoiceToEdit != null;
+  bool _isLoading = false;
+
+  bool get isEditing => widget.invoiceToEdit != null;
 
   @override
   void initState() {
     super.initState();
+    _loadInitialData();
+  }
+
+  Future<void> _loadInitialData() async {
+    setState(() => _isLoading = true);
+    await _loadPatients();
+
+    if (isEditing) {
+      _selectedPatientName = widget.invoiceToEdit!.patientName;
+      await _loadExistingProcedures();
+    } else {
+      _addProcedure();
+    }
+    setState(() => _isLoading = false);
     _loadInitialData();
   }
 
@@ -71,10 +94,27 @@ class _InvoiceFormState extends ConsumerState<InvoiceForm> {
       row.quantityController.text = c.quantity.toString();
       _procedures.add(row);
     }
+    _patientMap = {for (var p in patients) '${p.firstName} ${p.lastName}': p.patientId};
+  }
+
+  Future<void> _loadExistingProcedures() async {
+    final db = ref.read(dbProvider);
+    final charges = await (db.select(db.procedureCharge)
+          ..where((c) => c.invoiceId.equals(widget.invoiceToEdit!.invoice.invoiceId)))
+        .get();
+
+    for (var c in charges) {
+      final row = _ProcedureRow(notifyParent: () => setState(() {}));
+      row.nameController.text = c.procedureName;
+      row.priceController.text = c.procedureCharge.toStringAsFixed(2);
+      row.quantityController.text = c.quantity.toString();
+      _procedures.add(row);
+    }
   }
 
   @override
   void dispose() {
+    for (final row in _procedures) row.dispose();
     for (final row in _procedures) row.dispose();
     super.dispose();
   }
@@ -84,8 +124,6 @@ class _InvoiceFormState extends ConsumerState<InvoiceForm> {
   }
 
   void _removeProcedure(int index) {
-    // Prevent removal of the last remaining row
-    if (_procedures.length <= 1) return;
     setState(() {
       _procedures[index].dispose();
       _procedures.removeAt(index);
@@ -94,11 +132,12 @@ class _InvoiceFormState extends ConsumerState<InvoiceForm> {
 
   void _clearForm() {
     if (isEditing) return; // Don't allow clear in edit mode
+    if (isEditing) return; // Don't allow clear in edit mode
     setState(() {
       _selectedPatientName = null;
       for (final row in _procedures) row.dispose();
       _procedures.clear();
-      _addProcedure(); // always leave one row
+      _addProcedure();
     });
   }
 
@@ -115,12 +154,15 @@ class _InvoiceFormState extends ConsumerState<InvoiceForm> {
   Future<void> _saveInvoice() async {
     if (_selectedPatientName == null || !_patientMap.containsKey(_selectedPatientName)) return;
     if (_procedures.isEmpty) return;
+    if (_selectedPatientName == null || !_patientMap.containsKey(_selectedPatientName)) return;
+    if (_procedures.isEmpty) return;
 
     final procedures = <Map<String, dynamic>>[];
     for (final row in _procedures) {
       final name = row.nameController.text.trim();
       final price = double.tryParse(row.priceController.text) ?? 0;
       final qty = int.tryParse(row.quantityController.text) ?? 0;
+      if (name.isEmpty || price <= 0 || qty <= 0) return;
       if (name.isEmpty || price <= 0 || qty <= 0) return;
       procedures.add({'name': name, 'charge': price, 'qty': qty});
     }
@@ -129,6 +171,20 @@ class _InvoiceFormState extends ConsumerState<InvoiceForm> {
     final repo = InvoiceRepository(db);
 
     try {
+      if (isEditing) {
+        await repo.updateInvoiceProcedures(
+          invoiceId: widget.invoiceToEdit!.invoice.invoiceId,
+          procedures: procedures,
+        );
+      } else {
+        await repo.createInvoice(
+          patientId: _patientMap[_selectedPatientName]!,
+          procedures: procedures,
+          amountReceived: 0.0,
+          modeOfPayment: 'Not Paid',
+        );
+      }
+      widget.onFinish();
       if (isEditing) {
         await repo.updateInvoiceProcedures(
           invoiceId: widget.invoiceToEdit!.invoice.invoiceId,
@@ -223,6 +279,8 @@ class _InvoiceFormState extends ConsumerState<InvoiceForm> {
               variant: ButtonVariant.smallSecondary,
               icon: Icons.add,
               ),
+            ),
+            const SizedBox(height: 60),
 
             Align(
               alignment: Alignment.centerRight,
@@ -320,7 +378,6 @@ class _ProcedureRowWidget extends StatelessWidget {
   final int index;
   final _ProcedureRow row;
   final VoidCallback onRemove;
-  final bool canDelete;
 
   const _ProcedureRowWidget({required this.index, required this.row, required this.onRemove});
 
@@ -336,16 +393,7 @@ class _ProcedureRowWidget extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 1. Procedure Name Input
-          Expanded(
-            flex: 3,
-            child: InputField(
-              label: 'Procedure',
-              hintText: 'e.g. Tooth Extraction',
-              controller: row.nameController,
-              isRequired: true,   // red asterisk now shown
-            ),
-          ),
+          Expanded(flex: 3, child: InputField(label: 'Procedure', hintText: 'e.g. Tooth Extraction', controller: row.nameController)),
           const SizedBox(width: 16),
           Expanded(
             flex: 2,

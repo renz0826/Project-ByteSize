@@ -12,6 +12,8 @@ import '../../db/database_provider.dart';
 import '../../repositories/invoice_repository.dart';
 import 'newBill_form.dart';
 import 'process_payment.dart';
+import '../../providers/auth_provider.dart'; 
+import 'package:flutter/services.dart';
 
 class BillingDashboard extends ConsumerStatefulWidget {
   const BillingDashboard({super.key});
@@ -228,6 +230,7 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
     return IndexedStack(
       index: _currentIndex,
       children: [
+        // INDEX 0: MAIN DASHBOARD
         Scaffold(
           backgroundColor: AppTheme.gray200,
           body: CustomScrollView(
