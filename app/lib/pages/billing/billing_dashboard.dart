@@ -409,18 +409,19 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
     final headerStyle = AppTheme.textTheme.bodyLarge;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12 ),
-        children: [
-          Expanded(flex: 2, child: Text('Invoice ID', style: headerStyle)),
-          Expanded(flex: 3, child: Text('Patient', style: headerStyle)),
-          Expanded(flex: 3, child: Text('Procedure', style: headerStyle)),
-          Expanded(flex: 2, child: Text('Amount', style: headerStyle)),
-          Expanded(flex: 2, child: Text('Date', style: headerStyle)),
-          Expanded(flex: 2, child: Text('Status', style: headerStyle)),
-          SizedBox(width: 70, child: Text('Actions', style: headerStyle)),
-        ],
-      ),
-    );
-  }
+        child: Row(
+          children: [
+            Expanded(flex: 2, child: Text('Invoice ID', style: headerStyle)),
+            Expanded(flex: 3, child: Text('Patient', style: headerStyle)),
+            Expanded(flex: 3, child: Text('Procedure', style: headerStyle)),
+            Expanded(flex: 2, child: Text('Amount', style: headerStyle)),
+            Expanded(flex: 2, child: Text('Date', style: headerStyle)),
+            Expanded(flex: 2, child: Text('Status', style: headerStyle)),
+            SizedBox(width: 70, child: Text('Actions', style: headerStyle)),
+          ],
+        ),
+      );
+    }
 
   Widget _buildEmptyState() {
     return Center(
