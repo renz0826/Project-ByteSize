@@ -1,4 +1,3 @@
-import 'package:dentcity_management_system/pages/schedule/schedule_appointment.dart';
 import '../schedule/schedule_appointment.dart';
 import '../schedule/view_appointment.dart';
 import 'package:flutter/material.dart';
@@ -198,7 +197,11 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
   Widget build(BuildContext context) {
     return IndexedStack(
       index: _currentIndex,
-      children: [_buildMainDashboard(), _buildScheduleForm()],
+      children: [
+        _buildMainDashboard(),
+        _buildScheduleForm(),
+        _buildViewAppointment()
+      ],
     );
   }
 
@@ -330,7 +333,27 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
       ),
     );
   }
-  // Schedule Form
+
+  Widget _buildViewAppointment() {
+    // Setting this as Index 2: When user clicks an appointment bar
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          PageHeader(
+            title: 'Back to Schedules',
+            type: PageHeaderType.withBack,
+            onBack: _goBackToMain,
+          ),
+          Transform.translate(
+              offset: const Offset(0, -30),
+              child: ViewAppointment(
+                appointmentData: _selectedAppointment,
+              )),
+        ],
+      ),
+    );
+  }
 
   //search bar
   Widget _buildSearchBar() {
