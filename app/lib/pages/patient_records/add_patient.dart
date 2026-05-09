@@ -397,7 +397,7 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
               Expanded(
                   child: InputField(
                 label: "Referred By",
-                hintText: "Enter Referred By",
+                hintText: "Enter Referral",
                 controller: _referredByController,
                 inputFormatters: [
                   FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]'))
