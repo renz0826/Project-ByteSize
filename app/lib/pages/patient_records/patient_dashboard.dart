@@ -449,8 +449,6 @@ class _PatientDashboardState extends State<PatientDashboard> {
       age: DateHelper.calculateAge(patient.birthDate),
       address: '${patient.province ?? ''}, ${patient.cityMunicipality ?? ''}',
       contact: patient.contactNumber,
-      procedure:
-          'Consultation', // Removed this, but kept it here in case something goes wrong
       onMenuSelected: (value) {
         if (value == 'add_clinical_record') {
           // Convert the existing real data back into a Companion for the form
