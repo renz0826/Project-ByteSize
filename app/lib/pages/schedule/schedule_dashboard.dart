@@ -1,4 +1,6 @@
 import 'package:dentcity_management_system/pages/schedule/schedule_appointment.dart';
+import '../schedule/schedule_appointment.dart';
+import '../schedule/view_appointment.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:drift/drift.dart' as drift;
@@ -26,6 +28,8 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
   // Real Database Lists // TODO: Connect to schedule db
   List<PatientData> _allPatients = [];
   List<PatientData> _filteredRecords = [];
+
+  Map<String, dynamic>? _selectedAppointment;
 
   // Functions to change patients screen states
   PatientCompanion? _draftPatient;
