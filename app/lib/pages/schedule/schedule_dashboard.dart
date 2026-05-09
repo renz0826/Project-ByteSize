@@ -65,13 +65,8 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
   }
 
   // Send user back to this page
-  void _goToViewAppointment() {
-    setState(() => _currentIndex = 2);
-  }
-
-  // Send user back to this page
   void _goBackToMain() {
-    setState(() => _currentIndex);
+    setState(() => _currentIndex = 0);
   }
 
 // ! Dummy data specifically for testing the Schedule Table UI
