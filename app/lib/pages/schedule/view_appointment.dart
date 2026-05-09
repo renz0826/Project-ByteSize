@@ -67,7 +67,8 @@ class _ViewAppointmentState extends State<ViewAppointment> {
                           variant: ButtonVariant.dangerSecondary,
                           label: "Cancel Appointment",
                           onPressed: () {
-                            wasButtonPressed = true;
+                            wasButtonPressed =
+                                true; // TODO: create a cancel function
                           }),
                     ],
                   )
