@@ -7,6 +7,7 @@ import '/../widgets/input_field.dart';
 import '../../db/database.dart';
 import '../../db/database_provider.dart';
 import '../../repositories/invoice_repository.dart';
+import '../../widgets/icon_buttons.dart';
 
 class InvoiceForm extends ConsumerStatefulWidget {
   final VoidCallback onFinish;
@@ -375,9 +376,9 @@ class _ProcedureRowWidget extends StatelessWidget {
           const SizedBox(width: 16),
           Padding(
             padding: const EdgeInsets.only(top: 26), 
-            child: Container(
-              height: 48, decoration: BoxDecoration(border: Border.all(color: Colors.red.shade300), borderRadius: BorderRadius.circular(8)),
-              child: IconButton(icon: Icon(Icons.remove, color: Colors.red.shade400), onPressed: onRemove),
+            child: IconButtons(
+              variant: IconButtonVariant.remove, // FIX: Remove the 's' after IconButton
+              onPressed: onRemove,
             ),
           )
         ],
