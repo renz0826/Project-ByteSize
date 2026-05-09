@@ -61,7 +61,7 @@ class _ViewAppointmentState extends State<ViewAppointment> {
                           label: "Edit Appointment",
                           icon: Icons.edit_calendar,
                           onPressed: () {
-                            wasButtonPressed = true;
+                            widget.onEdit();
                           }),
                       Button(
                           variant: ButtonVariant.dangerSecondary,
