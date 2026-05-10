@@ -1,4 +1,3 @@
-// file: schedule_appointment.dart
 import 'package:dentcity_management_system/services/scheduling_service.dart';
 import 'package:dentcity_management_system/style/theme.dart';
 import 'package:drift/drift.dart' as drift;
@@ -9,12 +8,12 @@ import '../../providers/app_providers.dart';
 import '/../widgets/main_buttons.dart';
 import '/../widgets/input_field.dart';
 import '../../repositories/appointment_repository.dart';
-import 'schedule_dashboard.dart'; 
+import 'schedule_dashboard.dart';
 
 class ScheduleAppointmentForm extends ConsumerStatefulWidget {
   final VoidCallback onSave;
   final List<PatientData> activePatients;
-  final JoinedAppointment? appointmentToEdit; 
+  final JoinedAppointment? appointmentToEdit;
 
   const ScheduleAppointmentForm({
     super.key,
@@ -28,7 +27,8 @@ class ScheduleAppointmentForm extends ConsumerStatefulWidget {
       _ScheduleAppointmentFormState();
 }
 
-class _ScheduleAppointmentFormState extends ConsumerState<ScheduleAppointmentForm> {
+class _ScheduleAppointmentFormState
+    extends ConsumerState<ScheduleAppointmentForm> {
   bool get isEditing => widget.appointmentToEdit != null;
 
   String? _selectedPatient;
@@ -36,31 +36,31 @@ class _ScheduleAppointmentFormState extends ConsumerState<ScheduleAppointmentFor
   String? _selectedDay;
   String? _selectedTimeSlot;
   List<String> _availableTimeSlots = [];
-  
+
   final TextEditingController _reasonController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    
+
     if (isEditing) {
       final appt = widget.appointmentToEdit!.appointment;
       final patient = widget.appointmentToEdit!.patient;
 
-      _selectedPatient = '${patient.lastName}, ${patient.firstName}';
-      _selectedMonth = SchedulingService.months[appt.scheduleDateTime.month - 1];
+      _selectedPatient =
+          '${patient.lastName}, ${patient.firstName}'; // display the names in this format
+      _selectedMonth =
+          SchedulingService.months[appt.scheduleDateTime.month - 1];
       _selectedDay = appt.scheduleDateTime.day.toString();
-      _selectedTimeSlot = appt.timeSlot;
-      _reasonController.text = appt.reasonForVisit ?? "";
-      
-      // ---> THE FIX IS HERE <---
-      // Temporarily give the dropdown its current value so it doesn't 
-      // crash while waiting for the database to load the rest of the slots!
+      _selectedTimeSlot = appt
+          .timeSlot; // use the timeslot function from the centralized service file
+      _reasonController.text = appt.reasonForVisit;
+
       if (_selectedTimeSlot != null) {
         _availableTimeSlots = [_selectedTimeSlot!];
       }
-      
-      _refreshTimeSlots();
+
+      _refreshTimeSlots(); // refresh time slots once a timeslot has been taken
     }
   }
 
@@ -71,27 +71,33 @@ class _ScheduleAppointmentFormState extends ConsumerState<ScheduleAppointmentFor
   }
 
   Future<void> _refreshTimeSlots() async {
-    final date = SchedulingService.parseSelectedDate(_selectedMonth, _selectedDay);
+    // function to refresh time slots once selected
+    final date =
+        SchedulingService.parseSelectedDate(_selectedMonth, _selectedDay);
     if (date != null) {
       final repo = AppointmentRepository(ref.read(databaseProvider));
       final booked = await repo.getBookedSlots(date);
       final allSlots = SchedulingService.generateAllSlots();
-      
+
       if (mounted) {
         setState(() {
-          _availableTimeSlots = allSlots.where((slot) => !booked.contains(slot)).toList();
+          _availableTimeSlots =
+              allSlots.where((slot) => !booked.contains(slot)).toList();
 
           if (isEditing) {
             final originalAppt = widget.appointmentToEdit!.appointment;
-            final originalMonth = SchedulingService.months[originalAppt.scheduleDateTime.month - 1];
+            final originalMonth = SchedulingService
+                .months[originalAppt.scheduleDateTime.month - 1];
             final originalDay = originalAppt.scheduleDateTime.day.toString();
 
-            if (_selectedMonth == originalMonth && _selectedDay == originalDay) {
-              if (originalAppt.timeSlot != null && !_availableTimeSlots.contains(originalAppt.timeSlot)) {
-                _availableTimeSlots.add(originalAppt.timeSlot!);
-                _availableTimeSlots.sort((a, b) => 
-                  allSlots.indexOf(a).compareTo(allSlots.indexOf(b))
-                );
+            if (_selectedMonth == originalMonth &&
+                _selectedDay == originalDay) {
+              if (!_availableTimeSlots.contains(originalAppt.timeSlot)) {
+                _availableTimeSlots.add(originalAppt.timeSlot);
+                _availableTimeSlots.sort(
+                    (a, b) => allSlots.indexOf(a).compareTo(
+                        allSlots.indexOf(b)) // sort them again (8:00 - 5:00pm)
+                    );
               }
             }
           }
@@ -112,49 +118,65 @@ class _ScheduleAppointmentFormState extends ConsumerState<ScheduleAppointmentFor
   }
 
   Future<void> _saveAppointment() async {
-    if (_selectedPatient == null || _selectedMonth == null || _selectedDay == null || _selectedTimeSlot == null) {
-       ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Please fill in all required fields."), backgroundColor: Colors.red),
-       );
-       return;
+    // save appointment function
+    if (_selectedPatient == null ||
+        _selectedMonth == null ||
+        _selectedDay == null ||
+        _selectedTimeSlot == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        // snackbar for error handling
+        const SnackBar(
+            content: Text("Please fill in all required fields."),
+            backgroundColor: Colors.red),
+      );
+      return;
     }
 
     final db = ref.read(databaseProvider);
     final repo = AppointmentRepository(db);
-    final date = SchedulingService.parseSelectedDate(_selectedMonth, _selectedDay);
-    
-    final patient = widget.activePatients.firstWhere(
-      (p) => '${p.lastName}, ${p.firstName}' == _selectedPatient
-    );
+    final date = SchedulingService.parseSelectedDate(
+        _selectedMonth, _selectedDay); // parse selected date
 
-    final companion = AppointmentCompanion(
+    final patient = widget.activePatients
+        .firstWhere((p) => '${p.lastName}, ${p.firstName}' == _selectedPatient);
+
+    final companion = AppointmentCompanion( // call out companion
       patientId: drift.Value(patient.patientId),
       scheduleDateTime: drift.Value(date!),
       timeSlot: drift.Value(_selectedTimeSlot!),
       reasonForVisit: drift.Value(_reasonController.text.trim()),
-      status: drift.Value(isEditing ? widget.appointmentToEdit!.appointment.status : "Pending"),
+      status: drift.Value(
+          isEditing ? widget.appointmentToEdit!.appointment.status : "Pending"),
       staffId: const drift.Value(1),
     );
 
     try {
       if (isEditing) {
         await (db.update(db.appointment)
-          ..where((t) => t.appointmentId.equals(widget.appointmentToEdit!.appointment.appointmentId))
-        ).write(companion);
-        
-        ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Appointment Updated Successfully!")));
+              ..where((t) => t.appointmentId
+                  .equals(widget.appointmentToEdit!.appointment.appointmentId)))
+            .write(companion);
+
+        // Check if the widget is still on the screen before showing the snackbar
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+              content: Text("Appointment Updated Successfully!")));
+        }
       } else {
         await repo.addAppointment(companion);
-        
-        ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Appointment Scheduled Successfully!")));
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+              content: Text("Appointment Scheduled Successfully!")));
+        }
       }
 
       widget.onSave();
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Error: $e"), backgroundColor: Colors.red));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Error: $e"), backgroundColor: Colors.red));
+      }
     }
   }
 
@@ -174,64 +196,81 @@ class _ScheduleAppointmentFormState extends ConsumerState<ScheduleAppointmentFor
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(isEditing ? "Edit Appointment" : "Schedule Appointment", 
-                 style: Theme.of(context).textTheme.headlineLarge),
+            Text(isEditing ? "Edit Appointment" : "Schedule Appointment",
+                style: Theme.of(context).textTheme.headlineLarge),
             const SizedBox(height: 32),
             InputField(
-              label: "Patient Name", 
+              label: "Patient Name",
               hintText: "Select patient",
               variant: InputVariant.dropdown,
               dropdownValue: _selectedPatient,
               isRequired: true,
-              onDropdownChanged: isEditing ? null : (v) => setState(() => _selectedPatient = v),
-              dropdownItems: widget.activePatients.map((p) => '${p.lastName}, ${p.firstName}').toList(),
+              onDropdownChanged: isEditing
+                  ? null
+                  : (v) => setState(() => _selectedPatient = v),
+              dropdownItems: widget.activePatients
+                  .map((p) => '${p.lastName}, ${p.firstName}')
+                  .toList(),
             ),
             const SizedBox(height: 24),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(child: InputField(
-                  label: "Month", 
-                  hintText: "Select month",
-                  variant: InputVariant.dropdown, 
-                  dropdownValue: _selectedMonth, 
-                  isRequired: true,
-                  dropdownItems: SchedulingService.months, 
-                  onDropdownChanged: (v) { setState(() { _selectedMonth = v; _selectedDay = null; }); _refreshTimeSlots(); }
-                )),
+                Expanded(
+                    child: InputField(
+                        label: "Month",
+                        hintText: "Select month",
+                        variant: InputVariant.dropdown,
+                        dropdownValue: _selectedMonth,
+                        isRequired: true,
+                        dropdownItems: SchedulingService.months,
+                        onDropdownChanged: (v) {
+                          setState(() {
+                            _selectedMonth = v;
+                            _selectedDay = null;
+                          });
+                          _refreshTimeSlots();
+                        })),
                 const SizedBox(width: 12),
-                Expanded(child: InputField(
-                  key: ValueKey('$_selectedMonth-${SchedulingService.getInferredYear(_selectedMonth)}'),
-                  label: "Day", 
-                  hintText: "DD",
-                  variant: InputVariant.dropdown, 
-                  dropdownValue: _selectedDay, 
-                  isRequired: true,
-                  dropdownItems: SchedulingService.getDaysInMonth(_selectedMonth, SchedulingService.getInferredYear(_selectedMonth)), 
-                  onDropdownChanged: (v) { setState(() => _selectedDay = v); _refreshTimeSlots(); }
-                )),
+                Expanded(
+                    child: InputField(
+                        key: ValueKey(
+                            '$_selectedMonth-${SchedulingService.getInferredYear(_selectedMonth)}'),
+                        label: "Day",
+                        hintText: "Select day",
+                        variant: InputVariant.dropdown,
+                        dropdownValue: _selectedDay,
+                        isRequired: true,
+                        dropdownItems: SchedulingService.getDaysInMonth(
+                            _selectedMonth,
+                            SchedulingService.getInferredYear(_selectedMonth)),
+                        onDropdownChanged: (v) {
+                          setState(() => _selectedDay = v);
+                          _refreshTimeSlots();
+                        })),
                 const SizedBox(width: 12),
-                Expanded(child: InputField(
-                  key: ValueKey('$_selectedMonth-$_selectedDay'),
-                  label: "Time Slot", 
-                  hintText: "Select time",
-                  variant: InputVariant.dropdown, 
-                  dropdownValue: _selectedTimeSlot, 
-                  isRequired: true,
-                  // ---> SECOND PART OF THE FIX <---
-                  // Ensures the dropdown always has a valid fallback list to check against
-                  dropdownItems: _availableTimeSlots.isEmpty 
-                      ? (_selectedTimeSlot != null ? [_selectedTimeSlot!] : ["Select a date first"]) 
-                      : _availableTimeSlots, 
-                  onDropdownChanged: (v) {
-                    if (v != "Select a date first") setState(() => _selectedTimeSlot = v);
-                  }
-                )),
+                Expanded(
+                    child: InputField(
+                        key: ValueKey('$_selectedMonth-$_selectedDay'),
+                        label: "Time Slot",
+                        hintText: "Select time",
+                        variant: InputVariant.dropdown,
+                        dropdownValue: _selectedTimeSlot,
+                        isRequired: true,
+                        dropdownItems: _availableTimeSlots.isEmpty
+                            ? (_selectedTimeSlot != null
+                                ? [_selectedTimeSlot!]
+                                : ["Select a date first"])
+                            : _availableTimeSlots,
+                        onDropdownChanged: (v) {
+                          if (v != "Select a date first")
+                            setState(() => _selectedTimeSlot = v);
+                        })),
               ],
             ),
             const SizedBox(height: 24),
             InputField(
-              label: "Reason for visit", 
+              label: "Reason for visit",
               hintText: "Enter reason for visit",
               controller: _reasonController,
               isRequired: true,
@@ -243,12 +282,13 @@ class _ScheduleAppointmentFormState extends ConsumerState<ScheduleAppointmentFor
                 SizedBox(
                   width: 280,
                   child: Button(
-                    label: isEditing ? "Update Schedule" : "Schedule Appointment", 
-                    icon: isEditing ? Icons.save_alt_outlined : Icons.check, 
-                    iconPlacement: IconPlacement.left,
-                    width: double.infinity, 
-                    onPressed: _saveAppointment
-                  ),
+                      label: isEditing
+                          ? "Update Schedule"
+                          : "Schedule Appointment",
+                      icon: isEditing ? Icons.save_alt_outlined : Icons.check,
+                      iconPlacement: IconPlacement.left,
+                      width: double.infinity,
+                      onPressed: _saveAppointment),
                 )
               ],
             )
