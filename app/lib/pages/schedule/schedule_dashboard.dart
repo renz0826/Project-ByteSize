@@ -29,11 +29,11 @@ class ScheduleDashboard extends ConsumerStatefulWidget {
 }
 
 class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
-  List<JoinedAppointment> _allAppointments = [];
-  List<JoinedAppointment> _filteredRecords = [];
-  List<PatientData> _allPatients = [];
+  List<JoinedAppointment> _allAppointments = []; // list of all appointments
+  List<JoinedAppointment> _filteredRecords = []; // list of filtered records (may be completed or upcoming)
+  List<PatientData> _allPatients = [];  // list to ge tall patients
   JoinedAppointment? _selectedAppointment;
-  int _currentIndex = 0;
+  int _currentIndex = 0; // set the current index to 0
 
   final TextEditingController _searchController = TextEditingController();
   int _currentPage = 1;
@@ -48,48 +48,28 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
     _loadAppointments();
   }
 
-  Future<void> _loadAppointments() async {
+  Future<void> _loadAppointments() async { // use repository to load appointment data from the database
     final db = ref.read(databaseProvider);
     final patients = await db.select(db.patient).get();
 
     final query = db.select(db.appointment).join([
-      drift.innerJoin(
+      drift.innerJoin( // use inner join here
           db.patient, db.patient.patientId.equalsExp(db.appointment.patientId)),
     ]);
 
     final results = await query.get();
     final appointments = results.map((row) {
       return JoinedAppointment(
-        appointment: row.readTable(db.appointment),
-        patient: row.readTable(db.patient),
+        appointment: row.readTable(db.appointment), // read appointments to list
+        patient: row.readTable(db.patient), // read patients to list
       );
     }).toList();
 
     setState(() {
       _allPatients = patients;
       _allAppointments = appointments;
-      _applyFilters();
+      _applyFilters(); // apply the filter that earliest times should be on top
     });
-  }
-
-  // --- NEW SORTING HELPER ---
-  /// Converts "08:30 AM" into total minutes (510) for sorting
-  int _timeToMinutes(String? timeSlot) {
-    if (timeSlot == null || timeSlot.isEmpty || timeSlot == '-') return 0;
-    try {
-      final parts = timeSlot.split(' ');
-      final time = parts[0];
-      final amPm = parts[1];
-      final timeParts = time.split(':');
-      int hour = int.parse(timeParts[0]);
-      int minute = int.parse(timeParts[1]);
-
-      if (amPm == 'PM' && hour != 12) hour += 12;
-      if (amPm == 'AM' && hour == 12) hour = 0;
-      return (hour * 60) + minute;
-    } catch (e) {
-      return 0;
-    }
   }
 
   void _applyFilters() {
@@ -105,10 +85,8 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
           a.scheduleDateTime.day == _selectedDate.day;
 
       bool matchesStatus = true;
-
-      // ---> THE FIX <---
+      
       if (_selectedStatus != null && _selectedStatus != 'All') {
-        // If a specific chip is selected (like Upcoming or Completed)
         matchesStatus =
             a.status.toLowerCase() == _selectedStatus!.toLowerCase();
       } else {
@@ -118,27 +96,26 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
       return matchesSearch && matchesDate && matchesStatus;
     }).toList();
 
-    // Chronological Sort
+    // Sorting Function that makes sure that the earliest time is always the first
     filtered.sort((a, b) {
-      int timeA = _timeToMinutes(a.appointment.timeSlot);
-      int timeB = _timeToMinutes(b.appointment.timeSlot);
+      int timeA = SchedulingService.timeToMinutes(a.appointment.timeSlot);
+      int timeB = SchedulingService.timeToMinutes(b.appointment.timeSlot);
       return timeA.compareTo(timeB);
     });
 
     setState(() {
-      _filteredRecords = filtered;
+      _filteredRecords = filtered; // set state to filter the records
     });
   }
 
-  void _goBackToMain() {
+  void _goBackToMain() { // back to main function
     setState(() {
-      _currentIndex = 0;
+      _currentIndex = 0; // 0 is the index for the dashboard page
       _loadAppointments();
     });
   }
 
-  // --- CANCELLATION DIALOG HELPER ---
-  Future<void> _cancelAppointmentConfirmation(int appointmentId) async {
+  Future<void> _cancelAppointmentConfirmation(int appointmentId) async { // function for the cancellation of appointments
     final bool? shouldCancel = await showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
@@ -163,13 +140,13 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
 
     if (shouldCancel == true) {
       final repo = ref.read(appointmentRepositoryProvider);
-      await repo.updateAppointmentStatus(appointmentId, 'Cancelled');
+      await repo.updateAppointmentStatus(appointmentId, 'Cancelled'); // update the specific attribute: status 
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Appointment has been cancelled.")));
-      }
-      _goBackToMain();
+            const SnackBar(content: Text("Appointment has been cancelled."))); // confirmation message
+      } 
+      _goBackToMain(); // send user back to main afterwards
     }
   }
 
@@ -320,11 +297,11 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
     return ScheduleBar(
       fullName: '${patient.lastName}, ${patient.firstName}',
       date: appointment.scheduleDateTime,
-      time: appointment.timeSlot ?? '-',
-      procedure: appointment.reasonForVisit ?? 'Consultation',
+      time: appointment.timeSlot,
+      procedure: appointment.reasonForVisit ,
       onMenuSelected: (String actionValue) async {
         switch (actionValue) {
-          case 'view_appointment':
+          case 'view_appointment': // if user clicks view appointment option -> allows to use cancel and edit options
             setState(() {
               _selectedAppointment = joinedRecord;
               _currentIndex = 2;
@@ -333,13 +310,13 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
 
           case 'edit_appointment':
             setState(() {
-              _formSessionId++;
-              _selectedAppointment = joinedRecord; // Forces EDIT state
-              _currentIndex = 1;
+              _formSessionId++; // error handling, in case user edits the same page many times
+              _selectedAppointment = joinedRecord; 
+              _currentIndex = 1; 
             });
             break;
 
-          case 'cancel_appointment':
+          case 'cancel_appointment': // cancel appointment (call out function on top)
             _cancelAppointmentConfirmation(appointment.appointmentId);
             break;
         }
@@ -363,7 +340,7 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
               key: ValueKey(_formSessionId),
               activePatients: _allPatients,
               appointmentToEdit:
-                  _selectedAppointment, // Pass the variable to trigger Edit State
+                  _selectedAppointment, 
               onSave: _goBackToMain,
             ),
           ),
@@ -384,7 +361,7 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
             Transform.translate(
               offset: const Offset(0, -30),
               child: ViewAppointment(
-                appointmentData: {
+                appointmentData: { // display the different appointment datas in the database
                   'patientName':
                       '${_selectedAppointment?.patient.lastName}, ${_selectedAppointment?.patient.firstName}',
                   'date': _selectedAppointment?.appointment.scheduleDateTime,
