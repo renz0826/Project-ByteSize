@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:drift/drift.dart' as drift;
 import 'package:intl/intl.dart'; 
 import 'package:heroicons/heroicons.dart';
-
 import '/../style/theme.dart';
 import '/../widgets/search_bar.dart';
 import '/../widgets/app_pagination.dart';
@@ -13,7 +12,6 @@ import '/../widgets/main_buttons.dart';
 import '/../widgets/page_header.dart';
 import '/../widgets/app_info_bar.dart';
 import '/../widgets/calendar.dart';
-
 import '../../db/database.dart';
 import '../../services/date_helper.dart';
 import '../../providers/app_providers.dart';
