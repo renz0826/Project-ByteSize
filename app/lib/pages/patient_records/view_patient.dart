@@ -65,6 +65,7 @@ class _ViewPatientScreenState extends State<ViewPatientScreen> {
   Widget build(BuildContext context) {
     return Container(
       color: AppTheme.gray200,
+      alignment: Alignment.topCenter,
       child: SingleChildScrollView( // to allow the page to be scrollable
         padding: const EdgeInsets.only(bottom: 30), 
         child: Column(
