@@ -65,19 +65,18 @@ class _ViewPatientScreenState extends State<ViewPatientScreen> {
   Widget build(BuildContext context) {
     return Container(
       color: AppTheme.gray200,
-      alignment: Alignment.topCenter,
       child: SingleChildScrollView( // to allow the page to be scrollable
         padding: const EdgeInsets.only(bottom: 30), 
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             //patient name header
             _buildNameHeader(context),
-            const SizedBox(height: 12),
+            const SizedBox(height: 24),
 
             //personal details
             _buildPersonalDetailsCard(context),
-            const SizedBox(height: 16),
+            const SizedBox(height: 24),
 
             //clinical record that only shows if there are records
             if (widget.clinicalRecords.isEmpty)
@@ -99,7 +98,9 @@ class _ViewPatientScreenState extends State<ViewPatientScreen> {
             .trim();
 
     return Container(
-      margin: const EdgeInsets.only(left: 24, right: 24, bottom: 8),
+      margin: const EdgeInsets.symmetric(horizontal: 24),
+      width: double.infinity,
+      constraints: const BoxConstraints(maxWidth: 1200),
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
       decoration: BoxDecoration(
         color: AppTheme.white500,
@@ -135,8 +136,6 @@ class _ViewPatientScreenState extends State<ViewPatientScreen> {
   Widget _buildPersonalDetailsCard(BuildContext context) {
     return _BaseCard(
       title: 'Personal Details',
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 900),
         child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
@@ -243,7 +242,6 @@ class _ViewPatientScreenState extends State<ViewPatientScreen> {
                 '${widget.patient.streetAddress}, ${widget.patient.barangay}, ${widget.patient.cityMunicipality}, ${widget.patient.province} ${widget.patient.zipCode}',
             ),
         ],
-      ),
       ),
     );
   }
