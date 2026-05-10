@@ -1,0 +1,63 @@
+import 'package:intl/intl.dart';
+
+class SchedulingService {
+  
+  static const List<String> months = [ // array for the months (dropdown menu)
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+  ];
+
+  static List<String> getDaysInMonth(String? month, String yearStr) { // how many days are in a selected month? (counts leap-years)
+    if (month == null) return [];
+    int year = int.tryParse(yearStr) ?? DateTime.now().year;
+    int monthIndex = months.indexOf(month) + 1;
+    if (monthIndex == 0) return [];
+
+    int days = DateTime(year, monthIndex + 1, 0).day;
+    return List.generate(days, (index) => (index + 1).toString());
+  }
+
+  // Infer function to prevent past booking
+  static String getInferredYear(String? selectedMonth) {
+    int year = DateTime.now().year;
+    if (selectedMonth == null) return year.toString();
+
+    final currentMonth = DateTime.now().month;
+    final selectedMonthIndex = months.indexOf(selectedMonth) + 1;
+
+    // Logic: if a past month is selected, this means the month the next year
+    if (selectedMonthIndex < currentMonth) {
+      year += 1;
+    }
+    return year.toString();
+  }
+
+  // Converts the dropdown choices into strings
+  static DateTime? parseSelectedDate(String? selectedMonth, String? selectedDay) {
+    if (selectedMonth == null || selectedDay == null) return null;
+
+    int year = int.parse(getInferredYear(selectedMonth));
+    final selectedMonthIndex = months.indexOf(selectedMonth) + 1;
+    final day = int.tryParse(selectedDay);
+
+    if (selectedMonthIndex <= 0 || day == null) return null;
+
+    return DateTime(year, selectedMonthIndex, day);
+  }
+
+  // Combines a date and time String
+  static DateTime applyTimeToDate(DateTime date, String timeStr) {
+    final parsedTime = DateFormat("hh:mm a").parse(timeStr);
+    return DateTime(date.year, date.month, date.day, parsedTime.hour, parsedTime.minute);
+  }
+
+  // Formats the date function to a specified format
+  static String formatDate(DateTime date) {
+    return DateFormat('MMM dd, yyyy').format(date);
+  }
+
+  // Formats the DateTime to make it look pleasing to the UI
+  static String formatTime(DateTime date) {
+    return DateFormat('hh:mm a').format(date);
+  }
+}
