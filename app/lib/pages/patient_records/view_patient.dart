@@ -524,7 +524,7 @@ class _MoreOptions extends StatelessWidget {
   final List<BarMenuItem> items;
   final ValueChanged<String>? onSelected;
 
-  const _MoreOptions({required this.items, this.onSelected});
+  const _MoreOptions({required this.items});
 
   @override
   Widget build(BuildContext context) {

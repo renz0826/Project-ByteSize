@@ -1,5 +1,6 @@
-import 'package:dentcity_management_system/pages/billing/viewBill.dart';
+import 'package:dentcity_management_system/pages/billing/view_bill.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart'; 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '/../style/theme.dart';
 import '/../widgets/search_bar.dart';
@@ -7,13 +8,14 @@ import '/../widgets/app_pagination.dart';
 import '/../widgets/main_buttons.dart';
 import '/../widgets/page_header.dart';
 import 'package:heroicons/heroicons.dart';
-import '../../db/database.dart';
-import '../../db/database_provider.dart';
+
+// --- THE FIX: Pointing to the unified providers ---
+import '../../providers/app_providers.dart';
+import '../../providers/auth_provider.dart';
 import '../../repositories/invoice_repository.dart';
-import 'newBill_form.dart';
+
+import 'new_bill_form.dart';
 import 'process_payment.dart';
-import '../../providers/auth_provider.dart'; 
-import 'package:flutter/services.dart';
 
 class BillingDashboard extends ConsumerStatefulWidget {
   const BillingDashboard({super.key});
@@ -45,29 +47,49 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
   @override
   void initState() {
     super.initState();
-    final db = ref.read(dbProvider);
+    // THE FIX: Use the Single Source of Truth database provider
+    final db = ref.read(databaseProvider);
     _repository = InvoiceRepository(db);
     _loadInvoices();
   }
 
   Future<void> _loadInvoices() async {
-    final invoices = await _repository.getAllInvoices();
-    invoices.sort((a, b) => b.invoice.issuedDate.compareTo(a.invoice.issuedDate));
-
-    setState(() {
-      _allInvoices = invoices;
-      _filteredRecords = invoices;
-      _applyFilters();
+    try {
+      final invoices = await _repository.getAllInvoices();
       
-      // Automatically update the active View Bill data with fresh database data
-      if (_selectInvoiceToView != null) {
-        try {
-          _selectInvoiceToView = invoices.firstWhere(
-            (inv) => inv.invoice.invoiceId == _selectInvoiceToView!.invoice.invoiceId
-          );
-        } catch (e) {} // Failsafe if invoice was deleted
+      // THE FIX: Safe sort prevents crashes if a date happens to be null
+      invoices.sort((a, b) {
+        final dateA = a.invoice.issuedDate;
+        final dateB = b.invoice.issuedDate;
+        if (dateA == null && dateB == null) return 0;
+        if (dateA == null) return 1;
+        if (dateB == null) return -1;
+        return dateB.compareTo(dateA); 
+      });
+
+      if (mounted) {
+        setState(() {
+          _allInvoices = invoices;
+          _filteredRecords = invoices;
+          _applyFilters();
+          
+          // Automatically update the active View Bill data with fresh database data
+          if (_selectInvoiceToView != null) {
+            try {
+              _selectInvoiceToView = invoices.firstWhere(
+                (inv) => inv.invoice.invoiceId == _selectInvoiceToView!.invoice.invoiceId
+              );
+            } catch (e) {} // Failsafe if invoice was deleted
+          }
+        });
       }
-    });
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Dashboard Load Error: $e'), backgroundColor: Colors.red)
+        );
+      }
+    }
   }
 
   void _applyFilters() {
@@ -97,7 +119,7 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
 
   void _goToAddBill() {
     setState(() {
-      _selectInvoiceToView = null;
+      _selectInvoiceToView = null; // THE FIX: Clear memory so the form is blank
       _formSessionId++;
       _currentIndex = 1;
     });
@@ -118,7 +140,7 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
     if (shouldDiscard == true) setState(() => _currentIndex = 0);
   }
 
- // --- PIN AUTHENTICATION FOR EDITING ---
+  // --- PIN AUTHENTICATION FOR EDITING ---
   Future<bool> _verifyPin() async {
     final TextEditingController pinController = TextEditingController();
 
@@ -140,14 +162,12 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
                 keyboardType: TextInputType.number,
                 textAlign: TextAlign.center,
                 autofocus: true,
-  
                 inputFormatters: [
                   FilteringTextInputFormatter.digitsOnly,
                   LengthLimitingTextInputFormatter(4)
                 ],
                 decoration: InputDecoration(
                   contentPadding: const EdgeInsets.symmetric(vertical: 16.0),
-                  // THE FIX: Exact border styling from your login_page.dart
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(30),
                     borderSide: const BorderSide(color: Color(0xFFB5B5B5)),
@@ -186,7 +206,7 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
                   return;
                 }
 
-                // THE FIX: Ask the AuthController if the PIN is correct!
+                // THE FIX: Ask the AuthController if the PIN is correct
                 final isValid = ref.read(authControllerProvider.notifier).verifyPin(enteredPin);
 
                 if (isValid) { 

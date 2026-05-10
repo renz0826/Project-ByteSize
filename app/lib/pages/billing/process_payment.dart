@@ -3,9 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '/../style/theme.dart';
 import '/../widgets/main_buttons.dart';
 import '/../widgets/page_header.dart';
-import '/../widgets/input_field.dart';
 import '../../db/database.dart';
-import '../../db/database_provider.dart';
+import '../../providers/app_providers.dart';
 import '../../repositories/invoice_repository.dart';
 
 class ProcessPaymentScreen extends ConsumerStatefulWidget {
@@ -36,7 +35,7 @@ class _ProcessPaymentScreenState extends ConsumerState<ProcessPaymentScreen> {
   }
 
   Future<void> _fetchProcedures() async {
-    final db = ref.read(dbProvider);
+    final db = ref.read(databaseProvider);
     final invoiceId = widget.invoiceData.invoice.invoiceId;
 
     final charges = await (db.select(db.procedureCharge)
@@ -174,7 +173,7 @@ class _ProcessPaymentScreenState extends ConsumerState<ProcessPaymentScreen> {
                             icon: Icons.check,
                             iconPlacement: IconPlacement.left,
                             onPressed: () async {
-                              final db = ref.read(dbProvider);
+                              final db = ref.read(databaseProvider);
                               final repo = InvoiceRepository(db);
                               
                               if (totalPaidNow <= 0) {
@@ -271,7 +270,7 @@ class _ProcessPaymentScreenState extends ConsumerState<ProcessPaymentScreen> {
           Expanded(
             flex: 2,
             child: DropdownButtonFormField<String>(
-              value: _selectedModes[index],
+              initialValue: _selectedModes[index],
               decoration: InputDecoration(
                 contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
                 enabledBorder: OutlineInputBorder(

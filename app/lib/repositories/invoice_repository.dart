@@ -11,77 +11,140 @@ class InvoiceRepository {
   //          names, and computed grand total
   // --------------------------------------------------
   Future<List<JoinedInvoice>> getAllInvoices() async {
-    // 1. Fetch invoices joined with patient
-    final query = _db.select(_db.invoice).join([
-      innerJoin(
-          _db.patient, _db.patient.patientId.equalsExp(_db.invoice.patientId)),
-    ]);
+    try {
+      final invoices = await _db.select(_db.invoice).get();
+      print("🦷 DEBUG: Found ${invoices.length} total invoices in database!");
 
-    final rows = await query.map((row) {
-      final invoice = row.readTable(_db.invoice);
-      final patient = row.readTable(_db.patient);
-      return {
-        'invoice': invoice,
-        'patientName': '${patient.firstName} ${patient.lastName}',
-      };
-    }).get();
+      final results = <JoinedInvoice>[];
 
-    // 2. For each invoice, fetch its procedure charges
-    final results = <JoinedInvoice>[];
-    for (final row in rows) {
-      final invoice = row['invoice'] as InvoiceData;
-      final patientName = row['patientName'] as String;
+      for (final inv in invoices) {
+        final patient = await (_db.select(_db.patient)..where((p) => p.patientId.equals(inv.patientId))).getSingleOrNull();
+        final patientName = patient != null ? '${patient.lastName},` ${patient.firstName}' : 'Unknown Patient';
+        final charges = await (_db.select(_db.procedureCharge)..where((c) => c.invoiceId.equals(inv.invoiceId))).get();
+        final procedureNames = charges.map((c) => c.procedureName).join(', ');
+        final grandTotal = charges.fold<double>(0, (sum, c) => sum + c.totalProcedureCharge);
 
-      final charges = await (_db.select(_db.procedureCharge)
-            ..where((c) => c.invoiceId.equals(invoice.invoiceId)))
-          .get();
+        results.add(JoinedInvoice(
+          invoice: inv,
+          patientName: patientName,
+          procedureNames: procedureNames.isEmpty ? 'No procedures' : procedureNames,
+          grandTotal: grandTotal,
+        ));
+      }
 
-      final procedureNames =
-          charges.map((c) => c.procedureName).join(', ');
-      final grandTotal =
-          charges.fold<double>(0, (sum, c) => sum + c.totalProcedureCharge);
-
-      results.add(JoinedInvoice(
-        invoice: invoice,
-        patientName: patientName,
-        procedureNames:
-            procedureNames.isEmpty ? 'No procedures' : procedureNames,
-        grandTotal: grandTotal,
-      ));
+      print("🦷 DEBUG: Successfully returning ${results.length} mapped invoices to dashboard.");
+      return results;
+    } catch (e) {
+      print("🦷 DEBUG ERROR in getAllInvoices: $e");
+      return [];
     }
-
-    return results;
   }
 
-  // --------------------------------------------------
-  // READ – single invoice by ID
-  // --------------------------------------------------
+  //read a single invoice
   Future<InvoiceData?> getInvoiceById(int id) {
-    return (_db.select(_db.invoice)
-          ..where((t) => t.invoiceId.equals(id)))
-        .getSingleOrNull();
+    return (_db.select(_db.invoice)..where((t) => t.invoiceId.equals(id))).getSingleOrNull();
   }
 
-  // --------------------------------------------------
-  // CREATE – invoice with multiple procedures
-  // --------------------------------------------------
+  //create a single invoice
   Future<int> createInvoice({
     required int patientId,
-    required List<Map<String, dynamic>> procedures, // [{name, charge, qty}]
+    required List<Map<String, dynamic>> procedures,
     required double amountReceived,
     required String modeOfPayment,
   }) async {
     return _db.transaction(() async {
-      // 1. Insert the invoice first
-      final invoiceId = await _db.into(_db.invoice).insert(
-            InvoiceCompanion.insert(
-              patientId: patientId,
-              totalBalance: 0, 
-              status: 'Pending',
+      try {
+
+        final invoiceId = await _db.into(_db.invoice).insert(
+              InvoiceCompanion.insert(
+                patientId: patientId,
+                totalBalance: 0,
+                status: 'Pending',
+                issuedDate: Value(DateTime.now()),
+              ),
+            );
+
+        double totalCharges = 0;
+        for (final proc in procedures) {
+          final charge = proc['charge'] as double;
+          final qty = proc['qty'] as int? ?? 1;
+          final subTotal = charge * qty;
+          totalCharges += subTotal;
+
+          await _db.into(_db.procedureCharge).insert(
+                ProcedureChargeCompanion.insert(
+                  invoiceId: invoiceId,
+                  procedureName: proc['name'] as String,
+                  procedureCharge: charge,
+                  quantity: Value(qty),
+                  totalProcedureCharge: subTotal,
+                ),
+              );
+        }
+        await _db.into(_db.paymentTransaction).insert(
+              PaymentTransactionCompanion.insert(
+                invoiceId: invoiceId,
+                amountReceived: amountReceived,
+                modeOfPayment: modeOfPayment,
+              ),
+            );
+
+        final remainingBalance = totalCharges - amountReceived;
+        final status = remainingBalance <= 0 ? 'Paid' : 'Pending';
+
+        await (_db.update(_db.invoice)..where((t) => t.invoiceId.equals(invoiceId))).write(
+          InvoiceCompanion(
+            totalBalance: Value(remainingBalance > 0 ? remainingBalance : 0),
+            status: Value(status),
+          )
+        );
+
+        print("🦷 DEBUG: Save COMPLETELY SUCCESSFUL.");
+        return invoiceId;
+      } catch (e) {
+        print("🦷 DEBUG CRITICAL SAVE ERROR: $e");
+        rethrow; 
+      }
+    });
+  }
+
+  //payment processing
+  Future<void> processPayment({
+    required int invoiceId,
+    required double amountPaidNow,
+    required String modeOfPayment,
+  }) async {
+    return _db.transaction(() async {
+      final invoice = await (_db.select(_db.invoice)..where((t) => t.invoiceId.equals(invoiceId))).getSingle();
+
+      await _db.into(_db.paymentTransaction).insert(
+            PaymentTransactionCompanion.insert(
+              invoiceId: invoiceId,
+              amountReceived: amountPaidNow,
+              modeOfPayment: modeOfPayment,
             ),
           );
 
-      // 2. Insert each procedure charge
+      final newBalance = (invoice.totalBalance - amountPaidNow).clamp(0.0, double.infinity);
+      final newStatus = newBalance <= 0 ? 'Paid' : 'Pending';
+
+      await (_db.update(_db.invoice)..where((t) => t.invoiceId.equals(invoiceId))).write(
+        InvoiceCompanion(
+          totalBalance: Value(newBalance),
+          status: Value(newStatus),
+        )
+      );
+    });
+  }
+
+  //update invoice
+  Future<void> updateInvoiceProcedures({
+    required int invoiceId,
+    required List<Map<String, dynamic>> procedures,
+  }) async {
+    return _db.transaction(() async {
+      await (_db.delete(_db.procedureCharge)..where((t) => t.invoiceId.equals(invoiceId))).go();
+
       double totalCharges = 0;
       for (final proc in procedures) {
         final charge = proc['charge'] as double;
@@ -100,115 +163,17 @@ class InvoiceRepository {
             );
       }
 
-      // 3. Insert a payment transaction
-      await _db.into(_db.paymentTransaction).insert(
-            PaymentTransactionCompanion.insert(
-              invoiceId: invoiceId,
-              amountReceived: amountReceived,
-              modeOfPayment: modeOfPayment,
-            ),
-          );
-
-      // 4. Update the invoice with the real totalBalance and status
-      final remainingBalance = totalCharges - amountReceived;
-      final status = remainingBalance <= 0 ? 'Paid' : 'Pending';
-
-      await (_db.update(_db.invoice)
-            ..where((t) => t.invoiceId.equals(invoiceId)))
-          .write(InvoiceCompanion(
-        totalBalance: Value(remainingBalance > 0 ? remainingBalance : 0),
-        status: Value(status),
-      ));
-
-      return invoiceId;
-    });
-  }
-
-  // --------------------------------------------------
-  // UPDATE – Process a new payment session
-  // --------------------------------------------------
-  Future<void> processPayment({
-    required int invoiceId,
-    required double amountPaidNow,
-    required String modeOfPayment,
-  }) async {
-    return _db.transaction(() async {
-      // 1. Fetch current invoice state
-      final invoice = await (_db.select(_db.invoice)
-            ..where((t) => t.invoiceId.equals(invoiceId)))
-          .getSingle();
-
-      // 2. Insert the new payment record into the history
-      await _db.into(_db.paymentTransaction).insert(
-            PaymentTransactionCompanion.insert(
-              invoiceId: invoiceId,
-              amountReceived: amountPaidNow,
-              modeOfPayment: modeOfPayment,
-            ),
-          );
-
-      // 3. Calculate new balance
-      final newBalance = (invoice.totalBalance - amountPaidNow).clamp(0.0, double.infinity);
-      final newStatus = newBalance <= 0 ? 'Paid' : 'Pending';
-
-      // 4. Update the invoice record
-      await (_db.update(_db.invoice)
-            ..where((t) => t.invoiceId.equals(invoiceId)))
-          .write(InvoiceCompanion(
-            totalBalance: Value(newBalance),
-            status: Value(newStatus),
-          ));
-    });
-  }
-
-// --------------------------------------------------
-  // UPDATE – Edit an existing invoice's procedures
-  // --------------------------------------------------
-  Future<void> updateInvoiceProcedures({
-    required int invoiceId,
-    required List<Map<String, dynamic>> procedures,
-  }) async {
-    return _db.transaction(() async {
-      // 1. Delete old procedures linked to this invoice
-      await (_db.delete(_db.procedureCharge)
-            ..where((t) => t.invoiceId.equals(invoiceId)))
-          .go();
-
-      // 2. Insert the new/updated procedures
-      double totalCharges = 0;
-      for (final proc in procedures) {
-        final charge = proc['charge'] as double;
-        final qty = proc['qty'] as int? ?? 1;
-        final subTotal = charge * qty;
-        totalCharges += subTotal;
-
-        await _db.into(_db.procedureCharge).insert(
-              ProcedureChargeCompanion.insert(
-                invoiceId: invoiceId,
-                procedureName: proc['name'] as String,
-                procedureCharge: charge,
-                quantity: Value(qty), // FIXED: Removed 'drift.'
-                totalProcedureCharge: subTotal,
-              ),
-            );
-      }
-
-      // 3. Calculate new remaining balance
-      final payments = await (_db.select(_db.paymentTransaction)
-            ..where((t) => t.invoiceId.equals(invoiceId)))
-          .get();
-      
+      final payments = await (_db.select(_db.paymentTransaction)..where((t) => t.invoiceId.equals(invoiceId))).get();
       double totalPaidSoFar = payments.fold(0.0, (sum, p) => sum + p.amountReceived);
       final newRemainingBalance = (totalCharges - totalPaidSoFar).clamp(0.0, double.infinity);
       final status = newRemainingBalance <= 0 ? 'Paid' : 'Pending';
 
-      // 4. Update the main invoice record
-      await (_db.update(_db.invoice)
-            ..where((t) => t.invoiceId.equals(invoiceId)))
-          .write(InvoiceCompanion(
-            totalBalance: Value(newRemainingBalance), // FIXED: Removed 'drift.'
-            status: Value(status), // FIXED: Removed 'drift.'
-          ));
+      await (_db.update(_db.invoice)..where((t) => t.invoiceId.equals(invoiceId))).write(
+        InvoiceCompanion(
+          totalBalance: Value(newRemainingBalance),
+          status: Value(status),
+        )
+      );
     });
   }
 }

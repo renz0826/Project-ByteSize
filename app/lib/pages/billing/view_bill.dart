@@ -4,7 +4,7 @@ import '/../style/theme.dart';
 import '/../widgets/main_buttons.dart';
 import '/../widgets/page_header.dart';
 import '../../db/database.dart';
-import '../../db/database_provider.dart';
+import '../../providers/app_providers.dart';
 import '../../repositories/invoice_repository.dart';
 
 class ViewBillScreen extends ConsumerStatefulWidget {
@@ -37,7 +37,7 @@ class _ViewBillScreenState extends ConsumerState<ViewBillScreen> {
   }
 
   Future<void> _fetchData() async {
-    final db = ref.read(dbProvider);
+    final db = ref.read(databaseProvider);
     final invoiceId = widget.invoiceData.invoice.invoiceId;
 
     final charges = await (db.select(db.procedureCharge)
