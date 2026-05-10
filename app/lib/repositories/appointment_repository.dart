@@ -47,14 +47,13 @@ class AppointmentRepository {
     (db.delete(db.appointment) ..where ((a) => a.appointmentId.equals(id))) .go(); 
 
   
-  // --- NEW: SCAN FOR BOOKED SLOTS (Ignores Cancelled!) ---
+  // Get Booked Slots 
   Future<List<String>> getBookedSlots(DateTime date) async {
     final startOfDay = DateTime(date.year, date.month, date.day, 0, 0, 0);
     final endOfDay = DateTime(date.year, date.month, date.day, 23, 59, 59);
 
     final appointments = await (db.select(db.appointment)
           ..where((a) => a.scheduleDateTime.isBetweenValues(startOfDay, endOfDay))
-          // THIS IS THE MAGIC LINE: Ignore cancelled appointments!
           ..where((a) => a.status.isNotValue('Cancelled'))) 
         .get();
 
