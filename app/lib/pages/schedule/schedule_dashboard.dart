@@ -1,11 +1,9 @@
-// file: schedule_dashboard.dart
 import '../schedule/schedule_appointment.dart';
 import '../schedule/view_appointment.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:drift/drift.dart' as drift;
 import 'package:heroicons/heroicons.dart';
-
 import '/../style/theme.dart';
 import '/../widgets/search_bar.dart';
 import '/../widgets/app_pagination.dart';
@@ -13,7 +11,6 @@ import '/../widgets/main_buttons.dart';
 import '/../widgets/page_header.dart';
 import '/../widgets/app_info_bar.dart';
 import '/../widgets/calendar.dart';
-
 import '../../db/database.dart';
 import '../../services/scheduling_service.dart';
 import '../../providers/app_providers.dart';
@@ -127,10 +124,6 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
     });
   }
 
-  // ... (Rest of the original widget building logic remains the same)
-  // Ensure _buildTableRow uses: time: appointment.timeSlot ?? '-'
-  // Ensure _buildTableRow uses: procedure: appointment.reasonForVisit ?? 'Consultation'
-
   void _goBackToMain() {
     setState(() {
       _currentIndex = 0;
@@ -236,8 +229,9 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
                                     onPressed: () {
                                       setState(() {
                                         _formSessionId++;
+                                        _selectedAppointment = null; // Forces CREATE state
+                                        _currentIndex = 1;
                                       });
-                                      setState(() => _currentIndex = 1);
                                     },
                                   ),
                                 ),
@@ -276,6 +270,7 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
     });
   }
 
+  // ---> ADDED THE MISSING TABLE ROW LOGIC HERE <---
   Widget _buildTableRow(JoinedAppointment joinedRecord) {
     final patient = joinedRecord.patient;
     final appointment = joinedRecord.appointment;
@@ -286,23 +281,88 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
       time: appointment.timeSlot ?? '-',
       procedure: appointment.reasonForVisit ?? 'Consultation',
       onMenuSelected: (String actionValue) async {
-        setState(() => _selectedAppointment = joinedRecord);
-        if (actionValue == 'view_appointment')
-          setState(() => _currentIndex = 2);
+        switch (actionValue) {
+          case 'view_appointment':
+            setState(() {
+              _selectedAppointment = joinedRecord;
+              _currentIndex = 2;
+            });
+            break;
+            
+          case 'edit_appointment':
+            setState(() {
+              _formSessionId++;
+              _selectedAppointment = joinedRecord; // Forces EDIT state
+              _currentIndex = 1; 
+            });
+            break;
+
+          case 'cancel_appointment':
+            final repo = ref.read(appointmentRepositoryProvider);
+            await repo.updateAppointmentStatus(appointment.appointmentId, 'Cancelled');
+            _loadAppointments(); 
+            break;
+        }
       },
     );
   }
 
-  Widget _buildScheduleForm() => ScheduleAppointmentForm(
-      activePatients: _allPatients, onSave: _goBackToMain);
+  // ---> UPDATED TO PASS THE EDIT STATE VARIABLES <---
+  Widget _buildScheduleForm() {
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          PageHeader(
+            title: 'Back to Schedules',
+            type: PageHeaderType.withBack,
+            onBack: _goBackToMain,
+          ),
+          Transform.translate(
+            offset: const Offset(0, -30),
+            child: ScheduleAppointmentForm(
+              key: ValueKey(_formSessionId),
+              activePatients: _allPatients,
+              appointmentToEdit: _selectedAppointment, // This is the magic edit trigger
+              onSave: _goBackToMain,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
-  Widget _buildViewAppointment() => ViewAppointment(appointmentData: {
-        'patientName':
-            '${_selectedAppointment?.patient.lastName}, ${_selectedAppointment?.patient.firstName}',
-        'date': _selectedAppointment?.appointment.scheduleDateTime,
-        'time': _selectedAppointment?.appointment.timeSlot,
-        'reason': _selectedAppointment?.appointment.reasonForVisit,
-      }, onEdit: () {});
+  // View Form Logic
+  Widget _buildViewAppointment() => SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            PageHeader(
+              title: 'Back to Schedules',
+              type: PageHeaderType.withBack,
+              onBack: _goBackToMain,
+            ),
+            Transform.translate(
+              offset: const Offset(0, -30),
+              child: ViewAppointment(
+                appointmentData: {
+                  'patientName':
+                      '${_selectedAppointment?.patient.lastName}, ${_selectedAppointment?.patient.firstName}',
+                  'date': _selectedAppointment?.appointment.scheduleDateTime,
+                  'time': _selectedAppointment?.appointment.timeSlot,
+                  'reason': _selectedAppointment?.appointment.reasonForVisit,
+                },
+                onEdit: () {
+                  setState(() {
+                    _formSessionId++;
+                    _currentIndex = 1; // Allows editing directly from the View page
+                  });
+                },
+              ),
+            ),
+          ],
+        ),
+      );
 
   Widget _buildSearchBar() {
     return AppSearchBar(
