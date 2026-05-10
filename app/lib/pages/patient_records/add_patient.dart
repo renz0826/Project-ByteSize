@@ -117,6 +117,46 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
       return;
     }
 
+    // --- NEW: Custom Format Validations ---
+    List<String> formatErrors = [];
+    final contact = _contactNumberController.text.trim();
+    final emergencyContact = _emergencyContactController.text.trim();
+    final zip = _zipController.text.trim();
+
+    if (contact.isNotEmpty && (contact.length != 11 || !contact.startsWith('09'))) {
+      formatErrors.add("• Mobile Number must be exactly 11 digits and start with '09'.");
+    }
+    
+    // Only check emergency contact if the user actually typed something in
+    if (emergencyContact.isNotEmpty && (emergencyContact.length != 11 || !emergencyContact.startsWith('09'))) {
+      formatErrors.add("• Emergency Contact Number must be exactly 11 digits and start with '09'.");
+    }
+
+    if (zip.isNotEmpty && zip.length != 4) {
+      formatErrors.add("• ZIP Code must be exactly 4 digits.");
+    }
+
+    // If any formatting errors exist, show the popup and stop submission
+    if (formatErrors.isNotEmpty) {
+      if (mounted) {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Invalid Input Format'),
+            content: Text(formatErrors.join('\n\n')),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('OK'),
+              )
+            ],
+          ),
+        );
+      }
+      return;
+    }
+    // --- END FORMAT VALIDATIONS ---
+
     // TODO: @Frontend, please refactor this, thank you - Fons
     final db = ref.read(databaseProvider);
     final repository = PatientRepository(db);
@@ -240,8 +280,8 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
                   },
                 ),
               ),
-            ], // <-- Added missing closing bracket for the Row
-          ), // <-- Added missing closing parenthesis for the Row
+            ], 
+          ), 
           const SizedBox(height: 32),
           Text("Demographic", style: Theme.of(context).textTheme.titleLarge),
           if (!isEditing) ...[

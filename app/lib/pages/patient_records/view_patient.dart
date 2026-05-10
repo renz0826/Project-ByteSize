@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:heroicons/heroicons.dart';
+import 'package:dropdown_search/dropdown_search.dart';
 import '../../widgets/app_info_bar.dart';
 import '/../style/theme.dart';
 import '/../db/database.dart';
-import 'package:dropdown_search/dropdown_search.dart';
 import '../../widgets/input_field.dart';
 
 class ViewPatientScreen extends StatefulWidget {
