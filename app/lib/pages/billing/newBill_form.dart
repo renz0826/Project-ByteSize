@@ -238,8 +238,17 @@ class _InvoiceFormState extends ConsumerState<InvoiceForm> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text('Total Balance', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.gray400)),
-                          Text('₱ ${_grandTotal.toStringAsFixed(2)}', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                          Text(
+                            'Total Balance',
+                            style: AppTheme.textTheme.titleLarge?.copyWith(
+                              color: AppTheme.gray400),
+                          ),
+                          Text(
+                            '₱ ${_grandTotal.toStringAsFixed(2)}',
+                            style: AppTheme.textTheme.titleLarge?.copyWith(
+                              color: Colors.black
+                            ),
+                          ),
                         ],
                       ),
                     ),
