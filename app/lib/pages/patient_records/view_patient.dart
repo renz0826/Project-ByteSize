@@ -28,6 +28,12 @@ class ViewPatientScreen extends StatefulWidget {
 class _ViewPatientScreenState extends State<ViewPatientScreen> {
   int? _selectedRecordId;
 
+  List<int> get _recordIds =>
+  widget.clinicalRecords.map((r) => r.recordId).toList();
+
+  List<String> get _recordLabels =>
+  widget.clinicalRecords.map((r) => _formatAppointment(r.createdAt)).toList();
+
   ClinicalRecordData? get _selectedRecord => 
   widget.clinicalRecords.where((r) => r.recordId == _selectedRecordId).firstOrNull;
 
@@ -217,20 +223,18 @@ class _ViewPatientScreenState extends State<ViewPatientScreen> {
             label: 'Appointment Schedule',
             variant: InputVariant.dropdown,
             // converted the recordId to formatted date strings
-            dropdownItems: widget.clinicalRecords
-            .map((r) => '${r.recordId}|${_formatAppointment(r.createdAt)}')
-            .toList(),
+            dropdownItems: _recordLabels,
             // show the formatted date of the selected record
           dropdownValue: _selectedRecordId != null
-            ? widget.clinicalRecords
-            .where((r) => r.recordId == _selectedRecordId)
-            .map((r) => '${r.recordId}|${_formatAppointment(r.createdAt)}')
-            .firstOrNull : null,
+          ? _recordLabels[_recordIds.indexOf(_selectedRecordId!)]
+          : null,
           onDropdownChanged: (value) {
             if (value == null) return;
             //parse the id bback to string
-            final id = int.tryParse(value.split('|').first);
-            setState(() => _selectedRecordId = id);
+            final index = _recordLabels.indexOf(value);
+            if (index != -1){
+            setState(() => _selectedRecordId = _recordIds[index]);
+            }
           },
         ),
           const SizedBox(height: 24),
