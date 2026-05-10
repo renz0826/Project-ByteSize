@@ -9,13 +9,11 @@ import '../../providers/app_providers.dart';
 import '/../widgets/main_buttons.dart';
 import '/../widgets/input_field.dart';
 import '../../repositories/appointment_repository.dart';
-import 'schedule_dashboard.dart'; // Allows us to use the JoinedAppointment class
+import 'schedule_dashboard.dart'; 
 
 class ScheduleAppointmentForm extends ConsumerStatefulWidget {
   final VoidCallback onSave;
   final List<PatientData> activePatients;
-  
-  // The trigger for Edit Mode:
   final JoinedAppointment? appointmentToEdit; 
 
   const ScheduleAppointmentForm({
@@ -31,7 +29,6 @@ class ScheduleAppointmentForm extends ConsumerStatefulWidget {
 }
 
 class _ScheduleAppointmentFormState extends ConsumerState<ScheduleAppointmentForm> {
-  // Simple check to see if we are creating or updating
   bool get isEditing => widget.appointmentToEdit != null;
 
   String? _selectedPatient;
@@ -46,23 +43,23 @@ class _ScheduleAppointmentFormState extends ConsumerState<ScheduleAppointmentFor
   void initState() {
     super.initState();
     
-    // PRE-FILL FORM: If we are editing, grab the data from the database object
     if (isEditing) {
       final appt = widget.appointmentToEdit!.appointment;
       final patient = widget.appointmentToEdit!.patient;
 
-      // 1. Set Patient Name
       _selectedPatient = '${patient.lastName}, ${patient.firstName}';
-      
-      // 2. Set Date (Extracting strings from DateTime)
       _selectedMonth = SchedulingService.months[appt.scheduleDateTime.month - 1];
       _selectedDay = appt.scheduleDateTime.day.toString();
-      
-      // 3. Set Time and Reason
       _selectedTimeSlot = appt.timeSlot;
       _reasonController.text = appt.reasonForVisit ?? "";
       
-      // 4. Load the slots so the dropdown populates!
+      // ---> THE FIX IS HERE <---
+      // Temporarily give the dropdown its current value so it doesn't 
+      // crash while waiting for the database to load the rest of the slots!
+      if (_selectedTimeSlot != null) {
+        _availableTimeSlots = [_selectedTimeSlot!];
+      }
+      
       _refreshTimeSlots();
     }
   }
@@ -80,44 +77,41 @@ class _ScheduleAppointmentFormState extends ConsumerState<ScheduleAppointmentFor
       final booked = await repo.getBookedSlots(date);
       final allSlots = SchedulingService.generateAllSlots();
       
-      setState(() {
-        // Filter out slots that are already booked
-        _availableTimeSlots = allSlots.where((slot) => !booked.contains(slot)).toList();
+      if (mounted) {
+        setState(() {
+          _availableTimeSlots = allSlots.where((slot) => !booked.contains(slot)).toList();
 
-        // EDIT MODE MAGIC: 
-        // If we are looking at the exact same day as our original appointment,
-        // we need to add our current time slot back into the list (since it counts as "booked").
-        if (isEditing) {
-          final originalAppt = widget.appointmentToEdit!.appointment;
-          final originalMonth = SchedulingService.months[originalAppt.scheduleDateTime.month - 1];
-          final originalDay = originalAppt.scheduleDateTime.day.toString();
+          if (isEditing) {
+            final originalAppt = widget.appointmentToEdit!.appointment;
+            final originalMonth = SchedulingService.months[originalAppt.scheduleDateTime.month - 1];
+            final originalDay = originalAppt.scheduleDateTime.day.toString();
 
-          if (_selectedMonth == originalMonth && _selectedDay == originalDay) {
-            if (originalAppt.timeSlot != null && !_availableTimeSlots.contains(originalAppt.timeSlot)) {
-              _availableTimeSlots.add(originalAppt.timeSlot!);
-              
-              // Sort the list so the re-added time isn't stuck at the bottom
-              _availableTimeSlots.sort((a, b) => 
-                allSlots.indexOf(a).compareTo(allSlots.indexOf(b))
-              );
+            if (_selectedMonth == originalMonth && _selectedDay == originalDay) {
+              if (originalAppt.timeSlot != null && !_availableTimeSlots.contains(originalAppt.timeSlot)) {
+                _availableTimeSlots.add(originalAppt.timeSlot!);
+                _availableTimeSlots.sort((a, b) => 
+                  allSlots.indexOf(a).compareTo(allSlots.indexOf(b))
+                );
+              }
             }
           }
-        }
 
-        if (!_availableTimeSlots.contains(_selectedTimeSlot)) {
-          _selectedTimeSlot = null;
-        }
-      });
+          if (!_availableTimeSlots.contains(_selectedTimeSlot)) {
+            _selectedTimeSlot = null;
+          }
+        });
+      }
     } else {
-      setState(() {
-        _availableTimeSlots = [];
-        _selectedTimeSlot = null;
-      });
+      if (mounted) {
+        setState(() {
+          _availableTimeSlots = [];
+          _selectedTimeSlot = null;
+        });
+      }
     }
   }
 
   Future<void> _saveAppointment() async {
-    // Basic Validation Check
     if (_selectedPatient == null || _selectedMonth == null || _selectedDay == null || _selectedTimeSlot == null) {
        ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Please fill in all required fields."), backgroundColor: Colors.red),
@@ -133,7 +127,6 @@ class _ScheduleAppointmentFormState extends ConsumerState<ScheduleAppointmentFor
       (p) => '${p.lastName}, ${p.firstName}' == _selectedPatient
     );
 
-    // Create the secure database object
     final companion = AppointmentCompanion(
       patientId: drift.Value(patient.patientId),
       scheduleDateTime: drift.Value(date!),
@@ -145,7 +138,6 @@ class _ScheduleAppointmentFormState extends ConsumerState<ScheduleAppointmentFor
 
     try {
       if (isEditing) {
-        // UPDATE RECORD: Targeting the exact ID in the database
         await (db.update(db.appointment)
           ..where((t) => t.appointmentId.equals(widget.appointmentToEdit!.appointment.appointmentId))
         ).write(companion);
@@ -153,7 +145,6 @@ class _ScheduleAppointmentFormState extends ConsumerState<ScheduleAppointmentFor
         ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text("Appointment Updated Successfully!")));
       } else {
-        // INSERT RECORD: Creating a brand new appointment
         await repo.addAppointment(companion);
         
         ScaffoldMessenger.of(context).showSnackBar(
@@ -192,7 +183,6 @@ class _ScheduleAppointmentFormState extends ConsumerState<ScheduleAppointmentFor
               variant: InputVariant.dropdown,
               dropdownValue: _selectedPatient,
               isRequired: true,
-              // Block the user from changing the patient if they are just editing the schedule!
               onDropdownChanged: isEditing ? null : (v) => setState(() => _selectedPatient = v),
               dropdownItems: widget.activePatients.map((p) => '${p.lastName}, ${p.firstName}').toList(),
             ),
@@ -228,7 +218,11 @@ class _ScheduleAppointmentFormState extends ConsumerState<ScheduleAppointmentFor
                   variant: InputVariant.dropdown, 
                   dropdownValue: _selectedTimeSlot, 
                   isRequired: true,
-                  dropdownItems: _availableTimeSlots.isEmpty ? ["Select a date first"] : _availableTimeSlots, 
+                  // ---> SECOND PART OF THE FIX <---
+                  // Ensures the dropdown always has a valid fallback list to check against
+                  dropdownItems: _availableTimeSlots.isEmpty 
+                      ? (_selectedTimeSlot != null ? [_selectedTimeSlot!] : ["Select a date first"]) 
+                      : _availableTimeSlots, 
                   onDropdownChanged: (v) {
                     if (v != "Select a date first") setState(() => _selectedTimeSlot = v);
                   }

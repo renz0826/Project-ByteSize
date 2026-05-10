@@ -95,7 +95,6 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
   void _applyFilters() {
     final query = _searchController.text.toLowerCase();
 
-    // 1. Filter results based on search/date/status
     List<JoinedAppointment> filtered = _allAppointments.where((item) {
       final p = item.patient;
       final a = item.appointment;
@@ -104,15 +103,22 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
       final matchesDate = a.scheduleDateTime.year == _selectedDate.year &&
           a.scheduleDateTime.month == _selectedDate.month &&
           a.scheduleDateTime.day == _selectedDate.day;
+
       bool matchesStatus = true;
+
+      // ---> THE FIX <---
       if (_selectedStatus != null && _selectedStatus != 'All') {
+        // If a specific chip is selected (like Upcoming or Completed)
         matchesStatus =
             a.status.toLowerCase() == _selectedStatus!.toLowerCase();
+      } else {
+        matchesStatus = a.status.toLowerCase() != 'cancelled';
       }
+
       return matchesSearch && matchesDate && matchesStatus;
     }).toList();
 
-    // 2. APPLY DEFAULT SORT (Earliest to Latest)
+    // Chronological Sort
     filtered.sort((a, b) {
       int timeA = _timeToMinutes(a.appointment.timeSlot);
       int timeB = _timeToMinutes(b.appointment.timeSlot);
@@ -129,6 +135,42 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
       _currentIndex = 0;
       _loadAppointments();
     });
+  }
+
+  // --- CANCELLATION DIALOG HELPER ---
+  Future<void> _cancelAppointmentConfirmation(int appointmentId) async {
+    final bool? shouldCancel = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Cancel Appointment?'),
+          content: const Text(
+              'Are you sure you want to cancel this appointment? This action cannot be undone.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('No, Keep It'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text('Yes, Cancel',
+                  style: TextStyle(color: Colors.red)),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (shouldCancel == true) {
+      final repo = ref.read(appointmentRepositoryProvider);
+      await repo.updateAppointmentStatus(appointmentId, 'Cancelled');
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Appointment has been cancelled.")));
+      }
+      _goBackToMain();
+    }
   }
 
   @override
@@ -229,7 +271,8 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
                                     onPressed: () {
                                       setState(() {
                                         _formSessionId++;
-                                        _selectedAppointment = null; // Forces CREATE state
+                                        _selectedAppointment =
+                                            null; // Forces CREATE state
                                         _currentIndex = 1;
                                       });
                                     },
@@ -270,7 +313,6 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
     });
   }
 
-  // ---> ADDED THE MISSING TABLE ROW LOGIC HERE <---
   Widget _buildTableRow(JoinedAppointment joinedRecord) {
     final patient = joinedRecord.patient;
     final appointment = joinedRecord.appointment;
@@ -288,26 +330,23 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
               _currentIndex = 2;
             });
             break;
-            
+
           case 'edit_appointment':
             setState(() {
               _formSessionId++;
               _selectedAppointment = joinedRecord; // Forces EDIT state
-              _currentIndex = 1; 
+              _currentIndex = 1;
             });
             break;
 
           case 'cancel_appointment':
-            final repo = ref.read(appointmentRepositoryProvider);
-            await repo.updateAppointmentStatus(appointment.appointmentId, 'Cancelled');
-            _loadAppointments(); 
+            _cancelAppointmentConfirmation(appointment.appointmentId);
             break;
         }
       },
     );
   }
 
-  // ---> UPDATED TO PASS THE EDIT STATE VARIABLES <---
   Widget _buildScheduleForm() {
     return SingleChildScrollView(
       child: Column(
@@ -323,7 +362,8 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
             child: ScheduleAppointmentForm(
               key: ValueKey(_formSessionId),
               activePatients: _allPatients,
-              appointmentToEdit: _selectedAppointment, // This is the magic edit trigger
+              appointmentToEdit:
+                  _selectedAppointment, // Pass the variable to trigger Edit State
               onSave: _goBackToMain,
             ),
           ),
@@ -332,7 +372,6 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
     );
   }
 
-  // View Form Logic
   Widget _buildViewAppointment() => SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -355,9 +394,12 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
                 onEdit: () {
                   setState(() {
                     _formSessionId++;
-                    _currentIndex = 1; // Allows editing directly from the View page
+                    _currentIndex = 1; // Switches directly to edit mode
                   });
                 },
+                onCancel: () => _cancelAppointmentConfirmation(
+                    _selectedAppointment!
+                        .appointment.appointmentId), // Pass cancellation ID
               ),
             ),
           ],
