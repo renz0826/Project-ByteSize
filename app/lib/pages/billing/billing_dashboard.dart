@@ -1,4 +1,5 @@
 import 'package:dentcity_management_system/pages/billing/view_bill.dart';
+import 'package:dentcity_management_system/widgets/app_status_badge.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -16,6 +17,7 @@ import '../../repositories/invoice_repository.dart';
 
 import 'new_bill_form.dart';
 import 'process_payment.dart';
+import '/../widgets/app_info_bar.dart';
 
 class BillingDashboard extends ConsumerStatefulWidget {
   const BillingDashboard({super.key});
@@ -376,6 +378,8 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
                 onChanged: _onSearch,
                 hintText: 'Search for a Patient...',
                 onFilter: () {},
+                // TODO: FILTERING
+
               ),
             ),
             const SizedBox(width: 26),
