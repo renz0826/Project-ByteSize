@@ -15,6 +15,7 @@ import 'add_patient.dart';
 import 'add_clinical_record.dart';
 import 'package:heroicons/heroicons.dart';
 import '../../widgets/discard_dialog.dart';
+import '/../widgets/status_toast.dart';
 
 //main screen
 class PatientDashboard extends ConsumerStatefulWidget {
@@ -278,6 +279,14 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
             ),
           ],
         ),
+        StatusToast(
+          isSuccess: true,
+          title: "Success",
+          message: "INV-001 has been created.",
+          onClose: () {
+            // Logic to dismiss the banner
+          },
+        )
       ],
     );
   }
