@@ -152,16 +152,6 @@ class _ScheduleAppointmentFormState
     }
   }
 
-  void _resetForm() {
-    setState(() {
-      _selectedPatient = null;
-      _selectedMonth = null;
-      _selectedDay = null;
-      _selectedTimeSlot = null;
-      _availableTimeSlots = [];
-      _reasonController.clear();
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
