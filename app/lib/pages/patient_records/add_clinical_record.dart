@@ -11,11 +11,15 @@ class AddClinicalRecordForm extends StatefulWidget {
   final int patientId;
   final Function(ClinicalRecordCompanion) onFinish;
   final VoidCallback onPrevious;
-  const AddClinicalRecordForm(
-      {super.key,
-      required this.patientId,
-      required this.onFinish,
-      required this.onPrevious});
+  final bool showPreviousButton; 
+
+  const AddClinicalRecordForm({
+    super.key,
+    required this.patientId,
+    required this.onFinish,
+    required this.onPrevious,
+    this.showPreviousButton = true, // Defaults to true
+  });
 
   @override
   State<AddClinicalRecordForm> createState() => _AddClinicalRecordFormState();
@@ -425,14 +429,16 @@ class _AddClinicalRecordFormState extends State<AddClinicalRecordForm> {
                             onPressed: _clearFormforClinicalRecord,
                           ),
                         ),
-                        Button(
-                          variant: ButtonVariant.secondary,
-                          label: "Previous",
-                          width: 160,
-                          icon: Icons.arrow_back,
-                          iconPlacement: IconPlacement.left,
-                          onPressed: widget.onPrevious,
-                        ),
+                        // Show the Previous Button based on conditions
+                        if (widget.showPreviousButton)
+                          Button(
+                            variant: ButtonVariant.secondary,
+                            label: "Previous",
+                            width: 160,
+                            icon: Icons.arrow_back,
+                            iconPlacement: IconPlacement.left,
+                            onPressed: widget.onPrevious,
+                          ),
                         Button(
                           label: "Save",
                           width: 140,
