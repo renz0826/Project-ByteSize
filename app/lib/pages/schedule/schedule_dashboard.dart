@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:drift/drift.dart' as drift;
 import 'package:intl/intl.dart'; 
 import 'package:heroicons/heroicons.dart';
+
 import '/../style/theme.dart';
 import '/../widgets/search_bar.dart';
 import '/../widgets/app_pagination.dart';
@@ -12,6 +13,7 @@ import '/../widgets/main_buttons.dart';
 import '/../widgets/page_header.dart';
 import '/../widgets/app_info_bar.dart';
 import '/../widgets/calendar.dart';
+
 import '../../db/database.dart';
 import '../../services/date_helper.dart';
 import '../../providers/app_providers.dart';
@@ -36,6 +38,9 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
   // Real Database Lists
   List<JoinedAppointment> _allAppointments = [];
   List<JoinedAppointment> _filteredRecords = [];
+  
+  // NEW: List to hold all patients for the appointment form
+  List<PatientData> _allPatients = []; 
 
   JoinedAppointment? _selectedAppointment;
 
@@ -61,6 +66,9 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
   Future<void> _loadAppointments() async {
     final db = ref.read(databaseProvider); 
     
+    // NEW: Fetch all patients to pass to the schedule form
+    final patients = await db.select(db.patient).get();
+    
     // Join the Appointment table with the Patient table using patientId
     final query = db.select(db.appointment).join([
       drift.innerJoin(
@@ -79,6 +87,7 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
     }).toList();
 
     setState(() {
+      _allPatients = patients; // Update patient state
       _allAppointments = appointments;
       _applyFilters();
     });
@@ -343,7 +352,7 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
           Transform.translate(
             offset: const Offset(0, -30),
             child: ScheduleAppointmentForm(
-                activePatients: [], 
+                activePatients: _allPatients, // NEW: We are now passing the real list of patients!
                 key: ValueKey(_formSessionId),
                 existingPatient: patientToEdit,
                 onSave: _goBackToMain),
@@ -353,7 +362,7 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
     );
   }
 
-  // --- CHANGED: View Appointment now converts data back to Map ---
+  // View Appointment now converts data back to Map
   Widget _buildViewAppointment() {
     Map<String, dynamic>? legacyFormat;
     
@@ -363,7 +372,7 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
       
       legacyFormat = {
         'patientName': '${p.lastName}, ${p.firstName}',
-        'date': a.scheduleDateTime, // Your view_appointment expects a DateTime here!
+        'date': a.scheduleDateTime, 
         'time': DateFormat('hh:mm a').format(a.scheduleDateTime),
         'reason': a.toJson().containsKey('reason') ? a.toJson()['reason'] : 'Consultation',
       };
@@ -381,7 +390,7 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
           Transform.translate(
               offset: const Offset(0, -30),
               child: ViewAppointment(
-                  appointmentData: legacyFormat, // Pass the converted Map here!
+                  appointmentData: legacyFormat, 
                   onEdit: _goToEditAppointment)),
         ],
       ),
@@ -483,7 +492,7 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
         cursor: SystemMouseCursors.click,
         child: ScheduleBar(
           fullName: fullName,
-          date: appointment.scheduleDateTime, // FIX: Pass the raw DateTime directly!
+          date: appointment.scheduleDateTime, // NEW: Passes raw Date object correctly!
           time: timeString, 
           procedure: reasonString, 
 
