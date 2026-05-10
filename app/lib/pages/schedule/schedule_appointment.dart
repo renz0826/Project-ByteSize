@@ -51,7 +51,7 @@ class _ScheduleAppointmentFormState
     super.dispose();
   }
 
-  String _getInferredYear() {
+  String _getInferredYear() { 
     int year = DateTime.now().year;
     if (_selectedMonth == null) return year.toString();
 
@@ -106,7 +106,6 @@ class _ScheduleAppointmentFormState
   }
 
  Future<void> _saveAppointment() async {
-    // 1. Validation (Your code here is perfect!)
     if (_selectedPatient == null ||
         _selectedMonth == null ||
         _selectedDay == null ||
@@ -134,19 +133,15 @@ class _ScheduleAppointmentFormState
       return;
     }
 
-    // Wrap the database logic in a try-catch!
     try {
-      // 2. FIX: Match the exact format used in your dropdown (LastName, FirstName)
       final patient = widget.activePatients.firstWhere(
         (p) => '${p.lastName}, ${p.firstName}' == _selectedPatient, 
-        // Add an 'orElse' just in case, to prevent a hard crash
         orElse: () => throw Exception("Patient not found in the list!"),
       );
 
       final scheduleDate = _parseSelectedDate();
       if (scheduleDate == null) return;
 
-      // 3. Prepare the data
       final newAppointment = AppointmentCompanion( 
         patientId: drift.Value(patient.patientId),
         scheduleDateTime: drift.Value(scheduleDate),
@@ -156,24 +151,19 @@ class _ScheduleAppointmentFormState
         staffId: const drift.Value(1),
       );
 
-      // 4. Save to Database
       final db = ref.read(databaseProvider);
       final appointmentRepository = AppointmentRepository(db);
       await appointmentRepository.addAppointment(newAppointment);
 
-      // 5. Success actions
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Appointment Scheduled Successfully!")),
         );
       }
 
-      // 6. Reset and return
-      // _resetForm(); // Note: If widget.onSave() closes the page, resetting isn't strictly necessary, but it doesn't hurt!
       widget.onSave();
 
     } catch (e) {
-      // IF ANYTHING FAILS, SHOW THIS ERROR INSTEAD OF FREEZING!
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
