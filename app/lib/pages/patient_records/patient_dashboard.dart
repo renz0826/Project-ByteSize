@@ -167,112 +167,116 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
 
   @override
   Widget build(BuildContext context) {
-    return IndexedStack(
-      index: _currentIndex,
+    return Stack(
       children: [
-        // Set this as Index 0: The Main Patient Dashboard
-        Scaffold(
-          backgroundColor: AppTheme.gray200,
-          body: CustomScrollView(
-            slivers: [
-              SliverToBoxAdapter(
-                child: PageHeader(
-                  title: 'Patient Records',
-                  type: PageHeaderType.plain,
-                ),
+        IndexedStack(
+          index: _currentIndex,
+          children: [
+            // Set this as Index 0: The Main Patient Dashboard
+            Scaffold(
+              backgroundColor: AppTheme.gray200,
+              body: CustomScrollView(
+                slivers: [
+                  SliverToBoxAdapter(
+                    child: PageHeader(
+                      title: 'Patient Records',
+                      type: PageHeaderType.plain,
+                    ),
+                  ),
+                  //search bar, filter, and table header
+                  SliverPadding(
+                    padding: const EdgeInsets.only(left: 24, right: 24),
+                    sliver: SliverList(
+                      delegate: SliverChildListDelegate([
+                        _buildSearchBar(),
+                        const SizedBox(height: 8),
+                        _buildTableHeader(),
+                      ]),
+                    ),
+                  ),
+                  //table rows
+                  SliverPadding(
+                    padding: const EdgeInsets.only(left: 24, right: 24),
+                    sliver: _currentPageRecords.isEmpty
+                        ? SliverToBoxAdapter(
+                            child: _buildEmptyState(),
+                          )
+                        : SliverList(
+                            delegate: SliverChildBuilderDelegate(
+                              (context, index) =>
+                                  _buildTableRow(_currentPageRecords[index]),
+                              childCount: _currentPageRecords.length,
+                            ),
+                          ),
+                  ),
+                  //pagination
+                  SliverPadding(
+                    padding: const EdgeInsets.only(
+                        left: 24, right: 24, bottom: 24, top: 16),
+                    sliver: SliverToBoxAdapter(
+                      child: _filteredRecords.isEmpty
+                          ? const SizedBox.shrink()
+                          : AppPagination(
+                              currentPage: _currentPage,
+                              totalPages: _totalPages,
+                              onPageChanged: (newPage) =>
+                                  setState(() => _currentPage = newPage),
+                            ),
+                    ),
+                  ),
+                ],
               ),
-              //search bar, filter, and table header
-              SliverPadding(
-                padding: const EdgeInsets.only(left: 24, right: 24),
-                sliver: SliverList(
-                  delegate: SliverChildListDelegate([
-                    _buildSearchBar(),
-                    const SizedBox(height: 8),
-                    _buildTableHeader(),
-                  ]),
-                ),
-              ),
-              //table rows
-              SliverPadding(
-                padding: const EdgeInsets.only(left: 24, right: 24),
-                sliver: _currentPageRecords.isEmpty
-                    ? SliverToBoxAdapter(
-                        child: _buildEmptyState(),
-                      )
-                    : SliverList(
-                        delegate: SliverChildBuilderDelegate(
-                          (context, index) =>
-                              _buildTableRow(_currentPageRecords[index]),
-                          childCount: _currentPageRecords.length,
-                        ),
-                      ),
-              ),
-              //pagination
-              SliverPadding(
-                padding: const EdgeInsets.only(
-                    left: 24, right: 24, bottom: 24, top: 16),
-                sliver: SliverToBoxAdapter(
-                  child: _filteredRecords.isEmpty
-                      ? const SizedBox.shrink()
-                      : AppPagination(
-                          currentPage: _currentPage,
-                          totalPages: _totalPages,
-                          onPageChanged: (newPage) =>
-                              setState(() => _currentPage = newPage),
-                        ),
-                ),
-              ),
-            ],
-          ),
-        ),
+            ),
 
-        // Setting this as Index 1: When user clicks add record
-        SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              PageHeader(
-                title: 'Back to Records',
-                type: PageHeaderType.withBack,
-                onBack: _confirmReturnToDashboard,
+            // Setting this as Index 1: When user clicks add record
+            SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  PageHeader(
+                    title: 'Back to Records',
+                    type: PageHeaderType.withBack,
+                    onBack: _confirmReturnToDashboard,
+                  ),
+                  Transform.translate(
+                    offset: const Offset(0, -30),
+                    child: AddPatientForm(
+                        key: ValueKey(_formSessionId),
+                        onNext: (data) => _goToAddClinicalRecord(data),
+                        onBack: () {
+                          _loadPatients();
+                          setState(() => _currentIndex = 0);
+                        }),
+                  ),
+                ],
               ),
-              Transform.translate(
-                offset: const Offset(0, -30),
-                child: AddPatientForm(
-                    key: ValueKey(_formSessionId),
-                    onNext: (data) => _goToAddClinicalRecord(data),
-                    onBack: () {
-                      _loadPatients();
-                      setState(() => _currentIndex = 0);
-                    }),
-              ),
-            ],
-          ),
-        ),
+            ),
 
-        // Setting this as Index 2: When user clicks next after adding a patient record
-        SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              PageHeader(
-                title: 'Back to Records',
-                type: PageHeaderType.withBack,
-                onBack: _confirmReturnToDashboard,
+            // Setting this as Index 2: When user clicks next after adding a patient record
+            SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  PageHeader(
+                    title: 'Back to Records',
+                    type: PageHeaderType.withBack,
+                    onBack: _confirmReturnToDashboard,
+                  ),
+                  Transform.translate(
+                    offset: const Offset(0, -30),
+                    child: AddClinicalRecordForm(
+                      patientId: 0,
+                      key: ValueKey(_formSessionId),
+                      onPrevious: () {
+                        setState(() => _currentIndex = 1);
+                      },
+                      onFinish: (clinicalData) => _goBackToMain(clinicalData),
+                    ),
+                  ),
+                ],
               ),
-              Transform.translate(
-                offset: const Offset(0, -30),
-                child: AddClinicalRecordForm(
-                  patientId: 0,
-                  key: ValueKey(_formSessionId),
-                  onPrevious: () {
-                    setState(() => _currentIndex = 1);
-                  },
-                  onFinish: (clinicalData) => _goBackToMain(clinicalData),
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ],
     );
