@@ -68,7 +68,7 @@ class _ViewPatientScreenState extends State<ViewPatientScreen> {
       child: SingleChildScrollView( // to allow the page to be scrollable
         padding: const EdgeInsets.only(bottom: 30), 
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             //patient name header
             _buildNameHeader(context),
@@ -97,7 +97,8 @@ class _ViewPatientScreenState extends State<ViewPatientScreen> {
         '${widget.patient.lastName}, ${widget.patient.firstName} ${widget.patient.middleName} ${widget.patient.suffix}'
             .trim();
 
-    return Container(
+    return Center(
+      child: Container(
       margin: const EdgeInsets.symmetric(horizontal: 24),
       width: double.infinity,
       constraints: const BoxConstraints(maxWidth: 1200),
@@ -129,6 +130,7 @@ class _ViewPatientScreenState extends State<ViewPatientScreen> {
           ),
         ],
       ),
+    ),
     );
   }
 
@@ -144,7 +146,7 @@ class _ViewPatientScreenState extends State<ViewPatientScreen> {
           Row(
             children: [
               Expanded(
-                flex: 3,
+                flex: 2,
                 child: AttributeReadView(
                 label: 'Date of Birth',
                 content: _formatDate(widget.patient.birthDate), 
@@ -181,27 +183,26 @@ class _ViewPatientScreenState extends State<ViewPatientScreen> {
           Row(
             children: [
               Expanded(
-                flex: 3,
+                flex: 2,
                 child: AttributeReadView(
                 label: 'Phone No.',
                 content: widget.patient.contactNumber,
                 ),
               ),
               Expanded(
-                flex: 3,
+                flex: 2,
                 child: AttributeReadView(
                 label: 'Emergency Contact No.',
                 content: widget.patient.emergencyContactNo ?? '—',
                 ),
               ),
               Expanded(
-                flex: 3,
+                flex: 4,
                 child: AttributeReadView(
                 label: 'Relationship to the Patient',
                 content: widget.patient.relationshipEmergency ?? '-',
                 ),
               ),
-              const Expanded(flex: 2, child: SizedBox()),
             ],
           ),
           const SizedBox(height: 32),
@@ -210,27 +211,26 @@ class _ViewPatientScreenState extends State<ViewPatientScreen> {
           Row(
             children: [
               Expanded(
-                flex: 3,
+                flex: 2,
                 child: AttributeReadView(
                   label: 'Referred By',
                   content:widget. patient.referredBy ?? '—',
                   ),
               ),
               Expanded(
-                flex: 3,
+                flex: 2,
                 child: AttributeReadView(
                 label: 'Relationship to Referral',
                 content: widget.patient.relationship ?? '—',
                 ),
               ),
               Expanded(
-                flex: 3,
+                flex: 4,
                 child: AttributeReadView(
                   label: 'PWD Status',
                   content: widget.patient.isSeniorOrPWD == true ? 'Applicable' : 'Not Applicable',
                 ),
               ),
-              const Expanded(flex: 2, child: SizedBox()),
             ],
           ),
           const SizedBox(height: 32),
@@ -537,24 +537,26 @@ class _BaseCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 24),
-      width: double.infinity,
-      constraints: const BoxConstraints(maxWidth: 1200),
-      padding: const EdgeInsets.all(32),
-      decoration: BoxDecoration(
-        color: AppTheme.white500,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: AppTheme.cardShadow,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(title, style: Theme.of(context).textTheme.titleLarge),
-          const SizedBox(height: 32),
-          child,
-        ],
+    return Center(
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 24),
+        width: double.infinity,
+        constraints: const BoxConstraints(maxWidth: 1200),
+        padding: const EdgeInsets.all(32),
+        decoration: BoxDecoration(
+          color: AppTheme.white500,
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: AppTheme.cardShadow,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(title, style: Theme.of(context).textTheme.titleLarge),
+            const SizedBox(height: 32),
+            child,
+          ],
+        ),
       ),
     );
   }
