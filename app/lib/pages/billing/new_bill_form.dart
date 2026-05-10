@@ -286,8 +286,7 @@ class _InvoiceFormState extends ConsumerState<InvoiceForm> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  SizedBox(
-                    width: 350, 
+                  IntrinsicWidth(
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
                       decoration: BoxDecoration(
@@ -295,13 +294,14 @@ class _InvoiceFormState extends ConsumerState<InvoiceForm> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
                             'Total Balance',
                             style: AppTheme.textTheme.titleLarge?.copyWith(
                               color: AppTheme.gray400),
                           ),
+                          const SizedBox(width: 32),
                           Text(
                             '₱ ${_grandTotal.toStringAsFixed(2)}',
                             style: AppTheme.textTheme.titleLarge?.copyWith(
