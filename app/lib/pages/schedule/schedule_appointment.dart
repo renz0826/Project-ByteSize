@@ -8,7 +8,6 @@ import '../../db/database.dart';
 import '../../providers/app_providers.dart';
 import '/../widgets/main_buttons.dart';
 import '/../widgets/input_field.dart';
-import '../../services/date_service.dart';
 import '../../repositories/appointment_repository.dart';
 
 class ScheduleAppointmentForm extends ConsumerStatefulWidget {
@@ -51,38 +50,15 @@ class _ScheduleAppointmentFormState
     super.dispose();
   }
 
-  String _getInferredYear() { 
-    int year = DateTime.now().year;
-    if (_selectedMonth == null) return year.toString();
-
-    final currentMonth = DateTime.now().month;
-    final selectedMonthIndex = DateService.months.indexOf(_selectedMonth!) + 1;
-
-    if (selectedMonthIndex < currentMonth) {
-      year += 1;
-    }
-    return year.toString();
-  }
-
-  DateTime? _parseSelectedDate() {
-    if (_selectedMonth == null || _selectedDay == null) return null;
-
-    int year = int.parse(_getInferredYear());
-    final selectedMonthIndex = DateService.months.indexOf(_selectedMonth!) + 1;
-    final day = int.tryParse(_selectedDay!);
-
-    if (selectedMonthIndex <= 0 || day == null) return null;
-
-    return DateTime(year, selectedMonthIndex, day);
-  }
-
+  // Notice how much cleaner this is! The manual date math is gone.
   Future<void> _refreshTimeSlots() async {
-    final selectedDate = _parseSelectedDate();
+    final selectedDate =
+        SchedulingService.parseSelectedDate(_selectedMonth, _selectedDay);
 
     if (selectedDate != null) {
       final db = ref.read(databaseProvider);
       final appointmentRepository = AppointmentRepository(db);
-      
+
       final allSlots = SchedulingService.generateAllSlots();
       final bookedSlots =
           await appointmentRepository.getBookedSlots(selectedDate);
@@ -105,7 +81,7 @@ class _ScheduleAppointmentFormState
     }
   }
 
- Future<void> _saveAppointment() async {
+  Future<void> _saveAppointment() async {
     if (_selectedPatient == null ||
         _selectedMonth == null ||
         _selectedDay == null ||
@@ -135,14 +111,16 @@ class _ScheduleAppointmentFormState
 
     try {
       final patient = widget.activePatients.firstWhere(
-        (p) => '${p.lastName}, ${p.firstName}' == _selectedPatient, 
+        (p) => '${p.lastName}, ${p.firstName}' == _selectedPatient,
         orElse: () => throw Exception("Patient not found in the list!"),
       );
 
-      final scheduleDate = _parseSelectedDate();
+      // Grab the parsed date using the Service
+      final scheduleDate =
+          SchedulingService.parseSelectedDate(_selectedMonth, _selectedDay);
       if (scheduleDate == null) return;
 
-      final newAppointment = AppointmentCompanion( 
+      final newAppointment = AppointmentCompanion(
         patientId: drift.Value(patient.patientId),
         scheduleDateTime: drift.Value(scheduleDate),
         timeSlot: drift.Value(_selectedTimeSlot!),
@@ -162,7 +140,6 @@ class _ScheduleAppointmentFormState
       }
 
       widget.onSave();
-
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -240,7 +217,8 @@ class _ScheduleAppointmentFormState
                   variant: InputVariant.dropdown,
                   dropdownValue: _selectedMonth,
                   isRequired: true,
-                  dropdownItems: DateService.months,
+                  // Pointed to our central service
+                  dropdownItems: SchedulingService.months,
                   onDropdownChanged: (value) {
                     setState(() {
                       _selectedMonth = value;
@@ -253,17 +231,18 @@ class _ScheduleAppointmentFormState
               const SizedBox(width: 20),
               Expanded(
                 child: InputField(
-                  key: ValueKey('$_selectedMonth-${_getInferredYear()}'),
+                  // Dynamic Key updated to use the service
+                  key: ValueKey(
+                      '$_selectedMonth-${SchedulingService.getInferredYear(_selectedMonth)}'),
                   hintText: "Select a day",
                   label: "Day",
                   variant: InputVariant.dropdown,
                   dropdownValue: _selectedDay,
                   isRequired: true,
-                  dropdownItems: List.generate(
-                    DateService.getDaysInMonth(
-                        _selectedMonth, _getInferredYear()),
-                    (index) => (index + 1).toString(),
-                  ),
+                  // Using our central service to handle Leap Years and Days seamlessly!
+                  dropdownItems: SchedulingService.getDaysInMonth(
+                      _selectedMonth,
+                      SchedulingService.getInferredYear(_selectedMonth)),
                   onDropdownChanged: (value) {
                     setState(() => _selectedDay = value);
                     _refreshTimeSlots();
@@ -307,9 +286,8 @@ class _ScheduleAppointmentFormState
               SizedBox(
                 width: 280,
                 child: Button(
-                  label: !isEditing
-                      ? "Schedule Appointment"
-                      : "Update Schedule",
+                  label:
+                      !isEditing ? "Schedule Appointment" : "Update Schedule",
                   width: double.infinity,
                   icon: !isEditing ? Icons.check : Icons.save_alt_outlined,
                   iconPlacement: IconPlacement.left,
