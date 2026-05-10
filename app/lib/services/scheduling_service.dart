@@ -77,4 +77,22 @@ class SchedulingService {
   }) {
     return allSlots.where((slot) => !bookedSlots.contains(slot)).toList();
   }
+
+   static int timeToMinutes(String? timeSlot) { 
+    if (timeSlot == null || timeSlot.isEmpty || timeSlot == '-') return 0;
+    try {
+      final parts = timeSlot.split(' ');
+      final time = parts[0];
+      final amPm = parts[1];
+      final timeParts = time.split(':');
+      int hour = int.parse(timeParts[0]);
+      int minute = int.parse(timeParts[1]);
+
+      if (amPm == 'PM' && hour != 12) hour += 12;
+      if (amPm == 'AM' && hour == 12) hour = 0;
+      return (hour * 60) + minute;
+    } catch (e) {
+      return 0;
+    }
+  }
 }
