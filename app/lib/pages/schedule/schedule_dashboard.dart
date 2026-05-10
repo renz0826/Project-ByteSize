@@ -3,7 +3,6 @@ import '../schedule/view_appointment.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:drift/drift.dart' as drift;
-import 'package:intl/intl.dart'; 
 import 'package:heroicons/heroicons.dart';
 import '/../style/theme.dart';
 import '/../widgets/search_bar.dart';
@@ -13,7 +12,7 @@ import '/../widgets/page_header.dart';
 import '/../widgets/app_info_bar.dart';
 import '/../widgets/calendar.dart';
 import '../../db/database.dart';
-import '../../services/date_helper.dart';
+import '../../services/scheduling_service.dart'; 
 import '../../providers/app_providers.dart';
 
 // Helper class to hold both the patient and their appointment data together
@@ -36,8 +35,6 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
   // Real Database Lists
   List<JoinedAppointment> _allAppointments = [];
   List<JoinedAppointment> _filteredRecords = [];
-  
-  // NEW: List to hold all patients for the appointment form
   List<PatientData> _allPatients = []; 
 
   JoinedAppointment? _selectedAppointment;
@@ -64,10 +61,8 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
   Future<void> _loadAppointments() async {
     final db = ref.read(databaseProvider); 
     
-    // NEW: Fetch all patients to pass to the schedule form
     final patients = await db.select(db.patient).get();
     
-    // Join the Appointment table with the Patient table using patientId
     final query = db.select(db.appointment).join([
       drift.innerJoin(
         db.patient, 
@@ -85,13 +80,12 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
     }).toList();
 
     setState(() {
-      _allPatients = patients; // Update patient state
+      _allPatients = patients;
       _allAppointments = appointments;
       _applyFilters();
     });
   }
 
-  // Send user to schedule form
   void _goToScheduleAppointment() {
     setState(() {
       _selectedAppointment = null;
@@ -99,7 +93,6 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
     });
   }
 
-  // Send user to edit state
   void _goToEditAppointment() {
     setState(() {
       _formSessionId++;
@@ -107,15 +100,13 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
     });
   }
 
-  // Send user back to this page
   void _goBackToMain() {
     setState(() {
       _currentIndex = 0;
-      _loadAppointments(); // Refresh data when coming back from a form
+      _loadAppointments(); 
     });
   }
 
-  // Popup when clicking back to dashboard
   Future<void> _confirmReturnToDashboard() async {
     final bool? shouldDiscard = await showDialog<bool>(
       context: context,
@@ -147,17 +138,14 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
     }
   }
 
-  // Number of items to show per page
   List<JoinedAppointment> get _currentPageRecords {
     final start = (_currentPage - 1) * _recordsPerPage;
     final end = (start + _recordsPerPage).clamp(0, _filteredRecords.length);
     return _filteredRecords.sublist(start, end);
   }
 
-  // Total number of pages based on the filtered records
   int get _totalPages => (_filteredRecords.length / _recordsPerPage).ceil();
 
-  // Search logic
   void _onSearch(String query) {
     setState(() {
       _currentPage = 1;
@@ -165,7 +153,6 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
     });
   }
 
-  // Filter function for the status chips
   void _onFilter(String? status) {
     setState(() {
       _currentPage = 1;
@@ -174,7 +161,6 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
     });
   }
 
-  // Centralized filter logic applied to real data AND Calendar
   void _applyFilters() {
     final query = _searchController.text.toLowerCase();
 
@@ -182,22 +168,18 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
       final p = item.patient;
       final a = item.appointment;
 
-      // 1. Search Bar Filter
       final fullName = '${p.firstName} ${p.lastName}'.toLowerCase();
       final matchesSearch = fullName.contains(query);
 
-      // 2. Calendar Filter: Check if appointment matches the selected day
       final matchesDate = a.scheduleDateTime.year == _selectedDate.year &&
                           a.scheduleDateTime.month == _selectedDate.month &&
                           a.scheduleDateTime.day == _selectedDate.day;
 
-      // 3. Status Filter
       bool matchesStatus = true;
       if (_selectedStatus != null && _selectedStatus != 'All') {
          matchesStatus = a.status.toLowerCase() == _selectedStatus!.toLowerCase();
       }
 
-      // Record must match the Search Bar AND the Calendar Date AND the Status Chip
       return matchesSearch && matchesDate && matchesStatus;
     }).toList();
   }
@@ -220,7 +202,6 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
     );
   }
 
-// Main Schedule Dashboard
   Widget _buildMainDashboard() {
     return Scaffold(
       backgroundColor: AppTheme.gray200,
@@ -237,7 +218,6 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
               SliverCrossAxisExpanded(
                   flex: 2,
                   sliver: SliverMainAxisGroup(slivers: [
-                    //search bar, filter, and table header
                     SliverPadding(
                       padding: const EdgeInsets.only(left: 24, right: 12),
                       sliver: SliverList(
@@ -250,7 +230,6 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
                         ]),
                       ),
                     ),
-                    //table rows
                     SliverPadding(
                       padding: const EdgeInsets.only(left: 24, right: 24),
                       sliver: _filteredRecords.isEmpty 
@@ -266,7 +245,6 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
                               ),
                             ),
                     ),
-                    //pagination
                     SliverPadding(
                       padding: const EdgeInsets.only(
                           left: 24, right: 24, bottom: 24, top: 16),
@@ -285,7 +263,6 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
               SliverCrossAxisExpanded(
                   flex: 1,
                   sliver: SliverMainAxisGroup(slivers: [
-                    // calendar and button
                     SliverPadding(
                         padding: const EdgeInsets.only(left: 12, right: 24),
                         sliver: SliverList(
@@ -329,7 +306,6 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
     );
   }
 
-  // Schedule Form
   Widget _buildScheduleForm() {
     Map<String, dynamic>? patientToEdit;
     if (_selectedAppointment != null) {
@@ -350,7 +326,7 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
           Transform.translate(
             offset: const Offset(0, -30),
             child: ScheduleAppointmentForm(
-                activePatients: _allPatients, // NEW: We are now passing the real list of patients!
+                activePatients: _allPatients,
                 key: ValueKey(_formSessionId),
                 existingPatient: patientToEdit,
                 onSave: _goBackToMain),
@@ -360,7 +336,6 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
     );
   }
 
-  // View Appointment now converts data back to Map
   Widget _buildViewAppointment() {
     Map<String, dynamic>? legacyFormat;
     
@@ -371,7 +346,7 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
       legacyFormat = {
         'patientName': '${p.lastName}, ${p.firstName}',
         'date': a.scheduleDateTime, 
-        'time': DateFormat('hh:mm a').format(a.scheduleDateTime),
+        'time': SchedulingService.formatTime(a.scheduleDateTime), 
         'reason': a.toJson().containsKey('reason') ? a.toJson()['reason'] : 'Consultation',
       };
     }
@@ -395,7 +370,6 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
     );
   }
 
-  //search bar
   Widget _buildSearchBar() {
     return Column(
       children: [
@@ -415,7 +389,6 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
     );
   }
 
-  //filter chips - all/upcoming/completed
   Widget _buildFilterChips() {
     final filters = ['All', 'Upcoming', 'Completed'];
     return Row(
@@ -445,7 +418,6 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
     );
   }
 
-  //table header
   Widget _buildTableHeader() {
     final headerStyle = AppTheme.textTheme.bodyLarge;
 
@@ -466,14 +438,14 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
     );
   }
 
-// Build Table Row configured for Database Record
   Widget _buildTableRow(JoinedAppointment joinedRecord) {
     final patient = joinedRecord.patient;
     final appointment = joinedRecord.appointment;
     
-    // Formatting data for the UI
     final fullName = '${patient.lastName}, ${patient.firstName}';
-    final timeString = DateFormat('hh:mm a').format(appointment.scheduleDateTime);
+    
+    // We completely replaced DateFormat here!
+    final timeString = SchedulingService.formatTime(appointment.scheduleDateTime);
     
     final reasonString = (appointment.toJson().containsKey('reason')) 
         ? appointment.toJson()['reason'].toString() 
@@ -490,11 +462,9 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
         cursor: SystemMouseCursors.click,
         child: ScheduleBar(
           fullName: fullName,
-          date: appointment.scheduleDateTime, // NEW: Passes raw Date object correctly!
+          date: appointment.scheduleDateTime, 
           time: timeString, 
           procedure: reasonString, 
-
-          // Makes the menu popup functional
           onMenuSelected: (String actionValue) async {
             setState(() {
               _selectedAppointment = joinedRecord;
@@ -510,7 +480,7 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
               case 'cancel_appointment':
                 final repo = ref.read(appointmentRepositoryProvider);
                 await repo.updateAppointmentStatus(appointment.appointmentId, 'Cancelled');
-                _loadAppointments(); // Refresh the screen
+                _loadAppointments(); 
                 break;
             }
           },
@@ -519,7 +489,6 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
     );
   }
 
-  // empty state
   Widget _buildEmptyState() {
     return Center(
       child: Padding(
@@ -531,7 +500,7 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
             Text(
               _searchController.text.isNotEmpty
                   ? "Sorry, We couldn't find anything that matches '${_searchController.text}'."
-                  : 'No appointments scheduled for ${DateFormat('MMM dd, yyyy').format(_selectedDate)}.',
+                  : 'No appointments scheduled for ${SchedulingService.formatDate(_selectedDate)}.', // Used the service here too!
               style: AppTheme.textTheme.bodyMedium?.copyWith(
                 color: AppTheme.gray400,
               ),

@@ -1,4 +1,5 @@
 // file: schedule_appointment.dart
+import 'package:dentcity_management_system/services/scheduling_service.dart';
 import 'package:dentcity_management_system/style/theme.dart';
 import 'package:drift/drift.dart' as drift;
 import 'package:flutter/material.dart';
@@ -8,7 +9,6 @@ import '../../providers/app_providers.dart';
 import '/../widgets/main_buttons.dart';
 import '/../widgets/input_field.dart';
 import '../../services/date_service.dart';
-import '../../services/time_slot_helper.dart';
 import '../../repositories/appointment_repository.dart';
 
 class ScheduleAppointmentForm extends ConsumerStatefulWidget {
@@ -83,12 +83,12 @@ class _ScheduleAppointmentFormState
       final db = ref.read(databaseProvider);
       final appointmentRepository = AppointmentRepository(db);
       
-      final allSlots = TimeSlotService.generateAllSlots();
+      final allSlots = SchedulingService.generateAllSlots();
       final bookedSlots =
           await appointmentRepository.getBookedSlots(selectedDate);
 
       setState(() {
-        _availableTimeSlots = TimeSlotService.filterAvailableSlots(
+        _availableTimeSlots = SchedulingService.filterAvailableSlots(
           allSlots: allSlots,
           bookedSlots: bookedSlots,
         );
