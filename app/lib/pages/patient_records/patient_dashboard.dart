@@ -114,9 +114,9 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
 
       await _loadPatients();
 
-      // Trigger the toast here 
-      _triggerToast(
-          true, "Success", "New Patient has been successfully created"); // toast message 
+      // Trigger the toast here
+      _triggerToast(true, "Success",
+          "New Patient has been successfully created"); // toast message
 
       setState(() {
         _draftClinicalRecord = clinicalData;
@@ -302,12 +302,12 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
             ),
           ],
         ),
-
         if (_showToast)
           Positioned(
             bottom: 32, 
-            left: 0,
-            right: 0,
+            right:
+                32, 
+            
             child: StatusToast(
               isSuccess: _toastIsSuccess,
               title: _toastTitle,
