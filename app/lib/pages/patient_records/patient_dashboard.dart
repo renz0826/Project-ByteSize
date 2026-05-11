@@ -87,7 +87,7 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
 
       await _loadPatients();
 
-      // ---> NEW: Trigger the toast directly from the class! <---
+      // trigger toast widget here
       if (mounted) {
         StatusToast.show(
           context,
