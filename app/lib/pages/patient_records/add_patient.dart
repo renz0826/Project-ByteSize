@@ -8,9 +8,7 @@ import 'package:flutter/services.dart';
 import '/../widgets/main_buttons.dart';
 import '/../widgets/input_field.dart';
 import '/../widgets/missing_info_dialog.dart';
-import '/../widgets/missing_info_dialog.dart';
 import '/../widgets/radio_buttons.dart';
-import '../../widgets/missing_info_dialog.dart';
 import '../../services/locations_ph.dart';
 import '../../services/date_service.dart';
 import '../../services/date_helper.dart';
@@ -242,10 +240,9 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
                   },
                 ),
               ),
-            ], // <-- Added missing closing bracket for the Row
-          ), // <-- Added missing closing parenthesis for the Row
+            ], 
+          ), 
           const SizedBox(height: 32),
-          Text("Demographic", style: Theme.of(context).textTheme.titleLarge),
           Text("Demographic", style: Theme.of(context).textTheme.titleLarge),
           if (!isEditing) ...[
             const SizedBox(height: 12),

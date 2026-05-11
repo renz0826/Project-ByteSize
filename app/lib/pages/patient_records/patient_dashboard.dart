@@ -44,10 +44,37 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
   String? _selectedStatus;
   int _formSessionId = 0;
 
+  // Toast State Variables
+  bool _showToast = false;
+  bool _toastIsSuccess = true;
+  String _toastTitle = "";
+  String _toastMessage = "";
+
   @override
   void initState() {
     super.initState();
     _loadPatients();
+  }
+
+  // Trigger toast function
+  void _triggerToast(bool isSuccess, String title, String message) {
+    if (!mounted) return;
+
+    setState(() {
+      _showToast = true;
+      _toastIsSuccess = isSuccess;
+      _toastTitle = title;
+      _toastMessage = message;
+    });
+
+    // Auto hide the toast after 3 seconds? (This can be changed)
+    Future.delayed(const Duration(seconds: 3), () {
+      if (mounted && _showToast) {
+        setState(() {
+          _showToast = false;
+        });
+      }
+    });
   }
 
   // Fetch real data from the database
@@ -87,13 +114,9 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
 
       await _loadPatients();
 
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Patient and Clinical Record Saved Successfully!"),
-          ),
-        );
-      }
+      // Trigger the dynamic toast!
+      _triggerToast(
+          true, "Success", "Patient and Clinical Record Saved Successfully!");
 
       setState(() {
         _draftClinicalRecord = clinicalData;
@@ -101,6 +124,7 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
       });
     } catch (e) {
       print("Database Error: $e");
+      _triggerToast(false, "Error", "Failed to save record: $e");
     }
   }
 
@@ -279,14 +303,23 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
             ),
           ],
         ),
-        StatusToast(
-          isSuccess: true,
-          title: "Success",
-          message: "INV-001 has been created.",
-          onClose: () {
-            // Logic to dismiss the banner
-          },
-        )
+
+        if (_showToast)
+          Positioned(
+            bottom: 32, 
+            left: 0,
+            right: 0,
+            child: StatusToast(
+              isSuccess: _toastIsSuccess,
+              title: _toastTitle,
+              message: _toastMessage,
+              onClose: () {
+                setState(() {
+                  _showToast = false;
+                });
+              },
+            ),
+          )
       ],
     );
   }
