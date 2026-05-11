@@ -46,16 +46,20 @@ class AppointmentRepository {
   Future<int> deleteAppointment(int id) => 
     (db.delete(db.appointment) ..where ((a) => a.appointmentId.equals(id))) .go(); 
 
-  // --- NEW: SCAN FOR BOOKED SLOTS ---
+  
+  // Get Booked Slots 
   Future<List<String>> getBookedSlots(DateTime date) async {
     final startOfDay = DateTime(date.year, date.month, date.day, 0, 0, 0);
     final endOfDay = DateTime(date.year, date.month, date.day, 23, 59, 59);
 
-    final query = db.select(db.appointment)
-      // Using scheduleDateTime to match your schema
-      ..where((a) => a.scheduleDateTime.isBetweenValues(startOfDay, endOfDay)); 
-    
-    final results = await query.get();
-    return results.map((a) => a.timeSlot).toList();
+    final appointments = await (db.select(db.appointment)
+          ..where((a) => a.scheduleDateTime.isBetweenValues(startOfDay, endOfDay))
+          ..where((a) => a.status.isNotValue('Cancelled'))) 
+        .get();
+
+    // Return the list of time slots that are actually taken
+    return appointments.map((a) => a.timeSlot).whereType<String>().toList();
   }
+
+  
 }
