@@ -1,3 +1,4 @@
+import 'package:dentcity_management_system/widgets/status_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:drift/drift.dart' as drift;
@@ -14,7 +15,12 @@ import '../../services/date_helper.dart';
 import '../../providers/app_providers.dart';
 import 'add_patient.dart';
 import 'add_clinical_record.dart';
+<<<<<<< refactor/frontend/patients-recordtodo-tasks
+import 'package:heroicons/heroicons.dart';
+import '../../widgets/discard_dialog.dart';
+=======
 import 'view_patient.dart';
+>>>>>>> main
 
 //main screen
 class PatientDashboard extends ConsumerStatefulWidget {
@@ -183,13 +189,13 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
 
       await _loadPatients(); // refresh table
 
+      // trigger toast widget here
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(_existingPatientId != null
-                ? "New Clinical Record added to patient successfully!"
-                : "Patient and Clinical Record Saved Successfully!"), // conditional confirmation message
-          ),
+        StatusToast.show(
+          context,
+          title: "Success",
+          message: "Patient #$newPatientId has been created.",
+          isSuccess: true,
         );
       }
 
@@ -204,6 +210,15 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
       }
     } catch (e) {
       print("Database Error: $e");
+      // Trigger error toast if something goes wrong
+      if (mounted) {
+        StatusToast.show(
+          context,
+          title: "Error",
+          message: "Failed to save record: $e",
+          isSuccess: false,
+        );
+      }
     }
   }
 
@@ -304,6 +319,7 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
 
   @override
   Widget build(BuildContext context) {
+    // ---> NEW: No more Stack wrapper needed! Just the IndexedStack. <---
     return IndexedStack(
       index: _currentIndex,
       children: [

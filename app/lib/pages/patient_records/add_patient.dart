@@ -7,8 +7,8 @@ import 'package:drift/drift.dart' as drift;
 import 'package:flutter/services.dart';
 import '/../widgets/main_buttons.dart';
 import '/../widgets/input_field.dart';
+import '/../widgets/missing_info_dialog.dart';
 import '/../widgets/radio_buttons.dart';
-import '../../widgets/missing_info_dialog.dart';
 import '../../services/locations_ph.dart';
 import '../../services/date_service.dart';
 import '../../services/date_helper.dart';
@@ -233,7 +233,7 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
                   flex: 3,
                   child: InputField(
                     label: "First Name",
-                    hintText: "Enter First Name",
+                    hintText: "Enter first name",
                     isRequired: true,
                     controller: _firstNameController, // first name controller
                     inputFormatters: [
@@ -257,7 +257,7 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
                   flex: 3,
                   child: InputField(
                     label: "Last Name",
-                    hintText: "Enter Last Name",
+                    hintText: "Enter last name",
                     isRequired: true,
                     controller: _lastNameController, // last name controller
                     inputFormatters: [
@@ -292,7 +292,7 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
               children: [
                 Expanded(
                   child: InputField(
-                    hintText: "Select Year",
+                    hintText: "Select a year",
                     label: "Year",
                     variant: InputVariant.dropdown,
                     dropdownValue: _selectedYear,
@@ -402,7 +402,7 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
                   child: InputField(
                 label: "Mobile Number",
                 isRequired: true,
-                hintText: "Enter Mobile Number",
+                hintText: "Enter mobile number",
                 controller: _contactNumberController,
                 inputFormatters: [
                   FilteringTextInputFormatter.digitsOnly,
@@ -413,7 +413,7 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
               Expanded(
                   child: InputField(
                 label: "Emergency Contact Number",
-                hintText: "Enter Emergency Contact Number",
+                hintText: "Enter emergency contact number",
                 controller: _emergencyContactController,
                 inputFormatters: [
                   FilteringTextInputFormatter.digitsOnly,
@@ -423,8 +423,8 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
               const SizedBox(width: 20),
               Expanded(
                   child: InputField(
-                label: "Relation to Patient",
-                hintText: "Enter Relation to Patient",
+                label: "Relationship to Patient",
+                hintText: "Enter relationship to patient",
                 controller: _emergencyContactRelationshipController,
                 inputFormatters: [
                   FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]'))
@@ -438,7 +438,7 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
               Expanded(
                   child: InputField(
                 label: "Referred By",
-                hintText: "Enter Referred By",
+                hintText: "Enter referral name",
                 controller: _referredByController,
                 inputFormatters: [
                   FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')) // format to letters only
@@ -447,9 +447,9 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
               const SizedBox(width: 20),
               Expanded(
                   child: InputField(
-                label: "Relationship",
-                hintText: "Enter Relationship to Referral",
-                controller: _relationshipController, // relationship to referral controller
+                label: "Relationship to Referral",
+                hintText: "Enter relationship to referral",
+                controller: _relationshipController,
                 inputFormatters: [
                   FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')) // format to letters only
                 ],
@@ -470,7 +470,7 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
               Expanded(
                   child: InputField(
                       label: "Province",
-                      hintText: "Select A Province",
+                      hintText: "Select a province",
                       variant: InputVariant.dropdown,
                       dropdownValue: _selectedProvince,
                       dropdownItems: PhAddressService.getAllProvinceNames(), // use PhAddressService library
@@ -527,7 +527,7 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
                   flex: 1,
                   child: InputField(
                     label: "ZIP Code",
-                    hintText: "Enter ZIP Code",
+                    hintText: "Enter ZIP code",
                     isRequired: true,
                     controller: _zipController, // zip code controller
                     inputFormatters: [
