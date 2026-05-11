@@ -192,7 +192,7 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
                   flex: 3,
                   child: InputField(
                     label: "First Name",
-                    hintText: "Enter First Name",
+                    hintText: "Enter first name",
                     isRequired: true,
                     controller: _firstNameController,
                     inputFormatters: [
@@ -205,7 +205,7 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
                   flex: 2,
                   child: InputField(
                     label: "Middle Name",
-                    hintText: "Enter Middle Name",
+                    hintText: "Enter middle name",
                     controller: _middleNameController,
                     inputFormatters: [
                       FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')),
@@ -216,7 +216,7 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
                   flex: 3,
                   child: InputField(
                     label: "Last Name",
-                    hintText: "Enter Last Name",
+                    hintText: "Enter last name",
                     isRequired: true,
                     controller: _lastNameController,
                     inputFormatters: [
@@ -229,7 +229,7 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
                 flex: 1,
                 child: InputField(
                   label: "Suffix",
-                  hintText: "Enter Suffix",
+                  hintText: "E.g. Jr.",
                   variant: InputVariant.dropdown,
                   dropdownValue: _selectedSuffix,
                   dropdownItems: const ["Jr.", "Sr.", "II", "III", "IV", "V"],
@@ -240,8 +240,8 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
                   },
                 ),
               ),
-            ], 
-          ), 
+            ],
+          ),
           const SizedBox(height: 32),
           Text("Demographic", style: Theme.of(context).textTheme.titleLarge),
           if (!isEditing) ...[
@@ -251,7 +251,7 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
               children: [
                 Expanded(
                   child: InputField(
-                    hintText: "Select Year",
+                    hintText: "Select a year",
                     label: "Year",
                     variant: InputVariant.dropdown,
                     dropdownValue: _selectedYear,
@@ -271,8 +271,8 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
                 Expanded(
                   child: InputField(
                     hintText: _selectedYear == null
-                        ? "Select a Year first"
-                        : "Select Month",
+                        ? "Select a year first"
+                        : "Select a month",
                     label: "Month",
                     variant: InputVariant.dropdown,
                     dropdownValue: _selectedMonth,
@@ -292,8 +292,8 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
                   child: InputField(
                     key: ValueKey('$_selectedYear-$_selectedMonth'),
                     hintText: _selectedMonth == null
-                        ? "Select a Month first"
-                        : "Select Day",
+                        ? "Select a month first"
+                        : "Select a day",
                     label: "Day",
                     variant: InputVariant.dropdown,
                     dropdownValue: _selectedDay,
@@ -361,7 +361,7 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
                   child: InputField(
                 label: "Mobile Number",
                 isRequired: true,
-                hintText: "Enter Mobile Number",
+                hintText: "Enter mobile number",
                 controller: _contactNumberController,
                 inputFormatters: [
                   FilteringTextInputFormatter.digitsOnly,
@@ -372,7 +372,7 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
               Expanded(
                   child: InputField(
                 label: "Emergency Contact Number",
-                hintText: "Enter Emergency Contact Number",
+                hintText: "Enter emergency contact number",
                 controller: _emergencyContactController,
                 inputFormatters: [
                   FilteringTextInputFormatter.digitsOnly,
@@ -382,8 +382,8 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
               const SizedBox(width: 20),
               Expanded(
                   child: InputField(
-                label: "Relation to Patient",
-                hintText: "Enter Relation to Patient",
+                label: "Relationship to Patient",
+                hintText: "Enter relationship to patient",
                 controller: _emergencyContactRelationshipController,
                 inputFormatters: [
                   FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]'))
@@ -397,7 +397,7 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
               Expanded(
                   child: InputField(
                 label: "Referred By",
-                hintText: "Enter Referred By",
+                hintText: "Enter referral name",
                 controller: _referredByController,
                 inputFormatters: [
                   FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]'))
@@ -406,8 +406,8 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
               const SizedBox(width: 20),
               Expanded(
                   child: InputField(
-                label: "Relationship",
-                hintText: "Enter Referred Relationship",
+                label: "Relationship to Referral",
+                hintText: "Enter relationship to referral",
                 controller: _relationshipController,
                 inputFormatters: [
                   FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]'))
@@ -420,7 +420,7 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
           const SizedBox(height: 12),
           InputField(
               label: "Street Address",
-              hintText: "Enter Street Address",
+              hintText: "Enter street address",
               isRequired: true,
               controller: _streetController),
           const SizedBox(height: 20),
@@ -429,7 +429,7 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
               Expanded(
                   child: InputField(
                       label: "Province",
-                      hintText: "Select A Province",
+                      hintText: "Select a province",
                       variant: InputVariant.dropdown,
                       dropdownValue: _selectedProvince,
                       dropdownItems: PhAddressService.getAllProvinceNames(),
@@ -445,8 +445,8 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
                       key: ValueKey(_selectedProvince),
                       label: "City/Municipality",
                       hintText: _selectedProvince == null
-                          ? "Select A Province First"
-                          : "Select A City",
+                          ? "Select a province first"
+                          : "Select a city/municipality ",
                       variant: InputVariant.dropdown,
                       dropdownValue: _selectedCity,
                       dropdownItems: _selectedProvince != null
@@ -468,8 +468,8 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
                       key: ValueKey(_selectedCity),
                       label: "Barangay",
                       hintText: _selectedCity == null
-                          ? "Select a city first"
-                          : "Select a Barangay",
+                          ? "Select a city/municipality first"
+                          : "Select a barangay",
                       variant: InputVariant.dropdown,
                       dropdownValue: _selectedBarangay,
                       dropdownItems:
@@ -486,7 +486,7 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
                   flex: 1,
                   child: InputField(
                     label: "ZIP Code",
-                    hintText: "Enter ZIP Code",
+                    hintText: "Enter ZIP code",
                     isRequired: true,
                     controller: _zipController,
                     inputFormatters: [
