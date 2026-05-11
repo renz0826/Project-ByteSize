@@ -1,28 +1,24 @@
-import 'package:dentcity_management_system/db/tables.dart';
+import '../../widgets/attribute_read_view.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:heroicons/heroicons.dart';
+import '../../widgets/app_info_bar.dart';
 import '/../style/theme.dart';
 import '/../db/database.dart';
-
-// Used in PatientDashboard as Index 3
-// USAGE:
-//   ViewPatientScreen(
-//     patient: patientData,         // PatientData from Drift
-//     clinicalRecords: records,     // List<ClinicalRecordData> from Drift
-//     onBack: () { ... },           // callback to return to main dashboard
-//   )
+import '../../widgets/input_field.dart';
 
 class ViewPatientScreen extends StatefulWidget {
   final PatientData patient;
   final List<ClinicalRecordData> clinicalRecords;
   final VoidCallback onBack;
+  final ValueChanged<String> onMenuAction; 
 
   const ViewPatientScreen({
     super.key,
     required this.patient,
     required this.clinicalRecords,
     required this.onBack,
+    required this.onMenuAction, 
   });
 
   @override
@@ -30,9 +26,13 @@ class ViewPatientScreen extends StatefulWidget {
 }
 
 class _ViewPatientScreenState extends State<ViewPatientScreen> {
-  // ClinicalRecordData? _selectedRecord; // currently displayed record
-  bool _isDropdownOpen = false;
   int? _selectedRecordId;
+
+  List<int> get _recordIds =>
+  widget.clinicalRecords.map((r) => r.recordId).toList();
+
+  List<String> get _recordLabels =>
+  widget.clinicalRecords.map((r) => _formatAppointment(r.createdAt)).toList();
 
   ClinicalRecordData? get _selectedRecord => 
   widget.clinicalRecords.where((r) => r.recordId == _selectedRecordId).firstOrNull;
@@ -40,7 +40,6 @@ class _ViewPatientScreenState extends State<ViewPatientScreen> {
   @override
   void initState() {
     super.initState();
-    // default is the most recent record
     if (widget.clinicalRecords.isNotEmpty) {
       _selectedRecordId = widget.clinicalRecords.first.recordId;
     }
@@ -50,7 +49,7 @@ class _ViewPatientScreenState extends State<ViewPatientScreen> {
   String _formatDate(DateTime date) => DateFormat('MMMM d, y').format(date);
 
   String _formatAppointment(DateTime date) =>
-      DateFormat("MMMM d, y '–' h:mm a").format(date);
+      DateFormat("MMMM d, y '-' h:mm a").format(date);
 
   int _calculateAge(DateTime birthDate) {
     final now = DateTime.now();
@@ -66,25 +65,28 @@ class _ViewPatientScreenState extends State<ViewPatientScreen> {
   Widget build(BuildContext context) {
     return Container(
       color: AppTheme.gray200,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          //patient name header
-          _buildNameHeader(context),
-          const SizedBox(height: 8),
+      child: SingleChildScrollView( // to allow the page to be scrollable
+        padding: const EdgeInsets.only(bottom: 30), 
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            //patient name header
+            _buildNameHeader(context),
+            const SizedBox(height: 24),
 
-          //personal details
-          _buildPersonalDetailsCard(context),
-          const SizedBox(height: 16),
+            //personal details
+            _buildPersonalDetailsCard(context),
+            const SizedBox(height: 24),
 
-          //clinical record that only shows if there are records
-          if (widget.clinicalRecords.isEmpty)
-            _buildNoClinicalRecordCard(context)
-          else
-            _buildClinicalRecordCard(context),
+            //clinical record that only shows if there are records
+            if (widget.clinicalRecords.isEmpty)
+              _buildNoClinicalRecordCard(context)
+            else
+              _buildClinicalRecordCard(context),
 
-          const SizedBox(height: 32),
-        ],
+            const SizedBox(height: 32),
+          ],
+        ),
       ),
     );
   }
@@ -92,11 +94,14 @@ class _ViewPatientScreenState extends State<ViewPatientScreen> {
   // name header 
   Widget _buildNameHeader(BuildContext context) {
     final fullName =
-        '${widget.patient.firstName} ${widget.patient.middleName ?? ''} ${widget.patient.lastName}'
+        '${widget.patient.lastName}, ${widget.patient.firstName} ${widget.patient.middleName} ${widget.patient.suffix}'
             .trim();
 
-    return Container(
-      margin: const EdgeInsets.only(left: 24, right: 24, top: 24, bottom: 8),
+    return Center(
+      child: Container(
+      margin: const EdgeInsets.symmetric(horizontal: 24),
+      width: double.infinity,
+      constraints: const BoxConstraints(maxWidth: 1200),
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
       decoration: BoxDecoration(
         color: AppTheme.white500,
@@ -115,6 +120,7 @@ class _ViewPatientScreenState extends State<ViewPatientScreen> {
 
           // actions menu
           _MoreOptions(
+            onSelected: widget.onMenuAction, // ADDED: Links menu to dashboard
             items: [
                 BarMenuItem(value: 'add_clinical_record', icon: HeroIcons.documentPlus, label: 'Add New Clinical Record'),
                 BarMenuItem(value: 'add_schedule', icon: HeroIcons.calendar, label: 'Add Schedule'),
@@ -124,6 +130,7 @@ class _ViewPatientScreenState extends State<ViewPatientScreen> {
           ),
         ],
       ),
+    ),
     );
   }
 
@@ -131,69 +138,109 @@ class _ViewPatientScreenState extends State<ViewPatientScreen> {
   Widget _buildPersonalDetailsCard(BuildContext context) {
     return _BaseCard(
       title: 'Personal Details',
-      child: Column(
+        child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
           // Row 1: DoB, age, sex, civil status
           Row(
             children: [
-              _InfoBlock(
+              Expanded(
+                flex: 2,
+                child: AttributeReadView(
                 label: 'Date of Birth',
-                value: _formatDate(widget.patient.birthDate),
+                content: _formatDate(widget.patient.birthDate), 
+                ),
               ),
-              _InfoBlock(
-                label: 'Age',
-                value: '${_calculateAge(widget.patient.birthDate)}',
+              Expanded(
+                flex: 2,
+                child: AttributeReadView(
+                  label: 'Age',
+                  content: (() {
+                    final age = _calculateAge(widget.patient.birthDate);
+                    // If age is 60 or more, the label will appear
+                    return age >= 60 ? '$age (Senior)' : '$age';
+                  })(),
+                ),
               ),
-              _InfoBlock(label: 'Sex', value: widget.patient.sex),
-              _InfoBlock(label: 'Civil Status', value: widget.patient.civilStatus),
+              Expanded(
+                flex: 2,
+                child: AttributeReadView(
+                  label: 'Sex', content: widget.patient.sex,
+                ),
+              ),
+              Expanded(
+                flex: 2,
+                child: AttributeReadView(
+                  label: 'Civil Status', content: widget.patient.civilStatus,
+                ),
+              ),
             ],
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 32),
 
           // Row 2: phone, emergency contact, emergency contact relationship
           Row(
             children: [
-              _InfoBlock(
+              Expanded(
+                flex: 2,
+                child: AttributeReadView(
                 label: 'Phone No.',
-                value: widget.patient.contactNumber,
+                content: widget.patient.contactNumber,
+                ),
               ),
-              _InfoBlock(
+              Expanded(
+                flex: 2,
+                child: AttributeReadView(
                 label: 'Emergency Contact No.',
-                value: widget.patient.emergencyContactNo ?? '—',
+                content: widget.patient.emergencyContactNo ?? '—',
+                ),
               ),
-              //TODO: remove comment once defined in db 
-              // _InfoBlock(
-              //   label: 'Relationship to Patient',
-              //   value: patient.emergencyContactRelationship ?? '—',
-              // ),
+              Expanded(
+                flex: 4,
+                child: AttributeReadView(
+                label: 'Relationship to the Patient',
+                content: widget.patient.relationshipEmergency ?? '-',
+                ),
+              ),
             ],
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 32),
 
           //Row 3: referred by, relationship
           Row(
             children: [
-              _InfoBlock(
-                label: 'Referred By',
-                value:widget. patient.referredBy ?? '—',
+              Expanded(
+                flex: 2,
+                child: AttributeReadView(
+                  label: 'Referred By',
+                  content:widget. patient.referredBy ?? '—',
+                  ),
               ),
-              _InfoBlock(
-                label: 'Relationship',
-                value: widget.patient.relationship ?? '—',
+              Expanded(
+                flex: 2,
+                child: AttributeReadView(
+                label: 'Relationship to Referral',
+                content: widget.patient.relationship ?? '—',
+                ),
+              ),
+              Expanded(
+                flex: 4,
+                child: AttributeReadView(
+                  label: 'PWD Status',
+                  content: widget.patient.isSeniorOrPWD == true ? 'Applicable' : 'Not Applicable',
+                ),
               ),
             ],
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 32),
 
           // Row 4: full address
-          _InfoBlock(
+          AttributeReadView(
             label: 'Address',
-            value:
+            content:
                 '${widget.patient.streetAddress}, ${widget.patient.barangay}, ${widget.patient.cityMunicipality}, ${widget.patient.province} ${widget.patient.zipCode}',
-            flex: 0, //takes natural width
-          ),
-          const SizedBox(height: 24),
+            ),
         ],
       ),
     );
@@ -207,92 +254,70 @@ class _ViewPatientScreenState extends State<ViewPatientScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Appointment Schedule dropdown 
-          Text('Appointment Schedule',
-            style: AppTheme.textTheme.bodySmall?.copyWith(color: AppTheme.gray500)),
-        const SizedBox(height: 8),
-          
-        SizedBox(
-          width: 300, 
-          child: DropdownButtonFormField<int>(
-            //set the value if it actually exists in the list
-            value: widget.clinicalRecords.any((r) => r.recordId == _selectedRecordId) 
-                  ? _selectedRecordId 
-                  : null,
-            isExpanded: true,
-            icon: HeroIcon(
-              _isDropdownOpen ? HeroIcons.chevronUp : HeroIcons.chevronDown, 
-              size: 18,
-              color: AppTheme.gray500,
-            ),
-            decoration: InputDecoration(
-              contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(color: AppTheme.gray400),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(color: AppTheme.gray400, width: 1.5),
-              ),
-              filled: true,
-              fillColor: AppTheme.white500,
-            ),
-            items: widget.clinicalRecords.map((record) {
-              return DropdownMenuItem<int>(
-                value: record.recordId,
-                child: Text(
-                  _formatAppointment(record.createdAt),
-                  style: AppTheme.textTheme.bodySmall?.copyWith(
-                    color: AppTheme.black500,
-                  ),
-                ),
-              );
-            }).toList(),
-            onTap: () => setState(() =>_isDropdownOpen = true),  
-            onChanged: (selected) {
-              setState(() {
-                _selectedRecordId = selected;
-                _isDropdownOpen = false; 
-              });
-            },
-          ),
+          SizedBox(
+            width: 300,
+            child: InputField(
+            label: 'Appointment Schedule',
+            variant: InputVariant.dropdown,
+            // converted the recordId to formatted date strings
+            dropdownItems: _recordLabels,
+            // show the formatted date of the selected record
+          dropdownValue: _selectedRecordId != null
+          ? _recordLabels[_recordIds.indexOf(_selectedRecordId!)]
+          : null,
+          onDropdownChanged: (value) {
+            if (value == null) return;
+            //parse the id bback to string
+            final index = _recordLabels.indexOf(value);
+            if (index != -1){
+            setState(() => _selectedRecordId = _recordIds[index]);
+            }
+          },
         ),
-          const SizedBox(height: 24),
+          ),
+          const SizedBox(height: 32),
 
           // show clinical data only if a record is selected
           if (_selectedRecord != null) ...[
             Text('Medical Background',
               style: Theme.of(context).textTheme.titleLarge),
-          const SizedBox(height: 18),
-          Row(
-            children: [
-              _InfoBlock(
-                label: 'Past Illnesses',
-                value: _selectedRecord!.pastIllness ?? 'None',
-              ),
-              _InfoBlock(
-                label: 'Present Illnesses',
-                value: _selectedRecord!.presentIllness ?? 'None',
-              ),
-            ],
-          ),
           const SizedBox(height: 16),
           Row(
             children: [
-              _InfoBlock(
-                label: 'Allergies',
-                value: _selectedRecord!.allergies ?? 'None',
+              Expanded(
+                child: AttributeReadView(
+                label: 'Past Illnesses',
+                content: _selectedRecord!.pastIllness ?? 'None',
+                ),
               ),
-              _InfoBlock(
+              Expanded(
+                child: AttributeReadView(
+                label: 'Present Illnesses',
+                content: _selectedRecord!.presentIllness ?? 'None',
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+          Row(
+            children: [
+              Expanded(
+                child: AttributeReadView(
+                label: 'Allergies',
+                content: _selectedRecord!.allergies ?? 'None',
+                ),
+              ),
+              Expanded(
+                child: AttributeReadView(
                 label: 'Current Medication',
-                value: _selectedRecord!.currentMedication ?? 'None',
+                content: _selectedRecord!.currentMedication ?? 'None',
+                ),
               ),
             ],
           ),
           const SizedBox(height: 40),
 
-          // treatmetn procedure
+          // treatment procedure
           Text('Treatment Procedure',
               style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 16),
@@ -300,37 +325,47 @@ class _ViewPatientScreenState extends State<ViewPatientScreen> {
           // Row 1: oral Debris, calculus, gingivitis
           Row(
             children: [
-              _InfoBlock(
-                label: 'Presence of Oral Debris',
-                value: _selectedRecord!.hasOralDebris ? 'Present' : 'None',
-                isAlert: _selectedRecord!.hasOralDebris,
+              Expanded(
+                child: AttributeReadView(
+                  label: 'Presence of Oral Debris',
+                  content: _selectedRecord!.hasOralDebris ? 'Present' : 'None',
+                  isCrucial: _selectedRecord!.hasOralDebris,
+                ),
               ),
-              _InfoBlock(
-                label: 'Presence of Calculus',
-                value: _selectedRecord!.hasCalculus ? 'Present' : 'None',
-                isAlert: _selectedRecord!.hasCalculus,
+              Expanded(
+                child: AttributeReadView(
+                  label: 'Presence of Calculus',
+                  content: _selectedRecord!.hasCalculus ? 'Present' : 'None',
+                  isCrucial: _selectedRecord!.hasCalculus,
+                ),
               ),
-              _InfoBlock(
-                label: 'Presence of Gingivitis',
-                value: _selectedRecord!.hasGingivitis ? 'Present' : 'None',
-                isAlert: _selectedRecord!.hasGingivitis,
+              Expanded(
+                child: AttributeReadView(
+                  label: 'Presence of Gingivitis',
+                  content: _selectedRecord!.hasGingivitis ? 'Present' : 'None',
+                  isCrucial: _selectedRecord!.hasGingivitis,
+                ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 24),
 
           // Row 2: periodontal pocket, dentofacial anomaly
           Row(
             children: [
-              _InfoBlock(
-                label: 'Presence of Periodontal Pocket',
-                value: _selectedRecord!.hasPeriodontalPocket ? 'Present' : 'None',
-                isAlert: _selectedRecord!.hasPeriodontalPocket,
+              Expanded(
+                child: AttributeReadView(
+                  label: 'Presence of Periodontal Pocket',
+                  content: _selectedRecord!.hasPeriodontalPocket ? 'Present' : 'None',
+                  isCrucial: _selectedRecord!.hasPeriodontalPocket,
+                ),
               ),
-              _InfoBlock(
-                label: 'Presence of Dentofacial Anomaly',
-                value: _selectedRecord!.hasDentofacialAnomaly ? 'Present' : 'None',
-                isAlert: _selectedRecord!.hasDentofacialAnomaly,
+              Expanded(
+                child: AttributeReadView(
+                  label: 'Presence of Dentofacial Anomaly',
+                  content: _selectedRecord!.hasDentofacialAnomaly ? 'Present' : 'None',
+                  isCrucial: _selectedRecord!.hasDentofacialAnomaly,
+                ),
               ),
               const Expanded(child: SizedBox()), // balance the row
             ],
@@ -344,48 +379,59 @@ class _ViewPatientScreenState extends State<ViewPatientScreen> {
           // Row 1: filling, extraction, root fragment
           Row(
             children: [
-              _InfoBlock(
-                label: 'Carries Indicated for Filling',
-                value: _selectedRecord!.cariesForFilling > 0
-                    ? '${_selectedRecord!.cariesForFilling}'
-                    : 'None',
-                isAlert: _selectedRecord!.cariesForFilling > 0,
+              Expanded(
+                child: AttributeReadView(
+                  label: 'Caries Indicated for Filling',
+                  content: _selectedRecord!.cariesForFilling > 0
+                      ? '${_selectedRecord!.cariesForFilling}'
+                      : 'None',
+                  isCrucial: _selectedRecord!.cariesForFilling > 0, 
+                ),
               ),
-              _InfoBlock(
-                label: 'Carries Indicated for Extraction',
-                value: _selectedRecord!.cariesForExtraction > 0
+              Expanded(
+                child: AttributeReadView(
+                label: 'Caries Indicated for Extraction',
+                content: _selectedRecord!.cariesForExtraction > 0
                     ? '${_selectedRecord!.cariesForExtraction}'
                     : 'None',
-                isAlert: _selectedRecord!.cariesForExtraction > 0,
+                isCrucial: _selectedRecord!.cariesForExtraction > 0, 
+                ),
               ),
-              _InfoBlock(
+              Expanded(
+                child: AttributeReadView(
                 label: 'Root Fragment',
-                value: _selectedRecord!.rootFragment > 0
+                content: _selectedRecord!.rootFragment > 0
                     ? '${_selectedRecord!.rootFragment}'
                     : 'None',
-                isAlert: _selectedRecord!.rootFragment > 0,
+                isCrucial: _selectedRecord!.rootFragment > 0, 
+                ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 24),
 
           // Row 2: missing, filled or restored
           Row(
             children: [
-              _InfoBlock(
-                label: 'Missing Due to Carries',
-                value: _selectedRecord!.missingDueToCaries > 0
+              Expanded(
+                child: AttributeReadView(
+                label: 'Missing Due to Caries',
+                content: _selectedRecord!.missingDueToCaries > 0
                     ? '${_selectedRecord!.missingDueToCaries}'
                     : 'None',
-                isAlert: _selectedRecord!.missingDueToCaries > 0,
+                isCrucial: _selectedRecord!.missingDueToCaries > 0,
+                ),
               ),
-              _InfoBlock(
+              Expanded(
+                child: AttributeReadView(
                 label: 'Filled or Restored',
-                value: _selectedRecord!.filledOrRestored > 0
+                content: _selectedRecord!.filledOrRestored > 0
                     ? '${_selectedRecord!.filledOrRestored}'
                     : 'None',
+                isCrucial: _selectedRecord!.filledOrRestored > 0, 
+                ),
               ),
-              const Expanded(child: SizedBox()), // balance the row
+               const Expanded(child: SizedBox()), // balance the row
             ],
           ),
           const SizedBox(height: 40),
@@ -425,29 +471,16 @@ class _ViewPatientScreenState extends State<ViewPatientScreen> {
 
   //small gray label above a value
   Widget _buildLabel(BuildContext context, String label, {TextStyle? textStyle}) {
-  return Text(
-    label,
-    style: textStyle ?? AppTheme.textTheme.bodySmall?.copyWith(
-      color: AppTheme.gray500,
-    ),
-  );
-}
+    return Text(
+      label,
+      style: textStyle ?? AppTheme.textTheme.bodySmall?.copyWith(
+        color: AppTheme.gray500,
+      ),
+    );
+  }
 }
 
-//shared menu item widget from app info bar
-class BarMenuItem {
-  final String value;
-  final HeroIcons icon;
-  final String label;
-  final Color? color;
 
-  const BarMenuItem({
-    required this.value,
-    required this.icon,
-    required this.label,
-    this.color,
-  });
-}
 
 // shared options button
 class _MoreOptions extends StatelessWidget {
@@ -504,63 +537,27 @@ class _BaseCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 24),
-      width: double.infinity,
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: AppTheme.white500,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: AppTheme.cardShadow,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(title, style: Theme.of(context).textTheme.titleLarge),
-          const SizedBox(height: 32),
-          child,
-        ],
+    return Center(
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 24),
+        width: double.infinity,
+        constraints: const BoxConstraints(maxWidth: 1200),
+        padding: const EdgeInsets.all(32),
+        decoration: BoxDecoration(
+          color: AppTheme.white500,
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: AppTheme.cardShadow,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(title, style: Theme.of(context).textTheme.titleLarge),
+            const SizedBox(height: 32),
+            child,
+          ],
+        ),
       ),
     );
-  }
-}
-
-// _InfoBlock 
-class _InfoBlock extends StatelessWidget {
-  final String label;
-  final String value;
-  final int flex;
-  final bool isAlert;
-
-  const _InfoBlock({
-    required this.label,
-    required this.value,
-    this.flex = 1,
-    this.isAlert = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final content = Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: AppTheme.textTheme.bodySmall
-        ),
-        const SizedBox(height: 8),
-        Text(
-          value,
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w500,
-                color: isAlert ? AppTheme.red600 : AppTheme.black500,
-              ),
-        ),
-      ],
-    );
-
-    // flex: 0 = no Expanded (for full-width fields like address)
-    if (flex == 0) return content;
-    return Expanded(flex: flex, child: content);
   }
 }

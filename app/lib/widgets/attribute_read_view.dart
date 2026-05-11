@@ -3,13 +3,13 @@ import '/../style/theme.dart';
 
 class AttributeReadView extends StatelessWidget {
   final String label;
-  final String content;
+  final String? content;
   final bool isCrucial;
 
   const AttributeReadView(
       {super.key,
       required this.label,
-      required this.content,
+      this.content,
       this.isCrucial = false});
 
   @override
@@ -31,7 +31,7 @@ class AttributeReadView extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            content,
+            content?.isNotEmpty == true? content! : '-',
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
                 color: isCrucial ? AppTheme.red600 : AppTheme.black500,
                 fontWeight: FontWeight.normal),

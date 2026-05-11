@@ -117,6 +117,46 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
       return;
     }
 
+    // Contact Number & Zip Code PopUp Validators
+    List<String> formatErrors = [];
+    final contact = _contactNumberController.text.trim();
+    final emergencyContact = _emergencyContactController.text.trim();
+    final zip = _zipController.text.trim();
+
+    if (contact.isNotEmpty && (contact.length != 11 || !contact.startsWith('09'))) {
+      formatErrors.add("• Mobile Number must be exactly 11 digits and start with '09'.");
+    }
+    
+    // Only check emergency contact if the user actually typed something in
+    if (emergencyContact.isNotEmpty && (emergencyContact.length != 11 || !emergencyContact.startsWith('09'))) {
+      formatErrors.add("• Emergency Contact Number must be exactly 11 digits and start with '09'.");
+    }
+
+    if (zip.isNotEmpty && zip.length != 4) {
+      formatErrors.add("• ZIP Code must be exactly 4 digits.");
+    }
+
+    // If any formatting errors exist, show this popup
+    // TODO: @Frontend, Please refactor this to suit our theme
+    if (formatErrors.isNotEmpty) {
+      if (mounted) {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Invalid Input Format'),
+            content: Text(formatErrors.join('\n\n')),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('OK'),
+              )
+            ],
+          ),
+        );
+      }
+      return;
+    }
+    
     // TODO: @Frontend, please refactor this, thank you - Fons
     final db = ref.read(databaseProvider);
     final repository = PatientRepository(db);
@@ -137,11 +177,12 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
       return;
     }
 
+  // Patient Companion (This will be the data sent to the database)
     final patientEntry = PatientCompanion.insert(
       firstName: _firstNameController.text.trim(),
       middleName: drift.Value(_middleNameController.text.trim()),
       lastName: _lastNameController.text.trim(),
-      suffix: drift.Value(_selectedSuffix ?? ""), // Using dropdown value
+      suffix: drift.Value(_selectedSuffix ?? ""), 
       birthDate: birthDate,
       sex: _selectedSex!,
       civilStatus: _selectedStatus ?? "Single",
@@ -194,10 +235,10 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
                     label: "First Name",
                     hintText: "Enter first name",
                     isRequired: true,
-                    controller: _firstNameController,
+                    controller: _firstNameController, // first name controller
                     inputFormatters: [
                       FilteringTextInputFormatter.allow(RegExp(
-                          r'[a-zA-Z\s]')), // Added \s back to allow spaces
+                          r'[a-zA-Z\s]')), 
                     ],
                   )),
               const SizedBox(width: 20),
@@ -205,8 +246,8 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
                   flex: 2,
                   child: InputField(
                     label: "Middle Name",
-                    hintText: "Enter middle name",
-                    controller: _middleNameController,
+                    hintText: "Enter Middle Name",
+                    controller: _middleNameController, // middle name controller
                     inputFormatters: [
                       FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')),
                     ],
@@ -218,7 +259,7 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
                     label: "Last Name",
                     hintText: "Enter last name",
                     isRequired: true,
-                    controller: _lastNameController,
+                    controller: _lastNameController, // last name controller
                     inputFormatters: [
                       FilteringTextInputFormatter.allow(
                           RegExp(r'[a-zA-Z\s\-]')),
@@ -229,10 +270,10 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
                 flex: 1,
                 child: InputField(
                   label: "Suffix",
-                  hintText: "E.g. Jr.",
+                  hintText: "e.g. Jr.",
                   variant: InputVariant.dropdown,
                   dropdownValue: _selectedSuffix,
-                  dropdownItems: const ["Jr.", "Sr.", "II", "III", "IV", "V"],
+                  dropdownItems: const ["Jr.", "Sr.", "II", "III", "IV", "V"], // place common suffixes
                   onDropdownChanged: (value) {
                     setState(() {
                       _selectedSuffix = value == "None" ? null : value;
@@ -240,8 +281,8 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
                   },
                 ),
               ),
-            ],
-          ),
+            ], 
+          ), 
           const SizedBox(height: 32),
           Text("Demographic", style: Theme.of(context).textTheme.titleLarge),
           if (!isEditing) ...[
@@ -258,7 +299,7 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
                     isRequired: true,
                     dropdownItems: List.generate(
                         125, (i) => (DateTime.now().year - i).toString()),
-                    onDropdownChanged: (value) {
+                    onDropdownChanged: (value) { // function to calculate the year based on the system data
                       setState(() {
                         _selectedYear = value;
                         _selectedMonth = null;
@@ -270,15 +311,15 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
                 const SizedBox(width: 20),
                 Expanded(
                   child: InputField(
-                    hintText: _selectedYear == null
-                        ? "Select a year first"
-                        : "Select a month",
+                    hintText: _selectedYear == null // make sure this is dynamic, make user click year first
+                        ? "Select a Year first"
+                        : "Select Month",
                     label: "Month",
                     variant: InputVariant.dropdown,
                     dropdownValue: _selectedMonth,
                     isRequired: true,
                     dropdownItems:
-                        _selectedYear == null ? [] : DateService.months,
+                        _selectedYear == null ? [] : DateService.months, // use DateService file here
                     onDropdownChanged: (value) {
                       setState(() {
                         _selectedMonth = value;
@@ -292,8 +333,8 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
                   child: InputField(
                     key: ValueKey('$_selectedYear-$_selectedMonth'),
                     hintText: _selectedMonth == null
-                        ? "Select a month first"
-                        : "Select a day",
+                        ? "Select a Month first" // makes the user select month first, in order to check to add or lessen days in the dropdown
+                        : "Select Day",
                     label: "Day",
                     variant: InputVariant.dropdown,
                     dropdownValue: _selectedDay,
@@ -302,7 +343,7 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
                         (_selectedYear == null || _selectedMonth == null)
                             ? []
                             : List.generate(
-                                DateService.getDaysInMonth(
+                                DateService.getDaysInMonth( // service file to change the date based on the month selected
                                     _selectedMonth, _selectedYear),
                                 (index) => (index + 1).toString(),
                               ),
@@ -400,7 +441,7 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
                 hintText: "Enter referral name",
                 controller: _referredByController,
                 inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]'))
+                  FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')) // format to letters only
                 ],
               )),
               const SizedBox(width: 20),
@@ -410,7 +451,7 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
                 hintText: "Enter relationship to referral",
                 controller: _relationshipController,
                 inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]'))
+                  FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')) // format to letters only
                 ],
               )),
             ],
@@ -420,9 +461,9 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
           const SizedBox(height: 12),
           InputField(
               label: "Street Address",
-              hintText: "Enter street address",
+              hintText: "Enter Street Address", 
               isRequired: true,
-              controller: _streetController),
+              controller: _streetController), // street controller
           const SizedBox(height: 20),
           Row(
             children: [
@@ -432,7 +473,7 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
                       hintText: "Select a province",
                       variant: InputVariant.dropdown,
                       dropdownValue: _selectedProvince,
-                      dropdownItems: PhAddressService.getAllProvinceNames(),
+                      dropdownItems: PhAddressService.getAllProvinceNames(), // use PhAddressService library
                       isRequired: true,
                       onDropdownChanged: (v) => setState(() {
                             _selectedProvince = v;
@@ -445,8 +486,8 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
                       key: ValueKey(_selectedProvince),
                       label: "City/Municipality",
                       hintText: _selectedProvince == null
-                          ? "Select a province first"
-                          : "Select a city/municipality ",
+                          ? "Select A Province First" // make user select a province first
+                          : "Select A City", // if province is selected, display this
                       variant: InputVariant.dropdown,
                       dropdownValue: _selectedCity,
                       dropdownItems: _selectedProvince != null
@@ -468,8 +509,8 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
                       key: ValueKey(_selectedCity),
                       label: "Barangay",
                       hintText: _selectedCity == null
-                          ? "Select a city/municipality first"
-                          : "Select a barangay",
+                          ? "Select a city first" // make user select a city first
+                          : "Select a Barangay", // if a city is selected, display this as the hintText
                       variant: InputVariant.dropdown,
                       dropdownValue: _selectedBarangay,
                       dropdownItems:
@@ -488,10 +529,10 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
                     label: "ZIP Code",
                     hintText: "Enter ZIP code",
                     isRequired: true,
-                    controller: _zipController,
+                    controller: _zipController, // zip code controller
                     inputFormatters: [
                       FilteringTextInputFormatter.digitsOnly,
-                      LengthLimitingTextInputFormatter(4),
+                      LengthLimitingTextInputFormatter(4), // filter to allow only numbers and limit to 4 digits
                     ],
                   )),
             ],
