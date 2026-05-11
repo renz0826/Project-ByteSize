@@ -650,7 +650,7 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
         fullName: '${patient.lastName}, ${patient.firstName}',
         sex: patient.sex,
         age: DateHelper.calculateAge(patient.birthDate),
-        address: '${patient.province ?? ''}, ${patient.cityMunicipality ?? ''}',
+        address: '${patient.province}, ${patient.cityMunicipality}',
         contact: patient.contactNumber,
         onMenuSelected: (value) {
           if (value == 'add_clinical_record') {
@@ -660,7 +660,6 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
             _goToAddClinicalRecord(
                 existingPatientId: patient.patientId, returnIndex: 0);
           } 
-          // Optional: Add to table menu too
           else if (value == 'schedule_appointment') {
             _goToScheduleAppointment(patient, returnIndex: 0);
           }
