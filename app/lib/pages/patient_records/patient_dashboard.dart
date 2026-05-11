@@ -15,12 +15,9 @@ import '../../services/date_helper.dart';
 import '../../providers/app_providers.dart';
 import 'add_patient.dart';
 import 'add_clinical_record.dart';
-<<<<<<< refactor/frontend/patients-recordtodo-tasks
 import 'package:heroicons/heroicons.dart';
 import '../../widgets/discard_dialog.dart';
-=======
 import 'view_patient.dart';
->>>>>>> main
 
 //main screen
 class PatientDashboard extends ConsumerStatefulWidget {
@@ -194,7 +191,7 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
         StatusToast.show(
           context,
           title: "Success",
-          message: "Patient #$newPatientId has been created.",
+          message: "Patient #$finalPatientId has been created.",
           isSuccess: true,
         );
       }

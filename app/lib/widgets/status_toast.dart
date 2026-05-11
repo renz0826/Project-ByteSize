@@ -15,7 +15,6 @@ class StatusToast extends StatefulWidget {
     this.onClose,
   });
 
-  // --- THE NEW GLOBAL TRIGGER FUNCTION ---
   static void show(
     BuildContext context, {
     required String title,
