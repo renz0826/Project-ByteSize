@@ -15,9 +15,8 @@ import '../../services/date_helper.dart';
 import '../../providers/app_providers.dart';
 import 'add_patient.dart';
 import 'add_clinical_record.dart';
-import 'package:heroicons/heroicons.dart';
-import '../../widgets/discard_dialog.dart';
 import 'view_patient.dart';
+import '../../pages/schedule/schedule_appointment.dart'; 
 
 //main screen
 class PatientDashboard extends ConsumerStatefulWidget {
@@ -93,6 +92,16 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
     });
   }
 
+  // Send user to Schedule Appointment screen
+  void _goToScheduleAppointment(PatientData patient, {int returnIndex = 0}) {
+    setState(() {
+      _formSessionId++; // Reset form state
+      _patientToView = patient;
+      _returnIndex = returnIndex;
+      _currentIndex = 4; // Index for Schedule Appointment Form
+    });
+  }
+
   // Archive Function
   Future<void> _archivePatient(PatientData patient) async {
     final confirm = await showDialog<bool>(
@@ -105,7 +114,7 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
             child: Text('Cancel',
-                style: TextStyle(color: AppTheme.black500.withOpacity(0.6))),
+                style: TextStyle(color: AppTheme.black500.withValues(alpha: 0.6))),
           ),
           ElevatedButton(
             onPressed: () => Navigator.of(context).pop(true),
@@ -172,7 +181,6 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
       int finalPatientId;
 
       if (_existingPatientId != null) {
-        // if an existingPatientId already exists
         finalPatientId = _existingPatientId!;
       } else {
         finalPatientId = await db.into(db.patient).insert(_draftPatient!);
@@ -191,6 +199,7 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
         StatusToast.show(
           context,
           title: "Success",
+          // FIXED: Changed $newPatient to $finalPatientId
           message: "Patient #$finalPatientId has been created.",
           isSuccess: true,
         );
@@ -206,8 +215,7 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
         });
       }
     } catch (e) {
-      print("Database Error: $e");
-      // Trigger error toast if something goes wrong
+      debugPrint("Database Error: $e");
       if (mounted) {
         StatusToast.show(
           context,
@@ -316,11 +324,10 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
 
   @override
   Widget build(BuildContext context) {
-    // ---> NEW: No more Stack wrapper needed! Just the IndexedStack. <---
     return IndexedStack(
       index: _currentIndex,
       children: [
-        // Set this as Index 0: The Main Patient Dashboard
+        // Index 0: Main Patient Dashboard
         Scaffold(
           backgroundColor: AppTheme.gray200,
           body: CustomScrollView(
@@ -331,7 +338,6 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
                   type: PageHeaderType.plain,
                 ),
               ),
-              //search bar, filter, and table header
               SliverPadding(
                 padding: const EdgeInsets.only(left: 24, right: 24),
                 sliver: SliverList(
@@ -342,7 +348,6 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
                   ]),
                 ),
               ),
-              //table rows
               SliverPadding(
                 padding: const EdgeInsets.only(left: 24, right: 24),
                 sliver: _currentPageRecords.isEmpty
@@ -357,7 +362,6 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
                         ),
                       ),
               ),
-              //pagination
               SliverPadding(
                 padding: const EdgeInsets.only(
                     left: 24, right: 24, bottom: 24, top: 16),
@@ -376,7 +380,7 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
           ),
         ),
 
-        // Setting this as Index 1: When user clicks add record
+        // Index 1: Add Patient Form
         SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -401,18 +405,16 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
           ),
         ),
 
-        // Setting this as Index 2: When user clicks next after adding a patient record
+        // Index 2: Add Clinical Record Form
         SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               PageHeader(
-                // Dynamic Title depending on where the user came from
                 title: _returnIndex == 3
                     ? 'Back to Patient View'
                     : 'Back to Records',
                 type: PageHeaderType.withBack,
-                // Uses dynamic target index based on return path
                 onBack: () =>
                     _confirmReturnToDashboard(targetIndex: _returnIndex),
               ),
@@ -421,12 +423,8 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
                 child: AddClinicalRecordForm(
                   patientId: _existingPatientId ?? 0,
                   key: ValueKey(_formSessionId),
-
-                  // removes previous button if user is creating one in the View Page area
                   showPreviousButton: _returnIndex != 3,
-
                   onPrevious: () {
-                    // Uses dynamic target index for the "Previous/Cancel" button
                     if (_existingPatientId != null) {
                       setState(() => _currentIndex = _returnIndex);
                     } else {
@@ -440,7 +438,7 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
           ),
         ),
 
-        // NEW -> Setting this as Index 3: View Patient Details
+        // Index 3: View Patient Details
         if (_patientToView != null)
           SingleChildScrollView(
             child: Column(
@@ -460,11 +458,15 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
                       setState(() {
                         _formSessionId++;
                       });
-                      // Sends index "3" to let the form know we came from the view screen!
                       _goToAddClinicalRecord(
                           existingPatientId: _patientToView!.patientId,
                           returnIndex: 3);
-                    } else if (value == 'archive') {
+                    } 
+                    // NEW: Action to go to schedule form
+                    else if (value == 'schedule_appointment') {
+                      _goToScheduleAppointment(_patientToView!, returnIndex: 3);
+                    }
+                    else if (value == 'archive') {
                       _archivePatient(_patientToView!);
                     }
                   },
@@ -473,7 +475,37 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
             ),
           )
         else
-          const SizedBox.shrink(), // Fallback if no patient is selected
+          const SizedBox.shrink(),
+
+        // NEW: Index 4: Schedule Appointment Form
+        SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              PageHeader(
+                title: _returnIndex == 3 ? 'Back to Patient View' : 'Back to Records',
+                type: PageHeaderType.withBack,
+                onBack: () => setState(() => _currentIndex = _returnIndex),
+              ),
+              Transform.translate(
+                offset: const Offset(0, -30),
+                child: ScheduleAppointmentForm(
+                  key: ValueKey(_formSessionId),
+                  preSelectedPatient: _patientToView,
+                  activePatients: _allPatients,
+                  onSave: () {
+                    if (_returnIndex == 3 && _patientToView != null) {
+                      _goToViewPatient(_patientToView!);
+                    } else {
+                      _loadPatients();
+                      setState(() => _currentIndex = 0);
+                    }
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
       ],
     );
   }
@@ -613,22 +645,25 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
   // table row using real PatientData
   Widget _buildTableRow(PatientData patient) {
     return GestureDetector(
-      onTap: () => _goToViewPatient(patient), // to make the row tappable
+      onTap: () => _goToViewPatient(patient),
       child: PatientRecordBar(
         fullName: '${patient.lastName}, ${patient.firstName}',
         sex: patient.sex,
         age: DateHelper.calculateAge(patient.birthDate),
-        address: '${patient.province ?? ''}, ${patient.cityMunicipality ?? ''}',
+        address: '${patient.province}, ${patient.cityMunicipality}',
         contact: patient.contactNumber,
         onMenuSelected: (value) {
           if (value == 'add_clinical_record') {
-            // FIX: Increment form session ID to clear the form
             setState(() {
               _formSessionId++;
             });
             _goToAddClinicalRecord(
                 existingPatientId: patient.patientId, returnIndex: 0);
-          } else if (value == 'view_record') {
+          } 
+          else if (value == 'schedule_appointment') {
+            _goToScheduleAppointment(patient, returnIndex: 0);
+          }
+          else if (value == 'view_record') {
             _goToViewPatient(patient);
           } else if (value == 'archive') {
             _archivePatient(patient);

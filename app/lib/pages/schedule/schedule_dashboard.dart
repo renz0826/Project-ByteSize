@@ -1,5 +1,3 @@
-import '../schedule/schedule_appointment.dart';
-import '../schedule/view_appointment.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:drift/drift.dart' as drift;
@@ -13,6 +11,8 @@ import '/../widgets/app_info_bar.dart';
 import '/../widgets/calendar.dart';
 import '../../db/database.dart';
 import '../../services/scheduling_service.dart';
+import '../schedule/schedule_appointment.dart';
+import '../schedule/view_appointment.dart';
 import '../../providers/app_providers.dart';
 
 class JoinedAppointment {

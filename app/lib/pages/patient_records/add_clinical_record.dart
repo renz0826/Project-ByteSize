@@ -1,5 +1,5 @@
-import 'package:dentcity_management_system/db/database.dart';
-import 'package:dentcity_management_system/style/theme.dart';
+import '../../db/database.dart';
+import '../../style/theme.dart';
 import 'package:drift/drift.dart' as drift;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

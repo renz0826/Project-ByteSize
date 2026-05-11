@@ -120,10 +120,10 @@ class _ViewPatientScreenState extends State<ViewPatientScreen> {
 
           // actions menu
           _MoreOptions(
-            onSelected: widget.onMenuAction, // ADDED: Links menu to dashboard
+            onSelected: widget.onMenuAction, 
             items: [
                 BarMenuItem(value: 'add_clinical_record', icon: HeroIcons.documentPlus, label: 'Add New Clinical Record'),
-                BarMenuItem(value: 'add_schedule', icon: HeroIcons.calendar, label: 'Add Schedule'),
+                BarMenuItem(value: 'schedule_appointment', icon: HeroIcons.calendar, label: 'Add Schedule'),
                 BarMenuItem(value: 'edit_details', icon: HeroIcons.pencilSquare, label: 'Edit Personal Details'),
                 BarMenuItem(value: 'archive', icon: HeroIcons.archiveBox, label: 'Archive Record', color: AppTheme.red600),
             ],
