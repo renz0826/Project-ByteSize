@@ -60,6 +60,4 @@ class AppointmentRepository {
     // Return the list of time slots that are actually taken
     return appointments.map((a) => a.timeSlot).whereType<String>().toList();
   }
-
-  
 }

@@ -9,8 +9,7 @@ class PatientRepository {
   PatientRepository(this.db) : onboardingService = PatientOnboardingService(db);
 
   // Get All Patients Function
-  Future<List<PatientData>> getAllPatients() =>
-      db.select(db.patient).get();
+  Future<List<PatientData>> getAllPatients() => db.select(db.patient).get();
 
   // Search Patient Function
   Future<List<PatientData>> searchPatients(String query) =>
@@ -44,29 +43,30 @@ class PatientRepository {
   Future<void> registerPatient(PatientCompanion p, ClinicalRecordCompanion c) =>
       onboardingService.registerNewPatient(patientData: p, clinicalData: c);
 
-  // Strict Check: Duplicate First Name, Last Name, and DOB entry (Used in Add Patient)
-  Future<bool> isExactDuplicate(String firstName, String lastName, DateTime birthDate) async {
+// Strict Check: Duplicate First Name, Last Name, and DOB entry
+  Future<bool> isExactDuplicate(
+      String firstName, String lastName, DateTime birthDate) async {
     final query = db.select(db.patient)
-      ..where((t) => 
-          t.firstName.equals(firstName) & 
-          t.lastName.equals(lastName) &
-          t.birthDate.equals(birthDate)
-      );
-      
+      ..where((t) =>
+              t.firstName.equals(firstName) &
+              t.lastName.equals(lastName) &
+              t.birthDate.equals(birthDate) // Added Birth Date check
+          );
+
     final results = await query.get();
-    return results.isNotEmpty; 
+    return results.isNotEmpty;
   }
 
   // Check if another patient (with a different ID) already has this name and birthdate (Used in Edit Patient)
-  Future<bool> isDuplicateForUpdate(int currentPatientId, String first, String last, DateTime dob) async {
+  Future<bool> isDuplicateForUpdate(
+      int currentPatientId, String first, String last, DateTime dob) async {
     final query = db.select(db.patient)
-      ..where((t) => 
-          t.firstName.equals(first) & 
-          t.lastName.equals(last) & 
-          t.birthDate.equals(dob) & 
-          t.patientId.equals(currentPatientId).not()
-      );
-    
+      ..where((t) =>
+          t.firstName.equals(first) &
+          t.lastName.equals(last) &
+          t.birthDate.equals(dob) &
+          t.patientId.equals(currentPatientId).not());
+
     final match = await query.getSingleOrNull();
     return match != null;
   }
@@ -74,17 +74,18 @@ class PatientRepository {
   // Soft Check: Duplicate First Name, and Last Name
   Future<bool> isNameDuplicate(String firstName, String lastName) async {
     final query = db.select(db.patient)
-      ..where((t) => 
-          t.firstName.equals(firstName) & 
-          t.lastName.equals(lastName)
-      );
+      ..where(
+          (t) => t.firstName.equals(firstName) & t.lastName.equals(lastName));
     final results = await query.get();
-    return results.isNotEmpty; 
+    return results.isNotEmpty;
   }
 
-  // Gets all non-archived patients
-  Future<List<PatientData>> getActivePatients() =>
-      (db.select(db.patient)
-            ..where((p) => p.isArchived.equals(false) | p.isArchived.isNull()))
-          .get();
+// Gets all non-archived patients to be listed on all the major functionalites
+  Future<List<PatientData>> getActivePatients() => (db.select(db.patient)
+        ..where((p) => p.isArchived.equals(false) | p.isArchived.isNull()))
+      .get();
+
+  //for dashboard
+  Future<PatientData> getPatientById(int id) =>
+      (db.select(db.patient)..where((p) => p.patientId.equals(id))).getSingle();
 }
