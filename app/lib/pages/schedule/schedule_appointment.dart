@@ -132,7 +132,7 @@ class _ScheduleAppointmentFormState
       scheduleDateTime: drift.Value(date!),
       timeSlot: drift.Value(_selectedTimeSlot!),
       reasonForVisit: drift.Value(_reasonController.text.trim()),
-      status: drift.Value(isEditing ? widget.appointmentToEdit!.appointment.status : "Pending"),
+      status: drift.Value(isEditing ? widget.appointmentToEdit!.appointment.status : "Upcoming"),
       staffId: const drift.Value(1),
     );
 
