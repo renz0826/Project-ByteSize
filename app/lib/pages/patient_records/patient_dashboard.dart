@@ -303,20 +303,16 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
           ],
         ),
         if (_showToast)
-          Positioned(
-            bottom: 32,
-            right: 32, // Pinned to the right!
-            child: StatusToast(
-              isSuccess: _toastIsSuccess,
-              title: _toastTitle,
-              message: _toastMessage,
-              onClose: () {
-                setState(() {
-                  _showToast = false;
-                });
-              },
-            ),
-          )
+          StatusToast(
+            isSuccess: _toastIsSuccess,
+            title: _toastTitle,
+            message: _toastMessage,
+            onClose: () {
+              setState(() {
+                _showToast = false;
+              });
+            },
+          ),
       ],
     );
   }
