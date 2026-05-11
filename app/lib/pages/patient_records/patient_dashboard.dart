@@ -114,9 +114,9 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
 
       await _loadPatients();
 
-      // Trigger the dynamic toast!
+      // Trigger the toast here 
       _triggerToast(
-          true, "Success", "Patient and Clinical Record Saved Successfully!");
+          true, "Success", "New Patient has been successfully created"); // toast message 
 
       setState(() {
         _draftClinicalRecord = clinicalData;
@@ -129,7 +129,6 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
   }
 
   Future<void> _confirmReturnToDashboard() async {
-    // We use the handy static method we built into the class!
     final bool? shouldDiscard = await DiscardDialog.show(context);
 
     if (shouldDiscard == true) {
