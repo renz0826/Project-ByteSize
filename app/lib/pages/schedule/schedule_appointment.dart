@@ -14,12 +14,15 @@ class ScheduleAppointmentForm extends ConsumerStatefulWidget {
   final VoidCallback onSave;
   final List<PatientData> activePatients;
   final JoinedAppointment? appointmentToEdit;
+  // Added to allow pre-selecting a patient from other screens
+  final PatientData? preSelectedPatient; 
 
   const ScheduleAppointmentForm({
     super.key,
     this.appointmentToEdit,
     required this.onSave,
     required this.activePatients,
+    this.preSelectedPatient, // Add to constructor
   });
 
   @override
@@ -47,20 +50,21 @@ class _ScheduleAppointmentFormState
       final appt = widget.appointmentToEdit!.appointment;
       final patient = widget.appointmentToEdit!.patient;
 
-      _selectedPatient =
-          '${patient.lastName}, ${patient.firstName}'; // display the names in this format
-      _selectedMonth =
-          SchedulingService.months[appt.scheduleDateTime.month - 1];
+      _selectedPatient = '${patient.lastName}, ${patient.firstName}';
+      _selectedMonth = SchedulingService.months[appt.scheduleDateTime.month - 1];
       _selectedDay = appt.scheduleDateTime.day.toString();
-      _selectedTimeSlot = appt
-          .timeSlot; // use the timeslot function from the centralized service file
+      _selectedTimeSlot = appt.timeSlot;
       _reasonController.text = appt.reasonForVisit;
 
       if (_selectedTimeSlot != null) {
         _availableTimeSlots = [_selectedTimeSlot!];
       }
 
-      _refreshTimeSlots(); // refresh time slots once a timeslot has been taken
+      _refreshTimeSlots();
+    } 
+    // Automatically select the patient if one was passed in
+    else if (widget.preSelectedPatient != null) {
+      _selectedPatient = '${widget.preSelectedPatient!.lastName}, ${widget.preSelectedPatient!.firstName}';
     }
   }
 
@@ -71,9 +75,7 @@ class _ScheduleAppointmentFormState
   }
 
   Future<void> _refreshTimeSlots() async {
-    // function to refresh time slots once selected
-    final date =
-        SchedulingService.parseSelectedDate(_selectedMonth, _selectedDay);
+    final date = SchedulingService.parseSelectedDate(_selectedMonth, _selectedDay);
     if (date != null) {
       final repo = AppointmentRepository(ref.read(databaseProvider));
       final booked = await repo.getBookedSlots(date);
@@ -81,23 +83,17 @@ class _ScheduleAppointmentFormState
 
       if (mounted) {
         setState(() {
-          _availableTimeSlots =
-              allSlots.where((slot) => !booked.contains(slot)).toList();
+          _availableTimeSlots = allSlots.where((slot) => !booked.contains(slot)).toList();
 
           if (isEditing) {
             final originalAppt = widget.appointmentToEdit!.appointment;
-            final originalMonth = SchedulingService
-                .months[originalAppt.scheduleDateTime.month - 1];
+            final originalMonth = SchedulingService.months[originalAppt.scheduleDateTime.month - 1];
             final originalDay = originalAppt.scheduleDateTime.day.toString();
 
-            if (_selectedMonth == originalMonth &&
-                _selectedDay == originalDay) {
+            if (_selectedMonth == originalMonth && _selectedDay == originalDay) {
               if (!_availableTimeSlots.contains(originalAppt.timeSlot)) {
                 _availableTimeSlots.add(originalAppt.timeSlot);
-                _availableTimeSlots.sort(
-                    (a, b) => allSlots.indexOf(a).compareTo(
-                        allSlots.indexOf(b)) // sort them again (8:00 - 5:00pm)
-                    );
+                _availableTimeSlots.sort((a, b) => allSlots.indexOf(a).compareTo(allSlots.indexOf(b)));
               }
             }
           }
@@ -118,64 +114,49 @@ class _ScheduleAppointmentFormState
   }
 
   Future<void> _saveAppointment() async {
-    // save appointment function
-    if (_selectedPatient == null ||
-        _selectedMonth == null ||
-        _selectedDay == null ||
-        _selectedTimeSlot == null) {
+    if (_selectedPatient == null || _selectedMonth == null || _selectedDay == null || _selectedTimeSlot == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        // snackbar for error handling
-        const SnackBar(
-            content: Text("Please fill in all required fields."),
-            backgroundColor: Colors.red),
+        const SnackBar(content: Text("Please fill in all required fields."), backgroundColor: Colors.red),
       );
       return;
     }
 
     final db = ref.read(databaseProvider);
     final repo = AppointmentRepository(db);
-    final date = SchedulingService.parseSelectedDate(
-        _selectedMonth, _selectedDay); // parse selected date
+    final date = SchedulingService.parseSelectedDate(_selectedMonth, _selectedDay);
 
-    final patient = widget.activePatients
-        .firstWhere((p) => '${p.lastName}, ${p.firstName}' == _selectedPatient);
+    final patient = widget.activePatients.firstWhere((p) => '${p.lastName}, ${p.firstName}' == _selectedPatient);
 
-    final companion = AppointmentCompanion( // call out companion
+    final companion = AppointmentCompanion(
       patientId: drift.Value(patient.patientId),
       scheduleDateTime: drift.Value(date!),
       timeSlot: drift.Value(_selectedTimeSlot!),
       reasonForVisit: drift.Value(_reasonController.text.trim()),
-      status: drift.Value(
-          isEditing ? widget.appointmentToEdit!.appointment.status : "Pending"),
+      status: drift.Value(isEditing ? widget.appointmentToEdit!.appointment.status : "Pending"),
       staffId: const drift.Value(1),
     );
 
     try {
       if (isEditing) {
         await (db.update(db.appointment)
-              ..where((t) => t.appointmentId
-                  .equals(widget.appointmentToEdit!.appointment.appointmentId)))
+              ..where((t) => t.appointmentId.equals(widget.appointmentToEdit!.appointment.appointmentId)))
             .write(companion);
 
-        // Check if the widget is still on the screen before showing the snackbar
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-              content: Text("Appointment Updated Successfully!")));
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Appointment Updated Successfully!")));
         }
       } else {
         await repo.addAppointment(companion);
 
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-              content: Text("Appointment Scheduled Successfully!")));
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Appointment Scheduled Successfully!")));
         }
       }
 
       widget.onSave();
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text("Error: $e"), backgroundColor: Colors.red));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error: $e"), backgroundColor: Colors.red));
       }
     }
   }
@@ -205,7 +186,8 @@ class _ScheduleAppointmentFormState
               variant: InputVariant.dropdown,
               dropdownValue: _selectedPatient,
               isRequired: true,
-              onDropdownChanged: isEditing
+              // Disable dropdown if editing or if a patient was pre-selected
+              onDropdownChanged: (isEditing || widget.preSelectedPatient != null)
                   ? null
                   : (v) => setState(() => _selectedPatient = v),
               dropdownItems: widget.activePatients
@@ -234,16 +216,13 @@ class _ScheduleAppointmentFormState
                 const SizedBox(width: 12),
                 Expanded(
                     child: InputField(
-                        key: ValueKey(
-                            '$_selectedMonth-${SchedulingService.getInferredYear(_selectedMonth)}'),
+                        key: ValueKey('$_selectedMonth-${SchedulingService.getInferredYear(_selectedMonth)}'),
                         label: "Day",
                         hintText: "Select day",
                         variant: InputVariant.dropdown,
                         dropdownValue: _selectedDay,
                         isRequired: true,
-                        dropdownItems: SchedulingService.getDaysInMonth(
-                            _selectedMonth,
-                            SchedulingService.getInferredYear(_selectedMonth)),
+                        dropdownItems: SchedulingService.getDaysInMonth(_selectedMonth, SchedulingService.getInferredYear(_selectedMonth)),
                         onDropdownChanged: (v) {
                           setState(() => _selectedDay = v);
                           _refreshTimeSlots();
@@ -258,13 +237,10 @@ class _ScheduleAppointmentFormState
                         dropdownValue: _selectedTimeSlot,
                         isRequired: true,
                         dropdownItems: _availableTimeSlots.isEmpty
-                            ? (_selectedTimeSlot != null
-                                ? [_selectedTimeSlot!]
-                                : ["Select a date first"])
+                            ? (_selectedTimeSlot != null ? [_selectedTimeSlot!] : ["Select a date first"])
                             : _availableTimeSlots,
                         onDropdownChanged: (v) {
-                          if (v != "Select a date first")
-                            setState(() => _selectedTimeSlot = v);
+                          if (v != "Select a date first") setState(() => _selectedTimeSlot = v);
                         })),
               ],
             ),
@@ -282,9 +258,7 @@ class _ScheduleAppointmentFormState
                 SizedBox(
                   width: 280,
                   child: Button(
-                      label: isEditing
-                          ? "Update Schedule"
-                          : "Schedule Appointment",
+                      label: isEditing ? "Update Schedule" : "Schedule Appointment",
                       icon: isEditing ? Icons.save_alt_outlined : Icons.check,
                       iconPlacement: IconPlacement.left,
                       width: double.infinity,
