@@ -15,6 +15,30 @@ class StatusToast extends StatefulWidget {
     this.onClose,
   });
 
+  // --- THE NEW GLOBAL TRIGGER FUNCTION ---
+  static void show(
+    BuildContext context, {
+    required String title,
+    required String message,
+    bool isSuccess = true,
+  }) {
+    late OverlayEntry overlayEntry;
+
+    overlayEntry = OverlayEntry(
+      builder: (context) => StatusToast(
+        isSuccess: isSuccess,
+        title: title,
+        message: message,
+        onClose: () {
+          overlayEntry.remove(); // Removes it from the screen when done
+        },
+      ),
+    );
+
+    // Inserts the toast floating on top of the entire app
+    Overlay.of(context).insert(overlayEntry);
+  }
+
   @override
   State<StatusToast> createState() => _StatusToastState();
 }
@@ -47,6 +71,22 @@ class _StatusToastState extends State<StatusToast>
     ).animate(curve);
 
     _controller.forward();
+
+    // ---> THE 3-SECOND AUTO HIDE MOVED HERE <---
+    Future.delayed(const Duration(seconds: 3), () {
+      if (mounted) {
+        _closeToast();
+      }
+    });
+  }
+
+  // Helper method to gracefully reverse the animation before destroying
+  void _closeToast() {
+    _controller.reverse().then((_) {
+      if (widget.onClose != null) {
+        widget.onClose!();
+      }
+    });
   }
 
   @override
@@ -75,51 +115,48 @@ class _StatusToastState extends State<StatusToast>
     return Positioned(
       bottom: 32,
       right: 32,
-      child: SlideTransition(
-        position: _slideAnimation,
-        child: FadeTransition(
-          opacity: _fadeAnimation,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-            decoration: BoxDecoration(
-                color: AppTheme.white500,
-                borderRadius: BorderRadius.circular(24),
-                boxShadow: AppTheme.cardShadow),
-            child: Row(
-              spacing: 16,
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                _buildIcon(),
-                Flexible(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(widget.title,
-                          style: Theme.of(context).textTheme.titleLarge),
-                      const SizedBox(height: 4),
-                      Text(widget.message,
-                          style: Theme.of(context).textTheme.bodySmall),
-                    ],
+      child: Material(
+        color: Colors.transparent, // Required to keep text styling normal inside Overlays
+        child: SlideTransition(
+          position: _slideAnimation,
+          child: FadeTransition(
+            opacity: _fadeAnimation,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+              decoration: BoxDecoration(
+                  color: AppTheme.white500,
+                  borderRadius: BorderRadius.circular(24),
+                  boxShadow: AppTheme.cardShadow),
+              child: Row(
+                spacing: 16,
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  _buildIcon(),
+                  Flexible(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(widget.title,
+                            style: Theme.of(context).textTheme.titleLarge),
+                        const SizedBox(height: 4),
+                        Text(widget.message,
+                            style: Theme.of(context).textTheme.bodySmall),
+                      ],
+                    ),
                   ),
-                ),
-                const SizedBox(width: 20),
-                GestureDetector(
-                  onTap: () {
-                    _controller.reverse().then((_) {
-                      if (widget.onClose != null) {
-                        widget.onClose!();
-                      }
-                    });
-                  },
-                  child: const Icon(
-                    Icons.close,
-                    color: AppTheme.gray500,
-                    size: 24,
+                  const SizedBox(width: 20),
+                  GestureDetector(
+                    onTap: _closeToast, // Tap to close early!
+                    child: const Icon(
+                      Icons.close,
+                      color: AppTheme.gray500,
+                      size: 24,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

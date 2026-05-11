@@ -44,37 +44,10 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
   String? _selectedStatus;
   int _formSessionId = 0;
 
-  // Toast State Variables
-  bool _showToast = false;
-  bool _toastIsSuccess = true;
-  String _toastTitle = "";
-  String _toastMessage = "";
-
   @override
   void initState() {
     super.initState();
     _loadPatients();
-  }
-
-  // Trigger toast function
-  void _triggerToast(bool isSuccess, String title, String message) {
-    if (!mounted) return;
-
-    setState(() {
-      _showToast = true;
-      _toastIsSuccess = isSuccess;
-      _toastTitle = title;
-      _toastMessage = message;
-    });
-
-    // Auto hide the toast after 3 seconds
-    Future.delayed(const Duration(seconds: 3), () {
-      if (mounted && _showToast) {
-        setState(() {
-          _showToast = false;
-        });
-      }
-    });
   }
 
   // Fetch real data from the database
@@ -114,9 +87,15 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
 
       await _loadPatients();
 
-      // Refactor: Use the patient ID
-      _triggerToast(
-          true, "Success", "Patient #$newPatientId has been created.");
+      // ---> NEW: Trigger the toast directly from the class! <---
+      if (mounted) {
+        StatusToast.show(
+          context,
+          title: "Success",
+          message: "Patient #$newPatientId has been created.",
+          isSuccess: true,
+        );
+      }
 
       setState(() {
         _draftClinicalRecord = clinicalData;
@@ -124,7 +103,15 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
       });
     } catch (e) {
       print("Database Error: $e");
-      _triggerToast(false, "Error", "Failed to save record: $e");
+      // Trigger error toast if something goes wrong
+      if (mounted) {
+        StatusToast.show(
+          context,
+          title: "Error",
+          message: "Failed to save record: $e",
+          isSuccess: false,
+        );
+      }
     }
   }
 
@@ -191,128 +178,114 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
+    // ---> NEW: No more Stack wrapper needed! Just the IndexedStack. <---
+    return IndexedStack(
+      index: _currentIndex,
       children: [
-        IndexedStack(
-          index: _currentIndex,
-          children: [
-            // Set this as Index 0: The Main Patient Dashboard
-            Scaffold(
-              backgroundColor: AppTheme.gray200,
-              body: CustomScrollView(
-                slivers: [
-                  SliverToBoxAdapter(
-                    child: PageHeader(
-                      title: 'Patient Records',
-                      type: PageHeaderType.plain,
-                    ),
-                  ),
-                  //search bar, filter, and table header
-                  SliverPadding(
-                    padding: const EdgeInsets.only(left: 24, right: 24),
-                    sliver: SliverList(
-                      delegate: SliverChildListDelegate([
-                        _buildSearchBar(),
-                        const SizedBox(height: 8),
-                        _buildTableHeader(),
-                      ]),
-                    ),
-                  ),
-                  //table rows
-                  SliverPadding(
-                    padding: const EdgeInsets.only(left: 24, right: 24),
-                    sliver: _currentPageRecords.isEmpty
-                        ? SliverToBoxAdapter(
-                            child: _buildEmptyState(),
-                          )
-                        : SliverList(
-                            delegate: SliverChildBuilderDelegate(
-                              (context, index) =>
-                                  _buildTableRow(_currentPageRecords[index]),
-                              childCount: _currentPageRecords.length,
-                            ),
-                          ),
-                  ),
-                  //pagination
-                  SliverPadding(
-                    padding: const EdgeInsets.only(
-                        left: 24, right: 24, bottom: 24, top: 16),
-                    sliver: SliverToBoxAdapter(
-                      child: _filteredRecords.isEmpty
-                          ? const SizedBox.shrink()
-                          : AppPagination(
-                              currentPage: _currentPage,
-                              totalPages: _totalPages,
-                              onPageChanged: (newPage) =>
-                                  setState(() => _currentPage = newPage),
-                            ),
-                    ),
-                  ),
-                ],
+        // Set this as Index 0: The Main Patient Dashboard
+        Scaffold(
+          backgroundColor: AppTheme.gray200,
+          body: CustomScrollView(
+            slivers: [
+              SliverToBoxAdapter(
+                child: PageHeader(
+                  title: 'Patient Records',
+                  type: PageHeaderType.plain,
+                ),
               ),
-            ),
-
-            // Setting this as Index 1: When user clicks add record
-            SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  PageHeader(
-                    title: 'Back to Records',
-                    type: PageHeaderType.withBack,
-                    onBack: _confirmReturnToDashboard,
-                  ),
-                  Transform.translate(
-                    offset: const Offset(0, -30),
-                    child: AddPatientForm(
-                        key: ValueKey(_formSessionId),
-                        onNext: (data) => _goToAddClinicalRecord(data),
-                        onBack: () {
-                          _loadPatients();
-                          setState(() => _currentIndex = 0);
-                        }),
-                  ),
-                ],
+              //search bar, filter, and table header
+              SliverPadding(
+                padding: const EdgeInsets.only(left: 24, right: 24),
+                sliver: SliverList(
+                  delegate: SliverChildListDelegate([
+                    _buildSearchBar(),
+                    const SizedBox(height: 8),
+                    _buildTableHeader(),
+                  ]),
+                ),
               ),
-            ),
-
-            // Setting this as Index 2: When user clicks next after adding a patient record
-            SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  PageHeader(
-                    title: 'Back to Records',
-                    type: PageHeaderType.withBack,
-                    onBack: _confirmReturnToDashboard,
-                  ),
-                  Transform.translate(
-                    offset: const Offset(0, -30),
-                    child: AddClinicalRecordForm(
-                      patientId: 0,
-                      key: ValueKey(_formSessionId),
-                      onPrevious: () {
-                        setState(() => _currentIndex = 1);
-                      },
-                      onFinish: (clinicalData) => _goBackToMain(clinicalData),
-                    ),
-                  ),
-                ],
+              //table rows
+              SliverPadding(
+                padding: const EdgeInsets.only(left: 24, right: 24),
+                sliver: _currentPageRecords.isEmpty
+                    ? SliverToBoxAdapter(
+                        child: _buildEmptyState(),
+                      )
+                    : SliverList(
+                        delegate: SliverChildBuilderDelegate(
+                          (context, index) =>
+                              _buildTableRow(_currentPageRecords[index]),
+                          childCount: _currentPageRecords.length,
+                        ),
+                      ),
               ),
-            ),
-          ],
-        ),
-        if (_showToast)
-          StatusToast(
-            isSuccess: _toastIsSuccess,
-            title: _toastTitle,
-            message: _toastMessage,
-            onClose: () {
-              setState(() {
-                _showToast = false;
-              });
-            },
+              //pagination
+              SliverPadding(
+                padding: const EdgeInsets.only(
+                    left: 24, right: 24, bottom: 24, top: 16),
+                sliver: SliverToBoxAdapter(
+                  child: _filteredRecords.isEmpty
+                      ? const SizedBox.shrink()
+                      : AppPagination(
+                          currentPage: _currentPage,
+                          totalPages: _totalPages,
+                          onPageChanged: (newPage) =>
+                              setState(() => _currentPage = newPage),
+                        ),
+                ),
+              ),
+            ],
           ),
+        ),
+
+        // Setting this as Index 1: When user clicks add record
+        SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              PageHeader(
+                title: 'Back to Records',
+                type: PageHeaderType.withBack,
+                onBack: _confirmReturnToDashboard,
+              ),
+              Transform.translate(
+                offset: const Offset(0, -30),
+                child: AddPatientForm(
+                    key: ValueKey(_formSessionId),
+                    onNext: (data) => _goToAddClinicalRecord(data),
+                    onBack: () {
+                      _loadPatients();
+                      setState(() => _currentIndex = 0);
+                    }),
+              ),
+            ],
+          ),
+        ),
+
+        // Setting this as Index 2: When user clicks next after adding a patient record
+        SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              PageHeader(
+                title: 'Back to Records',
+                type: PageHeaderType.withBack,
+                onBack: _confirmReturnToDashboard,
+              ),
+              Transform.translate(
+                offset: const Offset(0, -30),
+                child: AddClinicalRecordForm(
+                  patientId: 0,
+                  key: ValueKey(_formSessionId),
+                  onPrevious: () {
+                    setState(() => _currentIndex = 1);
+                  },
+                  onFinish: (clinicalData) => _goBackToMain(clinicalData),
+                ),
+              ),
+            ],
+          ),
+        ),
       ],
     );
   }
