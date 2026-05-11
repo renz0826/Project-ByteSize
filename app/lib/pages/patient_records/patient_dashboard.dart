@@ -67,7 +67,7 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
       _toastMessage = message;
     });
 
-    // Auto hide the toast after 3 seconds? (This can be changed)
+    // Auto hide the toast after 3 seconds
     Future.delayed(const Duration(seconds: 3), () {
       if (mounted && _showToast) {
         setState(() {
@@ -114,9 +114,9 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
 
       await _loadPatients();
 
-      // Trigger the toast here
-      _triggerToast(true, "Success",
-          "New Patient has been successfully created"); // toast message
+      // Refactor: Use the patient ID
+      _triggerToast(
+          true, "Success", "Patient #$newPatientId has been created.");
 
       setState(() {
         _draftClinicalRecord = clinicalData;
@@ -304,10 +304,8 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
         ),
         if (_showToast)
           Positioned(
-            bottom: 32, 
-            right:
-                32, 
-            
+            bottom: 32,
+            right: 32, // Pinned to the right!
             child: StatusToast(
               isSuccess: _toastIsSuccess,
               title: _toastTitle,
