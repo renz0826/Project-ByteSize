@@ -14,15 +14,14 @@ class ScheduleAppointmentForm extends ConsumerStatefulWidget {
   final VoidCallback onSave;
   final List<PatientData> activePatients;
   final JoinedAppointment? appointmentToEdit;
-  // Added to allow pre-selecting a patient from other screens
-  final PatientData? preSelectedPatient; 
+  final PatientData? preSelectedPatient; // added to be used from the viewpatient page
 
   const ScheduleAppointmentForm({
     super.key,
     this.appointmentToEdit,
     required this.onSave,
     required this.activePatients,
-    this.preSelectedPatient, // Add to constructor
+    this.preSelectedPatient, 
   });
 
   @override
@@ -50,8 +49,8 @@ class _ScheduleAppointmentFormState
       final appt = widget.appointmentToEdit!.appointment;
       final patient = widget.appointmentToEdit!.patient;
 
-      _selectedPatient = '${patient.lastName}, ${patient.firstName}';
-      _selectedMonth = SchedulingService.months[appt.scheduleDateTime.month - 1];
+      _selectedPatient = '${patient.lastName}, ${patient.firstName}'; // display in this format always
+      _selectedMonth = SchedulingService.months[appt.scheduleDateTime.month - 1]; // logic if month is less than system month, it will assume that it is booking for next year
       _selectedDay = appt.scheduleDateTime.day.toString();
       _selectedTimeSlot = appt.timeSlot;
       _reasonController.text = appt.reasonForVisit;
@@ -60,7 +59,7 @@ class _ScheduleAppointmentFormState
         _availableTimeSlots = [_selectedTimeSlot!];
       }
 
-      _refreshTimeSlots();
+      _refreshTimeSlots(); // refresh all time slots to remove those that are already booked
     } 
     // Automatically select the patient if one was passed in
     else if (widget.preSelectedPatient != null) {
@@ -73,8 +72,8 @@ class _ScheduleAppointmentFormState
     _reasonController.dispose();
     super.dispose();
   }
-
-  Future<void> _refreshTimeSlots() async {
+ 
+  Future<void> _refreshTimeSlots() async { // function of refreshing time slots
     final date = SchedulingService.parseSelectedDate(_selectedMonth, _selectedDay);
     if (date != null) {
       final repo = AppointmentRepository(ref.read(databaseProvider));
@@ -87,7 +86,7 @@ class _ScheduleAppointmentFormState
 
           if (isEditing) {
             final originalAppt = widget.appointmentToEdit!.appointment;
-            final originalMonth = SchedulingService.months[originalAppt.scheduleDateTime.month - 1];
+            final originalMonth = SchedulingService.months[originalAppt.scheduleDateTime.month - 1]; // use schedule_service
             final originalDay = originalAppt.scheduleDateTime.day.toString();
 
             if (_selectedMonth == originalMonth && _selectedDay == originalDay) {
@@ -113,7 +112,7 @@ class _ScheduleAppointmentFormState
     }
   }
 
-  Future<void> _saveAppointment() async {
+  Future<void> _saveAppointment() async { // function to save appointments to the database
     if (_selectedPatient == null || _selectedMonth == null || _selectedDay == null || _selectedTimeSlot == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Please fill in all required fields."), backgroundColor: Colors.red),
@@ -125,6 +124,7 @@ class _ScheduleAppointmentFormState
     final repo = AppointmentRepository(db);
     final date = SchedulingService.parseSelectedDate(_selectedMonth, _selectedDay);
 
+    // always show patients that are booked earliest
     final patient = widget.activePatients.firstWhere((p) => '${p.lastName}, ${p.firstName}' == _selectedPatient);
 
     final companion = AppointmentCompanion(
