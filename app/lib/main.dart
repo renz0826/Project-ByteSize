@@ -3,30 +3,30 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'pages/login_page.dart';
 import 'pages/main_layout.dart';
-import 'db/database.dart';
+import 'providers/app_providers.dart'; // Import to access databaseProvider
 
 void main() async {
-  
   WidgetsFlutterBinding.ensureInitialized();
 
-  final database = AppDatabase(); // call database from the db file
+  // Create a container to access the database from your provider
+  final container = ProviderContainer();
+  final database = container.read(databaseProvider); 
 
-  try { // Poke Query
+  try { // Poke Query using the shared instance
     await database.customSelect('SELECT 1').getSingle();
     debugPrint("Database has been created");
   } catch (e) {
     debugPrint("Database creation failed: $e");
   }
 
-  // 4. Start the app
+  // Use UncontrolledProviderScope to pass the same container to your app
   runApp(
-    const ProviderScope(
-      child: DentalApp(),
+    UncontrolledProviderScope(
+      container: container,
+      child: const DentalApp(),
     ),
   );
 }
-
-
 
 class DentalApp extends StatelessWidget {
   const DentalApp({super.key});
