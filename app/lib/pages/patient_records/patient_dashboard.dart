@@ -114,7 +114,7 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
             child: Text('Cancel',
-                style: TextStyle(color: AppTheme.black500.withOpacity(0.6))),
+                style: TextStyle(color: AppTheme.black500.withValues(alpha: 0.6))),
           ),
           ElevatedButton(
             onPressed: () => Navigator.of(context).pop(true),
@@ -215,7 +215,7 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
         });
       }
     } catch (e) {
-      print("Database Error: $e");
+      debugPrint("Database Error: $e");
       if (mounted) {
         StatusToast.show(
           context,
