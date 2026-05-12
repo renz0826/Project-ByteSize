@@ -3,10 +3,15 @@ import '../style/theme.dart';
 
 class RequirementDialog extends StatelessWidget {
   final List<String> missingFields;
+  final String title;
   final String content;
 
-  const RequirementDialog(
-      {super.key, this.missingFields = const [], this.content = ""});
+  const RequirementDialog({
+    super.key,
+    this.title = "",
+    this.content = "",
+    this.missingFields = const [],
+  });
 
   /// A handy static method to call this dialog instantly
   static Future<void> show(
@@ -31,7 +36,7 @@ class RequirementDialog extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           Text(
-            'Missing Information',
+            title,
             style: Theme.of(context).textTheme.titleLarge,
           ),
         ],
