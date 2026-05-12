@@ -158,19 +158,11 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
 
     if (formatErrors.isNotEmpty) {
       if (mounted) {
-        // RequirementDialog.show(
-        //     context, "Invalid Input Format", "Please .", missing);
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('Invalid Input Format'),
-            content: Text(formatErrors.join('\n\n')),
-            actions: [
-              TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('OK'))
-            ],
-          ),
+        RequirementDialog.show(
+          context,
+          "Invalid Input Format",
+          formatErrors.join('\n\n'),
+          [],
         );
       }
       return;
