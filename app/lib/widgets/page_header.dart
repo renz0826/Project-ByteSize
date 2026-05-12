@@ -85,16 +85,15 @@ class PageHeader extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               const CircleAvatar(
-                radius: 8,
+                radius: 16,
                 backgroundColor: AppTheme.white500,
                 backgroundImage: AssetImage(doctorAvatar),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 10),
               Text(
                 doctorName,
-                style: AppTheme.textTheme.bodySmall?.copyWith(
-                  color: AppTheme.black500,
-                  fontWeight: FontWeight.w600,
+                style: AppTheme.textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ],
