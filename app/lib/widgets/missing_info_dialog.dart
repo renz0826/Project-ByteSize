@@ -3,14 +3,14 @@ import '../style/theme.dart';
 
 class MissingInfoDialog extends StatelessWidget {
   final List<String> missingFields;
+  final String content;
 
-  const MissingInfoDialog({
-    super.key,
-    required this.missingFields,
-  });
+  const MissingInfoDialog(
+      {super.key, this.missingFields = const [], this.content = ""});
 
   /// A handy static method to call this dialog instantly
-  static Future<void> show(BuildContext context, List<String> missingFields) {
+  static Future<void> show(
+      BuildContext context, String content, List<String> missingFields) {
     return showDialog<void>(
       context: context,
       builder: (context) => MissingInfoDialog(missingFields: missingFields),
@@ -51,7 +51,7 @@ class MissingInfoDialog extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                         Text(
-                          'Please provide the following details:',
+                          content,
                           style: Theme.of(context).textTheme.bodyMedium,
                         ),
                         const SizedBox(height: 8),
