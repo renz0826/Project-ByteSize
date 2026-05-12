@@ -2,11 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:drift/drift.dart' as drift;
 import '../../style/theme.dart';
 import '../../db/database.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/services.dart';
 import '/../widgets/main_buttons.dart';
 import '/../widgets/input_field.dart';
 import '/../widgets/radio_buttons.dart';
+import '../../widgets/missing_info_dialog.dart';
 import '../../services/patient_service.dart';
+import '../../providers/app_providers.dart';
+import '../../repositories/patient_repository.dart';
 
 class EditPatientForm extends StatefulWidget {
   final PatientData patient;
@@ -75,7 +79,7 @@ class _EditPatientFormState extends State<EditPatientForm>{
 
     _selectedSuffix = widget.patient.suffix;
     _selectedYear = widget.patient.birthDate.year.toString();
-    _selectedMonth = DateService.months[widget.patient.birthDate.month - 1]; // converts int month to name e.g. "January"
+    _selectedMonth = DateService.months[widget.patient.birthDate.month - 1]; 
     _selectedDay = widget.patient.birthDate.day.toString();
     _selectedSex = widget.patient.sex;
     _selectedCivilStatus = widget.patient.civilStatus;
@@ -102,6 +106,23 @@ class _EditPatientFormState extends State<EditPatientForm>{
   _provinceController.dispose();   
   super.dispose();
   }
+
+  void _showErrorDialog(String title, String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(title, style: AppTheme.textTheme.titleMedium?.copyWith(color: AppTheme.red600)),
+        content: Text(message, style: AppTheme.textTheme.bodyMedium),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text("OK", style: TextStyle(color: AppTheme.blue500)),
+          ),
+        ],
+      ),
+    );
+  }
+  
   void _handleSave() {
   final birthDate = DateHelper.convertToDateTime(
     _selectedMonth!,
