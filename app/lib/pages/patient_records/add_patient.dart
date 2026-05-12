@@ -176,18 +176,12 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
     if (await repository.isExactDuplicate(_firstNameController.text.trim(),
         _lastNameController.text.trim(), birthDate!)) {
       if (mounted) {
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('Patient Already Exists'),
-            content: const Text(
-                'A patient with this exact name and birthdate is already in the system.'),
-            actions: [
-              TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('OK'))
-            ],
-          ),
+        StatusToast.show(
+          context,
+          isSuccess: false,
+          title: 'Patient Already Exists',
+          message:
+              "A patient with this exact name and birthdate is already in the system.",
         );
       }
       return;
