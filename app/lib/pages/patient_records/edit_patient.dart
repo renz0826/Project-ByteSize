@@ -31,16 +31,19 @@ class EditPatientForm extends ConsumerStatefulWidget {
 class _EditPatientFormState extends ConsumerState<EditPatientForm> {
   bool get isEditing => true;
 
+  // Full Name Controllers
   late final TextEditingController _firstNameController;
   late final TextEditingController _middleNameController;
   late final TextEditingController _lastNameController;
 
+  // Contact Information Controllers
   late final TextEditingController _contactNumberController;
   late final TextEditingController _emergencyContactController;
   late final TextEditingController _referredByController;
   late final TextEditingController _relationshipController;
   late final TextEditingController _emergencyContactRelationshipController;
 
+  // Address Controllers
   late final TextEditingController _streetController;
   late final TextEditingController _zipController;
   late final TextEditingController _barangayController;
@@ -63,27 +66,18 @@ class _EditPatientFormState extends ConsumerState<EditPatientForm> {
   void initState() {
     super.initState();
 
-    _firstNameController =
-        TextEditingController(text: widget.patient.firstName);
-    _middleNameController =
-        TextEditingController(text: widget.patient.middleName ?? '');
+    _firstNameController = TextEditingController(text: widget.patient.firstName);
+    _middleNameController = TextEditingController(text: widget.patient.middleName ?? '');
     _lastNameController = TextEditingController(text: widget.patient.lastName);
-    _contactNumberController =
-        TextEditingController(text: widget.patient.contactNumber);
-    _emergencyContactController =
-        TextEditingController(text: widget.patient.emergencyContactNo);
-    _referredByController =
-        TextEditingController(text: widget.patient.referredBy);
-    _relationshipController =
-        TextEditingController(text: widget.patient.relationship);
-    _emergencyContactRelationshipController =
-        TextEditingController(text: widget.patient.relationshipEmergency);
-    _streetController =
-        TextEditingController(text: widget.patient.streetAddress);
+    _contactNumberController = TextEditingController(text: widget.patient.contactNumber);
+    _emergencyContactController = TextEditingController(text: widget.patient.emergencyContactNo);
+    _referredByController = TextEditingController(text: widget.patient.referredBy);
+    _relationshipController = TextEditingController(text: widget.patient.relationship);
+    _emergencyContactRelationshipController = TextEditingController(text: widget.patient.relationshipEmergency);
+    _streetController = TextEditingController(text: widget.patient.streetAddress);
     _zipController = TextEditingController(text: widget.patient.zipCode);
     _barangayController = TextEditingController(text: widget.patient.barangay);
-    _cityController =
-        TextEditingController(text: widget.patient.cityMunicipality);
+    _cityController = TextEditingController(text: widget.patient.cityMunicipality);
     _provinceController = TextEditingController(text: widget.patient.province);
 
     _selectedSuffix = widget.patient.suffix;
@@ -116,7 +110,7 @@ class _EditPatientFormState extends ConsumerState<EditPatientForm> {
     super.dispose();
   }
 
-  void _showErrorDialog(String title, String message) {
+  void _showErrorDialog(String title, String message) { // function to show error dialogue
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -139,7 +133,7 @@ class _EditPatientFormState extends ConsumerState<EditPatientForm> {
       final birthDate = DateHelper.convertToDateTime(
           _selectedMonth!, _selectedDay!, _selectedYear!);
 
-      // 2. Required Field Validation using MissingInfoDialog
+      // Use Form Validator to make sure these required fields are filled up
       List<String> missing = FormValidator.getMissingPatientFields(
         firstName: _firstNameController.text.trim(),
         lastName: _lastNameController.text.trim(),
@@ -159,7 +153,7 @@ class _EditPatientFormState extends ConsumerState<EditPatientForm> {
         return;
       }
 
-      // 3. Format Validation (Mobile and ZIP)
+      // Popups for Formatting Errors (like mobile number and zip code)
       List<String> formatErrors = [];
       final contact = _contactNumberController.text.trim();
       final emergencyContact = _emergencyContactController.text.trim();
@@ -174,13 +168,14 @@ class _EditPatientFormState extends ConsumerState<EditPatientForm> {
         formatErrors.add("• ZIP Code must be exactly 4 digits.");
       }
       
-      if (emergencyContact.isNotEmpty) {
+      if (emergencyContact.isNotEmpty) { // need to add this because this field can be nullable
         if (emergencyContact.length != 11 ||
             !emergencyContact.startsWith('09')) {
           formatErrors
               .add("• Emergency Number must be 11 digits and start with '09'.");
         }
       }
+
       if (formatErrors.isNotEmpty) {
         _showErrorDialog("Invalid Format", formatErrors.join('\n'));
         return;
@@ -191,20 +186,20 @@ class _EditPatientFormState extends ConsumerState<EditPatientForm> {
       final db = ref.read(databaseProvider);
       final repository = PatientRepository(db);
 
-      bool exists = await repository.isDuplicateForUpdate(
+      bool exists = await repository.isDuplicateForUpdate( // use duplicate function from repository
         widget.patient.patientId,
         _firstNameController.text.trim(),
         _lastNameController.text.trim(),
         birthDate,
       );
 
-      if (exists) {
+      if (exists) { // if a matching record is found, redirect user back to the edit fields
         _showErrorDialog("Duplicate Record",
             "Another patient with this name and birthdate already exists.");
         return;
       }
 
-      // 5. Save Changes
+      // Save the updated patient fields
       final updatedPatient = PatientCompanion(
         patientId: drift.Value(widget.patient.patientId),
         firstName: drift.Value(_firstNameController.text.trim()),
@@ -236,7 +231,7 @@ class _EditPatientFormState extends ConsumerState<EditPatientForm> {
         isArchived: drift.Value(widget.patient.isArchived),
       );
 
-      widget.onSave(updatedPatient);
+      widget.onSave(updatedPatient); // save to database
     } catch (e) {
       _showErrorDialog(
           "System Error", "An unexpected error occurred while saving.");
