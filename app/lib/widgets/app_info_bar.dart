@@ -377,20 +377,11 @@ class BillingBar extends StatelessWidget {
     required this.amount,
     required this.date,
     required this.status,
+    required this.isPaid,
     this.onMenuSelected,
     this.onTap,
   });
-  const BillingBar(
-      {super.key,
-      required this.invoiceId,
-      required this.fullName,
-      required this.procedure,
-      required this.amount,
-      required this.date,
-      required this.status,
-      required this.isPaid,
-      this.onMenuSelected});
-
+  
   // Amount Getter
   String get _formattedAmount {
     final formatted = amount.toStringAsFixed(0).replaceAllMapped(

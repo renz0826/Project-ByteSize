@@ -84,16 +84,14 @@ class _ViewBillScreenState extends ConsumerState<ViewBillScreen> {
       ],
     );
   }
-
   Widget _buildBillContent() {
     final inv = widget.invoiceData.invoice;
     final invoiceIdString = 'INV-${inv.invoiceId.toString().padLeft(3, '0')}';
     final formattedDate = _formatDate(inv.issuedDate);
-    
     final isPaid = inv.status.toLowerCase() == 'paid';
 
     return Transform.translate(
-      offset: const Offset(0, -30), 
+      offset: const Offset(0, -30),
       child: Center(
         child: Container(
           constraints: const BoxConstraints(maxWidth: 1200),
@@ -101,6 +99,7 @@ class _ViewBillScreenState extends ConsumerState<ViewBillScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Summary Bar (Invoice ID | Date | Action Buttons)
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
@@ -123,37 +122,43 @@ class _ViewBillScreenState extends ConsumerState<ViewBillScreen> {
                       ),
                     ),
                     const SizedBox(width: 16),
-                    
-                  Row(
-                    children: [
-                      if (!isPaid)  
-                        Container(
-                              margin: const EdgeInsets.only(right: 16),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Button(
-                                label: "Edit Invoice",
-                                icon: Icons.edit_outlined,
-                                onPressed: widget.onEditInvoice, 
+                    Row(
+                      children: [
+                        // Edit Invoice Button (Reordered to the left)
+                        if (!isPaid)
+                          Padding(
+                            padding: const EdgeInsets.only(right: 16),
+                            child: SizedBox(
+                              height: 40,
+                              child: OutlinedButton.icon(
+                                onPressed: widget.onEditInvoice,
+                                icon: const Icon(Icons.edit_outlined, size: 18),
+                                label: const Text("Edit Invoice"),
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: AppTheme.blue500,
+                                  side: const BorderSide(color: AppTheme.blue500),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                ),
                               ),
                             ),
-                            
-                      Button(
-                        label: isPaid ? "Fully Paid" : "Process Payment",
-                        variant: isPaid ? ButtonVariant.secondary : ButtonVariant.primary,
-                        onPressed: isPaid ? () {} : widget.onProcessPayment, 
-                      ),
-                    ],
-                  )
-
-
+                          ),
+                        // Process Payment Button
+                        Button(
+                          label: isPaid ? "Fully Paid" : "Process Payment",
+                          variant: isPaid ? ButtonVariant.secondary : ButtonVariant.primary,
+                          onPressed: isPaid ? () {} : widget.onProcessPayment,
+                        ),
+                      ],
+                    )
                   ],
                 ),
               ),
-              
+
               const SizedBox(height: 24),
 
+              // Main Bill Information
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(32),
@@ -165,9 +170,10 @@ class _ViewBillScreenState extends ConsumerState<ViewBillScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // Patient Bill Headline (HeadlineLarge)
                     Text(
                       "${widget.invoiceData.patientName}’s Bill",
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      style: Theme.of(context).textTheme.headlineLarge?.copyWith(
                             fontWeight: FontWeight.bold,
                           ),
                     ),
@@ -179,10 +185,10 @@ class _ViewBillScreenState extends ConsumerState<ViewBillScreen> {
 
                     const SizedBox(height: 48),
 
+                    // Total Balance Box
                     Align(
                       alignment: Alignment.centerRight,
-                      child: SizedBox(
-                        width: 300,
+                      child: IntrinsicWidth(
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                           decoration: BoxDecoration(
@@ -193,12 +199,16 @@ class _ViewBillScreenState extends ConsumerState<ViewBillScreen> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                'Total Balance', 
-                                style: AppTheme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold, color: AppTheme.gray400)
+                                'Total Balance',
+                                style: AppTheme.textTheme.bodyMedium?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: AppTheme.gray400),
                               ),
+                              const SizedBox(width: 40),
                               Text(
-                                '₱ ${inv.totalBalance.toStringAsFixed(2)}', 
-                                style: AppTheme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold)
+                                '₱ ${inv.totalBalance.toStringAsFixed(2)}',
+                                style: AppTheme.textTheme.bodyLarge
+                                    ?.copyWith(fontWeight: FontWeight.bold),
                               ),
                             ],
                           ),
@@ -206,7 +216,7 @@ class _ViewBillScreenState extends ConsumerState<ViewBillScreen> {
                       ),
                     ),
 
-                    // --- TRANSACTION HISTORY ---
+                    // Transaction History Section
                     if (_transactions.isNotEmpty) ...[
                       const SizedBox(height: 48),
                       const Divider(color: AppTheme.gray400),
