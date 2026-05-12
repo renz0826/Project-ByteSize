@@ -52,23 +52,34 @@ class _BarText extends StatelessWidget {
 // Bar container
 class _BarContainer extends StatelessWidget {
   final List<Widget> children;
+  final VoidCallback? onTap; // Add this
 
-  const _BarContainer({required this.children});
+  const _BarContainer({required this.children, this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 60,
-      margin: EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         color: AppTheme.white500,
         borderRadius: BorderRadius.circular(16),
         boxShadow: AppTheme.cardShadow,
       ),
-      child: Row(
-        spacing: 8,
-        children: children,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: SizedBox(
+              height: 36, // Standardized content height
+              child: Row(
+                children: children,
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -344,6 +355,7 @@ class BillingBar extends StatelessWidget {
   final DateTime date;
   final BadgeStatus status;
   final ValueChanged<String>? onMenuSelected;
+  final VoidCallback? onTap; // Clickable requirement
 
   const BillingBar({
     super.key,
@@ -354,6 +366,7 @@ class BillingBar extends StatelessWidget {
     required this.date,
     required this.status,
     this.onMenuSelected,
+    this.onTap,
   });
 
   // Amount Getter
@@ -368,32 +381,34 @@ class BillingBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _BarContainer(
+      onTap: onTap, // Makes the whole bar clickable
       children: [
-        _BarText(invoiceId),
-        _BarText(
-          fullName,
-          flex: 3,
-          ellipsis: true,
+        // FIXED FLEX: Matching the dashboard's _columnFlex exactly
+        _BarText(invoiceId, flex: 2),
+        _BarText(fullName, flex: 3, ellipsis: true),
+        _BarText(procedure, flex: 4, ellipsis: true),
+        _BarText(_formattedAmount, flex: 2),
+        _BarText(formatDate(date), flex: 2),
+        
+        // Status Badge
+        Expanded(
+          flex: 2,
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: AppStatusBadge(status: status)),
         ),
-        _BarText(
-          procedure,
-          ellipsis: true,
-        ),
-        _BarText(_formattedAmount),
-        _BarText(formatDate(date)),
-        AppStatusBadge(status: status),
 
-        // more options: Process Payment, View Bill
-        _MoreOptions(
-          onSelected: onMenuSelected,
-          items: [
-            BarMenuItem(
-                value: 'process_payment',
-                icon: HeroIcons.banknotes,
-                label: 'Process Payment'),
-            BarMenuItem(
-                value: 'view_bill', icon: HeroIcons.eye, label: 'View Bill')
-          ],
+        // More Options 
+        Expanded(
+          flex: 1,
+          child: _MoreOptions(
+            onSelected: onMenuSelected,
+            items: [
+              const BarMenuItem(value: 'view_bill', icon: HeroIcons.eye, label: 'View Bill'),
+              const BarMenuItem(value: 'edit_invoice', icon: HeroIcons.pencilSquare, label: 'Edit Invoice'),
+              const BarMenuItem(value: 'process_payment', icon: HeroIcons.banknotes, label: 'Process Payment'),
+            ],
+          ),
         ),
       ],
     );

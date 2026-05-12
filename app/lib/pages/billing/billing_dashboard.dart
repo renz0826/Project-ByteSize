@@ -429,25 +429,37 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
     );
   }
 
+  // Table
+  final Map<String, int> _columnFlex = {
+    'id': 2,        // Invoice ID
+    'patient': 3,   // Patient Name
+    'procedure': 4, // Procedures (needs most space)
+    'amount': 2,    // Price
+    'date': 2,      // Created At
+    'status': 2,    // The Pending/Paid Chip
+    'actions': 1,   // The three-dot menu
+  };
+
   Widget _buildTableHeader() {
     final headerStyle = AppTheme.textTheme.bodyLarge;
     final headerStyle = AppTheme.textTheme.bodyLarge
         ?.copyWith(fontWeight: FontWeight.bold, color: AppTheme.black500);
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12 ),
-        child: Row(
-          children: [
-            Expanded(flex: 2, child: Text('Invoice ID', style: headerStyle)),
-            Expanded(flex: 3, child: Text('Patient', style: headerStyle)),
-            Expanded(flex: 3, child: Text('Procedure', style: headerStyle)),
-            Expanded(flex: 2, child: Text('Amount', style: headerStyle)),
-            Expanded(flex: 2, child: Text('Date', style: headerStyle)),
-            Expanded(flex: 2, child: Text('Status', style: headerStyle)),
-            SizedBox(width: 70, child: Text('Actions', style: headerStyle)),
-          ],
-        ),
-      );
-    }
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12), 
+      child: Row(
+        children: [
+          Expanded(flex: _columnFlex['id']!, child: Text('Invoice ID', style: headerStyle)),
+          Expanded(flex: _columnFlex['patient']!, child: Text('Patient', style: headerStyle)),
+          Expanded(flex: _columnFlex['procedure']!, child: Text('Procedure', style: headerStyle)),
+          Expanded(flex: _columnFlex['amount']!, child: Text('Amount', style: headerStyle)),
+          Expanded(flex: _columnFlex['date']!, child: Text('Date', style: headerStyle)),
+          // FIX: Removed Center() to left-align the header text
+          Expanded(flex: _columnFlex['status']!, child: Text('Status', style: headerStyle)),
+          Expanded(flex: _columnFlex['actions']!, child: Center(child: Text('Actions', style: headerStyle))),
+        ],
+      ),
+    );
+  }
 
   Widget _buildEmptyState() {
     return Center(
