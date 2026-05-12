@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import '../style/theme.dart';
 
-class MissingInfoDialog extends StatelessWidget {
+class RequirementDialog extends StatelessWidget {
   final List<String> missingFields;
   final String content;
 
-  const MissingInfoDialog(
+  const RequirementDialog(
       {super.key, this.missingFields = const [], this.content = ""});
 
   /// A handy static method to call this dialog instantly
@@ -13,7 +13,7 @@ class MissingInfoDialog extends StatelessWidget {
       BuildContext context, String content, List<String> missingFields) {
     return showDialog<void>(
       context: context,
-      builder: (context) => MissingInfoDialog(missingFields: missingFields),
+      builder: (context) => RequirementDialog(missingFields: missingFields),
     );
   }
 
