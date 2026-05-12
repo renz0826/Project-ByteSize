@@ -19,7 +19,7 @@ class InvoiceRepository {
 
       for (final inv in invoices) {
         final patient = await (_db.select(_db.patient)..where((p) => p.patientId.equals(inv.patientId))).getSingleOrNull();
-        final patientName = patient != null ? '${patient.lastName},` ${patient.firstName}' : 'Unknown Patient';
+        final patientName = patient != null ? '${patient.lastName}, ${patient.firstName}' : 'Unknown Patient';
         final charges = await (_db.select(_db.procedureCharge)..where((c) => c.invoiceId.equals(inv.invoiceId))).get();
         final procedureNames = charges.map((c) => c.procedureName).join(', ');
         final grandTotal = charges.fold<double>(0, (sum, c) => sum + c.totalProcedureCharge);
