@@ -172,7 +172,6 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
     final repository = PatientRepository(db);
 
     // 3. Hard Check for the exact duplicate (Matching firstname and lastname + DOB)
-    // TODO: @Frontend, please refactor
     if (await repository.isExactDuplicate(_firstNameController.text.trim(),
         _lastNameController.text.trim(), birthDate!)) {
       if (mounted) {
