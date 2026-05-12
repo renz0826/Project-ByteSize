@@ -1,20 +1,26 @@
-import 'package:dentcity_management_system/pages/schedule/schedule_appointment.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:drift/drift.dart' as drift;
+import 'package:heroicons/heroicons.dart';
 import '/../style/theme.dart';
 import '/../widgets/search_bar.dart';
 import '/../widgets/app_pagination.dart';
 import '/../widgets/main_buttons.dart';
 import '/../widgets/page_header.dart';
 import '/../widgets/app_info_bar.dart';
-import '../../db/database.dart';
-import '../../services/date_helper.dart';
-import '../../providers/app_providers.dart';
-import 'package:heroicons/heroicons.dart';
 import '/../widgets/calendar.dart';
+import '../../db/database.dart';
+import '../../services/scheduling_service.dart';
+import '../schedule/schedule_appointment.dart';
+import '../schedule/view_appointment.dart';
+import '../../providers/app_providers.dart';
 
-//main screen
+class JoinedAppointment {
+  final AppointmentData appointment;
+  final PatientData patient;
+  JoinedAppointment({required this.appointment, required this.patient});
+}
+
 class ScheduleDashboard extends ConsumerStatefulWidget {
   const ScheduleDashboard({super.key});
 
@@ -23,180 +29,141 @@ class ScheduleDashboard extends ConsumerStatefulWidget {
 }
 
 class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
-  // Real Database Lists // TODO: Connect to schedule db
-  List<PatientData> _allPatients = [];
-  List<PatientData> _filteredRecords = [];
+  List<JoinedAppointment> _allAppointments = []; // list of all appointments
+  List<JoinedAppointment> _filteredRecords = []; // list of filtered records (may be completed or upcoming)
+  List<PatientData> _allPatients = [];  // list to ge tall patients
+  JoinedAppointment? _selectedAppointment;
+  int _currentIndex = 0; // set the current index to 0
 
-  // Functions to change patients screen states
-  PatientCompanion? _draftPatient;
-
-  int _currentIndex = 0;
-
-  //state for search, filter, and pagination
   final TextEditingController _searchController = TextEditingController();
   int _currentPage = 1;
   final int _recordsPerPage = 8;
   String? _selectedStatus;
   int _formSessionId = 0;
+  DateTime _selectedDate = DateTime.now();
 
   @override
   void initState() {
     super.initState();
-    _loadPatients();
+    _loadAppointments();
   }
 
-  // Fetch real data from the database
-  Future<void> _loadPatients() async {
-    final repository = ref.read(patientRepositoryProvider);
-    final patients = await repository.getAllPatients();
+  Future<void> _loadAppointments() async { // use repository to load appointment data from the database
+    final db = ref.read(databaseProvider);
+    final patients = await db.select(db.patient).get();
+
+    final query = db.select(db.appointment).join([
+      drift.innerJoin( // use inner join here
+          db.patient, db.patient.patientId.equalsExp(db.appointment.patientId)),
+    ]);
+
+    final results = await query.get();
+    final appointments = results.map((row) {
+      return JoinedAppointment(
+        appointment: row.readTable(db.appointment), // read appointments to list
+        patient: row.readTable(db.patient), // read patients to list
+      );
+    }).toList();
+
     setState(() {
       _allPatients = patients;
-      _filteredRecords = patients;
-      _applyFilters();
+      _allAppointments = appointments;
+      _applyFilters(); // apply the filter that earliest times should be on top
     });
   }
 
-  // Send user to add_patient.dart
-  void _goToScheduleAppointment() {
-    setState(() => _currentIndex = 1);
+  void _applyFilters() {
+    final query = _searchController.text.toLowerCase();
+
+    List<JoinedAppointment> filtered = _allAppointments.where((item) {
+      final p = item.patient;
+      final a = item.appointment;
+      final fullName = '${p.firstName} ${p.lastName}'.toLowerCase();
+      final matchesSearch = fullName.contains(query);
+      final matchesDate = a.scheduleDateTime.year == _selectedDate.year &&
+          a.scheduleDateTime.month == _selectedDate.month &&
+          a.scheduleDateTime.day == _selectedDate.day;
+
+      bool matchesStatus = true;
+      
+      if (_selectedStatus != null && _selectedStatus != 'All') {
+        matchesStatus =
+            a.status.toLowerCase() == _selectedStatus!.toLowerCase();
+      } else {
+        matchesStatus = a.status.toLowerCase() != 'cancelled';
+      }
+
+      return matchesSearch && matchesDate && matchesStatus;
+    }).toList();
+
+    // Sorting Function that makes sure that the earliest time is always the first
+    filtered.sort((a, b) {
+      int timeA = SchedulingService.timeToMinutes(a.appointment.timeSlot);
+      int timeB = SchedulingService.timeToMinutes(b.appointment.timeSlot);
+      return timeA.compareTo(timeB);
+    });
+
+    setState(() {
+      _filteredRecords = filtered; // set state to filter the records
+    });
   }
 
-  // Send user back to this page
-  void _goBackToMain() {
-    setState(() => _currentIndex);
+  void _goBackToMain() { // back to main function
+    setState(() {
+      _currentIndex = 0; // 0 is the index for the dashboard page
+      _loadAppointments();
+    });
   }
 
-// ! Dummy data specifically for testing the Schedule Table UI
-// TODO: Replace after testing.
-  final List<Map<String, dynamic>> mockAppointments = [
-    {
-      'patientName': 'Dela Cruz, Juan',
-      'date': DateTime(2024, 11, 15),
-      'time': '09:00 AM',
-      'reason': 'Teeth Cleaning',
-    },
-    {
-      'patientName': 'Smith, Anna',
-      'date': DateTime(2024, 11, 15),
-      'time': '10:30 AM',
-      'reason': 'Root Canal',
-    },
-    {
-      'patientName': 'Garcia, Maria',
-      'date': DateTime(2024, 11, 16),
-      'time': '01:00 PM',
-      'reason': 'Initial Consultation',
-    },
-    {
-      'patientName': 'Lee, Jonathan',
-      'date': DateTime(2024, 11, 16),
-      'time': '03:15 PM',
-      'reason': 'Braces Adjustment',
-    },
-    {
-      'patientName': 'Santos, Miguel',
-      'date': DateTime(2024, 11, 17),
-      'time': '11:00 AM',
-      'reason': 'Tooth Extraction',
-    },
-  ];
-
-  // Popup when clicking back to dashboard
-  Future<void> _confirmReturnToDashboard() async {
-    final bool? shouldDiscard = await showDialog<bool>(
+  Future<void> _cancelAppointmentConfirmation(int appointmentId) async { // function for the cancellation of appointments
+    final bool? shouldCancel = await showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Discard Changes?'),
+          title: const Text('Cancel Appointment?'),
           content: const Text(
-              'Are you sure you want to return to the dashboard? Any unsaved data will be lost.'),
+              'Are you sure you want to cancel this appointment? This action cannot be undone.'),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Cancel'),
+              child: const Text('No, Keep It'),
             ),
             TextButton(
               onPressed: () => Navigator.of(context).pop(true),
-              child: const Text(
-                'Discard',
-                style: TextStyle(color: Colors.red),
-              ),
+              child: const Text('Yes, Cancel',
+                  style: TextStyle(color: Colors.red)),
             ),
           ],
         );
       },
     );
 
-    if (shouldDiscard == true) {
-      _loadPatients();
-      setState(() => _currentIndex = 0);
+    if (shouldCancel == true) {
+      final repo = ref.read(appointmentRepositoryProvider);
+      await repo.updateAppointmentStatus(appointmentId, 'Cancelled'); // update the specific attribute: status 
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Appointment has been cancelled."))); // confirmation message
+      } 
+      _goBackToMain(); // send user back to main afterwards
     }
-  }
-
-  //number of items to show per page
-  List<PatientData> get _currentPageRecords {
-    final start = (_currentPage - 1) * _recordsPerPage;
-    final end = (start + _recordsPerPage).clamp(0, _filteredRecords.length);
-    return _filteredRecords.sublist(start, end);
-  }
-
-  //total number of pages based on the filtered records
-  int get _totalPages => (_filteredRecords.length / _recordsPerPage).ceil();
-
-  // Search logic
-  void _onSearch(String query) {
-    setState(() {
-      _currentPage = 1;
-      _applyFilters();
-    });
-  }
-
-  // Filter function for the status chips
-  void _onFilter(String? status) {
-    setState(() {
-      _currentPage = 1;
-      _selectedStatus = status;
-      _applyFilters();
-    });
-  }
-
-  // Centralized filter logic applied to real data
-  void _applyFilters() {
-    final query = _searchController.text.toLowerCase();
-
-    _filteredRecords = _allPatients.where((p) {
-      final fullName = '${p.firstName}${p.lastName}'.toLowerCase();
-      final matchesSearch = fullName.contains(query);
-
-      bool matchesStatus = true;
-      if (_selectedStatus == 'Active') {
-        matchesStatus = p.isArchived == false;
-      } else if (_selectedStatus == 'Archived') {
-        matchesStatus = p.isArchived == true;
-      }
-
-      return matchesSearch && matchesStatus;
-    }).toList();
-  }
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return IndexedStack(
       index: _currentIndex,
-      children: [_buildMainDashboard(), _buildScheduleForm()],
+      children: [
+        _buildMainDashboard(),
+        _buildScheduleForm(),
+        _buildViewAppointment()
+      ],
     );
   }
 
-// Main Schedule Dashboard
   Widget _buildMainDashboard() {
-    return // Set this as Index 0: The Main Patient Dashboard
-        Scaffold(
+    return Scaffold(
       backgroundColor: AppTheme.gray200,
       body: CustomScrollView(
         slivers: [
@@ -211,7 +178,6 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
               SliverCrossAxisExpanded(
                   flex: 2,
                   sliver: SliverMainAxisGroup(slivers: [
-                    //search bar, filter, and table header
                     SliverPadding(
                       padding: const EdgeInsets.only(left: 24, right: 12),
                       sliver: SliverList(
@@ -224,32 +190,26 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
                         ]),
                       ),
                     ),
-                    //table rows
                     SliverPadding(
                       padding: const EdgeInsets.only(left: 24, right: 24),
-                      sliver: mockAppointments
-                              .isEmpty // TODO: Connect to DB variable
+                      sliver: _filteredRecords.isEmpty
                           ? SliverToBoxAdapter(
                               child: _buildEmptyState(),
                             )
                           : SliverList(
                               delegate: SliverChildBuilderDelegate(
-                                (context, index) => _buildTableRow(
-                                    mockAppointments[
-                                        index]), // TODO: Connect to DB variable
-                                childCount: mockAppointments
-                                    .length, // TODO: Connect to DB variable
+                                (context, index) =>
+                                    _buildTableRow(_currentPageRecords[index]),
+                                childCount: _currentPageRecords.length,
                               ),
                             ),
                     ),
-                    //pagination
                     SliverPadding(
                       padding: const EdgeInsets.only(
                           left: 24, right: 24, bottom: 24, top: 16),
                       sliver: SliverToBoxAdapter(
                         child: _filteredRecords.isEmpty
                             ? const SizedBox.shrink()
-                            // * Utilize the defined _currentPage and remove the mockdata inorder for this to be visible.
                             : AppPagination(
                                 currentPage: _currentPage,
                                 totalPages: _totalPages,
@@ -262,7 +222,6 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
               SliverCrossAxisExpanded(
                   flex: 1,
                   sliver: SliverMainAxisGroup(slivers: [
-                    // calendar and button
                     SliverPadding(
                         padding: const EdgeInsets.only(left: 12, right: 24),
                         sliver: SliverList(
@@ -271,7 +230,15 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
                             return Column(
                               spacing: 20,
                               children: [
-                                AppCalendar(),
+                                AppCalendar(
+                                  selectedDay: _selectedDate,
+                                  onDaySelected: (newDate) {
+                                    setState(() {
+                                      _selectedDate = newDate;
+                                      _applyFilters();
+                                    });
+                                  },
+                                ),
                                 SizedBox(
                                   child: Button(
                                     label: 'Schedule an Appointment',
@@ -281,8 +248,10 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
                                     onPressed: () {
                                       setState(() {
                                         _formSessionId++;
+                                        _selectedAppointment =
+                                            null; // Forces CREATE state
+                                        _currentIndex = 1;
                                       });
-                                      _goToScheduleAppointment();
                                     },
                                   ),
                                 ),
@@ -298,8 +267,64 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
     );
   }
 
+  List<JoinedAppointment> get _currentPageRecords {
+    final start = (_currentPage - 1) * _recordsPerPage;
+    final end = (start + _recordsPerPage).clamp(0, _filteredRecords.length);
+    return _filteredRecords.sublist(start, end);
+  }
+
+  int get _totalPages => (_filteredRecords.length / _recordsPerPage).ceil();
+
+  void _onSearch(String query) {
+    setState(() {
+      _currentPage = 1;
+      _applyFilters();
+    });
+  }
+
+  void _onFilter(String? status) {
+    setState(() {
+      _currentPage = 1;
+      _selectedStatus = status;
+      _applyFilters();
+    });
+  }
+
+  Widget _buildTableRow(JoinedAppointment joinedRecord) {
+    final patient = joinedRecord.patient;
+    final appointment = joinedRecord.appointment;
+
+    return ScheduleBar(
+      fullName: '${patient.lastName}, ${patient.firstName}',
+      date: appointment.scheduleDateTime,
+      time: appointment.timeSlot,
+      procedure: appointment.reasonForVisit ,
+      onMenuSelected: (String actionValue) async {
+        switch (actionValue) {
+          case 'view_appointment': // if user clicks view appointment option -> allows to use cancel and edit options
+            setState(() {
+              _selectedAppointment = joinedRecord;
+              _currentIndex = 2;
+            });
+            break;
+
+          case 'edit_appointment':
+            setState(() {
+              _formSessionId++; // error handling, in case user edits the same page many times
+              _selectedAppointment = joinedRecord; 
+              _currentIndex = 1; 
+            });
+            break;
+
+          case 'cancel_appointment': // cancel appointment (call out function on top)
+            _cancelAppointmentConfirmation(appointment.appointmentId);
+            break;
+        }
+      },
+    );
+  }
+
   Widget _buildScheduleForm() {
-    // Setting this as Index 1: When user clicks schedule appointment
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -307,42 +332,66 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
           PageHeader(
             title: 'Back to Schedules',
             type: PageHeaderType.withBack,
-            onBack: _confirmReturnToDashboard,
+            onBack: _goBackToMain,
           ),
           Transform.translate(
             offset: const Offset(0, -30),
             child: ScheduleAppointmentForm(
-                activePatients: [],
-                key: ValueKey(_formSessionId),
-                onSave: _goBackToMain),
+              key: ValueKey(_formSessionId),
+              activePatients: _allPatients,
+              appointmentToEdit:
+                  _selectedAppointment, 
+              onSave: _goBackToMain,
+            ),
           ),
         ],
       ),
     );
   }
-  // Schedule Form
 
-  //search bar
-  Widget _buildSearchBar() {
-    return Column(
-      children: [
-        Row(
+  Widget _buildViewAppointment() => SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
-              child: AppSearchBar(
-                controller: _searchController,
-                onChanged: _onSearch,
-                hintText: 'Search for a Patient...',
-                onFilter: () {},
+            PageHeader(
+              title: 'Back to Schedules',
+              type: PageHeaderType.withBack,
+              onBack: _goBackToMain,
+            ),
+            Transform.translate(
+              offset: const Offset(0, -30),
+              child: ViewAppointment(
+                appointmentData: { // display the different appointment datas in the database
+                  'patientName':
+                      '${_selectedAppointment?.patient.lastName}, ${_selectedAppointment?.patient.firstName}',
+                  'date': _selectedAppointment?.appointment.scheduleDateTime,
+                  'time': _selectedAppointment?.appointment.timeSlot,
+                  'reason': _selectedAppointment?.appointment.reasonForVisit,
+                },
+                onEdit: () {
+                  setState(() {
+                    _formSessionId++;
+                    _currentIndex = 1; // Switches directly to edit mode
+                  });
+                },
+                onCancel: () => _cancelAppointmentConfirmation(
+                    _selectedAppointment!
+                        .appointment.appointmentId), // Pass cancellation ID
               ),
             ),
           ],
         ),
-      ],
+      );
+
+  Widget _buildSearchBar() {
+    return AppSearchBar(
+      controller: _searchController,
+      onChanged: _onSearch,
+      hintText: 'Search for a Patient...',
+      onFilter: () {},
     );
   }
 
-  //filter chips - all/archived/active
   Widget _buildFilterChips() {
     final filters = ['All', 'Upcoming', 'Completed'];
     return Row(
@@ -360,11 +409,7 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
               variant: isSelected
                   ? ButtonVariant.smallPrimary
                   : ButtonVariant.smallSecondary,
-              onPressed: () {
-                setState(() {
-                  _onFilter(filter == 'All' ? null : filter);
-                });
-              },
+              onPressed: () => _onFilter(filter == 'All' ? null : filter),
             ),
           ),
         );
@@ -372,20 +417,18 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
     );
   }
 
-  //table header
   Widget _buildTableHeader() {
     final headerStyle = AppTheme.textTheme.bodyLarge;
-
     return Padding(
       padding: const EdgeInsets.only(left: 16, right: 16, top: 8, bottom: 20),
       child: Row(
         children: [
           Expanded(flex: 3, child: Text('Patient', style: headerStyle)),
-          SizedBox(width: 2),
+          const SizedBox(width: 6),
           Expanded(flex: 2, child: Text('Date', style: headerStyle)),
-          SizedBox(width: 6),
+          const SizedBox(width: 6),
           Expanded(flex: 2, child: Text('Time', style: headerStyle)),
-          SizedBox(width: 8),
+          const SizedBox(width: 8),
           Expanded(flex: 2, child: Text('Reason ', style: headerStyle)),
           SizedBox(width: 62, child: Text('Actions', style: headerStyle)),
         ],
@@ -393,17 +436,6 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
     );
   }
 
-// Build Table Row
-  Widget _buildTableRow(Map<String, dynamic> appointment) {
-    return ScheduleBar(
-      fullName: appointment['patientName'],
-      date: appointment['date'],
-      time: appointment['time'],
-      procedure: appointment['reason'],
-    );
-  }
-
-  // empty state
   Widget _buildEmptyState() {
     return Center(
       child: Padding(
@@ -415,7 +447,7 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
             Text(
               _searchController.text.isNotEmpty
                   ? "Sorry, We couldn't find anything that matches '${_searchController.text}'."
-                  : 'No records found.',
+                  : 'No appointments scheduled for ${SchedulingService.formatDate(_selectedDate)}.',
               style: AppTheme.textTheme.bodyMedium?.copyWith(
                 color: AppTheme.gray400,
               ),

@@ -4,15 +4,20 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'pages/login_page.dart';
 import 'pages/main_layout.dart';
 import 'providers/app_providers.dart'; // Import to access databaseProvider
+import 'package:window_manager/window_manager.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await windowManager.ensureInitialized();
+
+  windowManager.setMinimumSize(const Size(1440, 800));
 
   // Create a container to access the database from your provider
   final container = ProviderContainer();
-  final database = container.read(databaseProvider); 
+  final database = container.read(databaseProvider);
 
-  try { // Poke Query using the shared instance
+  try {
+    // Poke Query using the shared instance
     await database.customSelect('SELECT 1').getSingle();
     debugPrint("Database has been created");
   } catch (e) {
@@ -20,12 +25,10 @@ void main() async {
   }
 
   // Use UncontrolledProviderScope to pass the same container to your app
-  runApp(
-    UncontrolledProviderScope(
-      container: container,
-      child: const DentalApp(),
-    ),
-  );
+  runApp(UncontrolledProviderScope(
+    container: container,
+    child: const DentalApp(),
+  ));
 }
 
 class DentalApp extends StatelessWidget {

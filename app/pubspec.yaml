@@ -34,7 +34,9 @@ dependencies:
   ph_address_finder: ^5.0.0
   collection: ^1.18.0
   easy_radio: ^0.0.3
+  intl: ^0.20.2
   table_calendar: ^3.1.2
+  window_manager: ^0.5.1
 
 dev_dependencies:
   flutter_test:

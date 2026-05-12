@@ -7,12 +7,9 @@ import 'package:drift/drift.dart' as drift;
 import 'package:flutter/services.dart';
 import '/../widgets/main_buttons.dart';
 import '/../widgets/input_field.dart';
+import '/../widgets/missing_info_dialog.dart';
 import '/../widgets/radio_buttons.dart';
-import '../../widgets/missing_info_dialog.dart';
-import '../../services/locations_ph.dart';
-import '../../services/date_service.dart';
-import '../../services/date_helper.dart';
-import '../../services/form_validator.dart';
+import '../../services/patient_service.dart';
 import '../../providers/app_providers.dart';
 
 class AddPatientForm extends ConsumerStatefulWidget {
@@ -87,6 +84,7 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
 
   void _handleNext() async {
     DateTime? birthDate;
+    
     if (isEditing &&
         widget.existingPatient != null &&
         widget.existingPatient!['birthDate'] != null) {
@@ -98,6 +96,7 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
           _selectedMonth!, _selectedDay!, _selectedYear!);
     }
 
+    // 1. Required Field Validation
     List<String> missing = FormValidator.getMissingPatientFields(
       firstName: _firstNameController.text.trim(),
       lastName: _lastNameController.text.trim(),
@@ -112,45 +111,110 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
       zipCode: _zipController.text.trim(),
     );
 
-  if (missing.isNotEmpty) {
+    if (missing.isNotEmpty) {
       MissingInfoDialog.show(context, missing);
       return;
     }
 
-    
+    // 2. Format Validation
+    List<String> formatErrors = [];
+    final contact = _contactNumberController.text.trim();
+    final emergencyContact = _emergencyContactController.text.trim();
+    final zip = _zipController.text.trim();
 
-    // TODO: @Frontend, please refactor this, thank you - Fons
+    if (contact.isNotEmpty && (contact.length != 11 || !contact.startsWith('09'))) {
+      formatErrors.add("• Mobile Number must be exactly 11 digits and start with '09'.");
+    }
+    
+    if (emergencyContact.isNotEmpty && (emergencyContact.length != 11 || !emergencyContact.startsWith('09'))) {
+      formatErrors.add("• Emergency Contact Number must be exactly 11 digits and start with '09'.");
+    }
+
+    if (zip.isNotEmpty && zip.length != 4) {
+      formatErrors.add("• ZIP Code must be exactly 4 digits.");
+    }
+
+    if (formatErrors.isNotEmpty) {
+      if (mounted) {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Invalid Input Format'),
+            content: Text(formatErrors.join('\n\n')),
+            actions: [
+              TextButton(onPressed: () => Navigator.pop(context), child: const Text('OK'))
+            ],
+          ),
+        );
+      }
+      return;
+    }
+    
     final db = ref.read(databaseProvider);
     final repository = PatientRepository(db);
+
+    // 3. Hard Check for the exact duplicate (Matching firstname and lastname + DOB)
+    // TODO: @Frontend, please refactor
     if (await repository.isExactDuplicate(
-        _firstNameController.text, _lastNameController.text, birthDate!)) {
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Patient Already Exists'),
-          content: const Text('This patient is already in the system.'),
-          actions: [
-            TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('OK'))
-          ],
-        ),
-      );
+        _firstNameController.text.trim(), 
+        _lastNameController.text.trim(), 
+        birthDate!)) {
+      if (mounted) {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Patient Already Exists'),
+            content: const Text('A patient with this exact name and birthdate is already in the system.'),
+            actions: [
+              TextButton(onPressed: () => Navigator.pop(context), child: const Text('OK'))
+            ],
+          ),
+        );
+      }
       return;
     }
 
+    // 4. Soft Check for matching first name and last name 
+    // TODO: @Frontend, please refactor
+    bool nameExists = await repository.isNameDuplicate(
+      _firstNameController.text.trim(), 
+      _lastNameController.text.trim()
+    );
+
+    if (nameExists) {
+      bool? confirm = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Similar Patient Found'),
+          content: Text('A patient named "${_firstNameController.text} ${_lastNameController.text}" already exists. Are you sure this is a different person?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false), 
+              child: const Text('Cancel')
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, true), 
+              child: const Text('Yes, Proceed')
+            ),
+          ],
+        ),
+      );
+
+      if (confirm != true) return; // Stop if user clicks Cancel
+    }
+
+    // 5. Proceed to create PatientCompanion and onNext
     final patientEntry = PatientCompanion.insert(
       firstName: _firstNameController.text.trim(),
       middleName: drift.Value(_middleNameController.text.trim()),
       lastName: _lastNameController.text.trim(),
-      suffix: drift.Value(_selectedSuffix ?? ""), // Using dropdown value
+      suffix: drift.Value(_selectedSuffix ?? ""), 
       birthDate: birthDate,
       sex: _selectedSex!,
       civilStatus: _selectedStatus ?? "Single",
       contactNumber: _contactNumberController.text.trim(),
       emergencyContactNo: drift.Value(_emergencyContactController.text.trim()),
-      relationshipEmergency:
-          drift.Value(_emergencyContactRelationshipController.text.trim()),
+      relationshipEmergency: drift.Value(_emergencyContactRelationshipController.text.trim()),
       referredBy: drift.Value(_referredByController.text.trim()),
       relationship: drift.Value(_relationshipController.text.trim()),
       streetAddress: _streetController.text.trim(),
@@ -194,12 +258,12 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
                   flex: 3,
                   child: InputField(
                     label: "First Name",
-                    hintText: "Enter First Name",
+                    hintText: "Enter first name",
                     isRequired: true,
-                    controller: _firstNameController,
+                    controller: _firstNameController, // first name controller
                     inputFormatters: [
-                      FilteringTextInputFormatter.allow(RegExp(
-                          r'[a-zA-Z\s]')), // Added \s back to allow spaces
+                      FilteringTextInputFormatter.allow(RegExp( // format to only allow letters in this field
+                          r'[a-zA-Z\s]')), 
                     ],
                   )),
               const SizedBox(width: 20),
@@ -208,7 +272,7 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
                   child: InputField(
                     label: "Middle Name",
                     hintText: "Enter Middle Name",
-                    controller: _middleNameController,
+                    controller: _middleNameController, // middle name controller
                     inputFormatters: [
                       FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')),
                     ],
@@ -218,9 +282,9 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
                   flex: 3,
                   child: InputField(
                     label: "Last Name",
-                    hintText: "Enter Last Name",
+                    hintText: "Enter last name",
                     isRequired: true,
-                    controller: _lastNameController,
+                    controller: _lastNameController, // last name controller
                     inputFormatters: [
                       FilteringTextInputFormatter.allow(
                           RegExp(r'[a-zA-Z\s\-]')),
@@ -231,10 +295,10 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
                 flex: 1,
                 child: InputField(
                   label: "Suffix",
-                  hintText: "Enter Suffix",
+                  hintText: "e.g. Jr.",
                   variant: InputVariant.dropdown,
                   dropdownValue: _selectedSuffix,
-                  dropdownItems: const ["Jr.", "Sr.", "II", "III", "IV", "V"],
+                  dropdownItems: const ["Jr.", "Sr.", "II", "III", "IV", "V"], // place common suffixes
                   onDropdownChanged: (value) {
                     setState(() {
                       _selectedSuffix = value == "None" ? null : value;
@@ -242,8 +306,8 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
                   },
                 ),
               ),
-            ], // <-- Added missing closing bracket for the Row
-          ), // <-- Added missing closing parenthesis for the Row
+            ], 
+          ), 
           const SizedBox(height: 32),
           Text("Demographic", style: Theme.of(context).textTheme.titleLarge),
           if (!isEditing) ...[
@@ -253,14 +317,14 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
               children: [
                 Expanded(
                   child: InputField(
-                    hintText: "Select Year",
+                    hintText: "Select a year",
                     label: "Year",
                     variant: InputVariant.dropdown,
                     dropdownValue: _selectedYear,
                     isRequired: true,
                     dropdownItems: List.generate(
                         125, (i) => (DateTime.now().year - i).toString()),
-                    onDropdownChanged: (value) {
+                    onDropdownChanged: (value) { // function to calculate the year based on the system data
                       setState(() {
                         _selectedYear = value;
                         _selectedMonth = null;
@@ -272,7 +336,7 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
                 const SizedBox(width: 20),
                 Expanded(
                   child: InputField(
-                    hintText: _selectedYear == null
+                    hintText: _selectedYear == null // make sure this is dynamic, make user click year first
                         ? "Select a Year first"
                         : "Select Month",
                     label: "Month",
@@ -280,7 +344,7 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
                     dropdownValue: _selectedMonth,
                     isRequired: true,
                     dropdownItems:
-                        _selectedYear == null ? [] : DateService.months,
+                        _selectedYear == null ? [] : DateService.months, // use DateService file here
                     onDropdownChanged: (value) {
                       setState(() {
                         _selectedMonth = value;
@@ -294,7 +358,7 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
                   child: InputField(
                     key: ValueKey('$_selectedYear-$_selectedMonth'),
                     hintText: _selectedMonth == null
-                        ? "Select a Month first"
+                        ? "Select a Month first" // makes the user select month first, in order to check to add or lessen days in the dropdown
                         : "Select Day",
                     label: "Day",
                     variant: InputVariant.dropdown,
@@ -304,7 +368,7 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
                         (_selectedYear == null || _selectedMonth == null)
                             ? []
                             : List.generate(
-                                DateService.getDaysInMonth(
+                                DateService.getDaysInMonth( // service file to change the date based on the month selected
                                     _selectedMonth, _selectedYear),
                                 (index) => (index + 1).toString(),
                               ),
@@ -363,7 +427,7 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
                   child: InputField(
                 label: "Mobile Number",
                 isRequired: true,
-                hintText: "Enter Mobile Number",
+                hintText: "Enter mobile number",
                 controller: _contactNumberController,
                 inputFormatters: [
                   FilteringTextInputFormatter.digitsOnly,
@@ -374,7 +438,7 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
               Expanded(
                   child: InputField(
                 label: "Emergency Contact Number",
-                hintText: "Enter Emergency Contact Number",
+                hintText: "Enter emergency contact number",
                 controller: _emergencyContactController,
                 inputFormatters: [
                   FilteringTextInputFormatter.digitsOnly,
@@ -384,8 +448,8 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
               const SizedBox(width: 20),
               Expanded(
                   child: InputField(
-                label: "Relation to Patient",
-                hintText: "Enter Relation to Patient",
+                label: "Relationship to Patient",
+                hintText: "Enter relationship to patient",
                 controller: _emergencyContactRelationshipController,
                 inputFormatters: [
                   FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]'))
@@ -399,20 +463,20 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
               Expanded(
                   child: InputField(
                 label: "Referred By",
-                hintText: "Enter Referred By",
+                hintText: "Enter referral name",
                 controller: _referredByController,
                 inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]'))
+                  FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')) // format to letters only
                 ],
               )),
               const SizedBox(width: 20),
               Expanded(
                   child: InputField(
-                label: "Relationship",
-                hintText: "Enter Referred Relationship",
+                label: "Relationship to Referral",
+                hintText: "Enter relationship to referral",
                 controller: _relationshipController,
                 inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]'))
+                  FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')) // format to letters only
                 ],
               )),
             ],
@@ -422,19 +486,19 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
           const SizedBox(height: 12),
           InputField(
               label: "Street Address",
-              hintText: "Enter Street Address",
+              hintText: "Enter Street Address", 
               isRequired: true,
-              controller: _streetController),
+              controller: _streetController), // street controller
           const SizedBox(height: 20),
           Row(
             children: [
               Expanded(
                   child: InputField(
                       label: "Province",
-                      hintText: "Select A Province",
+                      hintText: "Select a province",
                       variant: InputVariant.dropdown,
                       dropdownValue: _selectedProvince,
-                      dropdownItems: PhAddressService.getAllProvinceNames(),
+                      dropdownItems: PhAddressService.getAllProvinceNames(), // use PhAddressService library
                       isRequired: true,
                       onDropdownChanged: (v) => setState(() {
                             _selectedProvince = v;
@@ -447,8 +511,8 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
                       key: ValueKey(_selectedProvince),
                       label: "City/Municipality",
                       hintText: _selectedProvince == null
-                      ? "Select A Province First"
-                      : "Select A City",
+                          ? "Select A Province First" // make user select a province first
+                          : "Select A City", // if province is selected, display this
                       variant: InputVariant.dropdown,
                       dropdownValue: _selectedCity,
                       dropdownItems: _selectedProvince != null
@@ -470,8 +534,8 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
                       key: ValueKey(_selectedCity),
                       label: "Barangay",
                       hintText: _selectedCity == null
-                      ? "Select a city first"
-                      : "Select a Barangay",
+                          ? "Select a city first" // make user select a city first
+                          : "Select a Barangay", // if a city is selected, display this as the hintText
                       variant: InputVariant.dropdown,
                       dropdownValue: _selectedBarangay,
                       dropdownItems:
@@ -488,25 +552,23 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
                   flex: 1,
                   child: InputField(
                     label: "ZIP Code",
-                    hintText: "Enter ZIP Code",
+                    hintText: "Enter ZIP code",
                     isRequired: true,
-                    controller: _zipController,
+                    controller: _zipController, // zip code controller
                     inputFormatters: [
                       FilteringTextInputFormatter.digitsOnly,
-                      LengthLimitingTextInputFormatter(4),
+                      LengthLimitingTextInputFormatter(4), // filter to allow only numbers and limit to 4 digits
                     ],
                   )),
             ],
           ),
           const SizedBox(height: 32),
           Align(
-            alignment: Alignment
-                .centerRight, 
+            alignment: Alignment.centerRight,
             child: Wrap(
               spacing: 16,
               runSpacing: 16,
-              alignment: WrapAlignment
-                  .end, 
+              alignment: WrapAlignment.end,
               children: [
                 SizedBox(
                   width: 100,

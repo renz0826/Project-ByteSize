@@ -1,4 +1,4 @@
-// file: schedule_appointment.dart
+import 'package:dentcity_management_system/services/scheduling_service.dart';
 import 'package:dentcity_management_system/style/theme.dart';
 import 'package:drift/drift.dart' as drift;
 import 'package:flutter/material.dart';
@@ -7,20 +7,22 @@ import '../../db/database.dart';
 import '../../providers/app_providers.dart';
 import '/../widgets/main_buttons.dart';
 import '/../widgets/input_field.dart';
-import '../../services/date_service.dart';
-import '../../services/time_slot_helper.dart';
 import '../../repositories/appointment_repository.dart';
+import 'schedule_dashboard.dart';
 
 class ScheduleAppointmentForm extends ConsumerStatefulWidget {
   final VoidCallback onSave;
-  final Map<String, dynamic>? existingPatient;
   final List<PatientData> activePatients;
+  final JoinedAppointment? appointmentToEdit;
+  final PatientData? preSelectedPatient; // added to be used from the viewpatient page
 
-  const ScheduleAppointmentForm(
-      {super.key,
-      this.existingPatient,
-      required this.onSave,
-      required this.activePatients});
+  const ScheduleAppointmentForm({
+    super.key,
+    this.appointmentToEdit,
+    required this.onSave,
+    required this.activePatients,
+    this.preSelectedPatient, 
+  });
 
   @override
   ConsumerState<ScheduleAppointmentForm> createState() =>
@@ -29,285 +31,244 @@ class ScheduleAppointmentForm extends ConsumerStatefulWidget {
 
 class _ScheduleAppointmentFormState
     extends ConsumerState<ScheduleAppointmentForm> {
-  bool get isEditing => widget.existingPatient != null;
+  bool get isEditing => widget.appointmentToEdit != null;
 
-  // Selected Patient
   String? _selectedPatient;
-
-  // Month/Day System
   String? _selectedMonth;
   String? _selectedDay;
-
-  // Selected Timeslot
   String? _selectedTimeSlot;
   List<String> _availableTimeSlots = [];
 
-  // Controller for Reason for Visit text box
   final TextEditingController _reasonController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+
+    if (isEditing) {
+      final appt = widget.appointmentToEdit!.appointment;
+      final patient = widget.appointmentToEdit!.patient;
+
+      _selectedPatient = '${patient.lastName}, ${patient.firstName}'; // display in this format always
+      _selectedMonth = SchedulingService.months[appt.scheduleDateTime.month - 1]; // logic if month is less than system month, it will assume that it is booking for next year
+      _selectedDay = appt.scheduleDateTime.day.toString();
+      _selectedTimeSlot = appt.timeSlot;
+      _reasonController.text = appt.reasonForVisit;
+
+      if (_selectedTimeSlot != null) {
+        _availableTimeSlots = [_selectedTimeSlot!];
+      }
+
+      _refreshTimeSlots(); // refresh all time slots to remove those that are already booked
+    } 
+    // Automatically select the patient if one was passed in
+    else if (widget.preSelectedPatient != null) {
+      _selectedPatient = '${widget.preSelectedPatient!.lastName}, ${widget.preSelectedPatient!.firstName}';
+    }
+  }
 
   @override
   void dispose() {
     _reasonController.dispose();
     super.dispose();
   }
+ 
+  Future<void> _refreshTimeSlots() async { // function of refreshing time slots
+    final date = SchedulingService.parseSelectedDate(_selectedMonth, _selectedDay);
+    if (date != null) {
+      final repo = AppointmentRepository(ref.read(databaseProvider));
+      final booked = await repo.getBookedSlots(date);
+      final allSlots = SchedulingService.generateAllSlots();
 
-  String _getInferredYear() {
-    int year = DateTime.now().year;
-    if (_selectedMonth == null) return year.toString();
+      if (mounted) {
+        setState(() {
+          _availableTimeSlots = allSlots.where((slot) => !booked.contains(slot)).toList();
 
-    final currentMonth = DateTime.now().month;
-    final selectedMonthIndex = DateService.months.indexOf(_selectedMonth!) + 1;
+          if (isEditing) {
+            final originalAppt = widget.appointmentToEdit!.appointment;
+            final originalMonth = SchedulingService.months[originalAppt.scheduleDateTime.month - 1]; // use schedule_service
+            final originalDay = originalAppt.scheduleDateTime.day.toString();
 
-    if (selectedMonthIndex < currentMonth) {
-      year += 1;
-    }
-    return year.toString();
-  }
+            if (_selectedMonth == originalMonth && _selectedDay == originalDay) {
+              if (!_availableTimeSlots.contains(originalAppt.timeSlot)) {
+                _availableTimeSlots.add(originalAppt.timeSlot);
+                _availableTimeSlots.sort((a, b) => allSlots.indexOf(a).compareTo(allSlots.indexOf(b)));
+              }
+            }
+          }
 
-  DateTime? _parseSelectedDate() {
-    if (_selectedMonth == null || _selectedDay == null) return null;
-
-    int year = int.parse(_getInferredYear());
-    final selectedMonthIndex = DateService.months.indexOf(_selectedMonth!) + 1;
-    final day = int.tryParse(_selectedDay!);
-
-    if (selectedMonthIndex <= 0 || day == null) return null;
-
-    return DateTime(year, selectedMonthIndex, day);
-  }
-
-  Future<void> _refreshTimeSlots() async {
-    final selectedDate = _parseSelectedDate();
-
-    if (selectedDate != null) {
-      final db = ref.read(databaseProvider);
-      final appointmentRepository = AppointmentRepository(db);
-      
-      final allSlots = TimeSlotService.generateAllSlots();
-      final bookedSlots =
-          await appointmentRepository.getBookedSlots(selectedDate);
-
-      setState(() {
-        _availableTimeSlots = TimeSlotService.filterAvailableSlots(
-          allSlots: allSlots,
-          bookedSlots: bookedSlots,
-        );
-
-        if (!_availableTimeSlots.contains(_selectedTimeSlot)) {
-          _selectedTimeSlot = null;
-        }
-      });
+          if (!_availableTimeSlots.contains(_selectedTimeSlot)) {
+            _selectedTimeSlot = null;
+          }
+        });
+      }
     } else {
-      setState(() {
-        _availableTimeSlots = [];
-        _selectedTimeSlot = null;
-      });
+      if (mounted) {
+        setState(() {
+          _availableTimeSlots = [];
+          _selectedTimeSlot = null;
+        });
+      }
     }
   }
 
-  Future<void> _saveAppointment() async {
-    if (_selectedPatient == null ||
-        _selectedMonth == null ||
-        _selectedDay == null ||
-        _selectedTimeSlot == null ||
-        _reasonController.text.trim().isEmpty) {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text("Missing Information"),
-            content: const Text(
-                "Please fill in all fields before scheduling the appointment."),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text("OK"),
-              ),
-            ],
-          );
-        },
+  Future<void> _saveAppointment() async { // function to save appointments to the database
+    if (_selectedPatient == null || _selectedMonth == null || _selectedDay == null || _selectedTimeSlot == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Please fill in all required fields."), backgroundColor: Colors.red),
       );
       return;
     }
 
-    final patient = widget.activePatients.firstWhere(
-      (p) => '${p.firstName} ${p.lastName}' == _selectedPatient,
-    );
+    final db = ref.read(databaseProvider);
+    final repo = AppointmentRepository(db);
+    final date = SchedulingService.parseSelectedDate(_selectedMonth, _selectedDay);
 
-    final scheduleDate = _parseSelectedDate();
-    if (scheduleDate == null) return;
+    // always show patients that are booked earliest
+    final patient = widget.activePatients.firstWhere((p) => '${p.lastName}, ${p.firstName}' == _selectedPatient);
 
-    final newAppointment = AppointmentCompanion(
+    final companion = AppointmentCompanion(
       patientId: drift.Value(patient.patientId),
-      scheduleDateTime: drift.Value(scheduleDate),
+      scheduleDateTime: drift.Value(date!),
       timeSlot: drift.Value(_selectedTimeSlot!),
       reasonForVisit: drift.Value(_reasonController.text.trim()),
-      status: const drift.Value("Pending"),
+      status: drift.Value(isEditing ? widget.appointmentToEdit!.appointment.status : "Upcoming"),
       staffId: const drift.Value(1),
     );
 
-    final db = ref.read(databaseProvider);
-    final appointmentRepository = AppointmentRepository(db);
-    await appointmentRepository.addAppointment(newAppointment);
+    try {
+      if (isEditing) {
+        await (db.update(db.appointment)
+              ..where((t) => t.appointmentId.equals(widget.appointmentToEdit!.appointment.appointmentId)))
+            .write(companion);
 
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Appointment Scheduled Successfully!")),
-      );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Appointment Updated Successfully!")));
+        }
+      } else {
+        await repo.addAppointment(companion);
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Appointment Scheduled Successfully!")));
+        }
+      }
+
+      widget.onSave();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error: $e"), backgroundColor: Colors.red));
+      }
     }
-
-    _resetForm();
-    widget.onSave();
-  }
-
-  void _resetForm() {
-    setState(() {
-      _selectedPatient = null;
-      _selectedMonth = null;
-      _selectedDay = null;
-      _selectedTimeSlot = null;
-      _availableTimeSlots = [];
-      _reasonController.clear();
-    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Center(
-        child: Container(
-      constraints: const BoxConstraints(maxWidth: 1200),
-      margin: const EdgeInsets.all(24),
-      padding: const EdgeInsets.all(32),
-      decoration: BoxDecoration(
-        color: AppTheme.white500,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: AppTheme.floatShadow,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-              !isEditing
-                  ? "Schedule an Appointment"
-                  : ("Edit ${widget.existingPatient?['fullName']}'s Schedule "),
-              style: Theme.of(context).textTheme.headlineLarge),
-          const SizedBox(height: 32),
-          if (!isEditing) ...[
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 1200),
+        padding: const EdgeInsets.all(32),
+        margin: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: AppTheme.white500,
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: AppTheme.floatShadow,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(isEditing ? "Edit Appointment" : "Schedule Appointment",
+                style: Theme.of(context).textTheme.headlineLarge),
+            const SizedBox(height: 32),
+            InputField(
+              label: "Patient Name",
+              hintText: "Select patient",
+              variant: InputVariant.dropdown,
+              dropdownValue: _selectedPatient,
+              isRequired: true,
+              // Disable dropdown if editing or if a patient was pre-selected
+              onDropdownChanged: (isEditing || widget.preSelectedPatient != null)
+                  ? null
+                  : (v) => setState(() => _selectedPatient = v),
+              dropdownItems: widget.activePatients
+                  .map((p) => '${p.lastName}, ${p.firstName}')
+                  .toList(),
+            ),
+            const SizedBox(height: 24),
             Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
-                  child: InputField(
-                    hintText: "Select a patient",
-                    label: "Patient Full Name",
-                    variant: InputVariant.dropdown,
-                    dropdownValue: _selectedPatient,
-                    isRequired: true,
-                    dropdownItems: widget.activePatients
-                        .map((p) => '${p.lastName}, ${p.firstName}')
-                        .toList(),
-                    onDropdownChanged: (value) {
-                      setState(() => _selectedPatient = value);
-                    },
-                  ),
-                ),
+                    child: InputField(
+                        label: "Month",
+                        hintText: "Select month",
+                        variant: InputVariant.dropdown,
+                        dropdownValue: _selectedMonth,
+                        isRequired: true,
+                        dropdownItems: SchedulingService.months,
+                        onDropdownChanged: (v) {
+                          setState(() {
+                            _selectedMonth = v;
+                            _selectedDay = null;
+                          });
+                          _refreshTimeSlots();
+                        })),
+                const SizedBox(width: 12),
+                Expanded(
+                    child: InputField(
+                        key: ValueKey('$_selectedMonth-${SchedulingService.getInferredYear(_selectedMonth)}'),
+                        label: "Day",
+                        hintText: "Select day",
+                        variant: InputVariant.dropdown,
+                        dropdownValue: _selectedDay,
+                        isRequired: true,
+                        dropdownItems: SchedulingService.getDaysInMonth(_selectedMonth, SchedulingService.getInferredYear(_selectedMonth)),
+                        onDropdownChanged: (v) {
+                          setState(() => _selectedDay = v);
+                          _refreshTimeSlots();
+                        })),
+                const SizedBox(width: 12),
+                Expanded(
+                    child: InputField(
+                        key: ValueKey('$_selectedMonth-$_selectedDay'),
+                        label: "Time Slot",
+                        hintText: "Select time",
+                        variant: InputVariant.dropdown,
+                        dropdownValue: _selectedTimeSlot,
+                        isRequired: true,
+                        dropdownItems: _availableTimeSlots.isEmpty
+                            ? (_selectedTimeSlot != null ? [_selectedTimeSlot!] : ["Select a date first"])
+                            : _availableTimeSlots,
+                        onDropdownChanged: (v) {
+                          if (v != "Select a date first") setState(() => _selectedTimeSlot = v);
+                        })),
               ],
             ),
+            const SizedBox(height: 24),
+            InputField(
+              label: "Reason for visit",
+              hintText: "Enter reason for visit",
+              controller: _reasonController,
+              isRequired: true,
+            ),
             const SizedBox(height: 32),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                SizedBox(
+                  width: 280,
+                  child: Button(
+                      label: isEditing ? "Update Schedule" : "Schedule Appointment",
+                      icon: isEditing ? Icons.save_alt_outlined : Icons.check,
+                      iconPlacement: IconPlacement.left,
+                      width: double.infinity,
+                      onPressed: _saveAppointment),
+                )
+              ],
+            )
           ],
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: InputField(
-                  hintText: "Select a month",
-                  label: "Month",
-                  variant: InputVariant.dropdown,
-                  dropdownValue: _selectedMonth,
-                  isRequired: true,
-                  dropdownItems: DateService.months,
-                  onDropdownChanged: (value) {
-                    setState(() {
-                      _selectedMonth = value;
-                      _selectedDay = null;
-                    });
-                    _refreshTimeSlots();
-                  },
-                ),
-              ),
-              const SizedBox(width: 20),
-              Expanded(
-                child: InputField(
-                  key: ValueKey('$_selectedMonth-${_getInferredYear()}'),
-                  hintText: "Select a day",
-                  label: "Day",
-                  variant: InputVariant.dropdown,
-                  dropdownValue: _selectedDay,
-                  isRequired: true,
-                  dropdownItems: List.generate(
-                    DateService.getDaysInMonth(
-                        _selectedMonth, _getInferredYear()),
-                    (index) => (index + 1).toString(),
-                  ),
-                  onDropdownChanged: (value) {
-                    setState(() => _selectedDay = value);
-                    _refreshTimeSlots();
-                  },
-                ),
-              ),
-              const SizedBox(width: 20),
-              Expanded(
-                child: InputField(
-                  key: ValueKey('$_selectedMonth-$_selectedDay'),
-                  hintText: "Select a time slot",
-                  label: "Time Slot",
-                  variant: InputVariant.dropdown,
-                  dropdownValue: _selectedTimeSlot,
-                  isRequired: true,
-                  dropdownItems: _availableTimeSlots.isEmpty
-                      ? ["Select a month or date first"]
-                      : _availableTimeSlots,
-                  onDropdownChanged: (value) {
-                    if (value != "Select a date first") {
-                      setState(() => _selectedTimeSlot = value);
-                    }
-                  },
-                ),
-              ),
-              const SizedBox(width: 20),
-              Expanded(
-                child: InputField(
-                  controller: _reasonController,
-                  hintText: "Enter reason for visit",
-                  label: "Reason for visit",
-                  isRequired: true,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 32),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              SizedBox(
-                width: 280,
-                child: Button(
-                  label: !isEditing
-                      ? "Schedule Appointment"
-                      : "Update Schedule",
-                  width: double.infinity,
-                  icon: !isEditing ? Icons.check : Icons.save_alt_outlined,
-                  iconPlacement: IconPlacement.left,
-                  onPressed: _saveAppointment,
-                ),
-              )
-            ],
-          ),
-        ],
+        ),
       ),
-    ));
+    );
   }
 }
