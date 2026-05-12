@@ -8,17 +8,19 @@ class RequirementDialog extends StatelessWidget {
 
   const RequirementDialog({
     super.key,
-    this.title = "",
+    required this.title,
     this.content = "",
     this.missingFields = const [],
   });
 
   /// A handy static method to call this dialog instantly
-  static Future<void> show(
-      BuildContext context, String content, List<String> missingFields) {
+  static Future<void> show(BuildContext context, String title, String content,
+      List<String> missingFields) {
     return showDialog<void>(
       context: context,
-      builder: (context) => RequirementDialog(missingFields: missingFields),
+      builder: (context) => RequirementDialog(
+        title: title,
+      ),
     );
   }
 
