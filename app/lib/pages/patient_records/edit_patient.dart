@@ -12,7 +12,7 @@ import '../../services/patient_service.dart';
 import '../../providers/app_providers.dart';
 import '../../repositories/patient_repository.dart';
 
-class EditPatientForm extends StatefulWidget {
+class EditPatientForm extends ConsumerStatefulWidget {
   final PatientData patient;
   final Function(PatientCompanion) onSave;
   final VoidCallback onBack;
@@ -25,10 +25,10 @@ class EditPatientForm extends StatefulWidget {
   });
 
   @override
-  State<EditPatientForm> createState() => _EditPatientFormState();
+  ConsumerState<EditPatientForm> createState() => _EditPatientFormState();
 }
 
-class _EditPatientFormState extends State<EditPatientForm>{
+class _EditPatientFormState extends ConsumerState<EditPatientForm>{
   bool get isEditing => true;
 
   late final TextEditingController _firstNameController;
@@ -123,42 +123,99 @@ class _EditPatientFormState extends State<EditPatientForm>{
     );
   }
   
-  void _handleSave() {
-  final birthDate = DateHelper.convertToDateTime(
-    _selectedMonth!,
-    _selectedDay!,
-    _selectedYear!,
-  );
+ void _handleSave() async {
+    try {
+      // 1. Incomplete Date Validation
+      if (_selectedMonth == null || _selectedDay == null || _selectedYear == null) {
+        _showErrorDialog("Incomplete Date", "Please complete the Date of Birth.");
+        return;
+      }
 
-  final updatedPatient = PatientCompanion(
-    patientId: drift.Value(widget.patient.patientId),
-    firstName: drift.Value(_firstNameController.text),
-    middleName: drift.Value(_middleNameController.text),
-    lastName: drift.Value(_lastNameController.text),
-    suffix: drift.Value(_selectedSuffix),
-    birthDate: drift.Value(birthDate), 
-    sex: drift.Value(_selectedSex ?? widget.patient.sex),
-    civilStatus: drift.Value(_selectedCivilStatus ?? widget.patient.civilStatus),
-    contactNumber: drift.Value(_contactNumberController.text),
-    emergencyContactNo: drift.Value(_emergencyContactController.text),
-    relationshipEmergency: drift.Value(_relationshipController.text),
-    referredBy: drift.Value(_referredByController.text),
-    relationship: drift.Value(_relationshipController.text),
-    streetAddress: drift.Value(_streetController.text),
-    barangay: drift.Value(_selectedBarangay ?? _barangayController.text),
-    cityMunicipality: drift.Value(_selectedCity ?? _cityController.text),
-    province: drift.Value(_selectedProvince ?? _provinceController.text),
-    zipCode: drift.Value(_zipController.text),
-    isSeniorOrPWD: drift.Value(_isPWD),
-    updatedAt: drift.Value(DateTime.now()),
+      final birthDate = DateHelper.convertToDateTime(_selectedMonth!, _selectedDay!, _selectedYear!);
 
-    // Copy paste these 2 values into the new row
-    createdAt: drift.Value(widget.patient.createdAt), 
-    isArchived: drift.Value(widget.patient.isArchived),
+      // 2. Required Field Validation using MissingInfoDialog
+      List<String> missing = FormValidator.getMissingPatientFields(
+        firstName: _firstNameController.text.trim(),
+        lastName: _lastNameController.text.trim(),
+        birthDate: birthDate,
+        sex: _selectedSex,
+        civilStatus: _selectedCivilStatus,
+        contactNumber: _contactNumberController.text.trim(),
+        streetAddress: _streetController.text.trim(),
+        barangay: _selectedBarangay ?? _barangayController.text.trim(),
+        cityMunicipality: _selectedCity ?? _cityController.text.trim(),
+        province: _selectedProvince ?? _provinceController.text.trim(),
+        zipCode: _zipController.text.trim(),
+      );
 
-  );
-  widget.onSave(updatedPatient);
-}
+      if (missing.isNotEmpty) {
+        MissingInfoDialog.show(context, missing);
+        return;
+      }
+
+      // 3. Format Validation (Mobile and ZIP)
+      List<String> formatErrors = [];
+      final contact = _contactNumberController.text.trim();
+      final zip = _zipController.text.trim();
+
+      if (contact.length != 11 || !contact.startsWith('09')) {
+        formatErrors.add("• Mobile Number must be 11 digits (09xxxxxxxxx).");
+      }
+      if (zip.length != 4) {
+        formatErrors.add("• ZIP Code must be exactly 4 digits.");
+      }
+
+      if (formatErrors.isNotEmpty) {
+        _showErrorDialog("Invalid Format", formatErrors.join('\n'));
+        return;
+      }
+
+      final db = ref.read(databaseProvider);
+      final repository = PatientRepository(db);
+      
+      bool exists = await repository.isDuplicateForUpdate(
+        widget.patient.patientId, 
+        _firstNameController.text.trim(),
+        _lastNameController.text.trim(),
+        birthDate,
+      );
+
+      if (exists) {
+        _showErrorDialog("Duplicate Record", "Another patient with this name and birthdate already exists.");
+        return;
+      }
+
+      // 5. Save Changes
+      final updatedPatient = PatientCompanion(
+        patientId: drift.Value(widget.patient.patientId),
+        firstName: drift.Value(_firstNameController.text.trim()),
+        middleName: drift.Value(_middleNameController.text.trim()),
+        lastName: drift.Value(_lastNameController.text.trim()),
+        suffix: drift.Value(_selectedSuffix),
+        birthDate: drift.Value(birthDate), 
+        sex: drift.Value(_selectedSex ?? widget.patient.sex),
+        civilStatus: drift.Value(_selectedCivilStatus ?? widget.patient.civilStatus),
+        contactNumber: drift.Value(contact),
+        emergencyContactNo: drift.Value(_emergencyContactController.text.trim()),
+        relationshipEmergency: drift.Value(_emergencyContactRelationshipController.text.trim()),
+        referredBy: drift.Value(_referredByController.text.trim()),
+        relationship: drift.Value(_relationshipController.text.trim()),
+        streetAddress: drift.Value(_streetController.text.trim()),
+        barangay: drift.Value(_selectedBarangay ?? _barangayController.text.trim()),
+        cityMunicipality: drift.Value(_selectedCity ?? _cityController.text.trim()),
+        province: drift.Value(_selectedProvince ?? _provinceController.text.trim()),
+        zipCode: drift.Value(zip),
+        isSeniorOrPWD: drift.Value(_isPWD),
+        updatedAt: drift.Value(DateTime.now()),
+        createdAt: drift.Value(widget.patient.createdAt),
+        isArchived: drift.Value(widget.patient.isArchived),
+      );
+
+      widget.onSave(updatedPatient);
+    } catch (e) {
+      _showErrorDialog("System Error", "An unexpected error occurred while saving.");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
