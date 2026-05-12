@@ -378,8 +378,6 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
                 onChanged: _onSearch,
                 hintText: 'Search for a Patient...',
                 onFilter: () {},
-                // TODO: FILTERING
-
               ),
             ),
             const SizedBox(width: 26),
@@ -410,6 +408,7 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
     final filters = ['All', 'Pending', 'Paid'];
     return Row(
       mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.start,
       children: filters.map((filter) {
         final isSelected = _selectedStatus == filter;
         return Padding(
