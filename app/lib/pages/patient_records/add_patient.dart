@@ -56,6 +56,35 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
   String? _selectedBarangay;
   bool _isPWD = false;
 
+  @override
+  void initState(){
+    super.initState();
+    if (isEditing) {
+      _firstNameController.text = widget.existingPatient!['firstName'] as String;
+      _middleNameController.text = widget.existingPatient!['middleName'] as String? ?? '';
+      _lastNameController.text = widget.existingPatient!['lastName'] as String;
+      _contactNumberController.text = widget.existingPatient!['contactNumber'] as String;
+      _emergencyContactController.text = widget.existingPatient!['emergencyContactNo'] as String;
+      _referredByController.text = widget.existingPatient!['referredBy'] as String;
+      _relationshipController.text = widget.existingPatient!['relationship'] as String;
+      _emergencyContactRelationshipController.text = widget.existingPatient!['relationshipEmergency'] as String;
+      _streetController.text = widget.existingPatient!['streetAddress'] as String;
+      _zipController.text = widget.existingPatient!['zipCode'] as String;
+      _selectedSuffix = widget.existingPatient!['suffix'] as String?;
+      _selectedSex = widget.existingPatient!['sex'] as String?;
+      _selectedStatus = widget.existingPatient!['civilStatus'] as String?;
+      _selectedProvince = widget.existingPatient!['province'] as String?;
+      _selectedCity = widget.existingPatient!['cityMunicipality'] as String?;
+      _selectedBarangay = widget.existingPatient!['barangay'] as String?;
+      _isPWD = widget.existingPatient!['isSeniorOrPWD'] as bool? ?? false;
+
+      final birthDate = widget.existingPatient!['birthDate'] as DateTime;
+      _selectedYear = birthDate.year.toString();
+      _selectedMonth = DateService.months[birthDate.month - 1];
+      _selectedDay = birthDate.day.toString();
+    }
+  }
+
   void _clearFormPatientRecord() {
     setState(() {
       _firstNameController.clear();
@@ -67,6 +96,8 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
       _relationshipController.clear();
       _emergencyContactRelationshipController.clear();
       _streetController.clear();
+      _cityController.clear(); // missing
+      _barangayController.clear(); // missing
       _zipController.clear();
       _barangayController.clear();
       _provinceController.clear();
@@ -172,6 +203,7 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
     final repository = PatientRepository(db);
 
     // 3. Hard Check for the exact duplicate (Matching firstname and lastname + DOB)
+    if (!isEditing){
     if (await repository.isExactDuplicate(_firstNameController.text.trim(),
         _lastNameController.text.trim(), birthDate!)) {
       if (mounted) {
@@ -185,10 +217,12 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
       }
       return;
     }
+  }
 
     // 4. Soft Check for matching first name and last name
     // TODO: @Frontend, please refactor
-    bool nameExists = await repository.isNameDuplicate(
+    if (!isEditing){
+          bool nameExists = await repository.isNameDuplicate(
         _firstNameController.text.trim(), _lastNameController.text.trim());
 
     if (nameExists) {
@@ -211,14 +245,20 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
 
       if (confirm != true) return; // Stop if user clicks Cancel
     }
+  }
 
     // 5. Proceed to create PatientCompanion and onNext
+    // when isEditing, keep the existing patientId to update the correct record,
+    // otherwise omit it so the database auto-assigns a new one on insert
     final patientEntry = PatientCompanion.insert(
+      patientId: isEditing
+      ? drift.Value(widget.existingPatient!['patientId'] as int)
+      : const drift.Value.absent(),
       firstName: _firstNameController.text.trim(),
       middleName: drift.Value(_middleNameController.text.trim()),
       lastName: _lastNameController.text.trim(),
       suffix: drift.Value(_selectedSuffix ?? ""),
-      birthDate: birthDate,
+      birthDate: birthDate!,
       sex: _selectedSex!,
       civilStatus: _selectedStatus ?? "Single",
       contactNumber: _contactNumberController.text.trim(),
@@ -605,11 +645,11 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
                       onPressed: _clearFormPatientRecord),
                 ),
                 SizedBox(
-                  width: 140,
+                  width: isEditing? 200 : 140,
                   child: Button(
-                      label: "Next",
-                      icon: Icons.arrow_forward,
-                      iconPlacement: IconPlacement.right,
+                      label: isEditing? "Update Details" : "Next",
+                      icon: isEditing? Icons.save_alt_outlined : Icons.arrow_forward,
+                      iconPlacement: isEditing? IconPlacement.left : IconPlacement.right,
                       onPressed: _handleNext),
                 ),
               ],
