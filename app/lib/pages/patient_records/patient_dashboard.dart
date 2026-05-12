@@ -16,7 +16,6 @@ import '../../providers/app_providers.dart';
 import 'add_patient.dart';
 import 'add_clinical_record.dart';
 import 'view_patient.dart';
-import 'edit_patient.dart';
 import '../../pages/schedule/schedule_appointment.dart';
 import '/../widgets/discard_dialog.dart';
 
@@ -41,8 +40,9 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
   // This tracks where a user created a new record (to show/add the previous button)
   int _returnIndex = 0;
 
-  // Variables for View Patient Screen
+  // Variables for View & Edit Patient Screen
   PatientData? _patientToView;
+  Map<String, dynamic>? _patientToEditMap; 
   List<ClinicalRecordData> _clinicalRecordsToView = [];
 
   // Bug Fix: Using IndexedStack to prevent form data from being deleted when clicking back
@@ -72,11 +72,12 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
     });
   }
 
-  // Send user to add_patient.dart
+  // Send user to add_patient.dart (Adding New)
   void _goToAddPatient() {
     setState(() {
       _draftPatient = null;
       _existingPatientId = null;
+      _patientToEditMap = null; // Ensure we are NOT in edit mode
       _currentIndex = 1;
     });
   }
@@ -104,12 +105,33 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
     });
   }
 
-  // ---> NEW: Send user to Edit Patient Form
+  // ---> NEW: Send user to AddPatientForm in "EDIT MODE"
   void _goToEditPatient(PatientData patient) {
     setState(() {
       _formSessionId++; // Reset form state
-      _patientToView = patient;
-      _currentIndex = 5; // Index for Edit Patient Form
+      
+      // Convert Drift's PatientData into the Map expected by add_patient.dart
+      _patientToEditMap = {
+        'patientId': patient.patientId,
+        'firstName': patient.firstName,
+        'middleName': patient.middleName ?? '',
+        'lastName': patient.lastName,
+        'birthDate': patient.birthDate,
+        'sex': patient.sex,
+        'civilStatus': patient.civilStatus,
+        'contactNumber': patient.contactNumber,
+        'emergencyContactNo': patient.emergencyContactNo ?? '',
+        'relationshipEmergency': patient.relationshipEmergency ?? '',
+        'streetAddress': patient.streetAddress,
+        'barangay': patient.barangay,
+        'cityMunicipality': patient.cityMunicipality,
+        'province': patient.province,
+        'zipCode': patient.zipCode,
+        'isSeniorOrPWD': patient.isSeniorOrPWD,
+      };
+      
+      _patientToView = patient; 
+      _currentIndex = 1; // Send to Index 1 (Add/Edit Patient Form)
     });
   }
 
@@ -211,7 +233,6 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
         StatusToast.show(
           context,
           title: "Success",
-          // FIXED: Changed $newPatient to $finalPatientId
           message: "Patient #$finalPatientId has been created.",
           isSuccess: true,
         );
@@ -264,8 +285,9 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
         );
       }
 
-      // Return to the View Patient screen with the fresh data
+      // Return to the View Patient screen with the fresh data and clear edit state
       setState(() {
+        _patientToEditMap = null; 
         _patientToView = freshPatientData;
         _currentIndex = 3;
       });
@@ -293,8 +315,10 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
 
     if (shouldDiscard == true) {
       _loadPatients();
-      setState(
-          () => _currentIndex = targetIndex); // Uses the dynamic target index
+      setState(() {
+        _patientToEditMap = null; // Ensure edit state is cleared
+        _currentIndex = targetIndex;
+      }); 
     }
   }
 
@@ -304,6 +328,7 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
     setState(() {
       _currentIndex = 0;
       _patientToView = null;
+      _patientToEditMap = null;
       _clinicalRecordsToView = [];
     });
   }
@@ -418,25 +443,39 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
           ),
         ),
 
-        // Index 1: Add Patient Form
+        // ---> MODIFIED: Index 1: Add / Edit Patient Form
         SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               PageHeader(
-                title: 'Back to Records',
+                title: _patientToEditMap != null ? 'Back to Patient View' : 'Back to Records',
                 type: PageHeaderType.withBack,
-                onBack: () => _confirmReturnToDashboard(targetIndex: 0),
+                onBack: () => _confirmReturnToDashboard(
+                  targetIndex: _patientToEditMap != null ? 3 : 0
+                ),
               ),
               Transform.translate(
                 offset: const Offset(0, -30),
                 child: AddPatientForm(
-                    key: ValueKey(_formSessionId),
-                    onNext: (data) => _goToAddClinicalRecord(
-                        draftPatient: data, returnIndex: 0),
+                    key: ValueKey('form_$_formSessionId'),
+                    existingPatient: _patientToEditMap, // Pass the map here
+                    onNext: (data) {
+                      if (_patientToEditMap != null) {
+                        // EDIT LOGIC
+                        _handleEditPatientSave(data);
+                      } else {
+                        // ADD LOGIC
+                        _goToAddClinicalRecord(
+                            draftPatient: data, returnIndex: 0);
+                      }
+                    },
                     onBack: () {
                       _loadPatients();
-                      setState(() => _currentIndex = 0);
+                      setState(() {
+                        _currentIndex = _patientToEditMap != null ? 3 : 0;
+                        _patientToEditMap = null;
+                      });
                     }),
               ),
             ],
@@ -501,9 +540,8 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
                           returnIndex: 3);
                     } else if (value == 'schedule_appointment') {
                       _goToScheduleAppointment(_patientToView!, returnIndex: 3);
-                    }
-                    // ---> NEW: Added Edit Case <---
-                    else if (value == 'edit_details') {
+                    } else if (value == 'edit_details') {
+                      // ---> ROUTES TO INDEX 1 WITH THE MAP <---
                       _goToEditPatient(_patientToView!);
                     } else if (value == 'archive') {
                       _archivePatient(_patientToView!);
@@ -547,32 +585,6 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
             ],
           ),
         ),
-
-        // ---> NEW: Index 5: Edit Patient Form <---
-        if (_patientToView != null)
-          SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                PageHeader(
-                  title: 'Back to Patient View',
-                  type: PageHeaderType.withBack,
-                  onBack: () => setState(() => _currentIndex = 3),
-                ),
-                Transform.translate(
-                  offset: const Offset(0, -30),
-                  child: EditPatientForm(
-                    key: ValueKey(_formSessionId),
-                    patient: _patientToView!,
-                    onSave: _handleEditPatientSave,
-                    onBack: () => setState(() => _currentIndex = 3),
-                  ),
-                ),
-              ],
-            ),
-          )
-        else
-          const SizedBox.shrink(),
       ],
     );
   }

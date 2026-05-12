@@ -60,16 +60,20 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
   void initState(){
     super.initState();
     if (isEditing) {
+      // Required fields are usually safe to cast 'as String'
       _firstNameController.text = widget.existingPatient!['firstName'] as String;
-      _middleNameController.text = widget.existingPatient!['middleName'] as String? ?? '';
       _lastNameController.text = widget.existingPatient!['lastName'] as String;
       _contactNumberController.text = widget.existingPatient!['contactNumber'] as String;
-      _emergencyContactController.text = widget.existingPatient!['emergencyContactNo'] as String;
-      _referredByController.text = widget.existingPatient!['referredBy'] as String;
-      _relationshipController.text = widget.existingPatient!['relationship'] as String;
-      _emergencyContactRelationshipController.text = widget.existingPatient!['relationshipEmergency'] as String;
       _streetController.text = widget.existingPatient!['streetAddress'] as String;
       _zipController.text = widget.existingPatient!['zipCode'] as String;
+
+      // Optional fields MUST have 'as String? ?? '''
+      _middleNameController.text = widget.existingPatient!['middleName'] as String? ?? '';
+      _emergencyContactController.text = widget.existingPatient!['emergencyContactNo'] as String? ?? '';
+      _referredByController.text = widget.existingPatient!['referredBy'] as String? ?? '';
+      _relationshipController.text = widget.existingPatient!['relationship'] as String? ?? '';
+      _emergencyContactRelationshipController.text = widget.existingPatient!['relationshipEmergency'] as String? ?? '';
+      
       _selectedSuffix = widget.existingPatient!['suffix'] as String?;
       _selectedSex = widget.existingPatient!['sex'] as String?;
       _selectedStatus = widget.existingPatient!['civilStatus'] as String?;
