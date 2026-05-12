@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '/../style/theme.dart';
 import '/../widgets/main_buttons.dart';
@@ -24,270 +25,356 @@ class ProcessPaymentScreen extends ConsumerStatefulWidget {
 
 class _ProcessPaymentScreenState extends ConsumerState<ProcessPaymentScreen> {
   List<ProcedureChargeData> _procedures = [];
-  final List<TextEditingController> _receivedControllers = [];
-  final List<String> _selectedModes = [];
+  List<PaymentTransactionData> _transactions = [];
+  PatientData? _patient;
+  
+  final TextEditingController _amountController = TextEditingController();
+  String _selectedMode = 'Cash';
   bool _isLoading = true;
+  bool _isProcessing = false;
 
   @override
   void initState() {
     super.initState();
-    _fetchProcedures();
+    _fetchData();
   }
 
-  Future<void> _fetchProcedures() async {
+  Future<void> _fetchData() async {
     final db = ref.read(databaseProvider);
     final invoiceId = widget.invoiceData.invoice.invoiceId;
 
-    final charges = await (db.select(db.procedureCharge)
-          ..where((c) => c.invoiceId.equals(invoiceId)))
-        .get();
+    final charges = await (db.select(db.procedureCharge)..where((c) => c.invoiceId.equals(invoiceId))).get();
+    final payments = await (db.select(db.paymentTransaction)..where((t) => t.invoiceId.equals(invoiceId))).get();
+    final patient = await (db.select(db.patient)..where((p) => p.patientId.equals(widget.invoiceData.invoice.patientId))).getSingle();
 
-    setState(() {
-      _procedures = charges;
-      for (var _ in _procedures) {
-        _receivedControllers.add(TextEditingController(text: "0.00"));
-        _selectedModes.add("Cash");
-      }
-      _isLoading = false;
-    });
+    if (mounted) {
+      setState(() {
+        _procedures = charges;
+        _transactions = payments.where((p) => p.amountReceived > 0).toList();
+        _patient = patient;
+        _isLoading = false;
+      });
+    }
   }
 
-  String _formatDate(DateTime date) {
-    final m = date.month.toString().padLeft(2, '0');
-    final d = date.day.toString().padLeft(2, '0');
-    final y = date.year.toString();
-    return '$m/$d/$y';
+  bool _isDiscountApplicable(PatientData? p) {
+    if (p == null) return false;
+    if (p.isSeniorOrPWD) return true; // Perfect match for your DB flag
+    final today = DateTime.now();
+    int age = today.year - p.birthDate.year;
+    if (today.month < p.birthDate.month || (today.month == p.birthDate.month && today.day < p.birthDate.day)) age--;
+    return age >= 60;
+  }
+
+  @override
+  void dispose() {
+    _amountController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submitPayment() async {
+    final amountText = _amountController.text.replaceAll(',', '').trim();
+    final amountPaid = double.tryParse(amountText) ?? 0.0;
+
+    if (amountPaid <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter a valid amount.'), backgroundColor: Colors.red),
+      );
+      return;
+    }
+
+    setState(() => _isProcessing = true);
+
+    try {
+      final db = ref.read(databaseProvider);
+      final repo = InvoiceRepository(db);
+
+      await repo.processPayment(
+        invoiceId: widget.invoiceData.invoice.invoiceId,
+        amountPaidNow: amountPaid,
+        modeOfPayment: _selectedMode,
+      );
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Payment processed successfully!'), backgroundColor: Colors.green),
+        );
+        widget.onBack(); 
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error processing payment: $e'), backgroundColor: Colors.red),
+        );
+        setState(() => _isProcessing = false);
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) return const Center(child: CircularProgressIndicator());
-
-    final inv = widget.invoiceData.invoice;
-    final subtotal = widget.invoiceData.grandTotal.toDouble();
-    final currentDebt = inv.totalBalance.toDouble();
-
-    double totalPaidNow = 0;
-    for (var controller in _receivedControllers) {
-      totalPaidNow += double.tryParse(controller.text) ?? 0.0;
-    }
-
-    final previouslyPaid = subtotal - currentDebt;
-    final newRemainingBalance = (currentDebt - totalPaidNow).clamp(0.0, double.infinity);
-    final change = (totalPaidNow - currentDebt).clamp(0.0, double.infinity);
-
-    final invoiceIdString = 'INV-${inv.invoiceId.toString().padLeft(3, '0')}';
-    final formattedDate = _formatDate(inv.issuedDate);
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         PageHeader(
-          title: 'Back to Billing Record',
+          title: 'Back to View Bill',
           type: PageHeaderType.withBack,
           onBack: widget.onBack,
         ),
-        Center(
-          child: Container(
-            constraints: const BoxConstraints(maxWidth: 1200),
-            margin: const EdgeInsets.all(24),
-            padding: const EdgeInsets.all(32),
-            decoration: BoxDecoration(
-              color: AppTheme.white500,
-              borderRadius: BorderRadius.circular(24),
-              boxShadow: AppTheme.floatShadow,
+        
+        if (_isLoading)
+          const Padding(
+            padding: EdgeInsets.all(48.0),
+            child: Center(child: CircularProgressIndicator()),
+          )
+        else
+          _buildPaymentContent(),
+      ],
+    );
+  }
+
+  Widget _buildPaymentContent() {
+    final inv = widget.invoiceData.invoice;
+    final grandTotal = _procedures.fold(0.0, (sum, p) => sum + p.totalProcedureCharge);
+    final hasDiscount = _isDiscountApplicable(_patient);
+    final discountAmount = hasDiscount ? (grandTotal * 0.20) : 0.0;
+    final netTotal = grandTotal - discountAmount;
+    final totalPaid = _transactions.fold(0.0, (sum, t) => sum + t.amountReceived);
+    final remainingBalance = (netTotal - totalPaid).clamp(0.0, double.infinity);
+
+    return Center(
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 1200),
+        margin: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(32),
+        decoration: BoxDecoration(
+          color: AppTheme.white500,
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: AppTheme.floatShadow,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Text("Process Payment", style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold)),
+                const SizedBox(width: 16),
+                if (hasDiscount)
+                   Container(
+                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                     decoration: BoxDecoration(color: Colors.green.shade50, borderRadius: BorderRadius.circular(20), border: Border.all(color: Colors.green.shade200)),
+                     child: Text("20% Senior/PWD Eligible", style: TextStyle(color: Colors.green.shade700, fontWeight: FontWeight.bold, fontSize: 12)),
+                   ),
+              ],
             ),
-            child: Column(
+            const SizedBox(height: 8),
+            Text(
+              "Patient: ${widget.invoiceData.patientName}  |  INV-${inv.invoiceId.toString().padLeft(3, '0')}",
+              style: AppTheme.textTheme.bodyMedium?.copyWith(color: AppTheme.gray500),
+            ),
+            const SizedBox(height: 32),
+
+            Text("Itemized Charges", style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 16),
+            _buildTableHeaders(),
+            const SizedBox(height: 8),
+            ..._procedures.map((proc) => _buildProcedureRow(proc)),
+
+            const SizedBox(height: 32),
+            const Divider(color: AppTheme.gray400),
+            const SizedBox(height: 32),
+
+            Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        "${widget.invoiceData.patientName}’s Bill",
-                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    Text(
-                      invoiceIdString,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w600, color: AppTheme.gray500),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Text("Issued: $formattedDate",
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppTheme.gray500)),
-                const Divider(height: 32),
+                
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
 
-                const SizedBox(height: 16),
-                Text("Payment Transaction", style: Theme.of(context).textTheme.titleLarge),
-                const SizedBox(height: 16),
-                _buildTableHeaders(),
-                const SizedBox(height: 12),
-                ...List.generate(_procedures.length, (index) => _buildPaymentRow(index, currentDebt)),
-                const SizedBox(height: 32),
-
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: SizedBox(
-                    width: 400,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text("Bill Breakdown", style: Theme.of(context).textTheme.titleLarge),
-                        const SizedBox(height: 16),
-                        _buildBreakdownRow("Subtotal", subtotal),
-                        _buildBreakdownRow("Previously Paid", previouslyPaid, color: Colors.green.shade700),
-                        _buildBreakdownRow("Paying Now", totalPaidNow, color: AppTheme.blue500, bold: true),
-                        
-                        if (change > 0) ...[
-                          const Divider(height: 24),
-                          _buildBreakdownRow("Change", change, color: Colors.blue.shade700, bold: true),
+                      Row(
+                        children: [
+                          Expanded(flex: 2, child: Text("Subtotal:", style: AppTheme.textTheme.bodyMedium)),
+                          Expanded(flex: 3, child: Text("₱ ${grandTotal.toStringAsFixed(2)}", style: AppTheme.textTheme.bodyMedium)),
                         ],
-                        
-                        const SizedBox(height: 24),
-                        
-                        Container(
-                          padding: const EdgeInsets.all(24),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: AppTheme.gray400),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Text("Remaining Balance",
-                                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.gray400)),
-                              Text("₱ ${newRemainingBalance.toStringAsFixed(2)}",
-                                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 24),
-                        SizedBox(
-                          width: double.infinity,
-                          child: Button(
-                            label: "Process Payment",
-                            variant: ButtonVariant.primary,
-                            icon: Icons.check,
-                            iconPlacement: IconPlacement.left,
-                            onPressed: () async {
-                              final db = ref.read(databaseProvider);
-                              final repo = InvoiceRepository(db);
-                              
-                              if (totalPaidNow <= 0) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('Please enter an amount to pay.'))
-                                );
-                                return;
-                              }
-
-                              try {
-                                await repo.processPayment(
-                                  invoiceId: widget.invoiceData.invoice.invoiceId,
-                                  amountPaidNow: totalPaidNow,
-                                  modeOfPayment: _selectedModes.isNotEmpty ? _selectedModes[0] : 'Cash',
-                                );
-
-                                if (mounted) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text('Payment Processed Successfully!'))
-                                  );
-                                  widget.onBack(); 
-                                }
-                              } catch (e) {
-                                if (mounted) {
-                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
-                                }
-                              }
-                            },
-                          ),
+                      ),
+                      if (hasDiscount) ...[
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            Expanded(flex: 2, child: Text("Discount (20%):", style: AppTheme.textTheme.bodyMedium?.copyWith(color: Colors.green.shade700))),
+                            Expanded(flex: 3, child: Text("-₱ ${discountAmount.toStringAsFixed(2)}", style: AppTheme.textTheme.bodyMedium?.copyWith(color: Colors.green.shade700, fontWeight: FontWeight.bold))),
+                          ],
                         ),
                       ],
-                    ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Expanded(flex: 2, child: Text("Net Total:", style: AppTheme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold))),
+                          Expanded(flex: 3, child: Text("₱ ${netTotal.toStringAsFixed(2)}", style: AppTheme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold))),
+                        ],
+                      ),
+
+                      const SizedBox(height: 48),
+
+                      Text("Previous Payments", style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 16),
+                      if (_transactions.isEmpty)
+                        Text("No previous payments have been made.", style: TextStyle(color: Colors.grey.shade600, fontStyle: FontStyle.italic))
+                      else
+                        Column(
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(flex: 2, child: Text('Particulars', style: AppTheme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold, color: AppTheme.gray400))),
+                                Expanded(flex: 2, child: Text('Mode', style: AppTheme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold, color: AppTheme.gray400))),
+                                Expanded(flex: 2, child: Text('Amount', style: AppTheme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold, color: AppTheme.gray400))),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            ...List.generate(_transactions.length, (index) {
+                              final trans = _transactions[index];
+                              return Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                child: Row(
+                                  children: [
+                                    Expanded(flex: 2, child: Text("Payment ${index + 1}", style: AppTheme.textTheme.bodyMedium)),
+                                    Expanded(flex: 2, child: Text(trans.modeOfPayment, style: AppTheme.textTheme.bodyMedium)),
+                                    Expanded(flex: 2, child: Text('₱ ${trans.amountReceived.toStringAsFixed(2)}', style: AppTheme.textTheme.bodyMedium?.copyWith(color: Colors.green.shade700, fontWeight: FontWeight.bold))),
+                                  ],
+                                ),
+                              );
+                            }),
+                          ],
+                        )
+                    ],
+                  ),
+                ),
+                
+                const SizedBox(width: 48),
+
+                SizedBox(
+                  width: 400,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: AppTheme.gray400),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text('Remaining Balance', style: AppTheme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold, color: AppTheme.gray400)),
+                            Text('₱ ${remainingBalance.toStringAsFixed(2)}', style: AppTheme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+
+                      Text("Amount Received", style: AppTheme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 8),
+                      TextField(
+                        controller: _amountController,
+                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                        inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}'))],
+                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        decoration: InputDecoration(
+                          prefixText: "₱ ",
+                          prefixStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87),
+                          hintText: "0.00",
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: const BorderSide(color: AppTheme.blue500, width: 2),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                        ),
+                      ),
+                      
+                      const SizedBox(height: 16),
+
+                      Text("Mode of Payment", style: AppTheme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 8),
+                      DropdownButtonFormField<String>(
+                        value: _selectedMode,
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                        ),
+                        items: const ["Cash", "G-Cash", "Card"].map((mode) {
+                          return DropdownMenuItem(value: mode, child: Text(mode));
+                        }).toList(),
+                        onChanged: (val) {
+                          if (val != null) setState(() => _selectedMode = val);
+                        },
+                      ),
+
+                      const SizedBox(height: 32),
+
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Button(
+                            onPressed: _isProcessing ? null : widget.onBack,
+                            label: 'Cancel', 
+                            variant: ButtonVariant.secondary,
+                          ),
+                          const SizedBox(width: 16),
+                          SizedBox(
+                            width: 200,
+                            height: 48,
+                            child: Button(
+                              label: _isProcessing ? "Processing..." : "Confirm Payment",
+                              variant: ButtonVariant.primary,
+                              onPressed: _isProcessing ? () {} : _submitPayment,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
-          ),
+          ],
         ),
-      ],
-    );
-  }
-
-  Widget _buildBreakdownRow(String label, double amount, {bool bold = false, Color? color}) {
-    final textStyle = bold
-        ? Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold, color: color ?? AppTheme.black500)
-        : Theme.of(context).textTheme.bodyMedium?.copyWith(color: color ?? AppTheme.black500);
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(label, style: textStyle),
-          Text("₱ ${amount.toStringAsFixed(2)}", style: textStyle),
-        ],
       ),
     );
   }
-
+  
   Widget _buildTableHeaders() {
-    final style = AppTheme.textTheme.bodyMedium?.copyWith(color: AppTheme.gray400, fontWeight: FontWeight.bold);
+    final headerStyle = AppTheme.textTheme.bodyLarge?.copyWith(
+      fontWeight: FontWeight.bold, 
+      color: AppTheme.gray400,
+    );
+
     return Row(
       children: [
-        Expanded(flex: 3, child: Text("Procedure", style: style)),
-        Expanded(flex: 2, child: Text("Amount to be Paid", style: style)),
-        Expanded(flex: 2, child: Text("Amount Received", style: style)),
-        Expanded(flex: 2, child: Text("Mode of Payment", style: style)),
+        Expanded(flex: 3, child: Text('Procedure', style: headerStyle)),
+        Expanded(flex: 2, child: Text('Charge', style: headerStyle)),
+        Expanded(flex: 1, child: Text('Qty', style: headerStyle)),
+        Expanded(flex: 2, child: Text('Subtotal', style: headerStyle)),
       ],
     );
   }
 
-  Widget _buildPaymentRow(int index, double currentRemaining) {
+  Widget _buildProcedureRow(ProcedureChargeData proc) {
+    final rowStyle = AppTheme.textTheme.bodyMedium?.copyWith(
+      fontWeight: FontWeight.w600,
+    );
+
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      padding: const EdgeInsets.symmetric(vertical: 12.0),
       child: Row(
         children: [
-          Expanded(flex: 3, child: Text(_procedures[index].procedureName, style: AppTheme.textTheme.bodyLarge)),
-          Expanded(flex: 2, child: Text("₱ ${currentRemaining.toStringAsFixed(2)}", style: AppTheme.textTheme.bodyLarge)),
-          Expanded(
-            flex: 2,
-            child: Padding(
-              padding: const EdgeInsets.only(right: 16),
-              child: TextField(
-                controller: _receivedControllers[index],
-                onChanged: (_) => setState(() {}),
-                decoration: InputDecoration(
-                  prefixText: "₱ ",
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 12),
-                ),
-                keyboardType: TextInputType.number,
-              ),
-            ),
-          ),
-          Expanded(
-            flex: 2,
-            child: DropdownButtonFormField<String>(
-              initialValue: _selectedModes[index],
-              decoration: InputDecoration(
-                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: AppTheme.gray400, width: 1),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: AppTheme.blue500, width: 1),
-                ),
-              ),
-              items: const ["Cash", "G-Cash", "Card"].map((mode) {
-                return DropdownMenuItem(value: mode, child: Text(mode));
-              }).toList(),
-              onChanged: (val) => setState(() => _selectedModes[index] = val!),
-            ),
-          ),
+          Expanded(flex: 3, child: Text(proc.procedureName, style: rowStyle)),
+          Expanded(flex: 2, child: Text('₱ ${proc.procedureCharge.toStringAsFixed(2)}', style: rowStyle)),
+          Expanded(flex: 1, child: Text(proc.quantity.toString(), style: rowStyle)),
+          Expanded(flex: 2, child: Text('₱ ${proc.totalProcedureCharge.toStringAsFixed(2)}', style: rowStyle)),
         ],
       ),
     );

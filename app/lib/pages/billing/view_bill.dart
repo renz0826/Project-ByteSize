@@ -126,24 +126,14 @@ class _ViewBillScreenState extends ConsumerState<ViewBillScreen> {
                       children: [
                         // Edit Invoice Button (Reordered to the left)
                         if (!isPaid)
-                          Padding(
-                            padding: const EdgeInsets.only(right: 16),
-                            child: SizedBox(
-                              height: 40,
-                              child: OutlinedButton.icon(
-                                onPressed: widget.onEditInvoice,
-                                icon: const Icon(Icons.edit_outlined, size: 18),
-                                label: const Text("Edit Invoice"),
-                                style: OutlinedButton.styleFrom(
-                                  foregroundColor: AppTheme.blue500,
-                                  side: const BorderSide(color: AppTheme.blue500),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
+                          Button(
+                          label: "Edit Invoice",
+                          variant: ButtonVariant.secondary,
+                          onPressed: widget.onEditInvoice,
+                        ),
+                        
+                        SizedBox(width: 10,),
+                        
                         // Process Payment Button
                         Button(
                           label: isPaid ? "Fully Paid" : "Process Payment",
