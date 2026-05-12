@@ -9,7 +9,7 @@ class RequirementDialog extends StatelessWidget {
   const RequirementDialog({
     super.key,
     required this.title,
-    this.content = "",
+    required this.content,
     this.missingFields = const [],
   });
 
@@ -20,6 +20,8 @@ class RequirementDialog extends StatelessWidget {
       context: context,
       builder: (context) => RequirementDialog(
         title: title,
+        content: content,
+        missingFields: missingFields,
       ),
     );
   }
