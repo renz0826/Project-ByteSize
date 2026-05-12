@@ -117,7 +117,7 @@ class _EditPatientFormState extends State<EditPatientForm>{
     middleName: drift.Value(_middleNameController.text),
     lastName: drift.Value(_lastNameController.text),
     suffix: drift.Value(_selectedSuffix),
-    birthDate: drift.Value(birthDate), // ← add this
+    birthDate: drift.Value(birthDate), 
     sex: drift.Value(_selectedSex ?? widget.patient.sex),
     civilStatus: drift.Value(_selectedCivilStatus ?? widget.patient.civilStatus),
     contactNumber: drift.Value(_contactNumberController.text),
@@ -132,6 +132,11 @@ class _EditPatientFormState extends State<EditPatientForm>{
     zipCode: drift.Value(_zipController.text),
     isSeniorOrPWD: drift.Value(_isPWD),
     updatedAt: drift.Value(DateTime.now()),
+
+    // Copy paste these 2 values into the new row
+    createdAt: drift.Value(widget.patient.createdAt), 
+    isArchived: drift.Value(widget.patient.isArchived),
+
   );
   widget.onSave(updatedPatient);
 }

@@ -750,6 +750,8 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
             _goToViewPatient(patient);
           } else if (value == 'archive') {
             _archivePatient(patient);
+          } else if (value == 'edit_details'){
+            _goToEditPatient(patient);
           }
         },
       ),
