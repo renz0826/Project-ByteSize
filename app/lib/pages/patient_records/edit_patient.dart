@@ -7,7 +7,7 @@ import 'package:flutter/services.dart';
 import '/../widgets/main_buttons.dart';
 import '/../widgets/input_field.dart';
 import '/../widgets/radio_buttons.dart';
-import '../../widgets/missing_info_dialog.dart';
+import '../../widgets/requirement_dialog.dart';
 import '../../services/patient_service.dart';
 import '../../providers/app_providers.dart';
 import '../../repositories/patient_repository.dart';
@@ -66,18 +66,27 @@ class _EditPatientFormState extends ConsumerState<EditPatientForm> {
   void initState() {
     super.initState();
 
-    _firstNameController = TextEditingController(text: widget.patient.firstName);
-    _middleNameController = TextEditingController(text: widget.patient.middleName ?? '');
+    _firstNameController =
+        TextEditingController(text: widget.patient.firstName);
+    _middleNameController =
+        TextEditingController(text: widget.patient.middleName ?? '');
     _lastNameController = TextEditingController(text: widget.patient.lastName);
-    _contactNumberController = TextEditingController(text: widget.patient.contactNumber);
-    _emergencyContactController = TextEditingController(text: widget.patient.emergencyContactNo);
-    _referredByController = TextEditingController(text: widget.patient.referredBy);
-    _relationshipController = TextEditingController(text: widget.patient.relationship);
-    _emergencyContactRelationshipController = TextEditingController(text: widget.patient.relationshipEmergency);
-    _streetController = TextEditingController(text: widget.patient.streetAddress);
+    _contactNumberController =
+        TextEditingController(text: widget.patient.contactNumber);
+    _emergencyContactController =
+        TextEditingController(text: widget.patient.emergencyContactNo);
+    _referredByController =
+        TextEditingController(text: widget.patient.referredBy);
+    _relationshipController =
+        TextEditingController(text: widget.patient.relationship);
+    _emergencyContactRelationshipController =
+        TextEditingController(text: widget.patient.relationshipEmergency);
+    _streetController =
+        TextEditingController(text: widget.patient.streetAddress);
     _zipController = TextEditingController(text: widget.patient.zipCode);
     _barangayController = TextEditingController(text: widget.patient.barangay);
-    _cityController = TextEditingController(text: widget.patient.cityMunicipality);
+    _cityController =
+        TextEditingController(text: widget.patient.cityMunicipality);
     _provinceController = TextEditingController(text: widget.patient.province);
 
     _selectedSuffix = widget.patient.suffix;
@@ -110,7 +119,8 @@ class _EditPatientFormState extends ConsumerState<EditPatientForm> {
     super.dispose();
   }
 
-  void _showErrorDialog(String title, String message) { // function to show error dialogue
+  void _showErrorDialog(String title, String message) {
+    // function to show error dialogue
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -149,7 +159,7 @@ class _EditPatientFormState extends ConsumerState<EditPatientForm> {
       );
 
       if (missing.isNotEmpty) {
-        MissingInfoDialog.show(context, missing);
+        RequirementDialog.show(context, "", "", missing);
         return;
       }
 
@@ -167,8 +177,9 @@ class _EditPatientFormState extends ConsumerState<EditPatientForm> {
       if (zip.length != 4) {
         formatErrors.add("• ZIP Code must be exactly 4 digits.");
       }
-      
-      if (emergencyContact.isNotEmpty) { // need to add this because this field can be nullable
+
+      if (emergencyContact.isNotEmpty) {
+        // need to add this because this field can be nullable
         if (emergencyContact.length != 11 ||
             !emergencyContact.startsWith('09')) {
           formatErrors
@@ -181,19 +192,19 @@ class _EditPatientFormState extends ConsumerState<EditPatientForm> {
         return;
       }
 
-      
-
       final db = ref.read(databaseProvider);
       final repository = PatientRepository(db);
 
-      bool exists = await repository.isDuplicateForUpdate( // use duplicate function from repository
+      bool exists = await repository.isDuplicateForUpdate(
+        // use duplicate function from repository
         widget.patient.patientId,
         _firstNameController.text.trim(),
         _lastNameController.text.trim(),
         birthDate,
       );
 
-      if (exists) { // if a matching record is found, redirect user back to the edit fields
+      if (exists) {
+        // if a matching record is found, redirect user back to the edit fields
         _showErrorDialog("Duplicate Record",
             "Another patient with this name and birthdate already exists.");
         return;
