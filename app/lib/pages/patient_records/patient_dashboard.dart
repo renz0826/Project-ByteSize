@@ -1,4 +1,3 @@
-import 'package:dentcity_management_system/widgets/status_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:drift/drift.dart' as drift;
@@ -10,12 +9,14 @@ import '/../widgets/main_buttons.dart';
 import '/../widgets/filter_dropdown.dart';
 import '/../widgets/page_header.dart';
 import '/../widgets/app_info_bar.dart';
+import '../../widgets/status_toast.dart';
 import '../../db/database.dart';
-import '../../services/date_helper.dart';
+import '../../services/patient_service.dart';
 import '../../providers/app_providers.dart';
 import 'add_patient.dart';
 import 'add_clinical_record.dart';
 import 'view_patient.dart';
+import 'edit_patient.dart'; 
 import '../../pages/schedule/schedule_appointment.dart'; 
 
 //main screen
@@ -99,6 +100,15 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
       _patientToView = patient;
       _returnIndex = returnIndex;
       _currentIndex = 4; // Index for Schedule Appointment Form
+    });
+  }
+
+  // ---> NEW: Send user to Edit Patient Form
+  void _goToEditPatient(PatientData patient) {
+    setState(() {
+      _formSessionId++; // Reset form state
+      _patientToView = patient;
+      _currentIndex = 5; // Index for Edit Patient Form
     });
   }
 
@@ -221,6 +231,50 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
           context,
           title: "Error",
           message: "Failed to save record: $e",
+          isSuccess: false,
+        );
+      }
+    }
+  }
+
+  // ---> NEW: Handle saving the updated patient data
+  Future<void> _handleEditPatientSave(PatientCompanion updatedPatient) async {
+    try {
+      final db = ref.read(databaseProvider);
+      
+      // Update the record in the drift database
+      await db.update(db.patient).replace(updatedPatient);
+      
+      // Reload the main list of patients
+      await _loadPatients();
+      
+      // Fetch the fresh patient data so the View Screen shows the new updates immediately
+      final freshPatientData = await (db.select(db.patient)
+            ..where((t) => t.patientId.equals(updatedPatient.patientId.value)))
+          .getSingle();
+      
+      if (mounted) {
+        StatusToast.show(
+          context,
+          title: "Success",
+          message: "Patient details updated successfully.",
+          isSuccess: true,
+        );
+      }
+      
+      // Return to the View Patient screen with the fresh data
+      setState(() {
+        _patientToView = freshPatientData;
+        _currentIndex = 3; 
+      });
+      
+    } catch (e) {
+      debugPrint("Error updating patient: $e");
+      if (mounted) {
+        StatusToast.show(
+          context,
+          title: "Error",
+          message: "Failed to update record: $e",
           isSuccess: false,
         );
       }
@@ -462,9 +516,12 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
                           existingPatientId: _patientToView!.patientId,
                           returnIndex: 3);
                     } 
-                    // NEW: Action to go to schedule form
                     else if (value == 'schedule_appointment') {
                       _goToScheduleAppointment(_patientToView!, returnIndex: 3);
+                    }
+                    // ---> NEW: Added Edit Case <---
+                    else if (value == 'edit_details') {
+                      _goToEditPatient(_patientToView!);
                     }
                     else if (value == 'archive') {
                       _archivePatient(_patientToView!);
@@ -477,7 +534,7 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
         else
           const SizedBox.shrink(),
 
-        // NEW: Index 4: Schedule Appointment Form
+        // Index 4: Schedule Appointment Form
         SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -506,6 +563,32 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
             ],
           ),
         ),
+        
+        // ---> NEW: Index 5: Edit Patient Form <---
+        if (_patientToView != null)
+          SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                PageHeader(
+                  title: 'Back to Patient View',
+                  type: PageHeaderType.withBack,
+                  onBack: () => setState(() => _currentIndex = 3), 
+                ),
+                Transform.translate(
+                  offset: const Offset(0, -30),
+                  child: EditPatientForm(
+                    key: ValueKey(_formSessionId),
+                    patient: _patientToView!,
+                    onSave: _handleEditPatientSave,
+                    onBack: () => setState(() => _currentIndex = 3),
+                  ),
+                ),
+              ],
+            ),
+          )
+        else
+          const SizedBox.shrink(),
       ],
     );
   }
@@ -667,6 +750,8 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
             _goToViewPatient(patient);
           } else if (value == 'archive') {
             _archivePatient(patient);
+          } else if (value == 'edit_details'){
+            _goToEditPatient(patient);
           }
         },
       ),

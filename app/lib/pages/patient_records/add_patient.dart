@@ -9,10 +9,7 @@ import '/../widgets/main_buttons.dart';
 import '/../widgets/input_field.dart';
 import '/../widgets/missing_info_dialog.dart';
 import '/../widgets/radio_buttons.dart';
-import '../../services/locations_ph.dart';
-import '../../services/date_service.dart';
-import '../../services/date_helper.dart';
-import '../../services/form_validator.dart';
+import '../../services/patient_service.dart';
 import '../../providers/app_providers.dart';
 
 class AddPatientForm extends ConsumerStatefulWidget {
