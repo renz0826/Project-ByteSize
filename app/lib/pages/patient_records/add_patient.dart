@@ -161,7 +161,7 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
         RequirementDialog.show(
           context,
           "Invalid Input Format",
-          formatErrors.join('\n\n'),
+          formatErrors.join('\n'),
           [],
         );
       }
