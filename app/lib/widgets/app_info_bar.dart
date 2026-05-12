@@ -91,12 +91,14 @@ class BarMenuItem {
   final HeroIcons icon;
   final String label;
   final Color? color;
+  final bool enable;
 
   const BarMenuItem({
     required this.value,
     required this.icon,
     required this.label,
     this.color,
+    this.enable = true,
   });
 }
 
@@ -124,6 +126,15 @@ class _MoreOptions extends StatelessWidget {
   }
 
   PopupMenuItem<String> _buildItem(BarMenuItem item) {
+    // Grey out the colors if the item is disabled
+    final contentColor = item.enable
+        ? (item.color ?? AppTheme.black500) 
+        : AppTheme.gray400;
+        
+    final iconColor = item.enable
+        ? (item.color ?? AppTheme.gray500) 
+        : AppTheme.gray400;
+
     return PopupMenuItem<String>(
       value: item.value,
       height: 35,
@@ -355,6 +366,7 @@ class BillingBar extends StatelessWidget {
   final DateTime date;
   final BadgeStatus status;
   final ValueChanged<String>? onMenuSelected;
+  final bool isPaid;
   final VoidCallback? onTap; // Clickable requirement
 
   const BillingBar({
@@ -368,6 +380,16 @@ class BillingBar extends StatelessWidget {
     this.onMenuSelected,
     this.onTap,
   });
+  const BillingBar(
+      {super.key,
+      required this.invoiceId,
+      required this.fullName,
+      required this.procedure,
+      required this.amount,
+      required this.date,
+      required this.status,
+      required this.isPaid,
+      this.onMenuSelected});
 
   // Amount Getter
   String get _formattedAmount {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:heroicons/heroicons.dart';
 import '/../style/theme.dart';
 import '/../widgets/main_buttons.dart';
 import '/../widgets/page_header.dart';
@@ -123,11 +124,30 @@ class _ViewBillScreenState extends ConsumerState<ViewBillScreen> {
                     ),
                     const SizedBox(width: 16),
                     
-                    Button(
-                      label: isPaid ? "Fully Paid" : "Process Payment",
-                      variant: isPaid ? ButtonVariant.secondary : ButtonVariant.primary,
-                      onPressed: isPaid ? () {} : widget.onProcessPayment, 
-                    ),
+                  Row(
+                    children: [
+                      if (!isPaid)  
+                        Container(
+                              margin: const EdgeInsets.only(right: 16),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Button(
+                                label: "Edit Invoice",
+                                icon: Icons.edit_outlined,
+                                onPressed: widget.onEditInvoice, 
+                              ),
+                            ),
+                            
+                      Button(
+                        label: isPaid ? "Fully Paid" : "Process Payment",
+                        variant: isPaid ? ButtonVariant.secondary : ButtonVariant.primary,
+                        onPressed: isPaid ? () {} : widget.onProcessPayment, 
+                      ),
+                    ],
+                  )
+
+
                   ],
                 ),
               ),
