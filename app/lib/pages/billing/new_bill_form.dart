@@ -382,18 +382,33 @@ class _ProcedureRowWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final labelStyle = AppTheme.textTheme.bodyMedium?.copyWith(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black87) ?? const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black87);
+    // Standardizing the label style to match the InputField widget
+    final labelStyle = Theme.of(context).textTheme.bodySmall?.copyWith(
+          color: AppTheme.gray500,
+          fontWeight: FontWeight.w600,
+        );
+
     final price = double.tryParse(row.priceController.text) ?? 0;
     final qty = int.tryParse(row.quantityController.text) ?? 0;
     final subtotal = price * qty;
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 24),
+      padding: const EdgeInsets.only(bottom: 20),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(flex: 3, child: InputField(label: 'Procedure', hintText: 'e.g. Tooth Extraction', controller: row.nameController)),
-          const SizedBox(width: 16),
+          // 1. Procedure Name
+          Expanded(
+            flex: 3,
+            child: InputField(
+              label: 'Procedure',
+              hintText: 'Tooth Extraction',
+              controller: row.nameController,
+            ),
+          ),
+          const SizedBox(width: 12),
+
+          // 2. Procedure Charge (Manual Container)
           Expanded(
             flex: 2,
             child: Column(
@@ -403,16 +418,30 @@ class _ProcedureRowWidget extends StatelessWidget {
                 const SizedBox(height: 8),
                 Container(
                   height: 48,
-                  decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8), border: Border.all(color: AppTheme.gray400)),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8), 
+                    border: Border.all(color: AppTheme.gray400),
+                  ),
                   child: Row(
                     children: [
-                      const Padding(padding: EdgeInsets.only(left: 16, right: 4), child: Text('₱', style: TextStyle(color: Colors.black87, fontSize: 14, fontWeight: FontWeight.w600))),
+                      const Padding(
+                        padding: EdgeInsets.only(left: 12, right: 4),
+                        child: Text(
+                          '₱',
+                          style: TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                      ),
                       Expanded(
                         child: TextField(
                           controller: row.priceController,
                           keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                          inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}'))],
-                          decoration: const InputDecoration(hintText: '0.00', border: InputBorder.none, enabledBorder: InputBorder.none, focusedBorder: InputBorder.none, isDense: true, contentPadding: EdgeInsets.symmetric(vertical: 12)),
+                          decoration: const InputDecoration(
+                            hintText: '0.00',
+                            border: InputBorder.none,
+                            isDense: true,
+                            contentPadding: EdgeInsets.symmetric(vertical: 12),
+                          ),
                         ),
                       ),
                     ],
@@ -421,9 +450,19 @@ class _ProcedureRowWidget extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(width: 16),
-          Expanded(flex: 1, child: InputField(label: 'Quantity', hintText: '1', controller: row.quantityController, keyboardType: TextInputType.number, inputFormatters: [FilteringTextInputFormatter.digitsOnly])),
-          const SizedBox(width: 16),
+          const SizedBox(width: 12),
+
+          // 3. Quantity
+          Expanded(
+            flex: 1,
+            child: InputField(
+              label: 'Quantity',
+              controller: row.quantityController,
+            ),
+          ),
+          const SizedBox(width: 12),
+
+          // 4. Total Procedure Charge (Read-only)
           Expanded(
             flex: 2,
             child: Column(
@@ -432,18 +471,31 @@ class _ProcedureRowWidget extends StatelessWidget {
                 Text('Total Procedure Charge', style: labelStyle),
                 const SizedBox(height: 8),
                 Container(
-                  height: 48, width: double.infinity, padding: const EdgeInsets.symmetric(horizontal: 16), alignment: Alignment.centerLeft,
-                  decoration: BoxDecoration(color: Colors.grey.shade100, borderRadius: BorderRadius.circular(8), border: Border.all(color: AppTheme.gray400)),
-                  child: Text('₱ ${subtotal.toStringAsFixed(2)}', style: const TextStyle(fontSize: 14, color: Colors.black87)),
+                  height: 48,
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  alignment: Alignment.centerLeft,
+                  decoration: BoxDecoration(
+                    color: Colors.white, 
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: AppTheme.gray400),
+                  ),
+                  child: Text(
+                    '₱ ${subtotal.toStringAsFixed(2)}',
+                    style: const TextStyle(fontWeight: FontWeight.w500),
+                  ),
                 ),
               ],
             ),
           ),
-          const SizedBox(width: 16),
+
+          const SizedBox(width: 12),
+          
+          // Remove Button
           Padding(
-            padding: const EdgeInsets.only(top: 26), 
+            padding: const EdgeInsets.only(top: 28),
             child: IconButtons(
-              variant: IconButtonVariant.remove, 
+              variant: IconButtonVariant.remove,
               onPressed: onRemove,
             ),
           )
