@@ -28,7 +28,7 @@ class EditPatientForm extends ConsumerStatefulWidget {
   ConsumerState<EditPatientForm> createState() => _EditPatientFormState();
 }
 
-class _EditPatientFormState extends ConsumerState<EditPatientForm>{
+class _EditPatientFormState extends ConsumerState<EditPatientForm> {
   bool get isEditing => true;
 
   late final TextEditingController _firstNameController;
@@ -45,14 +45,14 @@ class _EditPatientFormState extends ConsumerState<EditPatientForm>{
   late final TextEditingController _zipController;
   late final TextEditingController _barangayController;
   late final TextEditingController _cityController;
-  late final TextEditingController _provinceController; 
+  late final TextEditingController _provinceController;
 
   String? _selectedSuffix;
   String? _selectedMonth;
   String? _selectedDay;
   String? _selectedYear;
   String? _selectedSex;
-  String? _selectedCivilStatus;   
+  String? _selectedCivilStatus;
   String? _selectedProvince;
   String? _selectedCity;
   String? _selectedBarangay;
@@ -60,26 +60,35 @@ class _EditPatientFormState extends ConsumerState<EditPatientForm>{
   bool _isPWD = false;
 
   @override
-  void initState(){
+  void initState() {
     super.initState();
 
-    _firstNameController = TextEditingController(text: widget.patient.firstName);
-    _middleNameController = TextEditingController(text: widget.patient.middleName ?? '');
+    _firstNameController =
+        TextEditingController(text: widget.patient.firstName);
+    _middleNameController =
+        TextEditingController(text: widget.patient.middleName ?? '');
     _lastNameController = TextEditingController(text: widget.patient.lastName);
-    _contactNumberController = TextEditingController(text: widget.patient.contactNumber);
-    _emergencyContactController = TextEditingController(text: widget.patient.emergencyContactNo);
-    _referredByController = TextEditingController(text: widget.patient.referredBy);
-    _relationshipController = TextEditingController(text: widget.patient.relationship);
-    _emergencyContactRelationshipController = TextEditingController(text: widget.patient.relationshipEmergency);
-    _streetController = TextEditingController(text: widget.patient.streetAddress);
+    _contactNumberController =
+        TextEditingController(text: widget.patient.contactNumber);
+    _emergencyContactController =
+        TextEditingController(text: widget.patient.emergencyContactNo);
+    _referredByController =
+        TextEditingController(text: widget.patient.referredBy);
+    _relationshipController =
+        TextEditingController(text: widget.patient.relationship);
+    _emergencyContactRelationshipController =
+        TextEditingController(text: widget.patient.relationshipEmergency);
+    _streetController =
+        TextEditingController(text: widget.patient.streetAddress);
     _zipController = TextEditingController(text: widget.patient.zipCode);
     _barangayController = TextEditingController(text: widget.patient.barangay);
-    _cityController = TextEditingController(text: widget.patient.cityMunicipality);
+    _cityController =
+        TextEditingController(text: widget.patient.cityMunicipality);
     _provinceController = TextEditingController(text: widget.patient.province);
 
     _selectedSuffix = widget.patient.suffix;
     _selectedYear = widget.patient.birthDate.year.toString();
-    _selectedMonth = DateService.months[widget.patient.birthDate.month - 1]; 
+    _selectedMonth = DateService.months[widget.patient.birthDate.month - 1];
     _selectedDay = widget.patient.birthDate.day.toString();
     _selectedSex = widget.patient.sex;
     _selectedCivilStatus = widget.patient.civilStatus;
@@ -90,28 +99,30 @@ class _EditPatientFormState extends ConsumerState<EditPatientForm>{
   }
 
   @override
-  void dispose(){
-  _firstNameController.dispose();
-  _middleNameController.dispose();
-  _lastNameController.dispose();
-  _contactNumberController.dispose();
-  _emergencyContactController.dispose();
-  _referredByController.dispose();
-  _relationshipController.dispose();
-  _emergencyContactRelationshipController.dispose(); 
-  _streetController.dispose();
-  _zipController.dispose();
-  _barangayController.dispose();   
-  _cityController.dispose();       
-  _provinceController.dispose();   
-  super.dispose();
+  void dispose() {
+    _firstNameController.dispose();
+    _middleNameController.dispose();
+    _lastNameController.dispose();
+    _contactNumberController.dispose();
+    _emergencyContactController.dispose();
+    _referredByController.dispose();
+    _relationshipController.dispose();
+    _emergencyContactRelationshipController.dispose();
+    _streetController.dispose();
+    _zipController.dispose();
+    _barangayController.dispose();
+    _cityController.dispose();
+    _provinceController.dispose();
+    super.dispose();
   }
 
   void _showErrorDialog(String title, String message) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(title, style: AppTheme.textTheme.titleMedium?.copyWith(color: AppTheme.red600)),
+        title: Text(title,
+            style: AppTheme.textTheme.titleMedium
+                ?.copyWith(color: AppTheme.red600)),
         content: Text(message, style: AppTheme.textTheme.bodyMedium),
         actions: [
           TextButton(
@@ -122,16 +133,11 @@ class _EditPatientFormState extends ConsumerState<EditPatientForm>{
       ),
     );
   }
-  
- void _handleSave() async {
-    try {
-      // 1. Incomplete Date Validation
-      if (_selectedMonth == null || _selectedDay == null || _selectedYear == null) {
-        _showErrorDialog("Incomplete Date", "Please complete the Date of Birth.");
-        return;
-      }
 
-      final birthDate = DateHelper.convertToDateTime(_selectedMonth!, _selectedDay!, _selectedYear!);
+  void _handleSave() async {
+    try {
+      final birthDate = DateHelper.convertToDateTime(
+          _selectedMonth!, _selectedDay!, _selectedYear!);
 
       // 2. Required Field Validation using MissingInfoDialog
       List<String> missing = FormValidator.getMissingPatientFields(
@@ -156,32 +162,45 @@ class _EditPatientFormState extends ConsumerState<EditPatientForm>{
       // 3. Format Validation (Mobile and ZIP)
       List<String> formatErrors = [];
       final contact = _contactNumberController.text.trim();
+      final emergencyContact = _emergencyContactController.text.trim();
       final zip = _zipController.text.trim();
 
       if (contact.length != 11 || !contact.startsWith('09')) {
-        formatErrors.add("• Mobile Number must be 11 digits (09xxxxxxxxx).");
+        formatErrors
+            .add("• Contact Number must be 11 digits and must start with 09.");
       }
+
       if (zip.length != 4) {
         formatErrors.add("• ZIP Code must be exactly 4 digits.");
       }
-
+      
+      if (emergencyContact.isNotEmpty) {
+        if (emergencyContact.length != 11 ||
+            !emergencyContact.startsWith('09')) {
+          formatErrors
+              .add("• Emergency Number must be 11 digits and start with '09'.");
+        }
+      }
       if (formatErrors.isNotEmpty) {
         _showErrorDialog("Invalid Format", formatErrors.join('\n'));
         return;
       }
 
+      
+
       final db = ref.read(databaseProvider);
       final repository = PatientRepository(db);
-      
+
       bool exists = await repository.isDuplicateForUpdate(
-        widget.patient.patientId, 
+        widget.patient.patientId,
         _firstNameController.text.trim(),
         _lastNameController.text.trim(),
         birthDate,
       );
 
       if (exists) {
-        _showErrorDialog("Duplicate Record", "Another patient with this name and birthdate already exists.");
+        _showErrorDialog("Duplicate Record",
+            "Another patient with this name and birthdate already exists.");
         return;
       }
 
@@ -192,18 +211,24 @@ class _EditPatientFormState extends ConsumerState<EditPatientForm>{
         middleName: drift.Value(_middleNameController.text.trim()),
         lastName: drift.Value(_lastNameController.text.trim()),
         suffix: drift.Value(_selectedSuffix),
-        birthDate: drift.Value(birthDate), 
+        birthDate: drift.Value(birthDate),
         sex: drift.Value(_selectedSex ?? widget.patient.sex),
-        civilStatus: drift.Value(_selectedCivilStatus ?? widget.patient.civilStatus),
+        civilStatus:
+            drift.Value(_selectedCivilStatus ?? widget.patient.civilStatus),
         contactNumber: drift.Value(contact),
-        emergencyContactNo: drift.Value(_emergencyContactController.text.trim()),
-        relationshipEmergency: drift.Value(_emergencyContactRelationshipController.text.trim()),
+        emergencyContactNo:
+            drift.Value(_emergencyContactController.text.trim()),
+        relationshipEmergency:
+            drift.Value(_emergencyContactRelationshipController.text.trim()),
         referredBy: drift.Value(_referredByController.text.trim()),
         relationship: drift.Value(_relationshipController.text.trim()),
         streetAddress: drift.Value(_streetController.text.trim()),
-        barangay: drift.Value(_selectedBarangay ?? _barangayController.text.trim()),
-        cityMunicipality: drift.Value(_selectedCity ?? _cityController.text.trim()),
-        province: drift.Value(_selectedProvince ?? _provinceController.text.trim()),
+        barangay:
+            drift.Value(_selectedBarangay ?? _barangayController.text.trim()),
+        cityMunicipality:
+            drift.Value(_selectedCity ?? _cityController.text.trim()),
+        province:
+            drift.Value(_selectedProvince ?? _provinceController.text.trim()),
         zipCode: drift.Value(zip),
         isSeniorOrPWD: drift.Value(_isPWD),
         updatedAt: drift.Value(DateTime.now()),
@@ -213,31 +238,32 @@ class _EditPatientFormState extends ConsumerState<EditPatientForm>{
 
       widget.onSave(updatedPatient);
     } catch (e) {
-      _showErrorDialog("System Error", "An unexpected error occurred while saving.");
+      _showErrorDialog(
+          "System Error", "An unexpected error occurred while saving.");
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 1200),
-        margin: const EdgeInsets.all(24),
-        padding: const EdgeInsets.all(32),
-        decoration: BoxDecoration(
-          color: AppTheme.white500,
-          borderRadius: BorderRadius.circular(24),
-          boxShadow: AppTheme.floatShadow,
-        ),
-        child: Column(
+        child: Container(
+      constraints: const BoxConstraints(maxWidth: 1200),
+      margin: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(32),
+      decoration: BoxDecoration(
+        color: AppTheme.white500,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: AppTheme.floatShadow,
+      ),
+      child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // HEADER 
+            // HEADER
             Text("Edit ${widget.patient.firstName}'s Personal Details",
                 style: Theme.of(context).textTheme.headlineLarge),
             const SizedBox(height: 32),
-            // FULL NAME 
+            // FULL NAME
             Text('Full Name', style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: 12),
             Row(
@@ -271,94 +297,100 @@ class _EditPatientFormState extends ConsumerState<EditPatientForm>{
                     controller: _lastNameController,
                   ),
                 ),
-                const SizedBox(width:20),
+                const SizedBox(width: 20),
                 Expanded(
                   flex: 1,
                   child: InputField(
-                    label:'Suffix',
-                    hintText: 'e.g. Jr',
-                    variant: InputVariant.dropdown,
-                    dropdownValue: _selectedSuffix,
-                    dropdownItems: const ["Jr.", "Sr.", "II", "III", "IV", "V"], 
-                    onDropdownChanged: (value) {
-                      setState(() {
-                        _selectedSuffix = value == "None" ? null : value;
-                      });
-                    }
-                  ),
+                      label: 'Suffix',
+                      hintText: 'e.g. Jr',
+                      variant: InputVariant.dropdown,
+                      dropdownValue: _selectedSuffix,
+                      dropdownItems: const [
+                        "Jr.",
+                        "Sr.",
+                        "II",
+                        "III",
+                        "IV",
+                        "V"
+                      ],
+                      onDropdownChanged: (value) {
+                        setState(() {
+                          _selectedSuffix = value == "None" ? null : value;
+                        });
+                      }),
                 ),
               ],
             ),
             const SizedBox(height: 32),
 
-            // DEMOGRAPHIC 
-            Text('Demographic', style: Theme.of(context).textTheme.titleLarge), 
+            // DEMOGRAPHIC
+            Text('Demographic', style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: 12),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 if (!isEditing)
-                Expanded(
-                  child: InputField(
-                    hintText: "Select a year",
-                    label: "Year",
-                    variant: InputVariant.dropdown,
-                    dropdownValue: _selectedYear,
-                    isRequired: true,
-                    dropdownItems: List.generate(
-                        125, (i) => (DateTime.now().year - i).toString()),
-                    onDropdownChanged: (value) { 
-                      setState(() {
-                        _selectedYear = value;
-                        _selectedMonth = null;
-                        _selectedDay = null;
-                      });
-                    },
+                  Expanded(
+                    child: InputField(
+                      hintText: "Select a year",
+                      label: "Year",
+                      variant: InputVariant.dropdown,
+                      dropdownValue: _selectedYear,
+                      isRequired: true,
+                      dropdownItems: List.generate(
+                          125, (i) => (DateTime.now().year - i).toString()),
+                      onDropdownChanged: (value) {
+                        setState(() {
+                          _selectedYear = value;
+                          _selectedMonth = null;
+                          _selectedDay = null;
+                        });
+                      },
+                    ),
                   ),
-                ),
                 if (!isEditing)
-                Expanded(
-                  child: InputField(
-                    hintText: _selectedYear == null 
-                        ? "Select a Year first"
-                        : "Select Month",
-                    label: "Month",
-                    variant: InputVariant.dropdown,
-                    dropdownValue: _selectedMonth,
-                    isRequired: true,
-                    dropdownItems:
-                        _selectedYear == null ? [] : DateService.months, 
-                    onDropdownChanged: (value) {
-                      setState(() {
-                        _selectedMonth = value;
-                        _selectedDay = null;
-                      });
-                    },
+                  Expanded(
+                    child: InputField(
+                      hintText: _selectedYear == null
+                          ? "Select a Year first"
+                          : "Select Month",
+                      label: "Month",
+                      variant: InputVariant.dropdown,
+                      dropdownValue: _selectedMonth,
+                      isRequired: true,
+                      dropdownItems:
+                          _selectedYear == null ? [] : DateService.months,
+                      onDropdownChanged: (value) {
+                        setState(() {
+                          _selectedMonth = value;
+                          _selectedDay = null;
+                        });
+                      },
+                    ),
                   ),
-                ),
                 if (!isEditing)
-                Expanded(
-                  child: InputField(
-                    key: ValueKey('$_selectedYear-$_selectedMonth'),
-                    hintText: _selectedMonth == null
-                        ? "Select a Month first" 
-                        : "Select Day",
-                    label: "Day",
-                    variant: InputVariant.dropdown,
-                    dropdownValue: _selectedDay,
-                    isRequired: true,
-                    dropdownItems:
-                        (_selectedYear == null || _selectedMonth == null)
-                            ? []
-                            : List.generate(
-                                DateService.getDaysInMonth( 
-                                    _selectedMonth, _selectedYear),
-                                (index) => (index + 1).toString(),
-                              ),
-                    onDropdownChanged: (value) =>
-                        setState(() => _selectedDay = value),
+                  Expanded(
+                    child: InputField(
+                      key: ValueKey('$_selectedYear-$_selectedMonth'),
+                      hintText: _selectedMonth == null
+                          ? "Select a Month first"
+                          : "Select Day",
+                      label: "Day",
+                      variant: InputVariant.dropdown,
+                      dropdownValue: _selectedDay,
+                      isRequired: true,
+                      dropdownItems:
+                          (_selectedYear == null || _selectedMonth == null)
+                              ? []
+                              : List.generate(
+                                  DateService.getDaysInMonth(
+                                      _selectedMonth, _selectedYear),
+                                  (index) => (index + 1).toString(),
+                                ),
+                      onDropdownChanged: (value) =>
+                          setState(() => _selectedDay = value),
+                    ),
                   ),
-                ),
                 Expanded(
                   child: InputField(
                     hintText: 'Select a sex',
@@ -393,17 +425,17 @@ class _EditPatientFormState extends ConsumerState<EditPatientForm>{
                 ),
                 const SizedBox(width: 20),
                 Expanded(
-                  child: RadioGroupField(
-                      label: "PWD Status",
-                      options: const ["Applicable", "Not Applicable"],
-                      selectedValue: _isPWD ? "Applicable" : "Not Applicable",
-                      onChanged: (v) =>
-                          setState(() => _isPWD = v == "Applicable"))),
+                    child: RadioGroupField(
+                        label: "PWD Status",
+                        options: const ["Applicable", "Not Applicable"],
+                        selectedValue: _isPWD ? "Applicable" : "Not Applicable",
+                        onChanged: (v) =>
+                            setState(() => _isPWD = v == "Applicable"))),
               ],
             ),
             const SizedBox(height: 32),
 
-            // CONTACTS 
+            // CONTACTS
             Text('Contacts', style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: 12),
             Row(
@@ -416,9 +448,9 @@ class _EditPatientFormState extends ConsumerState<EditPatientForm>{
                     isRequired: true,
                     controller: _contactNumberController,
                     inputFormatters: [
-                    FilteringTextInputFormatter.digitsOnly,
-                    LengthLimitingTextInputFormatter(11),
-                  ],
+                      FilteringTextInputFormatter.digitsOnly,
+                      LengthLimitingTextInputFormatter(11),
+                    ],
                   ),
                 ),
                 const SizedBox(width: 20),
@@ -428,9 +460,9 @@ class _EditPatientFormState extends ConsumerState<EditPatientForm>{
                     hintText: 'Enter emergency number',
                     controller: _emergencyContactController,
                     inputFormatters: [
-                    FilteringTextInputFormatter.digitsOnly,
-                    LengthLimitingTextInputFormatter(11),
-                  ],
+                      FilteringTextInputFormatter.digitsOnly,
+                      LengthLimitingTextInputFormatter(11),
+                    ],
                   ),
                 ),
                 const SizedBox(width: 20),
@@ -440,8 +472,8 @@ class _EditPatientFormState extends ConsumerState<EditPatientForm>{
                     hintText: 'Enter relationship to patient',
                     controller: _emergencyContactRelationshipController,
                     inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]'))
-                  ],
+                      FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]'))
+                    ],
                   ),
                 ),
               ],
@@ -456,8 +488,8 @@ class _EditPatientFormState extends ConsumerState<EditPatientForm>{
                     hintText: 'Enter referral name',
                     controller: _referredByController,
                     inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')) 
-                  ],
+                      FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]'))
+                    ],
                   ),
                 ),
                 const SizedBox(width: 20),
@@ -467,8 +499,8 @@ class _EditPatientFormState extends ConsumerState<EditPatientForm>{
                     hintText: 'Enter relationship to referral',
                     controller: _relationshipController,
                     inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')) 
-                  ],
+                      FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]'))
+                    ],
                   ),
                 ),
               ],
@@ -478,87 +510,87 @@ class _EditPatientFormState extends ConsumerState<EditPatientForm>{
             // ADDRESS
             Text('Address', style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: 12),
-              InputField(
-              label: "Street Address",
-              hintText: "Enter Street Address", 
-              isRequired: true,
-              controller: _streetController), // street controller
-          const SizedBox(height: 20),
-          Row(
-            children: [
-              Expanded(
-                  child: InputField(
-                      label: "Province",
-                      hintText: "Select a province",
-                      variant: InputVariant.dropdown,
-                      dropdownValue: _selectedProvince,
-                      dropdownItems: PhAddressService.getAllProvinceNames(), 
+            InputField(
+                label: "Street Address",
+                hintText: "Enter Street Address",
+                isRequired: true,
+                controller: _streetController), // street controller
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                Expanded(
+                    child: InputField(
+                        label: "Province",
+                        hintText: "Select a province",
+                        variant: InputVariant.dropdown,
+                        dropdownValue: _selectedProvince,
+                        dropdownItems: PhAddressService.getAllProvinceNames(),
+                        isRequired: true,
+                        onDropdownChanged: (v) => setState(() {
+                              _selectedProvince = v;
+                              _selectedCity = null;
+                              _selectedBarangay = null;
+                            }))),
+                const SizedBox(width: 20),
+                Expanded(
+                    child: InputField(
+                        key: ValueKey(_selectedProvince),
+                        label: "City/Municipality",
+                        hintText: _selectedProvince == null
+                            ? "Select A Province First"
+                            : "Select A City",
+                        variant: InputVariant.dropdown,
+                        dropdownValue: _selectedCity,
+                        dropdownItems: _selectedProvince != null
+                            ? PhAddressService.getCitiesByProvince(
+                                _selectedProvince!)
+                            : [],
+                        isRequired: true,
+                        onDropdownChanged: (v) => setState(() {
+                              _selectedCity = v;
+                              _selectedBarangay = null;
+                            }))),
+              ],
+            ),
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                Expanded(
+                    child: InputField(
+                        key: ValueKey(_selectedCity),
+                        label: "Barangay",
+                        hintText: _selectedCity == null
+                            ? "Select a city first"
+                            : "Select a Barangay",
+                        variant: InputVariant.dropdown,
+                        dropdownValue: _selectedBarangay,
+                        dropdownItems:
+                            (_selectedProvince != null && _selectedCity != null)
+                                ? PhAddressService.getBarangaysByLocation(
+                                    provinceName: _selectedProvince!,
+                                    cityName: _selectedCity!)
+                                : [],
+                        isRequired: true,
+                        onDropdownChanged: (v) =>
+                            setState(() => _selectedBarangay = v))),
+                const SizedBox(width: 20),
+                Expanded(
+                    flex: 1,
+                    child: InputField(
+                      label: "ZIP Code",
+                      hintText: "Enter ZIP code",
                       isRequired: true,
-                      onDropdownChanged: (v) => setState(() {
-                            _selectedProvince = v;
-                            _selectedCity = null;
-                            _selectedBarangay = null;
-                          }))),
-              const SizedBox(width: 20),
-              Expanded(
-                  child: InputField(
-                      key: ValueKey(_selectedProvince),
-                      label: "City/Municipality",
-                      hintText: _selectedProvince == null
-                          ? "Select A Province First" 
-                          : "Select A City", 
-                      variant: InputVariant.dropdown,
-                      dropdownValue: _selectedCity,
-                      dropdownItems: _selectedProvince != null
-                          ? PhAddressService.getCitiesByProvince(
-                              _selectedProvince!)
-                          : [],
-                      isRequired: true,
-                      onDropdownChanged: (v) => setState(() {
-                            _selectedCity = v;
-                            _selectedBarangay = null;
-                          }))),
-            ],
-          ),
-          const SizedBox(height: 20),
-          Row(
-            children: [
-              Expanded(
-                  child: InputField(
-                      key: ValueKey(_selectedCity),
-                      label: "Barangay",
-                      hintText: _selectedCity == null
-                          ? "Select a city first" 
-                          : "Select a Barangay", 
-                      variant: InputVariant.dropdown,
-                      dropdownValue: _selectedBarangay,
-                      dropdownItems:
-                          (_selectedProvince != null && _selectedCity != null)
-                              ? PhAddressService.getBarangaysByLocation(
-                                  provinceName: _selectedProvince!,
-                                  cityName: _selectedCity!)
-                              : [],
-                      isRequired: true,
-                      onDropdownChanged: (v) =>
-                          setState(() => _selectedBarangay = v))),
-              const SizedBox(width: 20),
-              Expanded(
-                  flex: 1,
-                  child: InputField(
-                    label: "ZIP Code",
-                    hintText: "Enter ZIP code",
-                    isRequired: true,
-                    controller: _zipController, 
-                    inputFormatters: [
-                      FilteringTextInputFormatter.digitsOnly,
-                      LengthLimitingTextInputFormatter(4),
-                    ],
-                  )),
+                      controller: _zipController,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly,
+                        LengthLimitingTextInputFormatter(4),
+                      ],
+                    )),
               ],
             ),
             const SizedBox(height: 40),
 
-            // UPDATE BUTTON 
+            // UPDATE BUTTON
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
@@ -574,9 +606,7 @@ class _EditPatientFormState extends ConsumerState<EditPatientForm>{
                 ),
               ],
             )
-          ]
-      ),
-    )
-    );
+          ]),
+    ));
   }
 }

@@ -59,7 +59,7 @@ class PatientRepository {
           t.firstName.equals(first) & 
           t.lastName.equals(last) & 
           t.birthDate.equals(dob) & 
-          t.patientId.isNotValue(currentPatientId)
+          t.patientId.equals(currentPatientId).not()
       );
     
     final match = await query.getSingleOrNull();
