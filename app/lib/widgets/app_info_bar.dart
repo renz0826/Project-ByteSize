@@ -4,11 +4,7 @@ import './app_status_badge.dart';
 import 'package:heroicons/heroicons.dart';
 import './icon_buttons.dart';
 
-// NOTE: This file can be lighter if we were to use a helper for the text design,
-// namely by predefining the styles and layout. This ensures efficient code
-// reusability and reduces the boilerplate of each block.
-
-/// Centralized Date Formatter to avoid repetition
+/// Centralized Date Formatter
 String formatDate(DateTime date) {
   final mm = date.month.toString().padLeft(2, '0');
   final dd = date.day.toString().padLeft(2, '0');
@@ -16,14 +12,12 @@ String formatDate(DateTime date) {
   return '$mm/$dd/$yy';
 }
 
-// shared text style helper
 TextStyle? barTextStyle(BuildContext context) {
   return Theme.of(context).textTheme.bodySmall?.copyWith(
         color: AppTheme.black500,
       );
 }
 
-// shared bar text widget - handles style and flex dynamically
 class _BarText extends StatelessWidget {
   final String text;
   final int flex;
@@ -49,10 +43,9 @@ class _BarText extends StatelessWidget {
   }
 }
 
-// Bar container
 class _BarContainer extends StatelessWidget {
   final List<Widget> children;
-  final VoidCallback? onTap; // Add this
+  final VoidCallback? onTap;
 
   const _BarContainer({required this.children, this.onTap});
 
@@ -73,7 +66,7 @@ class _BarContainer extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             child: SizedBox(
-              height: 36, // Standardized content height
+              height: 36,
               child: Row(
                 children: children,
               ),
@@ -85,7 +78,6 @@ class _BarContainer extends StatelessWidget {
   }
 }
 
-//shared menu item widget
 class BarMenuItem {
   final String value;
   final HeroIcons icon;
@@ -102,7 +94,6 @@ class BarMenuItem {
   });
 }
 
-// Shared options button
 class _MoreOptions extends StatelessWidget {
   final List<BarMenuItem> items;
   final ValueChanged<String>? onSelected;
@@ -126,13 +117,12 @@ class _MoreOptions extends StatelessWidget {
   }
 
   PopupMenuItem<String> _buildItem(BarMenuItem item) {
-    // Grey out the colors if the item is disabled
     final contentColor = item.enable
-        ? (item.color ?? AppTheme.black500) 
+        ? (item.color ?? AppTheme.black500)
         : AppTheme.gray400;
-        
+
     final iconColor = item.enable
-        ? (item.color ?? AppTheme.gray500) 
+        ? (item.color ?? AppTheme.gray500)
         : AppTheme.gray400;
 
     return PopupMenuItem<String>(
@@ -185,7 +175,6 @@ class AppointmentBar extends StatelessWidget {
     this.onMenuSelected,
   });
 
-  // action icon depends on status — uses IconButtons widget
   Widget _actionButton() {
     final isWaiting = status == BadgeStatus.waiting;
     return IconButtons(
@@ -252,7 +241,6 @@ class AppointmentBar extends StatelessWidget {
   }
 }
 
-// Patients treated bar (Dashboard - Patient treated)
 class PatientsTreatedBar extends StatelessWidget {
   final String fullName;
   final String procedure;
@@ -267,18 +255,13 @@ class PatientsTreatedBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return _BarContainer(
       children: [
-        _BarText(
-          fullName,
-          flex: 3,
-          ellipsis: true,
-        ), // name
-        _BarText(procedure), // procedure
+        _BarText(fullName, flex: 3, ellipsis: true),
+        _BarText(procedure),
       ],
     );
   }
 }
 
-// Patients Record Bar
 class PatientRecordBar extends StatelessWidget {
   final String fullName;
   final String sex;
@@ -308,9 +291,7 @@ class PatientRecordBar extends StatelessWidget {
         _BarText('$age yo', flex: 2),
         _BarText(address, flex: 5, ellipsis: true),
         _BarText(contact, flex: 3),
-        Expanded(flex: 2, child: const SizedBox()),
-
-        // more options: Add New Clinical Record, Add Schedule, View Record, Edit Personal Details, Archive Record
+        const Expanded(flex: 2, child: SizedBox()),
         SizedBox(
           width: 70,
           child: _MoreOptions(
@@ -357,7 +338,6 @@ class PatientRecordBar extends StatelessWidget {
   }
 }
 
-// Billings Bar
 class BillingBar extends StatelessWidget {
   final String invoiceId;
   final String fullName;
@@ -381,8 +361,7 @@ class BillingBar extends StatelessWidget {
     this.onMenuSelected,
     this.onTap,
   });
-  
-  // Amount Getter
+
   String get _formattedAmount {
     final formatted = amount.toStringAsFixed(0).replaceAllMapped(
           RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
@@ -394,21 +373,19 @@ class BillingBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _BarContainer(
-      onTap: onTap, // Makes the whole bar clickable
+      onTap: onTap,
       children: [
-        // FIXED FLEX: Matching the dashboard's _columnFlex exactly
         _BarText(invoiceId, flex: 2),
         _BarText(fullName, flex: 3, ellipsis: true),
         _BarText(procedure, flex: 4, ellipsis: true),
         _BarText(_formattedAmount, flex: 2),
         _BarText(formatDate(date), flex: 2),
-        
-        // Status Badge
         Expanded(
           flex: 2,
           child: Align(
             alignment: Alignment.centerLeft,
-            child: AppStatusBadge(status: status)),
+            child: AppStatusBadge(status: status),
+          ),
         ),
 
         // More Options 
@@ -428,7 +405,6 @@ class BillingBar extends StatelessWidget {
   }
 }
 
-// Schedule bar
 class ScheduleBar extends StatelessWidget {
   final String fullName;
   final DateTime date;
@@ -436,6 +412,7 @@ class ScheduleBar extends StatelessWidget {
   final String procedure;
   final ValueChanged<String>? onMenuSelected;
 
+  // Constructor fixed: added parameters to actually assign the variables
   const ScheduleBar({
     super.key,
     required this.fullName,
@@ -449,31 +426,22 @@ class ScheduleBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return _BarContainer(
       children: [
-        _BarText(
-          fullName,
-          flex: 3,
-          ellipsis: true,
-        ),
+        _BarText(fullName, flex: 3, ellipsis: true),
         _BarText(formatDate(date)),
         _BarText(time),
-        _BarText(
-          procedure,
-          ellipsis: true,
-        ),
-
-        // more options: View Appointment, Edit Appointment, Cancel Appointment
+        _BarText(procedure, ellipsis: true),
         _MoreOptions(
           onSelected: onMenuSelected,
           items: [
-            BarMenuItem(
+            const BarMenuItem(
                 value: 'view_appointment',
                 icon: HeroIcons.eye,
                 label: 'View Appointment'),
-            BarMenuItem(
+            const BarMenuItem(
                 value: 'edit_appointment',
                 icon: HeroIcons.pencilSquare,
                 label: 'Edit Appointment'),
-            BarMenuItem(
+            const BarMenuItem(
                 value: 'cancel_appointment',
                 icon: HeroIcons.xMark,
                 label: 'Cancel Appointment',

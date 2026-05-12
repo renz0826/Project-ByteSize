@@ -428,17 +428,18 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
       }).toList(),
     );
   }
+  // billing_dashboard.dart
 
-  // Table
-  final Map<String, int> _columnFlex = {
-    'id': 2,        // Invoice ID
-    'patient': 3,   // Patient Name
-    'procedure': 4, // Procedures (needs most space)
-    'amount': 2,    // Price
-    'date': 2,      // Created At
-    'status': 2,    // The Pending/Paid Chip
-    'actions': 1,   // The three-dot menu
-  };
+// Map to keep flex values in one place
+final Map<String, int> _columnFlex = {
+  'id': 2,        // Invoice ID
+  'patient': 3,   // Patient Name
+  'procedure': 4, // Procedure
+  'amount': 2,    // Amount
+  'date': 2,      // Date
+  'status': 2,    // Status
+  'actions': 1,   // Menu
+};
 
   Widget _buildTableHeader() {
     final headerStyle = AppTheme.textTheme.bodyLarge;
