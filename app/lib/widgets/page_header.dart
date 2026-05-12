@@ -63,7 +63,7 @@ class PageHeader extends StatelessWidget {
       );
 
     Widget _buildProfileButton(BuildContext context){
-    const String doctorName = "Dr.Reynaldo Tu";
+    const String doctorName = "Dr. Reynaldo Tu";
     const String doctorAvatar = "assets/images/profile.png";
 
     return MouseRegion(
