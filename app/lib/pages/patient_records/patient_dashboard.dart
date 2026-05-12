@@ -11,7 +11,7 @@ import '/../widgets/page_header.dart';
 import '/../widgets/app_info_bar.dart';
 import '../../widgets/status_toast.dart';
 import '../../db/database.dart';
-import '../../services/date_helper.dart';
+import '../../services/patient_service.dart';
 import '../../providers/app_providers.dart';
 import 'add_patient.dart';
 import 'add_clinical_record.dart';

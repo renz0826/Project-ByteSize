@@ -6,9 +6,7 @@ import 'package:flutter/services.dart';
 import '/../widgets/main_buttons.dart';
 import '/../widgets/input_field.dart';
 import '/../widgets/radio_buttons.dart';
-import '../../services/locations_ph.dart';
-import '../../services/date_service.dart';
-import '../../services/date_helper.dart';
+import '../../services/patient_service.dart';
 
 class EditPatientForm extends StatefulWidget {
   final PatientData patient;

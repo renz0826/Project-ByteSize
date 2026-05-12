@@ -1,6 +1,6 @@
 import 'package:drift/drift.dart';
 import '../db/database.dart';
-import '../services/patient_onboarding.dart';
+import '../services/patient_service.dart';
 
 class PatientRepository {
   final AppDatabase db;
