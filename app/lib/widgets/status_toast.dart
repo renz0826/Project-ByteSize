@@ -19,7 +19,7 @@ class StatusToast extends StatefulWidget {
     BuildContext context, {
     required String title,
     required String message,
-    bool isSuccess = true,
+    required bool isSuccess,
   }) {
     late OverlayEntry overlayEntry;
 
@@ -115,7 +115,8 @@ class _StatusToastState extends State<StatusToast>
       bottom: 32,
       right: 32,
       child: Material(
-        color: Colors.transparent, // Required to keep text styling normal inside Overlays
+        color: Colors
+            .transparent, // Required to keep text styling normal inside Overlays
         child: SlideTransition(
           position: _slideAnimation,
           child: FadeTransition(
