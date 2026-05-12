@@ -84,6 +84,7 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
 
   void _handleNext() async {
     DateTime? birthDate;
+    
     if (isEditing &&
         widget.existingPatient != null &&
         widget.existingPatient!['birthDate'] != null) {
@@ -95,6 +96,7 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
           _selectedMonth!, _selectedDay!, _selectedYear!);
     }
 
+    // 1. Required Field Validation
     List<String> missing = FormValidator.getMissingPatientFields(
       firstName: _firstNameController.text.trim(),
       lastName: _lastNameController.text.trim(),
@@ -114,7 +116,7 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
       return;
     }
 
-    // Contact Number & Zip Code PopUp Validators
+    // 2. Format Validation
     List<String> formatErrors = [];
     final contact = _contactNumberController.text.trim();
     final emergencyContact = _emergencyContactController.text.trim();
@@ -124,7 +126,6 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
       formatErrors.add("• Mobile Number must be exactly 11 digits and start with '09'.");
     }
     
-    // Only check emergency contact if the user actually typed something in
     if (emergencyContact.isNotEmpty && (emergencyContact.length != 11 || !emergencyContact.startsWith('09'))) {
       formatErrors.add("• Emergency Contact Number must be exactly 11 digits and start with '09'.");
     }
@@ -133,8 +134,6 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
       formatErrors.add("• ZIP Code must be exactly 4 digits.");
     }
 
-    // If any formatting errors exist, show this popup
-    // TODO: @Frontend, Please refactor this to suit our theme
     if (formatErrors.isNotEmpty) {
       if (mounted) {
         showDialog(
@@ -143,10 +142,7 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
             title: const Text('Invalid Input Format'),
             content: Text(formatErrors.join('\n\n')),
             actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('OK'),
-              )
+              TextButton(onPressed: () => Navigator.pop(context), child: const Text('OK'))
             ],
           ),
         );
@@ -154,27 +150,60 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
       return;
     }
     
-    // TODO: @Frontend, please refactor this, thank you - Fons
     final db = ref.read(databaseProvider);
     final repository = PatientRepository(db);
+
+    // 3. Hard Check for the exact duplicate (Matching firstname and lastname + DOB)
+    // TODO: @Frontend, please refactor
     if (await repository.isExactDuplicate(
-        _firstNameController.text, _lastNameController.text, birthDate!)) {
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Patient Already Exists'),
-          content: const Text('This patient is already in the system.'),
-          actions: [
-            TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('OK'))
-          ],
-        ),
-      );
+        _firstNameController.text.trim(), 
+        _lastNameController.text.trim(), 
+        birthDate!)) {
+      if (mounted) {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Patient Already Exists'),
+            content: const Text('A patient with this exact name and birthdate is already in the system.'),
+            actions: [
+              TextButton(onPressed: () => Navigator.pop(context), child: const Text('OK'))
+            ],
+          ),
+        );
+      }
       return;
     }
 
-  // Patient Companion (This will be the data sent to the database)
+    // 4. Soft Check for matching first name and last name 
+    // TODO: @Frontend, please refactor
+    bool nameExists = await repository.isNameDuplicate(
+      _firstNameController.text.trim(), 
+      _lastNameController.text.trim()
+    );
+
+    if (nameExists) {
+      bool? confirm = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Similar Patient Found'),
+          content: Text('A patient named "${_firstNameController.text} ${_lastNameController.text}" already exists. Are you sure this is a different person?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false), 
+              child: const Text('Cancel')
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, true), 
+              child: const Text('Yes, Proceed')
+            ),
+          ],
+        ),
+      );
+
+      if (confirm != true) return; // Stop if user clicks Cancel
+    }
+
+    // 5. Proceed to create PatientCompanion and onNext
     final patientEntry = PatientCompanion.insert(
       firstName: _firstNameController.text.trim(),
       middleName: drift.Value(_middleNameController.text.trim()),
@@ -185,8 +214,7 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
       civilStatus: _selectedStatus ?? "Single",
       contactNumber: _contactNumberController.text.trim(),
       emergencyContactNo: drift.Value(_emergencyContactController.text.trim()),
-      relationshipEmergency:
-          drift.Value(_emergencyContactRelationshipController.text.trim()),
+      relationshipEmergency: drift.Value(_emergencyContactRelationshipController.text.trim()),
       referredBy: drift.Value(_referredByController.text.trim()),
       relationship: drift.Value(_relationshipController.text.trim()),
       streetAddress: _streetController.text.trim(),
@@ -234,7 +262,7 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
                     isRequired: true,
                     controller: _firstNameController, // first name controller
                     inputFormatters: [
-                      FilteringTextInputFormatter.allow(RegExp(
+                      FilteringTextInputFormatter.allow(RegExp( // format to only allow letters in this field
                           r'[a-zA-Z\s]')), 
                     ],
                   )),
