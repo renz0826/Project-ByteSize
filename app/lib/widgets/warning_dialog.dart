@@ -6,9 +6,11 @@ class WarningDialog extends StatelessWidget {
   final String content;
   final String secondaryAction;
   final String primaryAction;
+  final bool isCaution;
 
   const WarningDialog(
       {super.key,
+      required this.isCaution,
       required this.title,
       required this.content,
       required this.secondaryAction,
@@ -18,7 +20,11 @@ class WarningDialog extends StatelessWidget {
     return showDialog<bool>(
       context: context,
       builder: (context) => const WarningDialog(
-          title: "", content: " ", secondaryAction: " ", primaryAction: ""),
+          isCaution: false,
+          title: "",
+          content: " ",
+          secondaryAction: " ",
+          primaryAction: ""),
     );
   }
 
@@ -27,9 +33,9 @@ class WarningDialog extends StatelessWidget {
     return AlertDialog(
       title: Row(
         children: [
-          const Icon(
+          Icon(
             Icons.warning_amber_rounded,
-            color: AppTheme.red600,
+            color: isCaution ? Colors.amber : AppTheme.red600,
             size: 36,
           ),
           const SizedBox(width: 8),
@@ -60,7 +66,7 @@ class WarningDialog extends StatelessWidget {
         ElevatedButton(
           onPressed: () => Navigator.of(context).pop(true),
           style: ElevatedButton.styleFrom(
-            backgroundColor: AppTheme.red600,
+            backgroundColor: isCaution ? Colors.amber : AppTheme.red600,
           ),
           child: Text(primaryAction,
               style: Theme.of(context).textTheme.labelMedium),
