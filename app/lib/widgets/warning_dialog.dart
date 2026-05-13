@@ -35,7 +35,9 @@ class WarningDialog extends StatelessWidget {
         children: [
           Icon(
             Icons.warning_amber_rounded,
-            color: isCaution ? Colors.amber : AppTheme.red600,
+            color: isCaution
+                ? const Color.fromARGB(255, 240, 180, 0)
+                : AppTheme.red600,
             size: 36,
           ),
           const SizedBox(width: 8),
@@ -66,10 +68,15 @@ class WarningDialog extends StatelessWidget {
         ElevatedButton(
           onPressed: () => Navigator.of(context).pop(true),
           style: ElevatedButton.styleFrom(
-            backgroundColor: isCaution ? Colors.amber : AppTheme.red600,
+            backgroundColor: isCaution
+                ? const Color.fromARGB(255, 231, 173, 0)
+                : AppTheme.red600,
           ),
-          child: Text(primaryAction,
-              style: Theme.of(context).textTheme.labelMedium),
+          child: Text(
+            primaryAction,
+            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                color: isCaution ? AppTheme.black500 : AppTheme.white500),
+          ),
         ),
       ],
     );
