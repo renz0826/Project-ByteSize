@@ -362,6 +362,7 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
       context: context,
       builder: (BuildContext context) {
         return WarningDialog(
+            isCaution: false,
             title: "Discard Unsaved Changes?",
             content:
                 "Are you sure you want to return to the records dashboard? Any unsaved data will be lost.",
