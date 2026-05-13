@@ -51,7 +51,7 @@ class _ScheduleAppointmentFormState
       final patient = widget.appointmentToEdit!.patient;
 
       _selectedPatient =
-          '${patient.lastName}, ${patient.firstName}'; // display in this format always
+          '${patient.lastName}, ${patient.firstName} ${patient.suffix}'; // display in this format always
       _selectedMonth = SchedulingService.months[appt.scheduleDateTime.month -
           1]; // logic if month is less than system month, it will assume that it is booking for next year
       _selectedDay = appt.scheduleDateTime.day.toString();

@@ -301,7 +301,7 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
         _currentIndex = 2;
       }),
       child: ScheduleBar(
-      fullName: '${patient.lastName}, ${patient.firstName}',
+      fullName: '${patient.lastName}, ${patient.firstName} ${patient.suffix}',
       date: appointment.scheduleDateTime,
       time: appointment.timeSlot,
       procedure: appointment.reasonForVisit ,

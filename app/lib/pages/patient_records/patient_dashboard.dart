@@ -141,7 +141,7 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
       builder: (context) => AlertDialog(
         title: const Text('Archive Patient Record'),
         content: Text(
-            'Are you sure you want to archive the record for ${patient.lastName}, ${patient.firstName}?\n\n'
+            'Are you sure you want to archive the record for ${patient.lastName}, ${patient.firstName} ${patient.suffix}?\n\n'
             'This will also automatically CANCEL all scheduled appointments for this patient.'),
         actions: [
           TextButton(
@@ -207,7 +207,7 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
       builder: (context) => AlertDialog(
         title: const Text('Restore Patient Record'),
         content: Text(
-            'Are you sure you want to restore the record for ${patient.lastName}, ${patient.firstName}?'),
+            'Are you sure you want to restore the record for ${patient.lastName}, ${patient.firstName} ${patient.suffix}?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
@@ -803,7 +803,7 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
     return GestureDetector(
       onTap: () => _goToViewPatient(patient),
       child: PatientRecordBar(
-        fullName: '${patient.lastName}, ${patient.firstName}',
+        fullName: '${patient.lastName}, ${patient.firstName} ${patient.suffix}',
         sex: patient.sex,
         age: DateHelper.calculateAge(patient.birthDate),
         address: '${patient.province}, ${patient.cityMunicipality}',
