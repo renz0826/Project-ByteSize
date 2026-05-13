@@ -10,7 +10,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await windowManager.ensureInitialized();
 
-  windowManager.setMinimumSize(const Size(1440, 800));
+  windowManager.setMinimumSize(const Size(1600, 800));
 
   // Create a container to access the database from your provider
   final container = ProviderContainer();
