@@ -164,21 +164,27 @@ class _ScheduleAppointmentFormState
                   .equals(widget.appointmentToEdit!.appointment.appointmentId)))
             .write(companion);
 
-        if (mounted) { // TODO: Refactor
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Appointment Updated Successfully!")));
+        if (mounted) {
+          // TODO: Refactor
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+              content: Text("Appointment Updated Successfully!")));
         }
       } else {
         await repo.addAppointment(companion);
 
-        if (mounted) { // TODO: Refactor
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Appointment Scheduled Successfully!")));
+        if (mounted) {
+          // TODO: Refactor
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+              content: Text("Appointment Scheduled Successfully!")));
         }
       }
 
       widget.onSave();
     } catch (e) {
-      if (mounted) { // TODO: Refactor
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error: $e"), backgroundColor: Colors.red));
+      if (mounted) {
+        // TODO: Refactor
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Error: $e"), backgroundColor: Colors.red));
       }
     }
   }
@@ -199,23 +205,28 @@ class _ScheduleAppointmentFormState
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(isEditing ? "Edit Appointment" : "Schedule Appointment",
+            Text(
+                isEditing
+                    ? "Edit ${widget.appointmentToEdit?.patient.lastName}, ${widget.appointmentToEdit?.patient.firstName}'s Schedule"
+                    : "Schedule An Appointment",
                 style: Theme.of(context).textTheme.headlineLarge),
             const SizedBox(height: 32),
-            InputField(
-              label: "Patient Name",
-              hintText: "Select patient",
-              variant: InputVariant.dropdown,
-              dropdownValue: _selectedPatient,
-              isRequired: true,
-              onDropdownChanged:
-                  (isEditing || widget.preSelectedPatient != null)
-                      ? null
-                      : (v) => setState(() => _selectedPatient = v),
-              dropdownItems: widget.activePatients
-                  .where((p) => !p.isArchived) // only show patients that are not archived
-                  .map((p) => '${p.lastName}, ${p.firstName}')
-                  .toList(),
+            if (!isEditing) ...[
+              InputField(
+                label: "Select Patient By Name",
+                variant: InputVariant.dropdown,
+                dropdownValue: _selectedPatient,
+                isRequired: true,
+                dropdownItems: widget.activePatients
+                    .map((p) => "${p.lastName}, ${p.firstName}")
+                    .toList(),
+                onDropdownChanged: (v) => setState(() => _selectedPatient = v),
+              ),
+              const SizedBox(height: 32),
+            ],
+            Text(
+              "Appointment Schedule",
+              style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: 24),
             Row(
