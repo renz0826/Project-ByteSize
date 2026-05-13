@@ -9,6 +9,7 @@ import '/../widgets/main_buttons.dart';
 import '/../widgets/input_field.dart';
 import '../../repositories/appointment_repository.dart';
 import 'schedule_dashboard.dart';
+import '/../widgets/status_toast.dart';
 
 class ScheduleAppointmentForm extends ConsumerStatefulWidget {
   final VoidCallback onSave;
@@ -168,33 +169,35 @@ class _ScheduleAppointmentFormState
             .write(companion);
 
         if (mounted) {
-          // TODO: Refactor
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-              content: Text("Appointment Updated Successfully!")));
+          StatusToast.show(context,
+              isSuccess: true,
+              title: "Success",
+              message: "Appointment Updated Successfully!");
         }
       } else {
         await repo.addAppointment(companion);
 
         if (mounted) {
-          // TODO: Refactor
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-              content: Text("Appointment Scheduled Successfully!")));
+          StatusToast.show(context,
+              isSuccess: true,
+              title: "Success",
+              message: "Appointment Scheduled Successfully!");
         }
       }
 
       widget.onSave();
     } catch (e) {
       if (mounted) {
-        // TODO: Refactor
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text("Error: $e"), backgroundColor: Colors.red));
+        StatusToast.show(context,
+            isSuccess: false,
+            title: "Error",
+            message: "Failed to process appointment. Please try again.");
       }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    // TODO: Refactor this
     return Center(
       child: Container(
         constraints: const BoxConstraints(maxWidth: 1200),
