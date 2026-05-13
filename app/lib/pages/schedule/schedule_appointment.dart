@@ -215,15 +215,15 @@ class _ScheduleAppointmentFormState
                     ? "Edit ${widget.appointmentToEdit?.patient.lastName}, ${widget.appointmentToEdit?.patient.firstName}'s Schedule"
                     : "Schedule An Appointment",
                 style: Theme.of(context).textTheme.headlineLarge),
-            Column(
-              spacing: 12,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Patient Name",
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-                if (!isEditing) ...[
+            if (!isEditing)
+              Column(
+                spacing: 12,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Patient Name",
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
                   InputField(
                     label: "Select Patient by Name",
                     variant: InputVariant.dropdown,
@@ -236,8 +236,7 @@ class _ScheduleAppointmentFormState
                         setState(() => _selectedPatient = v),
                   ),
                 ],
-              ],
-            ),
+              ),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
