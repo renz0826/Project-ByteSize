@@ -126,19 +126,19 @@ class _ScheduleAppointmentFormState
     }
   }
 
+// function to save appointments to the database
   Future<void> _saveAppointment() async {
-    // function to save appointments to the database
-    // TODO: Needs form validator map for specific unentered fields
-    if (_selectedPatient == null ||
-        _selectedMonth == null ||
-        _selectedDay == null ||
-        _selectedTimeSlot == null ||
-        _reasonController.text.trim().isEmpty) {
-      RequirementDialog.show(
-          context,
-          "Missing Information",
-          "Please provide the following details.",
-          []); // if form validator is already finished, replace the "[]" with the variable name of the map
+    // Rqeuired Field Validation
+    List<String> missing = SchedulingValidator.getMissingAppointmentFields(
+      patientName: _selectedPatient,
+      month: _selectedMonth,
+      day: _selectedDay,
+      timeSlot: _selectedTimeSlot,
+      reason: _reasonController.text,
+    );
+    if (missing.isNotEmpty) {
+      RequirementDialog.show(context, "Missing Information",
+          "Please provide the following details.", missing);
       return;
     }
 
