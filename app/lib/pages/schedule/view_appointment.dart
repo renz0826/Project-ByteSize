@@ -10,8 +10,8 @@ class ViewAppointment extends StatelessWidget {
   final VoidCallback onCancel; // Added for dashboard integration
 
   const ViewAppointment({
-    super.key, 
-    this.appointmentData, 
+    super.key,
+    this.appointmentData,
     required this.onEdit,
     required this.onCancel,
   });
@@ -31,12 +31,11 @@ class ViewAppointment extends StatelessWidget {
     return Center(
       child: Container(
         margin: const EdgeInsets.all(24),
+        constraints: const BoxConstraints(maxWidth: 1200),
         child: Column(
           spacing: 32,
           children: [
-            // TOP CARD: Header and Action Buttons
             Container(
-              constraints: const BoxConstraints(minWidth: 1200),
               padding: const EdgeInsets.all(32),
               decoration: BoxDecoration(
                 color: AppTheme.white500,
@@ -55,25 +54,21 @@ class ViewAppointment extends StatelessWidget {
                     children: [
                       Button(
                           variant: ButtonVariant.secondary,
-                          icon: Icons.edit_outlined,
+                          icon: Icons.edit_calendar,
                           iconPlacement: IconPlacement.left,
-                          label: "Edit Details",
+                          label: "Edit Appointment",
                           onPressed: onEdit),
-                      const SizedBox(width: 12),
                       Button(
                           variant: ButtonVariant.dangerSecondary,
                           iconPlacement: IconPlacement.left,
                           label: "Cancel Appointment",
-                          onPressed: onCancel), 
+                          onPressed: onCancel),
                     ],
                   )
                 ],
               ),
             ),
-
-            // BOTTOM CARD: Appointment Details
             Container(
-              constraints: const BoxConstraints(minWidth: 1200),
               padding: const EdgeInsets.all(32),
               decoration: BoxDecoration(
                 color: AppTheme.white500,
@@ -81,6 +76,7 @@ class ViewAppointment extends StatelessWidget {
                 boxShadow: AppTheme.floatShadow,
               ),
               child: Column(
+                spacing: 12,
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -88,23 +84,20 @@ class ViewAppointment extends StatelessWidget {
                     "Appointment Schedule",
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
-                  const SizedBox(height: 24),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Expanded(
-                        flex: 1,
-                        child: AttributeReadView(label: "Date", content: dateStr),
+                        child:
+                            AttributeReadView(label: "Date", content: dateStr),
                       ),
-                      const SizedBox(width: 24),
                       Expanded(
-                        flex: 1,
-                        child: AttributeReadView(label: "Time Slot", content: timeStr),
+                        child: AttributeReadView(
+                            label: "Time Slot", content: timeStr),
                       ),
-                      const SizedBox(width: 24),
                       Expanded(
-                        flex: 2, // Reason gets more space
-                        child: AttributeReadView(label: "Reason for Visit", content: reason),
+                        child: AttributeReadView(
+                            label: "Reason for Visit", content: reason),
                       ),
                     ],
                   )
