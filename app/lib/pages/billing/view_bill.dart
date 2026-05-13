@@ -1,3 +1,4 @@
+import 'package:dentcity_management_system/widgets/app_status_badge.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:heroicons/heroicons.dart';
@@ -12,14 +13,14 @@ class ViewBillScreen extends ConsumerStatefulWidget {
   final JoinedInvoice invoiceData;
   final VoidCallback onBack;
   final VoidCallback onProcessPayment;
-  final VoidCallback onEditInvoice; 
+  final VoidCallback onEditInvoice;
 
   const ViewBillScreen({
     super.key,
     required this.invoiceData,
     required this.onBack,
     required this.onProcessPayment,
-    required this.onEditInvoice, 
+    required this.onEditInvoice,
   });
 
   @override
@@ -28,8 +29,9 @@ class ViewBillScreen extends ConsumerStatefulWidget {
 
 class _ViewBillScreenState extends ConsumerState<ViewBillScreen> {
   List<ProcedureChargeData> _procedures = [];
-  List<PaymentTransactionData> _transactions = []; 
+  List<PaymentTransactionData> _transactions = [];
   bool _isLoading = true;
+  PatientData? _patient;
 
   @override
   void initState() {
@@ -48,10 +50,13 @@ class _ViewBillScreenState extends ConsumerState<ViewBillScreen> {
     final payments = await (db.select(db.paymentTransaction)
           ..where((t) => t.invoiceId.equals(invoiceId)))
         .get();
+        
+    final patient = await (db.select(db.patient)..where((p) => p.patientId.equals(widget.invoiceData.invoice.patientId))).getSingle();
 
     setState(() {
       _procedures = charges;
       _transactions = payments.where((p) => p.amountReceived > 0).toList();
+      _patient = patient;
       _isLoading = false;
     });
   }
@@ -61,6 +66,17 @@ class _ViewBillScreenState extends ConsumerState<ViewBillScreen> {
     final d = date.day.toString().padLeft(2, '0');
     final y = date.year.toString();
     return '$m/$d/$y';
+  }
+
+  bool _isDiscountApplicable(PatientData? p) {
+    if (p == null) return false;
+    if (p.isSeniorOrPWD) return true; 
+    final today = DateTime.now();
+    int age = today.year - p.birthDate.year;
+    if (today.month < p.birthDate.month ||
+        (today.month == p.birthDate.month && today.day < p.birthDate.day))
+      age--;
+    return age >= 60;
   }
 
   @override
@@ -73,7 +89,6 @@ class _ViewBillScreenState extends ConsumerState<ViewBillScreen> {
           type: PageHeaderType.withBack,
           onBack: widget.onBack,
         ),
-        
         if (_isLoading)
           const Padding(
             padding: EdgeInsets.all(48.0),
@@ -84,11 +99,13 @@ class _ViewBillScreenState extends ConsumerState<ViewBillScreen> {
       ],
     );
   }
+
   Widget _buildBillContent() {
     final inv = widget.invoiceData.invoice;
     final invoiceIdString = 'INV-${inv.invoiceId.toString().padLeft(3, '0')}';
     final formattedDate = _formatDate(inv.issuedDate);
     final isPaid = inv.status.toLowerCase() == 'paid';
+    final hasDiscount = _isDiscountApplicable(_patient);
 
     return Transform.translate(
       offset: const Offset(0, -30),
@@ -99,10 +116,10 @@ class _ViewBillScreenState extends ConsumerState<ViewBillScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Summary Bar (Invoice ID | Date | Action Buttons)
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
                 decoration: BoxDecoration(
                   color: AppTheme.white500,
                   borderRadius: BorderRadius.circular(24),
@@ -121,23 +138,23 @@ class _ViewBillScreenState extends ConsumerState<ViewBillScreen> {
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
+                    AppStatusBadge(status: _mapDatabaseStatusToBadge(inv.status)),
                     const SizedBox(width: 16),
                     Row(
                       children: [
-                        // Edit Invoice Button (Reordered to the left)
                         if (!isPaid)
                           Button(
-                          label: "Edit Invoice",
-                          variant: ButtonVariant.secondary,
-                          onPressed: widget.onEditInvoice,
-                        ),
-                        
-                        SizedBox(width: 10,),
-                        
-                        // Process Payment Button
+                            label: "Edit Invoice",
+                            heroIcon: HeroIcons.pencilSquare,
+                            variant: ButtonVariant.secondary,
+                            onPressed: widget.onEditInvoice,
+                          ),
+                        const SizedBox(width: 10),
                         Button(
                           label: isPaid ? "Fully Paid" : "Process Payment",
-                          variant: isPaid ? ButtonVariant.secondary : ButtonVariant.primary,
+                          variant: isPaid
+                              ? ButtonVariant.secondary
+                              : ButtonVariant.primary,
                           onPressed: isPaid ? () {} : widget.onProcessPayment,
                         ),
                       ],
@@ -148,7 +165,6 @@ class _ViewBillScreenState extends ConsumerState<ViewBillScreen> {
 
               const SizedBox(height: 24),
 
-              // Main Bill Information
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(32),
@@ -160,27 +176,39 @@ class _ViewBillScreenState extends ConsumerState<ViewBillScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Patient Bill Headline (HeadlineLarge)
-                    Text(
-                      "${widget.invoiceData.patientName}’s Bill",
-                      style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
+                    Row(
+                      children: [
+                        Text(
+                          "${widget.invoiceData.patientNameReverse}’s Bill",
+                          style:
+                              Theme.of(context).textTheme.headlineLarge?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                        ),
+                        const SizedBox(width: 16),
+                        if (hasDiscount)
+                          Container(
+                             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                             decoration: BoxDecoration(color: Colors.green.shade50, borderRadius: BorderRadius.circular(20), border: Border.all(color: Colors.green.shade200)),
+                             child: Text("20% Senior/PWD Eligible", style: TextStyle(color: Colors.green.shade700, fontWeight: FontWeight.bold, fontSize: 12)),
+                           ),
+                      ]
                     ),
                     const SizedBox(height: 32),
 
                     _buildTableHeaders(),
                     const SizedBox(height: 12),
-                    ..._procedures.map((proc) => _buildProcedureRow(proc, inv.status)),
+                    ..._procedures
+                        .map((proc) => _buildProcedureRow(proc, hasDiscount)),
 
                     const SizedBox(height: 48),
 
-                    // Total Balance Box
                     Align(
                       alignment: Alignment.centerRight,
                       child: IntrinsicWidth(
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 24, vertical: 16),
                           decoration: BoxDecoration(
                             border: Border.all(color: AppTheme.gray400),
                             borderRadius: BorderRadius.circular(8),
@@ -189,14 +217,14 @@ class _ViewBillScreenState extends ConsumerState<ViewBillScreen> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                'Total Balance',
+                                'Amount to be Paid',
                                 style: AppTheme.textTheme.bodyMedium?.copyWith(
                                     fontWeight: FontWeight.bold,
                                     color: AppTheme.gray400),
                               ),
                               const SizedBox(width: 40),
                               Text(
-                                '₱ ${inv.totalBalance.toStringAsFixed(2)}',
+                                '₱ ${(inv.totalBalance).toStringAsFixed(2)}',
                                 style: AppTheme.textTheme.bodyLarge
                                     ?.copyWith(fontWeight: FontWeight.bold),
                               ),
@@ -206,7 +234,6 @@ class _ViewBillScreenState extends ConsumerState<ViewBillScreen> {
                       ),
                     ),
 
-                    // Transaction History Section
                     if (_transactions.isNotEmpty) ...[
                       const SizedBox(height: 48),
                       const Divider(color: AppTheme.gray400),
@@ -218,7 +245,7 @@ class _ViewBillScreenState extends ConsumerState<ViewBillScreen> {
                             ),
                       ),
                       const SizedBox(height: 16),
-                      _buildTransactionHistory(),
+                      _buildTransactionHistory(hasDiscount),
                     ],
                   ],
                 ),
@@ -230,62 +257,77 @@ class _ViewBillScreenState extends ConsumerState<ViewBillScreen> {
     );
   }
 
-  Widget _buildTransactionHistory() {
-    // 1. Initialize running balance to calculate historical change dynamically
-    double runningBalance = widget.invoiceData.grandTotal;
+  Widget _buildTransactionHistory(bool hasDiscount) {
+    double runningBalance = widget.invoiceData.grandTotal * (hasDiscount ? 0.8 : 1.0);
 
     return Column(
       children: [
         Row(
           children: [
-            Expanded(flex: 1, child: Text('#', style: AppTheme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold, color: AppTheme.gray400))),
-            Expanded(flex: 2, child: Text('Mode of Payment', style: AppTheme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold, color: AppTheme.gray400))),
-            Expanded(flex: 2, child: Text('Amount Paid', style: AppTheme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold, color: AppTheme.gray400))),
-            // ADDED NEW COLUMN HEADER
-            Expanded(flex: 2, child: Text('Change', style: AppTheme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold, color: AppTheme.gray400))),
+            Expanded(
+                flex: 1,
+                child: Text('Date',
+                    style: AppTheme.textTheme.bodyLarge?.copyWith(
+                        fontWeight: FontWeight.bold, color: AppTheme.gray400))), const SizedBox(width: 70,),
+            Expanded(
+                flex: 2,
+                child: Text('Mode of Payment',
+                    style: AppTheme.textTheme.bodyLarge?.copyWith(
+                        fontWeight: FontWeight.bold, color: AppTheme.gray400))),
+            Expanded(
+                flex: 2,
+                child: Text('Amount Paid',
+                    style: AppTheme.textTheme.bodyLarge?.copyWith(
+                        fontWeight: FontWeight.bold, color: AppTheme.gray400))),
+            Expanded(
+                flex: 2,
+                child: Text('Change',
+                    style: AppTheme.textTheme.bodyLarge?.copyWith(
+                        fontWeight: FontWeight.bold, color: AppTheme.gray400))),
           ],
         ),
         const SizedBox(height: 8),
-        
         ...List.generate(_transactions.length, (index) {
           final trans = _transactions[index];
-          
-          // 2. Logic to calculate change
+
           double change = trans.amountReceived - runningBalance;
           String changeText = "";
-          
+
           if (change > 0) {
             changeText = "₱ ${change.toStringAsFixed(2)}";
-            runningBalance = 0; // Paid off
+            runningBalance = 0; 
           } else if (change == 0) {
             changeText = "₱ 0.00";
-            runningBalance = 0; // Paid off exactly
+            runningBalance = 0; 
           } else {
-            changeText = ""; // Leave blank
-            runningBalance -= trans.amountReceived; // Deduct partial payment
+            changeText = "₱ 0.00"; 
+            runningBalance -= trans.amountReceived; 
           }
 
           return Padding(
             padding: const EdgeInsets.symmetric(vertical: 8.0),
             child: Row(
               children: [
-                Expanded(flex: 1, child: Text((index + 1).toString(), style: AppTheme.textTheme.bodyMedium)),
-                Expanded(flex: 2, child: Text(trans.modeOfPayment, style: AppTheme.textTheme.bodyMedium)),
                 Expanded(
-                  flex: 2, 
-                  child: Text(
-                    '₱ ${trans.amountReceived.toStringAsFixed(2)}', 
-                    style: AppTheme.textTheme.bodyMedium?.copyWith(color: Colors.green.shade700, fontWeight: FontWeight.bold)
-                  )
-                ),
-                // ADDED NEW COLUMN ROW DATA
+                    flex: 1,
+                    child: Text((trans.paymentDate.toString().split(' ')[0]).toString(),
+                        style: AppTheme.textTheme.bodyMedium)), const SizedBox(width: 70,),
                 Expanded(
-                  flex: 2, 
-                  child: Text(
-                    changeText, 
-                    style: AppTheme.textTheme.bodyMedium?.copyWith(color: Colors.blue.shade700, fontWeight: FontWeight.bold)
-                  )
-                ),
+                    flex: 2,
+                    child: Text(trans.modeOfPayment,
+                        style: AppTheme.textTheme.bodyMedium)),
+                Expanded(
+                    flex: 2,
+                    child: Text('₱ ${trans.amountReceived.toStringAsFixed(2)}',
+                        style: AppTheme.textTheme.bodyMedium?.copyWith(
+                            color: Colors.green.shade700,
+                            fontWeight: FontWeight.bold))),
+                Expanded(
+                    flex: 2,
+                    child: Text(changeText,
+                        style: AppTheme.textTheme.bodyMedium?.copyWith(
+                            color: Colors.blue.shade700,
+                            fontWeight: FontWeight.bold))),
               ],
             ),
           );
@@ -294,65 +336,62 @@ class _ViewBillScreenState extends ConsumerState<ViewBillScreen> {
     );
   }
 
-  Widget _buildTableHeaders() {
+ Widget _buildTableHeaders() {
     final headerStyle = AppTheme.textTheme.bodyLarge?.copyWith(
-      fontWeight: FontWeight.bold, 
+      fontWeight: FontWeight.bold,
       color: AppTheme.gray400,
     );
 
     return Row(
       children: [
-        Expanded(flex: 3, child: Text('Procedure', style: headerStyle)),
-        Expanded(flex: 2, child: Text('Procedure Charge', style: headerStyle)),
-        Expanded(flex: 1, child: Text('Quantity', style: headerStyle)),
-        Expanded(flex: 2, child: Text('Amount to be Paid', style: headerStyle)),
-        Expanded(flex: 2, child: Text('Status', style: headerStyle)),
+        Expanded(flex: 4, child: Text('Procedure', style: headerStyle)),
+        Expanded(flex: 2, child: Text('Procedure Charge', style: headerStyle)), const SizedBox(width: 50,),
+        Expanded(flex: 1, child: Text('Quantity', style: headerStyle)), const SizedBox(width: 50,),
+        Expanded(flex: 3, child: Text('Amount to be Paid', style: headerStyle)),
       ],
     );
   }
 
-  Widget _buildProcedureRow(ProcedureChargeData proc, String status) {
+  Widget _buildProcedureRow(ProcedureChargeData proc, bool hasDiscount) {
     final rowStyle = AppTheme.textTheme.bodyMedium?.copyWith(
       fontWeight: FontWeight.w600,
     );
+    
+    final amountToBePaid = proc.totalProcedureCharge * (hasDiscount ? 0.8 : 1.0);
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
         children: [
-          Expanded(flex: 3, child: Text(proc.procedureName, style: rowStyle)),
-          Expanded(flex: 2, child: Text('₱ ${proc.procedureCharge.toStringAsFixed(0)}', style: rowStyle)),
-          Expanded(flex: 1, child: Text(proc.quantity.toString(), style: rowStyle)),
-          Expanded(flex: 2, child: Text('₱ ${proc.totalProcedureCharge.toStringAsFixed(0)}', style: rowStyle)),
+          Expanded(flex: 4, child: Text(proc.procedureName, style: rowStyle)),
           Expanded(
-            flex: 2, 
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: _buildStatusBadge(status),
-            )
-          ),
+              flex: 2,
+              child: Text('₱ ${proc.procedureCharge.toStringAsFixed(2)}',
+                  style: rowStyle)), const SizedBox(width: 50,),
+          Expanded(
+              flex: 1, child: Text(proc.quantity.toString(), style: rowStyle)), const SizedBox(width: 50,),
+          Expanded(
+              flex: 3,
+              child: Text('₱ ${amountToBePaid.toStringAsFixed(2)}',
+                  style: rowStyle)),
         ],
       ),
     );
   }
 
-  Widget _buildStatusBadge(String status) {
-    final isPaid = status.toLowerCase() == 'paid';
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-      decoration: BoxDecoration(
-        color: isPaid ? Colors.green.shade50 : Colors.orange.shade50,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: isPaid ? Colors.green.shade200 : Colors.orange.shade200)
-      ),
-      child: Text(
-        status,
-        style: TextStyle(
-          color: isPaid ? Colors.green.shade800 : Colors.orange.shade800,
-          fontWeight: FontWeight.bold,
-          fontSize: 12,
-        ),
-      ),
-    );
+  BadgeStatus _mapDatabaseStatusToBadge(String dbStatus) {
+    switch (dbStatus.toLowerCase()) {
+      case 'waiting':
+        return BadgeStatus.waiting;
+      case 'in progress':
+        return BadgeStatus.inProgress;
+      case 'finished':
+      case 'paid':
+        return BadgeStatus.paid; 
+      case 'pending':
+        return BadgeStatus.pending;
+      default:
+        return BadgeStatus.waiting;
+    }
   }
 }

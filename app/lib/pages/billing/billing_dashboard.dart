@@ -10,10 +10,10 @@ import '/../widgets/main_buttons.dart';
 import '/../widgets/page_header.dart';
 import 'package:heroicons/heroicons.dart';
 
-// --- THE FIX: Pointing to the unified providers ---
 import '../../providers/app_providers.dart';
 import '../../providers/auth_provider.dart';
 import '../../repositories/invoice_repository.dart';
+import '../../db/database.dart';
 
 import 'new_bill_form.dart';
 import 'process_payment.dart';
@@ -32,6 +32,7 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
 
   List<JoinedInvoice> _allInvoices = [];
   List<JoinedInvoice> _filteredRecords = [];
+  Map<int, PatientData> _patientMap = {};
 
   int _currentIndex = 0;
   final TextEditingController _searchController = TextEditingController();
@@ -39,7 +40,6 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
   final int _recordsPerPage = 8;
   String _selectedStatus = 'All';
   
-  // Session IDs to force screens to refresh with new data
   int _formSessionId = 0;
   int _paymentSessionId = 0; 
   int _viewSessionId = 0; 
@@ -49,17 +49,28 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
   @override
   void initState() {
     super.initState();
-    // THE FIX: Use the Single Source of Truth database provider
     final db = ref.read(databaseProvider);
     _repository = InvoiceRepository(db);
     _loadInvoices();
   }
 
+  bool _isDiscountApplicable(PatientData? p) {
+    if (p == null) return false;
+    if (p.isSeniorOrPWD) return true; 
+    final today = DateTime.now();
+    int age = today.year - p.birthDate.year;
+    if (today.month < p.birthDate.month || (today.month == p.birthDate.month && today.day < p.birthDate.day)) age--;
+    return age >= 60;
+  }
+
   Future<void> _loadInvoices() async {
     try {
+      final db = ref.read(databaseProvider);
+      final patients = await db.select(db.patient).get();
+      _patientMap = {for (var p in patients) p.patientId: p};
+
       final invoices = await _repository.getAllInvoices();
       
-      // THE FIX: Safe sort prevents crashes if a date happens to be null
       invoices.sort((a, b) {
         final dateA = a.invoice.issuedDate;
         final dateB = b.invoice.issuedDate;
@@ -75,13 +86,12 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
           _filteredRecords = invoices;
           _applyFilters();
           
-          // Automatically update the active View Bill data with fresh database data
           if (_selectInvoiceToView != null) {
             try {
               _selectInvoiceToView = invoices.firstWhere(
                 (inv) => inv.invoice.invoiceId == _selectInvoiceToView!.invoice.invoiceId
               );
-            } catch (e) {} // Failsafe if invoice was deleted
+            } catch (e) {} 
           }
         });
       }
@@ -121,7 +131,7 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
 
   void _goToAddBill() {
     setState(() {
-      _selectInvoiceToView = null; // THE FIX: Clear memory so the form is blank
+      _selectInvoiceToView = null; 
       _formSessionId++;
       _currentIndex = 1;
     });
@@ -142,7 +152,6 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
     if (shouldDiscard == true) setState(() => _currentIndex = 0);
   }
 
-  // --- PIN AUTHENTICATION FOR EDITING ---
   Future<bool> _verifyPin() async {
     final TextEditingController pinController = TextEditingController();
 
@@ -208,7 +217,6 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
                   return;
                 }
 
-                // THE FIX: Ask the AuthController if the PIN is correct
                 final isValid = ref.read(authControllerProvider.notifier).verifyPin(enteredPin);
 
                 if (isValid) { 
@@ -252,7 +260,6 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
     return IndexedStack(
       index: _currentIndex,
       children: [
-        // INDEX 0: MAIN DASHBOARD
         Scaffold(
           backgroundColor: AppTheme.gray200,
           body: CustomScrollView(
@@ -300,8 +307,6 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
             ],
           ),
         ),
-
-        // INDEX 1: FORM (CREATE OR EDIT)
         SingleChildScrollView(
           child: Column(
             children: [
@@ -321,8 +326,6 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
             ],
           ),
         ),
-
-        // INDEX 2: VIEW BILL
         SingleChildScrollView(
           child: _selectInvoiceToView == null
               ? const SizedBox.shrink()
@@ -342,8 +345,6 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
                   onEditInvoice: () => _triggerEditInvoice(_selectInvoiceToView!),
                 ),
         ),
-
-        // INDEX 3: PROCESS PAYMENT
         SingleChildScrollView(
           child: _selectInvoiceToView == null
               ? const SizedBox.shrink()
@@ -363,8 +364,6 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
       ],
     );
   }
-
-  // --- UI HELPER METHODS ---
 
   Widget _buildSearchBar() {
     return Column(
@@ -428,18 +427,16 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
       }).toList(),
     );
   }
-  // billing_dashboard.dart
 
-// Map to keep flex values in one place
-final Map<String, int> _columnFlex = {
-  'id': 2,        // Invoice ID
-  'patient': 3,   // Patient Name
-  'procedure': 4, // Procedure
-  'amount': 2,    // Amount
-  'date': 2,      // Date
-  'status': 2,    // Status
-  'actions': 1,   // Menu
-};
+  final Map<String, int> _columnFlex = {
+    'id': 2,
+    'patient': 3,
+    'procedure': 4,
+    'amount': 2,
+    'date': 2,
+    'status': 2,
+    'actions': 1,
+  };
 
   Widget _buildTableHeader() {
     final headerStyle = AppTheme.textTheme.bodyLarge;

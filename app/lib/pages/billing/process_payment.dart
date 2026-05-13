@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:heroicons/heroicons.dart';
 import '/../style/theme.dart';
 import '/../widgets/main_buttons.dart';
 import '/../widgets/page_header.dart';
@@ -59,7 +60,7 @@ class _ProcessPaymentScreenState extends ConsumerState<ProcessPaymentScreen> {
 
   bool _isDiscountApplicable(PatientData? p) {
     if (p == null) return false;
-    if (p.isSeniorOrPWD) return true; // Perfect match for your DB flag
+    if (p.isSeniorOrPWD) return true; 
     final today = DateTime.now();
     int age = today.year - p.birthDate.year;
     if (today.month < p.birthDate.month || (today.month == p.birthDate.month && today.day < p.birthDate.day)) age--;
@@ -178,7 +179,7 @@ class _ProcessPaymentScreenState extends ConsumerState<ProcessPaymentScreen> {
             const SizedBox(height: 16),
             _buildTableHeaders(),
             const SizedBox(height: 8),
-            ..._procedures.map((proc) => _buildProcedureRow(proc)),
+            ..._procedures.map((proc) => _buildProcedureRow(proc, hasDiscount)),
 
             const SizedBox(height: 32),
             const Divider(color: AppTheme.gray400),
@@ -239,7 +240,7 @@ class _ProcessPaymentScreenState extends ConsumerState<ProcessPaymentScreen> {
                                 padding: const EdgeInsets.symmetric(vertical: 8.0),
                                 child: Row(
                                   children: [
-                                    Expanded(flex: 2, child: Text("Payment ${index + 1}", style: AppTheme.textTheme.bodyMedium)),
+                                    Expanded(flex: 2, child: Text(trans.paymentDate.toString().split(" ")[0].toString(), style: AppTheme.textTheme.bodyMedium)),
                                     Expanded(flex: 2, child: Text(trans.modeOfPayment, style: AppTheme.textTheme.bodyMedium)),
                                     Expanded(flex: 2, child: Text('₱ ${trans.amountReceived.toStringAsFixed(2)}', style: AppTheme.textTheme.bodyMedium?.copyWith(color: Colors.green.shade700, fontWeight: FontWeight.bold))),
                                   ],
@@ -316,8 +317,9 @@ class _ProcessPaymentScreenState extends ConsumerState<ProcessPaymentScreen> {
                       const SizedBox(height: 32),
 
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
+                          const SizedBox(width: 15,),
                           Button(
                             onPressed: _isProcessing ? null : widget.onBack,
                             label: 'Cancel', 
@@ -325,11 +327,11 @@ class _ProcessPaymentScreenState extends ConsumerState<ProcessPaymentScreen> {
                           ),
                           const SizedBox(width: 16),
                           SizedBox(
-                            width: 200,
-                            height: 48,
+                            width: 220,
                             child: Button(
-                              label: _isProcessing ? "Processing..." : "Confirm Payment",
+                              label: _isProcessing ? "Processing..." : "Process Payment",
                               variant: ButtonVariant.primary,
+                              heroIcon: HeroIcons.check,
                               onPressed: _isProcessing ? () {} : _submitPayment,
                             ),
                           ),
@@ -357,15 +359,17 @@ class _ProcessPaymentScreenState extends ConsumerState<ProcessPaymentScreen> {
         Expanded(flex: 3, child: Text('Procedure', style: headerStyle)),
         Expanded(flex: 2, child: Text('Charge', style: headerStyle)),
         Expanded(flex: 1, child: Text('Qty', style: headerStyle)),
-        Expanded(flex: 2, child: Text('Subtotal', style: headerStyle)),
+        Expanded(flex: 2, child: Text('Amount to be Paid', style: headerStyle)),
       ],
     );
   }
 
-  Widget _buildProcedureRow(ProcedureChargeData proc) {
+  Widget _buildProcedureRow(ProcedureChargeData proc, bool hasDiscount) {
     final rowStyle = AppTheme.textTheme.bodyMedium?.copyWith(
       fontWeight: FontWeight.w600,
     );
+
+    final amountToBePaid = proc.totalProcedureCharge * (hasDiscount ? 0.8 : 1.0);
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12.0),
@@ -374,7 +378,7 @@ class _ProcessPaymentScreenState extends ConsumerState<ProcessPaymentScreen> {
           Expanded(flex: 3, child: Text(proc.procedureName, style: rowStyle)),
           Expanded(flex: 2, child: Text('₱ ${proc.procedureCharge.toStringAsFixed(2)}', style: rowStyle)),
           Expanded(flex: 1, child: Text(proc.quantity.toString(), style: rowStyle)),
-          Expanded(flex: 2, child: Text('₱ ${proc.totalProcedureCharge.toStringAsFixed(2)}', style: rowStyle)),
+          Expanded(flex: 2, child: Text('₱ ${amountToBePaid.toStringAsFixed(2)}', style: rowStyle)),
         ],
       ),
     );

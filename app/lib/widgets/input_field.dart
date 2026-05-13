@@ -60,7 +60,8 @@ class InputField extends StatelessWidget {
       this.counterMin = 0, // Prevents negative numbers by default
       this.counterMax = 100,
       this.isHidden = false,
-      this.isRequired = false});
+      this.isRequired = false,
+      this.onChanged});
 
   @override
   Widget build(BuildContext context) {
