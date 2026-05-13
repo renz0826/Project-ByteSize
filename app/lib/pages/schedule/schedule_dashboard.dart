@@ -151,22 +151,13 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
     final bool? shouldCancel = await showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Cancel Appointment?'),
-          content: const Text(
-              'Are you sure you want to cancel this appointment? This action cannot be undone.'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('No, Keep It'),
-            ),
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(true),
-              child: const Text('Yes, Cancel',
-                  style: TextStyle(color: Colors.red)),
-            ),
-          ],
-        );
+        return WarningDialog(
+            isCaution: false,
+            title: 'Cancel Appointment?',
+            content:
+                'Are you sure you want to cancel this appointment? This action is cannot be undone.',
+            secondaryAction: "Keep Appointment",
+            primaryAction: "Cancel Appointment");
       },
     );
 
