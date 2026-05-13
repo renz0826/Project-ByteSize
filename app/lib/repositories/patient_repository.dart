@@ -35,6 +35,11 @@ class PatientRepository {
       (db.update(db.patient)..where((t) => t.patientId.equals(id)))
           .write(const PatientCompanion(isArchived: Value(true)));
 
+  // Restore Function (Unarchive)
+  Future<int> unarchivePatient(int id) =>
+      (db.update(db.patient)..where((t) => t.patientId.equals(id)))
+          .write(const PatientCompanion(isArchived: Value(false)));
+
   // Uses the onboarding service for the multi-step save process
   Future<void> registerPatient(PatientCompanion p, ClinicalRecordCompanion c) =>
       onboardingService.registerNewPatient(patientData: p, clinicalData: c);

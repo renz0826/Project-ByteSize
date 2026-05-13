@@ -321,7 +321,7 @@ class _AddClinicalRecordFormState extends State<AddClinicalRecordForm> {
                                 label: "Caries Indicated for Extraction",
                                 variant: InputVariant.counter,
                                 counterValue:
-                                    _cariesExtraction, // changed to _carriesExtraction
+                                    _cariesExtraction, 
                                 counterMin: 0,
                                 counterMax: 32,
                                 onCounterChanged: (newValue) {
@@ -337,7 +337,7 @@ class _AddClinicalRecordFormState extends State<AddClinicalRecordForm> {
                                 label: "Root Fragment",
                                 variant: InputVariant.counter,
                                 counterValue:
-                                    _rootFragment, // changed to _rootFragment
+                                    _rootFragment, 
                                 counterMin: 0,
                                 counterMax: 32,
                                 onCounterChanged: (newValue) {
@@ -363,7 +363,7 @@ class _AddClinicalRecordFormState extends State<AddClinicalRecordForm> {
                                   label: "Missing Due to Caries",
                                   variant: InputVariant.counter,
                                   counterValue:
-                                      _missingDueToCaries, // changed to _missingDueToCaries
+                                      _missingDueToCaries, 
                                   counterMin: 0,
                                   counterMax: 32,
                                   onCounterChanged: (newValue) {
@@ -379,7 +379,7 @@ class _AddClinicalRecordFormState extends State<AddClinicalRecordForm> {
                                   label: "Filled or Restored",
                                   variant: InputVariant.counter,
                                   counterValue:
-                                      _filledOrRestored, // changed to _filledOrRestored
+                                      _filledOrRestored, 
                                   counterMin: 0,
                                   counterMax: 32,
                                   onCounterChanged: (newValue) {
