@@ -212,22 +212,19 @@ class _ScheduleAppointmentFormState
               style: Theme.of(context).textTheme.headlineLarge,
             ),
             const SizedBox(height: 32),
-            InputField(
-              label: "Patient Name",
-              hintText: "Select patient",
-              variant: InputVariant.dropdown,
-              dropdownValue: _selectedPatient,
-              isRequired: true,
-              onDropdownChanged:
-                  (isEditing || widget.preSelectedPatient != null)
-                      ? null
-                      : (v) => setState(() => _selectedPatient = v),
-              dropdownItems: widget.activePatients
-                  .where((p) =>
-                      !p.isArchived) // only show patients that are not archived
-                  .map((p) => '${p.lastName}, ${p.firstName}')
-                  .toList(),
-            ),
+            if (!isEditing) ...[
+              InputField(
+                label: "Patient Name",
+                variant: InputVariant.dropdown,
+                dropdownValue: _selectedPatient,
+                isRequired: true,
+                dropdownItems: widget.activePatients
+                    .map((p) => "${p.lastName}, ${p.firstName}")
+                    .toList(),
+                onDropdownChanged: (v) => setState(() => _selectedPatient = v),
+              ),
+              const SizedBox(height: 24),
+            ],
             const SizedBox(height: 24),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,

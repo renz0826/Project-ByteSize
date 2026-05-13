@@ -8,7 +8,7 @@ import '../../services/scheduling_service.dart';
 class ViewAppointment extends StatelessWidget {
   final Map<String, dynamic>? appointmentData;
   final VoidCallback onEdit;
-  final VoidCallback onCancel; 
+  final VoidCallback onCancel; // Added for dashboard integration
 
   const ViewAppointment({
     super.key, 
@@ -25,6 +25,7 @@ class ViewAppointment extends StatelessWidget {
     final timeStr = data['time'] ?? '-';
     final reason = data['reason'] ?? '-';
 
+    // Using your SchedulingService for consistent date formatting
     final date = data['date'] as DateTime?;
     final dateStr = date != null ? SchedulingService.formatDate(date) : 'N/A';
 
@@ -34,6 +35,7 @@ class ViewAppointment extends StatelessWidget {
         child: Column(
           spacing: 32,
           children: [
+            // TOP CARD: Header and Action Buttons
             Container(
               constraints: const BoxConstraints(minWidth: 1200),
               padding: const EdgeInsets.all(32),
@@ -43,41 +45,34 @@ class ViewAppointment extends StatelessWidget {
                 boxShadow: AppTheme.floatShadow,
               ),
               child: Row(
-                mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text("Patient Information",
-                          style: Theme.of(context).textTheme.titleLarge),
-                      const SizedBox(height: 12),
-                      Row(
-                        spacing: 300,
-                        children: [
-                          AttributeReadView(label: "Patient Name", content: patientName),
-                        ],
-                      )
-                    ],
+                  Text(
+                    "$patientName's Appointment",
+                    style: Theme.of(context).textTheme.headlineLarge,
                   ),
                   Row(
+                    spacing: 16,
                     children: [
                       Button(
-                          variant: ButtonVariant.secondary,
-                          icon: Icons.edit_calendar,
-                          iconPlacement: IconPlacement.left,
-                          label: "Edit Details",
-                          onPressed: onEdit),
-                      const SizedBox(width: 12),
+                        variant: ButtonVariant.secondary,
+                        label: "Edit Appointment",
+                        heroIcon: HeroIcons.pencilSquare, // Updated to HeroIcons
+                        onPressed: onEdit,
+                      ),
                       Button(
-                          variant: ButtonVariant.dangerSecondary,
-                          iconPlacement: IconPlacement.left,
-                          label: "Cancel Appointment",
-                          onPressed: onCancel), 
+                        variant: ButtonVariant.dangerSecondary,
+                        label: "Cancel Appointment",
+                        heroIcon: HeroIcons.trash, // Updated to HeroIcons
+                        onPressed: onCancel,
+                      ),
                     ],
                   )
-                ]),
+                ],
+              ),
             ),
+
+            // BOTTOM CARD: Appointment Details
             Container(
               constraints: const BoxConstraints(minWidth: 1200),
               padding: const EdgeInsets.all(32),
@@ -87,25 +82,39 @@ class ViewAppointment extends StatelessWidget {
                 boxShadow: AppTheme.floatShadow,
               ),
               child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("Appointment Schedule",
-                        style: Theme.of(context).textTheme.titleLarge),
-                    const SizedBox(height: 12),
-                    Row(
-                      spacing: 300,
-                      children: [
-                        AttributeReadView(label: "Date", content: dateStr),
-                        AttributeReadView(label: "Time Slot", content: timeStr),
-                        AttributeReadView(label: "Reason for Visit", content: reason)
-                      ],
-                    )
-                  ]),
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Appointment Schedule",
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                  const SizedBox(height: 24),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        flex: 1,
+                        child: AttributeReadView(label: "Date", content: dateStr),
+                      ),
+                      const SizedBox(width: 24),
+                      Expanded(
+                        flex: 1,
+                        child: AttributeReadView(label: "Time Slot", content: timeStr),
+                      ),
+                      const SizedBox(width: 24),
+                      Expanded(
+                        flex: 2, // Reason gets more space
+                        child: AttributeReadView(label: "Reason for Visit", content: reason),
+                      ),
+                    ],
+                  )
+                ],
+              ),
             ),
           ],
         ),
-      )
+      ),
     );
   }
 }
