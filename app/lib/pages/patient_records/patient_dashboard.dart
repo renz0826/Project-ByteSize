@@ -134,14 +134,15 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
     });
   }
 
-  // Archive Function
+ // Archive Function
   Future<void> _archivePatient(PatientData patient) async {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Archive Patient Record'),
         content: Text(
-            'Are you sure you want to archive the record for ${patient.lastName}, ${patient.firstName}?\n\nYou can always restore this later from the Archived filter.'),
+            'Are you sure you want to archive the record for ${patient.lastName}, ${patient.firstName}?\n\n'
+            'This will also automatically CANCEL all scheduled appointments for this patient.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
@@ -161,8 +162,19 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
     if (confirm == true) {
       try {
         final repository = ref.read(patientRepositoryProvider);
+        final db = ref.read(databaseProvider); // Get database instance
 
+        // 1. Archive the patient record
         await repository.archivePatient(patient.patientId);
+
+        // 2. NEW: Automatically cancel all "Scheduled" or "Upcoming" appointments
+        // This targets the specific patient and only active statuses
+        await (db.update(db.appointment)
+              ..where((t) => t.patientId.equals(patient.patientId))
+              ..where((t) => t.status.equals("Scheduled") | t.status.equals("Upcoming")))
+            .write(const AppointmentCompanion(
+              status: drift.Value("Cancelled"),
+            ));
 
         await _loadPatients(); // Refresh the table list
 
@@ -174,16 +186,24 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
           StatusToast.show(
             context,
             title: "Success",
-            message: "${patient.firstName} has been archived.",
+            // UPDATED: Clarified message
+            message: "${patient.firstName}is archived and appointments cancelled.",
             isSuccess: true,
           );
         }
       } catch (e) {
         debugPrint("Failed to archive patient: $e");
+        if (mounted) {
+           StatusToast.show(
+            context,
+            title: "Error",
+            message: "Something went wrong while archiving.",
+            isSuccess: false,
+          );
+        }
       }
     }
   }
-
   //
   Future<void> _unarchivePatient(PatientData patient) async {
     final confirm = await showDialog<bool>(
