@@ -164,11 +164,8 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
         final repository = ref.read(patientRepositoryProvider);
         final db = ref.read(databaseProvider); // Get database instance
 
-        // 1. Archive the patient record
         await repository.archivePatient(patient.patientId);
 
-        // 2. NEW: Automatically cancel all "Scheduled" or "Upcoming" appointments
-        // This targets the specific patient and only active statuses
         await (db.update(db.appointment)
               ..where((t) => t.patientId.equals(patient.patientId))
               ..where((t) => t.status.equals("Scheduled") | t.status.equals("Upcoming")))
@@ -186,7 +183,6 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
           StatusToast.show(
             context,
             title: "Success",
-            // UPDATED: Clarified message
             message: "${patient.firstName}is archived and appointments cancelled.",
             isSuccess: true,
           );
