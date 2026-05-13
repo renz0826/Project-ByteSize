@@ -142,7 +142,8 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
       final repo = ref.read(appointmentRepositoryProvider);
       await repo.updateAppointmentStatus(appointmentId, 'Cancelled'); // update the specific attribute: status 
 
-      if (mounted) {
+
+      if (mounted) { // TODO: Refactor
         ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text("Appointment has been cancelled."))); // confirmation message
       } 

@@ -164,24 +164,21 @@ class _ScheduleAppointmentFormState
                   .equals(widget.appointmentToEdit!.appointment.appointmentId)))
             .write(companion);
 
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-              content: Text("Appointment Updated Successfully!")));
+        if (mounted) { // TODO: Refactor
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Appointment Updated Successfully!")));
         }
       } else {
         await repo.addAppointment(companion);
 
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-              content: Text("Appointment Scheduled Successfully!")));
+        if (mounted) { // TODO: Refactor
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Appointment Scheduled Successfully!")));
         }
       }
 
       widget.onSave();
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text("Error: $e"), backgroundColor: Colors.red));
+      if (mounted) { // TODO: Refactor
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error: $e"), backgroundColor: Colors.red));
       }
     }
   }
