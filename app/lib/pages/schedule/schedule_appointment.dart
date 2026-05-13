@@ -1,5 +1,6 @@
 import 'package:dentcity_management_system/services/scheduling_service.dart';
 import 'package:dentcity_management_system/style/theme.dart';
+import 'package:dentcity_management_system/widgets/requirement_dialog.dart';
 import 'package:drift/drift.dart' as drift;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,6 +11,7 @@ import '/../widgets/input_field.dart';
 import '../../repositories/appointment_repository.dart';
 import 'schedule_dashboard.dart';
 import '/../widgets/status_toast.dart';
+import '/../widgets/warning_dialog.dart';
 
 class ScheduleAppointmentForm extends ConsumerStatefulWidget {
   final VoidCallback onSave;
@@ -126,15 +128,16 @@ class _ScheduleAppointmentFormState
 
   Future<void> _saveAppointment() async {
     // function to save appointments to the database
+    // TODO: Needs form validator map for specific unentered fields
     if (_selectedPatient == null ||
         _selectedMonth == null ||
         _selectedDay == null ||
         _selectedTimeSlot == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text("Please fill in all required fields."),
-            backgroundColor: Colors.red),
-      );
+      RequirementDialog.show(
+          context,
+          "Missing Information",
+          "Please provide the following details.",
+          []); // if form validator is already finished, replace the "[]" with the variable name of the map
       return;
     }
 
