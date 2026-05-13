@@ -236,7 +236,7 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
         builder: (context) => AlertDialog(
           title: const Text('Similar Patient Found'),
           content: Text(
-              'A patient named "${_firstNameController.text} ${_lastNameController.text}" already exists. Are you sure this is a different person?'),
+              'A patient named "${_firstNameController.text}${_lastNameController.text}" already exists. Are you sure this is a different person?'),
           actions: [
             TextButton(
                 onPressed: () => Navigator.pop(context, false),
