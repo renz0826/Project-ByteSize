@@ -1,21 +1,24 @@
 import 'package:flutter/material.dart';
 import '../style/theme.dart';
 
-class DiscardDialog extends StatelessWidget {
+class WarningDialog extends StatelessWidget {
   final String title;
   final String content;
+  final String action;
 
-  const DiscardDialog({
-    super.key,
-    this.title = 'Discard Changes?',
-    this.content =
-        'Are you sure you want to return to the dashboard? Any unsaved data will be lost.',
-  });
+  const WarningDialog(
+      {super.key,
+      required this.title,
+      required this.content,
+      required this.action
+      // 'Are you sure you want to return to the dashboard? Any unsaved data will be lost.',
+      });
 
   static Future<bool?> show(BuildContext context) {
     return showDialog<bool>(
       context: context,
-      builder: (context) => const DiscardDialog(),
+      builder: (context) =>
+          const WarningDialog(title: "", content: " ", action: ""),
     );
   }
 
@@ -59,8 +62,7 @@ class DiscardDialog extends StatelessWidget {
           style: ElevatedButton.styleFrom(
             backgroundColor: AppTheme.red600,
           ),
-          child:
-              Text('Discard', style: Theme.of(context).textTheme.labelMedium),
+          child: Text(action, style: Theme.of(context).textTheme.labelMedium),
         ),
       ],
     );
