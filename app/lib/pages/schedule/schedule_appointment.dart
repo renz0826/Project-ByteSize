@@ -193,7 +193,8 @@ class _ScheduleAppointmentFormState
   }
 
   @override
-  Widget build(BuildContext context) { // TODO: Refactor this 
+  Widget build(BuildContext context) {
+    // TODO: Refactor this
     return Center(
       child: Container(
         constraints: const BoxConstraints(maxWidth: 1200),
@@ -205,6 +206,7 @@ class _ScheduleAppointmentFormState
           boxShadow: AppTheme.floatShadow,
         ),
         child: Column(
+          spacing: 32,
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -213,88 +215,104 @@ class _ScheduleAppointmentFormState
                     ? "Edit ${widget.appointmentToEdit?.patient.lastName}, ${widget.appointmentToEdit?.patient.firstName}'s Schedule"
                     : "Schedule An Appointment",
                 style: Theme.of(context).textTheme.headlineLarge),
-            const SizedBox(height: 32),
-            if (!isEditing) ...[
-              InputField(
-                label: "Select Patient By Name",
-                variant: InputVariant.dropdown,
-                dropdownValue: _selectedPatient,
-                isRequired: true,
-                dropdownItems: widget.activePatients
-                    .map((p) => "${p.lastName}, ${p.firstName}")
-                    .toList(),
-                onDropdownChanged: (v) => setState(() => _selectedPatient = v),
-              ),
-              const SizedBox(height: 32),
-            ],
-            Text(
-              "Appointment Schedule",
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            const SizedBox(height: 24),
-            Row(
+            Column(
+              spacing: 12,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                    child: InputField(
-                        label: "Month",
-                        hintText: "Select month",
-                        variant: InputVariant.dropdown,
-                        dropdownValue: _selectedMonth,
-                        isRequired: true,
-                        dropdownItems: SchedulingService.months,
-                        onDropdownChanged: (v) {
-                          setState(() {
-                            _selectedMonth = v;
-                            _selectedDay = null;
-                          });
-                          _refreshTimeSlots();
-                        })),
-                const SizedBox(width: 20),
-                Expanded(
-                    child: InputField(
-                        key: ValueKey(
-                            '$_selectedMonth-${SchedulingService.getInferredYear(_selectedMonth)}'),
-                        label: "Day",
-                        hintText: "Select day",
-                        variant: InputVariant.dropdown,
-                        dropdownValue: _selectedDay,
-                        isRequired: true,
-                        dropdownItems: SchedulingService.getDaysInMonth(
-                            _selectedMonth,
-                            SchedulingService.getInferredYear(_selectedMonth)),
-                        onDropdownChanged: (v) {
-                          setState(() => _selectedDay = v);
-                          _refreshTimeSlots();
-                        })),
-                const SizedBox(width: 20),
-                Expanded(
-                    child: InputField(
-                        key: ValueKey('$_selectedMonth-$_selectedDay'),
-                        label: "Time Slot",
-                        hintText: "Select time",
-                        variant: InputVariant.dropdown,
-                        dropdownValue: _selectedTimeSlot,
-                        isRequired: true,
-                        dropdownItems: _availableTimeSlots.isEmpty
-                            ? (_selectedTimeSlot != null
-                                ? [_selectedTimeSlot!]
-                                : ["Select a date first"])
-                            : _availableTimeSlots,
-                        onDropdownChanged: (v) {
-                          if (v != "Select a date first")
-                            setState(() => _selectedTimeSlot = v);
-                        })),
+                Text(
+                  "Patient Name",
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                if (!isEditing) ...[
+                  InputField(
+                    label: "Select Patient by Name",
+                    variant: InputVariant.dropdown,
+                    dropdownValue: _selectedPatient,
+                    isRequired: true,
+                    dropdownItems: widget.activePatients
+                        .map((p) => "${p.lastName}, ${p.firstName}")
+                        .toList(),
+                    onDropdownChanged: (v) =>
+                        setState(() => _selectedPatient = v),
+                  ),
+                ],
               ],
             ),
-            const SizedBox(width: 20),
-            InputField(
-              label: "Reason for visit",
-              hintText: "Enter reason for visit",
-              controller: _reasonController,
-              isRequired: true,
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Appointment Schedule",
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  spacing: 20,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                        child: InputField(
+                            label: "Month",
+                            hintText: "Select month",
+                            variant: InputVariant.dropdown,
+                            dropdownValue: _selectedMonth,
+                            isRequired: true,
+                            dropdownItems: SchedulingService.months,
+                            onDropdownChanged: (v) {
+                              setState(() {
+                                _selectedMonth = v;
+                                _selectedDay = null;
+                              });
+                              _refreshTimeSlots();
+                            })),
+                    Expanded(
+                        child: InputField(
+                            key: ValueKey(
+                                '$_selectedMonth-${SchedulingService.getInferredYear(_selectedMonth)}'),
+                            label: "Day",
+                            hintText: "Select day",
+                            variant: InputVariant.dropdown,
+                            dropdownValue: _selectedDay,
+                            isRequired: true,
+                            dropdownItems: SchedulingService.getDaysInMonth(
+                                _selectedMonth,
+                                SchedulingService.getInferredYear(
+                                    _selectedMonth)),
+                            onDropdownChanged: (v) {
+                              setState(() => _selectedDay = v);
+                              _refreshTimeSlots();
+                            })),
+                    Expanded(
+                        child: InputField(
+                            key: ValueKey('$_selectedMonth-$_selectedDay'),
+                            label: "Time Slot",
+                            hintText: "Select time",
+                            variant: InputVariant.dropdown,
+                            dropdownValue: _selectedTimeSlot,
+                            isRequired: true,
+                            dropdownItems: _availableTimeSlots.isEmpty
+                                ? (_selectedTimeSlot != null
+                                    ? [_selectedTimeSlot!]
+                                    : ["Select a date first"])
+                                : _availableTimeSlots,
+                            onDropdownChanged: (v) {
+                              if (v != "Select a date first") {
+                                setState(() => _selectedTimeSlot = v);
+                              }
+                            })),
+                    Expanded(
+                      flex: 2,
+                      child: InputField(
+                        label: "Reason for visit",
+                        hintText: "Enter reason for visit",
+                        controller: _reasonController,
+                        isRequired: true,
+                      ),
+                    )
+                  ],
+                ),
+              ],
             ),
-            const SizedBox(height: 32),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
