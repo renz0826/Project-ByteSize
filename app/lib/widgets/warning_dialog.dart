@@ -4,21 +4,21 @@ import '../style/theme.dart';
 class WarningDialog extends StatelessWidget {
   final String title;
   final String content;
-  final String action;
+  final String secondaryAction;
+  final String primaryAction;
 
   const WarningDialog(
       {super.key,
       required this.title,
       required this.content,
-      required this.action
-      // 'Are you sure you want to return to the dashboard? Any unsaved data will be lost.',
-      });
+      required this.secondaryAction,
+      required this.primaryAction});
 
   static Future<bool?> show(BuildContext context) {
     return showDialog<bool>(
       context: context,
-      builder: (context) =>
-          const WarningDialog(title: "", content: " ", action: ""),
+      builder: (context) => const WarningDialog(
+          title: "", content: " ", secondaryAction: " ", primaryAction: ""),
     );
   }
 
@@ -51,7 +51,7 @@ class WarningDialog extends StatelessWidget {
         OutlinedButton(
             onPressed: () => Navigator.of(context).pop(false),
             child: Text(
-              'Cancel',
+              secondaryAction,
               style: Theme.of(context)
                   .textTheme
                   .labelMedium
@@ -62,7 +62,8 @@ class WarningDialog extends StatelessWidget {
           style: ElevatedButton.styleFrom(
             backgroundColor: AppTheme.red600,
           ),
-          child: Text(action, style: Theme.of(context).textTheme.labelMedium),
+          child: Text(primaryAction,
+              style: Theme.of(context).textTheme.labelMedium),
         ),
       ],
     );
