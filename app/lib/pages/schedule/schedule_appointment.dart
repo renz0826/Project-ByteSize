@@ -143,8 +143,11 @@ class _ScheduleAppointmentFormState
         SchedulingService.parseSelectedDate(_selectedMonth, _selectedDay);
 
     // always show patients that are booked earliest
-    final patient = widget.activePatients
-        .firstWhere((p) => '${p.lastName}, ${p.firstName}' == _selectedPatient);
+    final patient = widget.activePatients.firstWhere((p) {
+      final formattedName =
+          '${p.lastName}, ${p.firstName} ${p.suffix ?? ""}'.trim();
+      return formattedName == _selectedPatient?.trim();
+    });
 
     final companion = AppointmentCompanion(
       patientId: drift.Value(patient.patientId),
