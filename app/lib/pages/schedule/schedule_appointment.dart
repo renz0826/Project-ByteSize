@@ -132,7 +132,8 @@ class _ScheduleAppointmentFormState
     if (_selectedPatient == null ||
         _selectedMonth == null ||
         _selectedDay == null ||
-        _selectedTimeSlot == null) {
+        _selectedTimeSlot == null ||
+        _reasonController.text.trim().isEmpty) {
       RequirementDialog.show(
           context,
           "Missing Information",
