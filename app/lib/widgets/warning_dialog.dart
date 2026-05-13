@@ -1,21 +1,30 @@
 import 'package:flutter/material.dart';
 import '../style/theme.dart';
 
-class DiscardDialog extends StatelessWidget {
+class WarningDialog extends StatelessWidget {
   final String title;
   final String content;
+  final String secondaryAction;
+  final String primaryAction;
+  final bool isCaution;
 
-  const DiscardDialog({
-    super.key,
-    this.title = 'Discard Changes?',
-    this.content =
-        'Are you sure you want to return to the dashboard? Any unsaved data will be lost.',
-  });
+  const WarningDialog(
+      {super.key,
+      required this.isCaution,
+      required this.title,
+      required this.content,
+      required this.secondaryAction,
+      required this.primaryAction});
 
   static Future<bool?> show(BuildContext context) {
     return showDialog<bool>(
       context: context,
-      builder: (context) => const DiscardDialog(),
+      builder: (context) => const WarningDialog(
+          isCaution: false,
+          title: "",
+          content: " ",
+          secondaryAction: " ",
+          primaryAction: ""),
     );
   }
 
@@ -24,9 +33,11 @@ class DiscardDialog extends StatelessWidget {
     return AlertDialog(
       title: Row(
         children: [
-          const Icon(
+          Icon(
             Icons.warning_amber_rounded,
-            color: AppTheme.red600,
+            color: isCaution
+                ? const Color.fromARGB(255, 240, 180, 0)
+                : AppTheme.red600,
             size: 36,
           ),
           const SizedBox(width: 8),
@@ -48,7 +59,7 @@ class DiscardDialog extends StatelessWidget {
         OutlinedButton(
             onPressed: () => Navigator.of(context).pop(false),
             child: Text(
-              'Cancel',
+              secondaryAction,
               style: Theme.of(context)
                   .textTheme
                   .labelMedium
@@ -57,10 +68,15 @@ class DiscardDialog extends StatelessWidget {
         ElevatedButton(
           onPressed: () => Navigator.of(context).pop(true),
           style: ElevatedButton.styleFrom(
-            backgroundColor: AppTheme.red600,
+            backgroundColor: isCaution
+                ? const Color.fromARGB(255, 231, 173, 0)
+                : AppTheme.red600,
           ),
-          child:
-              Text('Discard', style: Theme.of(context).textTheme.labelMedium),
+          child: Text(
+            primaryAction,
+            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                color: isCaution ? AppTheme.black500 : AppTheme.white500),
+          ),
         ),
       ],
     );

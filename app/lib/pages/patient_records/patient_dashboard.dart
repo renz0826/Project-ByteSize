@@ -17,7 +17,7 @@ import 'add_patient.dart';
 import 'add_clinical_record.dart';
 import 'view_patient.dart';
 import '../../pages/schedule/schedule_appointment.dart';
-import '/../widgets/discard_dialog.dart';
+import '../../widgets/warning_dialog.dart';
 
 //main screen
 class PatientDashboard extends ConsumerStatefulWidget {
@@ -42,7 +42,7 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
 
   // Variables for View & Edit Patient Screen
   PatientData? _patientToView;
-  Map<String, dynamic>? _patientToEditMap; 
+  Map<String, dynamic>? _patientToEditMap;
   List<ClinicalRecordData> _clinicalRecordsToView = [];
 
   // Bug Fix: Using IndexedStack to prevent form data from being deleted when clicking back
@@ -109,7 +109,7 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
   void _goToEditPatient(PatientData patient) {
     setState(() {
       _formSessionId++; // Reset form state
-      
+
       _patientToEditMap = {
         'patientId': patient.patientId,
         'firstName': patient.firstName,
@@ -128,8 +128,8 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
         'zipCode': patient.zipCode,
         'isSeniorOrPWD': patient.isSeniorOrPWD,
       };
-      
-      _patientToView = patient; 
+
+      _patientToView = patient;
       _currentIndex = 1; // Send to Index 1 (Add/Edit Patient Form)
     });
   }
@@ -177,7 +177,6 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
             message: "${patient.firstName} has been archived.",
             isSuccess: true,
           );
-          
         }
       } catch (e) {
         debugPrint("Failed to archive patient: $e");
@@ -197,13 +196,12 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
             child: Text('Cancel',
-                style: TextStyle(
-                    color: AppTheme.black500.withValues(alpha: 0.6))),
+                style:
+                    TextStyle(color: AppTheme.black500.withValues(alpha: 0.6))),
           ),
           ElevatedButton(
             onPressed: () => Navigator.of(context).pop(true),
-            style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.blue500),
+            style: ElevatedButton.styleFrom(backgroundColor: AppTheme.blue500),
             child: const Text('Restore', style: TextStyle(color: Colors.white)),
           ),
         ],
@@ -341,7 +339,7 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
 
       // Return to the View Patient screen with the fresh data and clear edit state
       setState(() {
-        _patientToEditMap = null; 
+        _patientToEditMap = null;
         _patientToView = freshPatientData;
         _currentIndex = 3;
       });
@@ -363,7 +361,13 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
     final bool? shouldDiscard = await showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
-        return DiscardDialog();
+        return WarningDialog(
+            isCaution: false,
+            title: "Discard Unsaved Changes?",
+            content:
+                "Are you sure you want to return to the records dashboard? Any unsaved data will be lost.",
+            secondaryAction: "Keep Editing",
+            primaryAction: "Discard");
       },
     );
 
@@ -372,7 +376,7 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
       setState(() {
         _patientToEditMap = null; // Ensure edit state is cleared
         _currentIndex = targetIndex;
-      }); 
+      });
     }
   }
 
@@ -503,11 +507,12 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               PageHeader(
-                title: _patientToEditMap != null ? 'Back to Patient View' : 'Back to Records',
+                title: _patientToEditMap != null
+                    ? 'Back to Patient View'
+                    : 'Back to Records',
                 type: PageHeaderType.withBack,
                 onBack: () => _confirmReturnToDashboard(
-                  targetIndex: _patientToEditMap != null ? 3 : 0
-                ),
+                    targetIndex: _patientToEditMap != null ? 3 : 0),
               ),
               Transform.translate(
                 offset: const Offset(0, -30),
@@ -598,7 +603,8 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
                       _goToEditPatient(_patientToView!);
                     } else if (value == 'archive') {
                       _archivePatient(_patientToView!);
-                    } else if (value == 'unarchive') { // ---> NEW: Restore action
+                    } else if (value == 'unarchive') {
+                      // ---> NEW: Restore action
                       _unarchivePatient(_patientToView!);
                     }
                   },
@@ -776,7 +782,7 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
     );
   }
 
-  // 
+  //
   Widget _buildTableRow(PatientData patient) {
     return GestureDetector(
       onTap: () => _goToViewPatient(patient),
@@ -786,7 +792,7 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
         age: DateHelper.calculateAge(patient.birthDate),
         address: '${patient.province}, ${patient.cityMunicipality}',
         contact: patient.contactNumber,
-        isArchived: patient.isArchived, 
+        isArchived: patient.isArchived,
         onMenuSelected: (value) {
           if (value == 'add_clinical_record') {
             setState(() {
@@ -800,7 +806,7 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
             _goToViewPatient(patient);
           } else if (value == 'archive') {
             _archivePatient(patient);
-          } else if (value == 'unarchive') { 
+          } else if (value == 'unarchive') {
             _unarchivePatient(patient);
           } else if (value == 'edit_details') {
             _goToEditPatient(patient);
