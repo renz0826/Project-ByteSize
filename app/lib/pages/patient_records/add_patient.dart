@@ -246,7 +246,7 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
                 content:
                     'A patient named "${_firstNameController.text} ${_lastNameController.text}" already exists. Are you sure this is a different person?',
                 secondaryAction: "Go Back",
-                primaryAction: "Create Anyway",
+                primaryAction: "Proceed Anyway",
               );
             });
 
