@@ -294,7 +294,12 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
     final patient = joinedRecord.patient;
     final appointment = joinedRecord.appointment;
 
-    return ScheduleBar(
+    return GestureDetector(
+      onTap: () => setState(() {
+        _selectedAppointment = joinedRecord;
+        _currentIndex = 2;
+      }),
+      child: ScheduleBar(
       fullName: '${patient.lastName}, ${patient.firstName}',
       date: appointment.scheduleDateTime,
       time: appointment.timeSlot,
@@ -321,7 +326,8 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
             break;
         }
       },
-    );
+    ),
+  );
   }
 
   Widget _buildScheduleForm() {
