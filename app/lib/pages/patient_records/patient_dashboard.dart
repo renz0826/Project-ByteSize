@@ -171,7 +171,7 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
         }
 
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
+          ScaffoldMessenger.of(context).showSnackBar( 
             SnackBar(
                 content: Text(
                     "${patient.firstName} has been archived.")), // confirmation message
