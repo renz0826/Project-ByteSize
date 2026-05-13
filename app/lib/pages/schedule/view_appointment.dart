@@ -1,5 +1,6 @@
 import 'package:dentcity_management_system/style/theme.dart';
 import 'package:flutter/material.dart';
+import 'package:heroicons/heroicons.dart';
 import '/../widgets/main_buttons.dart';
 import '/../widgets/attribute_read_view.dart';
 import '../../services/scheduling_service.dart';
@@ -63,14 +64,13 @@ class ViewAppointment extends StatelessWidget {
                     children: [
                       Button(
                           variant: ButtonVariant.secondary,
-                          icon: Icons.edit_outlined,
+                          icon: Icons.edit_calendar,
                           iconPlacement: IconPlacement.left,
                           label: "Edit Details",
                           onPressed: onEdit),
                       const SizedBox(width: 12),
                       Button(
                           variant: ButtonVariant.dangerSecondary,
-                          icon: Icons.cancel_outlined,
                           iconPlacement: IconPlacement.left,
                           label: "Cancel Appointment",
                           onPressed: onCancel), 
