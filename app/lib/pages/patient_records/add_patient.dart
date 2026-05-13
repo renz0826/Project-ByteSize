@@ -1,6 +1,7 @@
 import 'package:dentcity_management_system/db/database.dart';
 import 'package:dentcity_management_system/repositories/patient_repository.dart';
 import 'package:dentcity_management_system/style/theme.dart';
+import 'package:dentcity_management_system/widgets/warning_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:drift/drift.dart' as drift;
@@ -57,24 +58,31 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
   bool _isPWD = false;
 
   @override
-  void initState(){
+  void initState() {
     super.initState();
     if (isEditing) {
-      
-      // Required fields 
-      _firstNameController.text = widget.existingPatient!['firstName'] as String;
+      // Required fields
+      _firstNameController.text =
+          widget.existingPatient!['firstName'] as String;
       _lastNameController.text = widget.existingPatient!['lastName'] as String;
-      _contactNumberController.text = widget.existingPatient!['contactNumber'] as String;
-      _streetController.text = widget.existingPatient!['streetAddress'] as String;
+      _contactNumberController.text =
+          widget.existingPatient!['contactNumber'] as String;
+      _streetController.text =
+          widget.existingPatient!['streetAddress'] as String;
 
       // Optional fields
-      _middleNameController.text = widget.existingPatient!['middleName'] as String? ?? '';
-      _emergencyContactController.text = widget.existingPatient!['emergencyContactNo'] as String? ?? '';
-      _referredByController.text = widget.existingPatient!['referredBy'] as String? ?? '';
-      _relationshipController.text = widget.existingPatient!['relationship'] as String? ?? '';
-      _emergencyContactRelationshipController.text = widget.existingPatient!['relationshipEmergency'] as String? ?? '';
+      _middleNameController.text =
+          widget.existingPatient!['middleName'] as String? ?? '';
+      _emergencyContactController.text =
+          widget.existingPatient!['emergencyContactNo'] as String? ?? '';
+      _referredByController.text =
+          widget.existingPatient!['referredBy'] as String? ?? '';
+      _relationshipController.text =
+          widget.existingPatient!['relationship'] as String? ?? '';
+      _emergencyContactRelationshipController.text =
+          widget.existingPatient!['relationshipEmergency'] as String? ?? '';
       _zipController.text = widget.existingPatient!['zipCode'] as String? ?? '';
-      
+
       _selectedSuffix = widget.existingPatient!['suffix'] as String?;
       _selectedSex = widget.existingPatient!['sex'] as String?;
       _selectedStatus = widget.existingPatient!['civilStatus'] as String?;
@@ -145,7 +153,6 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
       barangay: _selectedBarangay ?? _barangayController.text.trim(),
       cityMunicipality: _selectedCity ?? _cityController.text.trim(),
       province: _selectedProvince ?? _provinceController.text.trim(),
-
     );
 
     if (missing.isNotEmpty) {
@@ -208,57 +215,52 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
     final repository = PatientRepository(db);
 
     // 3. Hard Check for the exact duplicate (Matching firstname and lastname + DOB)
-    if (!isEditing){
-    if (await repository.isExactDuplicate(_firstNameController.text.trim(),
-        _lastNameController.text.trim(), birthDate!)) {
-      if (mounted) {
-        StatusToast.show(
-          context,
-          isSuccess: false,
-          title: 'Patient Already Exists',
-          message:
-              "A patient with this exact name and birthdate is already in the system.",
-        );
+    if (!isEditing) {
+      if (await repository.isExactDuplicate(_firstNameController.text.trim(),
+          _lastNameController.text.trim(), birthDate!)) {
+        if (mounted) {
+          StatusToast.show(
+            context,
+            isSuccess: false,
+            title: 'Patient Already Exists',
+            message:
+                "A patient with this exact name and birthdate is already in the system.",
+          );
+        }
+        return;
       }
-      return;
     }
-  }
 
     // 4. Soft Check for matching first name and last name
-    // TODO: @Frontend, please refactor
-    if (!isEditing){
-          bool nameExists = await repository.isNameDuplicate(
-        _firstNameController.text.trim(), _lastNameController.text.trim());
+    if (!isEditing) {
+      bool nameExists = await repository.isNameDuplicate(
+          _firstNameController.text.trim(), _lastNameController.text.trim());
 
-    if (nameExists) {
-      bool? confirm = await showDialog<bool>(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Similar Patient Found'),
-          content: Text(
-              'A patient named "${_firstNameController.text}${_lastNameController.text}" already exists. Are you sure this is a different person?'),
-          actions: [
-            TextButton(
-                onPressed: () => Navigator.pop(context, false),
-                child: const Text('Cancel')),
-            TextButton(
-                onPressed: () => Navigator.pop(context, true),
-                child: const Text('Yes, Proceed')),
-          ],
-        ),
-      );
+      if (nameExists) {
+        bool? confirm = await showDialog<bool>(
+            context: context,
+            builder: (BuildContext context) {
+              return WarningDialog(
+                isCaution: true,
+                title: 'Similar Patient Found',
+                content:
+                    'A patient named "${_firstNameController.text} ${_lastNameController.text}" already exists. Are you sure this is a different person?',
+                secondaryAction: "Go Back",
+                primaryAction: "Proceed Anyway",
+              );
+            });
 
-      if (confirm != true) return; // Stop if user clicks Cancel
+        if (confirm != true) return; // Stop if user clicks Cancel
+      }
     }
-  }
 
     // 5. Proceed to create PatientCompanion and onNext
     // when isEditing, keep the existing patientId to update the correct record,
     // otherwise omit it so the database auto-assigns a new one on insert
     final patientEntry = PatientCompanion.insert(
       patientId: isEditing
-      ? drift.Value(widget.existingPatient!['patientId'] as int)
-      : const drift.Value.absent(),
+          ? drift.Value(widget.existingPatient!['patientId'] as int)
+          : const drift.Value.absent(),
       firstName: _firstNameController.text.trim(),
       middleName: drift.Value(_middleNameController.text.trim()),
       lastName: _lastNameController.text.trim(),
@@ -649,11 +651,14 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
                       onPressed: _clearFormPatientRecord),
                 ),
                 SizedBox(
-                  width: isEditing? 200 : 140,
+                  width: isEditing ? 200 : 140,
                   child: Button(
-                      label: isEditing? "Update Details" : "Next",
-                      icon: isEditing? Icons.save_alt_outlined : Icons.arrow_forward,
-                      iconPlacement: isEditing? IconPlacement.left : IconPlacement.right,
+                      label: isEditing ? "Update Details" : "Next",
+                      icon: isEditing
+                          ? Icons.save_alt_outlined
+                          : Icons.arrow_forward,
+                      iconPlacement:
+                          isEditing ? IconPlacement.left : IconPlacement.right,
                       onPressed: _handleNext),
                 ),
               ],
