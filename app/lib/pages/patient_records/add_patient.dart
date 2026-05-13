@@ -232,7 +232,6 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
     }
 
     // 4. Soft Check for matching first name and last name
-    // TODO: @Frontend, please refactor
     if (!isEditing) {
       bool nameExists = await repository.isNameDuplicate(
           _firstNameController.text.trim(), _lastNameController.text.trim());
