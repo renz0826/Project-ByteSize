@@ -105,12 +105,11 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
     });
   }
 
-  // ---> NEW: Send user to AddPatientForm in "EDIT MODE"
+  // -Send user to the add_patient in edit mode
   void _goToEditPatient(PatientData patient) {
     setState(() {
       _formSessionId++; // Reset form state
       
-      // Convert Drift's PatientData into the Map expected by add_patient.dart
       _patientToEditMap = {
         'patientId': patient.patientId,
         'firstName': patient.firstName,
@@ -180,6 +179,59 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
         }
       } catch (e) {
         debugPrint("Failed to archive patient: $e");
+      }
+    }
+  }
+
+  //
+  Future<void> _unarchivePatient(PatientData patient) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Restore Patient Record'),
+        content: Text(
+            'Are you sure you want to restore the record for ${patient.lastName}, ${patient.firstName}?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text('Cancel',
+                style: TextStyle(
+                    color: AppTheme.black500.withValues(alpha: 0.6))),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.blue500),
+            child: const Text('Restore', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      try {
+        final repository = ref.read(patientRepositoryProvider);
+
+        // Call the new unarchive method from the repository
+        await repository.unarchivePatient(patient.patientId);
+
+        await _loadPatients(); // Refresh the table list
+
+        // If restored while viewing the record, send them back to the dashboard
+        if (_currentIndex == 3) {
+          setState(() => _currentIndex = 0);
+        }
+
+        if (mounted) {
+          StatusToast.show(
+            context,
+            title: "Success",
+            message: "${patient.firstName} has been restored.",
+            isSuccess: true,
+          );
+        }
+      } catch (e) {
+        debugPrint("Failed to restore patient: $e");
       }
     }
   }
@@ -260,7 +312,7 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
     }
   }
 
-  // ---> NEW: Handle saving the updated patient data
+  // Handle saving the updated patient data
   Future<void> _handleEditPatientSave(PatientCompanion updatedPatient) async {
     try {
       final db = ref.read(databaseProvider);
@@ -443,7 +495,7 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
           ),
         ),
 
-        // ---> MODIFIED: Index 1: Add / Edit Patient Form
+        // Index 1: Add / Edit Patient Form
         SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -541,10 +593,11 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
                     } else if (value == 'schedule_appointment') {
                       _goToScheduleAppointment(_patientToView!, returnIndex: 3);
                     } else if (value == 'edit_details') {
-                      // ---> ROUTES TO INDEX 1 WITH THE MAP <---
                       _goToEditPatient(_patientToView!);
                     } else if (value == 'archive') {
                       _archivePatient(_patientToView!);
+                    } else if (value == 'unarchive') { // ---> NEW: Restore action
+                      _unarchivePatient(_patientToView!);
                     }
                   },
                 ),
@@ -721,7 +774,7 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
     );
   }
 
-  // table row using real PatientData
+  // 
   Widget _buildTableRow(PatientData patient) {
     return GestureDetector(
       onTap: () => _goToViewPatient(patient),
@@ -731,6 +784,7 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
         age: DateHelper.calculateAge(patient.birthDate),
         address: '${patient.province}, ${patient.cityMunicipality}',
         contact: patient.contactNumber,
+        isArchived: patient.isArchived, 
         onMenuSelected: (value) {
           if (value == 'add_clinical_record') {
             setState(() {
@@ -744,6 +798,8 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
             _goToViewPatient(patient);
           } else if (value == 'archive') {
             _archivePatient(patient);
+          } else if (value == 'unarchive') { 
+            _unarchivePatient(patient);
           } else if (value == 'edit_details') {
             _goToEditPatient(patient);
           }
