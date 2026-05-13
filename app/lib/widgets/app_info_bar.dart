@@ -250,36 +250,39 @@ class PatientRecordBar extends StatelessWidget {
           child: _MoreOptions(
             onSelected: onMenuSelected,
             items: [
-              BarMenuItem(
-                  value: 'add_clinical_record',
-                  icon: HeroIcons.documentPlus,
-                  label: 'Add New Clinical Record'),
-              BarMenuItem(
-                  value: 'add_schedule',
-                  icon: HeroIcons.calendar,
-                  label: 'Add Schedule'),
-              BarMenuItem(
-                  value: 'view_record',
-                  icon: HeroIcons.eye,
-                  label: 'View Record'),
-              BarMenuItem(
-                  value: 'edit_details',
-                  icon: HeroIcons.pencilSquare,
-                  label: 'Edit Personal Details'),
-              
-              // If else that detects whether the record is archived or not
-              if (isArchived)
+              if (isArchived) ...[
+                BarMenuItem(
+                    value: 'view_record',
+                    icon: HeroIcons.eye,
+                    label: 'View Record'),
                 BarMenuItem(
                     value: 'unarchive',
                     icon: HeroIcons.arrowPath,
                     label: 'Restore Record',
-                    color: AppTheme.blue500)
-              else
+                    color: AppTheme.blue500),
+              ] else ...[
+                BarMenuItem(
+                    value: 'add_clinical_record',
+                    icon: HeroIcons.documentPlus,
+                    label: 'Add New Clinical Record'),
+                BarMenuItem(
+                    value: 'add_schedule',
+                    icon: HeroIcons.calendar,
+                    label: 'Add Schedule'),
+                BarMenuItem(
+                    value: 'view_record',
+                    icon: HeroIcons.eye,
+                    label: 'View Record'),
+                BarMenuItem(
+                    value: 'edit_details',
+                    icon: HeroIcons.pencilSquare,
+                    label: 'Edit Personal Details'),
                 BarMenuItem(
                     value: 'archive',
                     icon: HeroIcons.archiveBoxXMark,
                     label: 'Archive Record',
                     color: AppTheme.red600),
+              ],
             ],
           ),
         ),
