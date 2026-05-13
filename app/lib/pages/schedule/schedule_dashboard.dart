@@ -1,4 +1,5 @@
 import 'package:dentcity_management_system/widgets/status_toast.dart';
+import 'package:dentcity_management_system/widgets/warning_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:drift/drift.dart' as drift;
@@ -119,6 +120,30 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
       _currentIndex = 0; // 0 is the index for the dashboard page
       _loadAppointments();
     });
+  }
+
+  // Dynamic Popup when clicking back (Allows going back to View or Dashboard)
+  Future<void> _confirmReturnToDashboard({int targetIndex = 0}) async {
+    final bool? shouldDiscard = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return WarningDialog(
+            isCaution: false,
+            title: "Discard Unsaved Changes?",
+            content:
+                "Are you sure you want to return to the appointment dashboard? Any unsaved data will be lost.",
+            secondaryAction: "Keep Editing",
+            primaryAction: "Discard");
+      },
+    );
+
+    if (shouldDiscard == true) {
+      _loadAppointments;
+      setState(() {
+        _selectedAppointment = null; // Ensure edit state is cleared
+        _currentIndex = targetIndex;
+      });
+    }
   }
 
   Future<void> _cancelAppointmentConfirmation(int appointmentId) async {
@@ -350,7 +375,7 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
           PageHeader(
             title: 'Back to Schedules',
             type: PageHeaderType.withBack,
-            onBack: _goBackToMain,
+            onBack: _confirmReturnToDashboard,
           ),
           Transform.translate(
             offset: const Offset(0, -30),
