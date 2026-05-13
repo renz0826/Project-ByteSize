@@ -193,12 +193,12 @@ class _ScheduleAppointmentFormState
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) { // TODO: Refactor this 
     return Center(
       child: Container(
         constraints: const BoxConstraints(maxWidth: 1200),
-        padding: const EdgeInsets.all(32),
-        margin: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(24),
+        margin: const EdgeInsets.all(32),
         decoration: BoxDecoration(
           color: AppTheme.white500,
           borderRadius: BorderRadius.circular(24),
@@ -250,7 +250,7 @@ class _ScheduleAppointmentFormState
                           });
                           _refreshTimeSlots();
                         })),
-                const SizedBox(width: 12),
+                const SizedBox(width: 20),
                 Expanded(
                     child: InputField(
                         key: ValueKey(
@@ -267,7 +267,7 @@ class _ScheduleAppointmentFormState
                           setState(() => _selectedDay = v);
                           _refreshTimeSlots();
                         })),
-                const SizedBox(width: 12),
+                const SizedBox(width: 20),
                 Expanded(
                     child: InputField(
                         key: ValueKey('$_selectedMonth-$_selectedDay'),
@@ -287,7 +287,7 @@ class _ScheduleAppointmentFormState
                         })),
               ],
             ),
-            const SizedBox(height: 24),
+            const SizedBox(width: 20),
             InputField(
               label: "Reason for visit",
               hintText: "Enter reason for visit",
