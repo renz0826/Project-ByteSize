@@ -60,19 +60,20 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
   void initState(){
     super.initState();
     if (isEditing) {
-      // Required fields are usually safe to cast 'as String'
+      
+      // Required fields 
       _firstNameController.text = widget.existingPatient!['firstName'] as String;
       _lastNameController.text = widget.existingPatient!['lastName'] as String;
       _contactNumberController.text = widget.existingPatient!['contactNumber'] as String;
       _streetController.text = widget.existingPatient!['streetAddress'] as String;
-      _zipController.text = widget.existingPatient!['zipCode'] as String;
 
-      // Optional fields MUST have 'as String? ?? '''
+      // Optional fields
       _middleNameController.text = widget.existingPatient!['middleName'] as String? ?? '';
       _emergencyContactController.text = widget.existingPatient!['emergencyContactNo'] as String? ?? '';
       _referredByController.text = widget.existingPatient!['referredBy'] as String? ?? '';
       _relationshipController.text = widget.existingPatient!['relationship'] as String? ?? '';
       _emergencyContactRelationshipController.text = widget.existingPatient!['relationshipEmergency'] as String? ?? '';
+      _zipController.text = widget.existingPatient!['zipCode'] as String? ?? '';
       
       _selectedSuffix = widget.existingPatient!['suffix'] as String?;
       _selectedSex = widget.existingPatient!['sex'] as String?;
@@ -144,7 +145,7 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
       barangay: _selectedBarangay ?? _barangayController.text.trim(),
       cityMunicipality: _selectedCity ?? _cityController.text.trim(),
       province: _selectedProvince ?? _provinceController.text.trim(),
-      zipCode: _zipController.text.trim(),
+
     );
 
     if (missing.isNotEmpty) {
@@ -275,7 +276,7 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
       barangay: _selectedBarangay ?? _barangayController.text.trim(),
       cityMunicipality: _selectedCity ?? _cityController.text.trim(),
       province: _selectedProvince ?? _provinceController.text.trim(),
-      zipCode: _zipController.text.trim(),
+      zipCode: drift.Value(_zipController.text.trim()),
       isSeniorOrPWD: drift.Value(_isPWD),
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
@@ -623,7 +624,6 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
                   child: InputField(
                     label: "ZIP Code",
                     hintText: "Enter ZIP code",
-                    isRequired: true,
                     controller: _zipController, // zip code controller
                     inputFormatters: [
                       FilteringTextInputFormatter.digitsOnly,

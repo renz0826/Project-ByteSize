@@ -156,7 +156,6 @@ class FormValidator {
     required String barangay,
     required String cityMunicipality,
     required String province,
-    required String zipCode,
   }) {
     List<String> missing = [];
     
@@ -175,7 +174,6 @@ class FormValidator {
     if (barangay.isEmpty) missing.add('Barangay');
     if (cityMunicipality.isEmpty) missing.add('City/Municipality');
     if (province.isEmpty) missing.add('Province');
-    if (zipCode.isEmpty) missing.add('ZIP Code');
 
     return missing;
   }
