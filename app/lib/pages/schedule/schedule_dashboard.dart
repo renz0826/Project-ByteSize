@@ -1,3 +1,4 @@
+import 'package:dentcity_management_system/widgets/status_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:drift/drift.dart' as drift;
@@ -30,8 +31,9 @@ class ScheduleDashboard extends ConsumerStatefulWidget {
 
 class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
   List<JoinedAppointment> _allAppointments = []; // list of all appointments
-  List<JoinedAppointment> _filteredRecords = []; // list of filtered records (may be completed or upcoming)
-  List<PatientData> _allPatients = [];  // list to ge tall patients
+  List<JoinedAppointment> _filteredRecords =
+      []; // list of filtered records (may be completed or upcoming)
+  List<PatientData> _allPatients = []; // list to ge tall patients
   JoinedAppointment? _selectedAppointment;
   int _currentIndex = 0; // set the current index to 0
 
@@ -48,13 +50,16 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
     _loadAppointments();
   }
 
-  Future<void> _loadAppointments() async { // use repository to load appointment data from the database
+  Future<void> _loadAppointments() async {
+    // use repository to load appointment data from the database
     final db = ref.read(databaseProvider);
     final patients = await db.select(db.patient).get();
 
     final query = db.select(db.appointment).join([
-      drift.innerJoin( // use inner join here
-          db.patient, db.patient.patientId.equalsExp(db.appointment.patientId)),
+      drift.innerJoin(
+          // use inner join here
+          db.patient,
+          db.patient.patientId.equalsExp(db.appointment.patientId)),
     ]);
 
     final results = await query.get();
@@ -85,7 +90,7 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
           a.scheduleDateTime.day == _selectedDate.day;
 
       bool matchesStatus = true;
-      
+
       if (_selectedStatus != null && _selectedStatus != 'All') {
         matchesStatus =
             a.status.toLowerCase() == _selectedStatus!.toLowerCase();
@@ -108,14 +113,16 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
     });
   }
 
-  void _goBackToMain() { // back to main function
+  void _goBackToMain() {
+    // back to main function
     setState(() {
       _currentIndex = 0; // 0 is the index for the dashboard page
       _loadAppointments();
     });
   }
 
-  Future<void> _cancelAppointmentConfirmation(int appointmentId) async { // function for the cancellation of appointments
+  Future<void> _cancelAppointmentConfirmation(int appointmentId) async {
+    // function for the cancellation of appointments
     final bool? shouldCancel = await showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
@@ -140,13 +147,17 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
 
     if (shouldCancel == true) {
       final repo = ref.read(appointmentRepositoryProvider);
-      await repo.updateAppointmentStatus(appointmentId, 'Cancelled'); // update the specific attribute: status 
+      await repo.updateAppointmentStatus(
+          appointmentId, 'Cancelled'); // update the specific attribute: status
 
-
-      if (mounted) { // TODO: Refactor
-        ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Appointment has been cancelled."))); // confirmation message
-      } 
+      if (mounted) {
+        StatusToast.show(
+          context,
+          title: "Success",
+          message: "Appointment has been successfully cancelled.",
+          isSuccess: true,
+        ); // confirmation message
+      }
       _goBackToMain(); // send user back to main afterwards
     }
   }
@@ -301,34 +312,34 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
         _currentIndex = 2;
       }),
       child: ScheduleBar(
-      fullName: '${patient.lastName}, ${patient.firstName} ${patient.suffix}',
-      date: appointment.scheduleDateTime,
-      time: appointment.timeSlot,
-      procedure: appointment.reasonForVisit ,
-      onMenuSelected: (String actionValue) async {
-        switch (actionValue) {
-          case 'view_appointment': // if user clicks view appointment option -> allows to use cancel and edit options
-            setState(() {
-              _selectedAppointment = joinedRecord;
-              _currentIndex = 2;
-            });
-            break;
+        fullName: '${patient.lastName}, ${patient.firstName} ${patient.suffix}',
+        date: appointment.scheduleDateTime,
+        time: appointment.timeSlot,
+        procedure: appointment.reasonForVisit,
+        onMenuSelected: (String actionValue) async {
+          switch (actionValue) {
+            case 'view_appointment': // if user clicks view appointment option -> allows to use cancel and edit options
+              setState(() {
+                _selectedAppointment = joinedRecord;
+                _currentIndex = 2;
+              });
+              break;
 
-          case 'edit_appointment':
-            setState(() {
-              _formSessionId++; // error handling, in case user edits the same page many times
-              _selectedAppointment = joinedRecord; 
-              _currentIndex = 1; 
-            });
-            break;
+            case 'edit_appointment':
+              setState(() {
+                _formSessionId++; // error handling, in case user edits the same page many times
+                _selectedAppointment = joinedRecord;
+                _currentIndex = 1;
+              });
+              break;
 
-          case 'cancel_appointment': // cancel appointment (call out function on top)
-            _cancelAppointmentConfirmation(appointment.appointmentId);
-            break;
-        }
-      },
-    ),
-  );
+            case 'cancel_appointment': // cancel appointment (call out function on top)
+              _cancelAppointmentConfirmation(appointment.appointmentId);
+              break;
+          }
+        },
+      ),
+    );
   }
 
   Widget _buildScheduleForm() {
@@ -346,8 +357,7 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
             child: ScheduleAppointmentForm(
               key: ValueKey(_formSessionId),
               activePatients: _allPatients,
-              appointmentToEdit:
-                  _selectedAppointment, 
+              appointmentToEdit: _selectedAppointment,
               onSave: _goBackToMain,
             ),
           ),
@@ -368,7 +378,8 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
             Transform.translate(
               offset: const Offset(0, -30),
               child: ViewAppointment(
-                appointmentData: { // display the different appointment datas in the database
+                appointmentData: {
+                  // display the different appointment datas in the database
                   'patientName':
                       '${_selectedAppointment?.patient.lastName}, ${_selectedAppointment?.patient.firstName}',
                   'date': _selectedAppointment?.appointment.scheduleDateTime,
