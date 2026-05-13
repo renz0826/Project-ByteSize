@@ -171,11 +171,13 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
         }
 
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar( 
-            SnackBar(
-                content: Text(
-                    "${patient.firstName} has been archived.")), // confirmation message
+          StatusToast.show(
+            context,
+            title: "Success",
+            message: "${patient.firstName} has been archived.",
+            isSuccess: true,
           );
+          
         }
       } catch (e) {
         debugPrint("Failed to archive patient: $e");
