@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:drift/drift.dart' as drift;
 import '../../style/theme.dart';
 import '../../widgets/page_header.dart';
 import '../../widgets/input_field.dart'; 
@@ -7,10 +8,11 @@ import '../../widgets/main_buttons.dart';
 import '../../widgets/status_toast.dart';
 import '../../widgets/warning_dialog.dart';
 import '../../providers/auth_provider.dart';
-
+import '../../providers/app_providers.dart';
+import '../../db/database.dart';
 
 class ProfilePage extends ConsumerStatefulWidget {
-  const ProfilePage({super.key,});
+  const ProfilePage({super.key});
 
   @override
   ConsumerState<ProfilePage> createState() => _ProfilePageState();
@@ -31,14 +33,36 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   bool _isNewPinObscured = true;
   bool _isConfirmPinObscured = true;
 
- // Pin Validation State
+  // Pin Validation State
   bool _isCurrentPinVerified = false;
   bool _isPinError = false;
   String _pinErrorMessage = '';
 
   @override
+  void initState() {
+    super.initState();
+    // Load the existing profile name into the text fields when the page opens
+    _loadExistingProfile();
+  }
+
+  Future<void> _loadExistingProfile() async {
+    // We delay slightly to ensure ref is available to read
+    Future.microtask(() async {
+      final db = ref.read(databaseProvider);
+      final staff = await (db.select(db.clinicalStaff)..limit(1)).getSingleOrNull();
+      
+      if (staff != null && mounted) {
+        setState(() {
+          _firstNameController.text = staff.firstName;
+          _middleNameController.text = staff.middleName ?? '';
+          _lastNameController.text = staff.lastName;
+        });
+      }
+    });
+  }
+
+  @override
   void dispose() {
-    // Clean up controllers when the page is closed
     _firstNameController.dispose();
     _middleNameController.dispose();
     _lastNameController.dispose();
@@ -48,11 +72,11 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     super.dispose();
   }
 
- void _verifyCurrentPin() {
+  void _verifyCurrentPin() {
     final entered = _currentPinController.text.trim();
-    final authController = ref.read(authControllerProvider.notifier);
+    final isCorrect = ref.read(authControllerProvider.notifier).verifyPin(entered);
     
-    if (authController.verifyPin(entered)) {
+    if (isCorrect) {
       setState(() {
         _isCurrentPinVerified = true;
         _isPinError = false;
@@ -65,40 +89,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       });
     }
   }
-
-  Future<void> _confirmUpdatePin() async {
-    final bool? shouldUpdate = await showDialog<bool>(
-      context: context,
-      builder: (context) => const WarningDialog(
-        isCaution: false, 
-        title: 'Update PIN?', 
-        content: 'For your security, you will be automatically logged out after changing your PIN. You will need to log back in using your new credentials.', 
-        secondaryAction: 'Cancel', 
-        primaryAction: 'Update PIN',
-        ),
-    );
-
-    if (shouldUpdate == true && mounted){
-
-      final newPin = _newPinController.text.trim();
-
-      await ref.read(authControllerProvider.notifier).updatePin(newPin);
-
-      if (mounted) {
-        StatusToast.show(
-          context,
-          title: 'PIN Updated',
-          message: 'Your login PIN has been updated successfully.',
-          isSuccess: true,
-        );
-
-        // 4. Navigate back to login screen
-        Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
-      }
-    }
-  }
   
-  // Reusable card 
   Widget _buildSectionCard({required String title, required List<Widget> children}) {
     return Container(
       width: double.infinity,
@@ -112,10 +103,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            style: AppTheme.textTheme.headlineLarge,
-          ),
+          Text(title, style: AppTheme.textTheme.headlineLarge),
           const SizedBox(height: 32),
           ...children,
         ],
@@ -134,37 +122,29 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
               title: 'Account Settings',
               type: PageHeaderType.plain,
             ),
-
             Center(
               child: Container(
-              constraints: const BoxConstraints(maxWidth: 1200),
-              padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 8),
-                
-                // Personal Info Card
-                _buildSectionCard(
-                  title: "Personal Information", 
+                constraints: const BoxConstraints(maxWidth: 1200),
+                padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Update Full Name",
-                      style: AppTheme.textTheme.bodyLarge),
-                      const SizedBox(height: 24),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: InputField(label: "First Name",
-                            controller: _firstNameController)),
+                    const SizedBox(height: 8),
+                  
+                    // Personal Info Card
+                    _buildSectionCard(
+                      title: "Personal Information", 
+                      children: [
+                        Text("Update Full Name", style: AppTheme.textTheme.bodyLarge),
+                        const SizedBox(height: 24),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(child: InputField(label: "First Name", controller: _firstNameController)),
                             const SizedBox(width: 20),
-                          Expanded(
-                            child: InputField(label: "Middle Name",
-                            controller: _middleNameController)),
+                            Expanded(child: InputField(label: "Middle Name", controller: _middleNameController)),
                             const SizedBox(width: 20), 
-                          Expanded(
-                            child: InputField(label: "Last Name",
-                            controller: _lastNameController)), 
+                            Expanded(child: InputField(label: "Last Name", controller: _lastNameController)), 
                           ],
                         ),
                         const SizedBox(height: 32),
@@ -175,12 +155,35 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                             variant: ButtonVariant.primary,
                             icon: Icons.check,
                             onPressed: () async {
+                              // 1. Validate
                               if (_firstNameController.text.trim().isEmpty || _lastNameController.text.trim().isEmpty) {
                                 StatusToast.show(context, title: 'Error', message: 'First and Last name are required.', isSuccess: false);
                                 return;
                               }
-                              await Future.delayed(const Duration(milliseconds: 500));
                               
+                              final db = ref.read(databaseProvider);
+                              final existingStaff = await (db.select(db.clinicalStaff)..limit(1)).getSingleOrNull();
+
+                              // 2. Prepare Data (No suffix included here)
+                              final companion = ClinicalStaffCompanion(
+                                staffId: drift.Value(existingStaff?.staffId ?? 1),
+                                firstName: drift.Value(_firstNameController.text.trim()),
+                                middleName: drift.Value(_middleNameController.text.trim()),
+                                lastName: drift.Value(_lastNameController.text.trim()),
+
+                                pin: drift.Value(existingStaff?.pin ?? '0000')
+                              );
+
+                              // Insert or Update Database
+                              if (existingStaff == null) {
+                                await db.into(db.clinicalStaff).insert(companion);
+                              } else {
+                                await (db.update(db.clinicalStaff)
+                                      ..where((t) => t.staffId.equals(existingStaff.staffId)))
+                                    .write(companion);
+                              }
+                              
+                              // 4. Success Message
                               if (mounted) {
                                 StatusToast.show(
                                   context, 
@@ -189,18 +192,17 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                                   isSuccess: true
                                 );
                               }
-                            } 
+                            }
                           ),
                         ),
-                    ],
-                  ),
+                      ],
+                    ),
 
-                  // Security and Access Card
-                  _buildSectionCard(
-                    title: "Security and Access",
-                    children: [
-                      Text("Update Login PIN",
-                        style: AppTheme.textTheme.bodyLarge),
+                    // Security Card
+                    _buildSectionCard(
+                      title: "Security and Access",
+                      children: [
+                        Text("Update Login PIN", style: AppTheme.textTheme.bodyLarge),
                         const SizedBox(height: 24),
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -209,57 +211,26 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  InputField(label: "Current PIN",
-                                  controller: _currentPinController,
-                                  obscureText: _isCurrentPinObscured,
-                                  suffixIcon: IconButton(
-                                    icon: Icon(_isCurrentPinObscured ? Icons.visibility_off_outlined : Icons.visibility_outlined),
-                                    onPressed: () => setState(
-                                      () => _isCurrentPinObscured = !_isCurrentPinObscured),
+                                  InputField(
+                                    label: "Current PIN",
+                                    controller: _currentPinController,
+                                    obscureText: _isCurrentPinObscured,
+                                    suffixIcon: IconButton(
+                                      icon: Icon(_isCurrentPinObscured ? Icons.visibility_off_outlined : Icons.visibility_outlined),
+                                      onPressed: () => setState(() => _isCurrentPinObscured = !_isCurrentPinObscured),
+                                    ),
                                   ),
-                                ),
-                                if (_isPinError)...[
-                                  const SizedBox(height: 6),
-                                  Text(
-                                    _pinErrorMessage,
-                                    style: AppTheme.textTheme.bodySmall?.copyWith(
-                                      color: AppTheme.red600),
-                                  ),
-                                ],
-                                if (_isCurrentPinVerified)...[
-                                  const SizedBox(height: 6),
-                                  Text(
-                                    'Pin Verified',
-                                    style: AppTheme.textTheme.bodySmall?.copyWith(
-                                      color: AppTheme.green300
-                                    )
-                                  )
-                                ]
+                                  if (_isPinError)...[
+                                    const SizedBox(height: 6),
+                                    Text(_pinErrorMessage, style: AppTheme.textTheme.bodySmall?.copyWith(color: AppTheme.red600)),
+                                  ],
+                                  if (_isCurrentPinVerified)...[
+                                    const SizedBox(height: 6),
+                                    Text('Pin Verified', style: AppTheme.textTheme.bodySmall?.copyWith(color: AppTheme.green300))
+                                  ]
                                 ],
                               )
-                          ),
-                            const SizedBox(width: 20),
-                            Expanded(
-                              child: Opacity(
-                                opacity: _isCurrentPinVerified ? 1.0 : 0.4,
-                                child: IgnorePointer(
-                                  ignoring: !_isCurrentPinVerified,
-                                  child: InputField(label: "New PIN",
-                                  controller: _newPinController,
-                                  obscureText: _isNewPinObscured,
-                                  suffixIcon: IconButton(
-                                    onPressed: () {
-                                      setState(() {
-                                        _isNewPinObscured = !_isNewPinObscured;
-                                      });
-                                    }, 
-                                    icon: Icon(_isNewPinObscured ? Icons.visibility_off_outlined : Icons.visibility_outlined)),
-                                  )
-                                ),
-                              ),
                             ),
-
-
                             const SizedBox(width: 20),
                             Expanded(
                               child: Opacity(
@@ -267,16 +238,31 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                                 child: IgnorePointer(
                                   ignoring: !_isCurrentPinVerified,
                                   child: InputField(
-                                  label: "Confirm New PIN",
-                                  controller: _confirmPinController,
-                                  obscureText: _isConfirmPinObscured,
-                                  suffixIcon: IconButton(
-                                    onPressed: (){
-                                      setState(() {
-                                        _isConfirmPinObscured = !_isConfirmPinObscured;
-                                      });
-                                    }, 
-                                    icon: Icon(_isConfirmPinObscured ? Icons.visibility_off_outlined : Icons.visibility_outlined)),
+                                    label: "New PIN",
+                                    controller: _newPinController,
+                                    obscureText: _isNewPinObscured,
+                                    suffixIcon: IconButton(
+                                      onPressed: () => setState(() => _isNewPinObscured = !_isNewPinObscured), 
+                                      icon: Icon(_isNewPinObscured ? Icons.visibility_off_outlined : Icons.visibility_outlined)
+                                    ),
+                                  )
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 20),
+                            Expanded(
+                              child: Opacity(
+                                opacity: _isCurrentPinVerified ? 1.0 : 0.4,
+                                child: IgnorePointer(
+                                  ignoring: !_isCurrentPinVerified,
+                                  child: InputField(
+                                    label: "Confirm New PIN",
+                                    controller: _confirmPinController,
+                                    obscureText: _isConfirmPinObscured,
+                                    suffixIcon: IconButton(
+                                      onPressed: () => setState(() => _isConfirmPinObscured = !_isConfirmPinObscured), 
+                                      icon: Icon(_isConfirmPinObscured ? Icons.visibility_off_outlined : Icons.visibility_outlined)
+                                    ),
                                   )
                                 ),
                               ),
@@ -292,8 +278,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                             variant: ButtonVariant.primary,
                             icon: Icons.check,
                             onPressed: () async {
-                            if (_newPinController.text.trim().isEmpty){
-                              
+                              // FIX: Separate validation logic!
                               if (_newPinController.text.trim().isEmpty) {
                                 StatusToast.show(context, title: 'Error', message: 'New PIN cannot be empty.', isSuccess: false);
                                 return;
@@ -303,48 +288,50 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                                 StatusToast.show(context, title: 'PIN Mismatch', message: 'New PIN and Confirm PIN do not match.', isSuccess: false);
                                 return;
                               }
-                            }
-                            
-                            final bool? shouldUpdate = await showDialog<bool>(
-                              context: context, 
-                              builder: (context) => const WarningDialog(
-                                isCaution: false, 
-                                title: 'Update PIN?', 
-                                content: 'For your security, you will be automatically logged out after changing your PIN. You will need to log back in using your new credentials.', 
-                                secondaryAction: 'Cancel', 
-                                primaryAction: 'Update PIN')
-                                );
-                                if (shouldUpdate == true && mounted){
-                                  await ref.read(authControllerProvider.notifier).updatePin(_newPinController.text);
-                                  if (mounted) {
+                              
+                              final bool? shouldUpdate = await showDialog<bool>(
+                                context: context, 
+                                builder: (context) => const WarningDialog(
+                                  isCaution: false, 
+                                  title: 'Update PIN?', 
+                                  content: 'For your security, you will be automatically logged out after changing your PIN. You will need to log back in using your new credentials.', 
+                                  secondaryAction: 'Cancel', 
+                                  primaryAction: 'Update PIN'
+                                )
+                              );
+                              
+                              if (shouldUpdate == true && mounted){
+                                await ref.read(authControllerProvider.notifier).updatePin(_newPinController.text);
+
+                                if (mounted) {
                                   StatusToast.show(
-                                  context, 
-                                  title: 'PIN Updated', 
-                                  message: 'Your login PIN has been updated successfully.', 
-                                  isSuccess: true,
+                                    context, 
+                                    title: 'PIN Updated', 
+                                    message: 'Your login PIN has been updated successfully.', 
+                                    isSuccess: true,
                                   );
 
-                                Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
-                                  }
+                                  Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
                                 }
-                              },
-                            )
-                            : Button (
-                              label: 'Verify PIN',
-                              variant: ButtonVariant.secondary,
-                              icon: Icons.lock_open_outlined,
-                              onPressed: _verifyCurrentPin,
-                            )
-                          ),
+                              }
+                            },
+                          )
+                          : Button (
+                            label: 'Verify PIN',
+                            variant: ButtonVariant.secondary,
+                            icon: Icons.lock_open_outlined,
+                            onPressed: _verifyCurrentPin,
+                          )
+                        ),
                       ],
                     ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          )
-        ],
+            )
+          ],
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 }

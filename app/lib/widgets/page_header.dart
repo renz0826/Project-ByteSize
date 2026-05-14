@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart'; // Added Riverpod
 import '../style/theme.dart';
 import '../pages/profile/profile_page.dart';
+import '../providers/app_providers.dart'; // Added providers to listen to DB
 
 // VARIANTS (PageHeaderType):
 //   plain     — already handled globally in main_layout.dart
@@ -63,9 +64,8 @@ class PageHeader extends StatelessWidget {
         boxShadow: AppTheme.floatShadow,
       );
 
-    Widget _buildProfileButton(BuildContext context){
-    const String doctorName = "Dr. Reynaldo Tu";
-    const String doctorAvatar = "assets/images/profile.png";
+  Widget _buildProfileButton(BuildContext context) {
+    const String doctorAvatarPath = "assets/images/profile.png";
 
     return MouseRegion(
       cursor: SystemMouseCursors.click,
@@ -78,7 +78,7 @@ class PageHeader extends StatelessWidget {
         },
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          margin: EdgeInsets.only(right: 30),
+          margin: const EdgeInsets.only(right: 30),
           decoration: BoxDecoration(
             color: AppTheme.gray200,
             borderRadius: BorderRadius.circular(8),
@@ -87,22 +87,60 @@ class PageHeader extends StatelessWidget {
               width: 1.0
             ),
           ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const CircleAvatar(
-                radius: 16,
-                backgroundColor: AppTheme.white500,
-                backgroundImage: AssetImage(doctorAvatar),
-              ),
-              const SizedBox(width: 10),
-              Text(
-                doctorName,
-                style: AppTheme.textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ],
+          // WRAPPED IN A CONSUMER TO LISTEN TO THE DATABASE
+          child: Consumer(
+            builder: (context, ref, child) {
+              final staffAsync = ref.watch(currentStaffProvider);
+
+              return Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const CircleAvatar(
+                    radius: 16,
+                    backgroundColor: AppTheme.white500,
+                    backgroundImage: AssetImage(doctorAvatarPath),
+                  ),
+                  const SizedBox(width: 10),
+                  staffAsync.when(
+                    data: (staff) {
+                      // Show Setup Profile if the database table is empty
+                      if (staff == null) {
+                        return Text(
+                          "Dr Reynaldo Tu",
+                          style: AppTheme.textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.w700,
+                          ),
+                        );
+                      }
+
+                      // Format name using database fields
+                      final middleInitial = staff.middleName != null && staff.middleName!.isNotEmpty 
+                          ? ' ${staff.middleName![0]}.' 
+                          : '';
+                      final fullName = "${staff.firstName}$middleInitial ${staff.lastName}";
+                      
+                      return Text(
+                        fullName,
+                        style: AppTheme.textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
+                      );
+                    },
+                    loading: () => const SizedBox(
+                      width: 20, 
+                      height: 20, 
+                      child: CircularProgressIndicator(strokeWidth: 2)
+                    ),
+                    error: (err, stack) => Text(
+                      "Database Error",
+                      style: AppTheme.textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            },
           ),
         ),
       ),
@@ -123,14 +161,14 @@ class PageHeader extends StatelessWidget {
           children: [
             Expanded(
               child: Text(
-              title,
-              style: GoogleFonts.beVietnamPro(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w700,
-                  color: AppTheme.black500,
-                  letterSpacing: 0.2,
+                title,
+                style: GoogleFonts.beVietnamPro(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                    color: AppTheme.black500,
+                    letterSpacing: 0.2,
+                ),
               ),
-            ),
             ),
             _buildProfileButton(context),
           ],
@@ -164,10 +202,10 @@ class PageHeader extends StatelessWidget {
               Text(
                 title,
                 style: GoogleFonts.beVietnamPro(
-                fontSize: 20,
-                fontWeight: FontWeight.w700,
-                color: AppTheme.black500,
-                letterSpacing: 0.2,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                  color: AppTheme.black500,
+                  letterSpacing: 0.2,
                 ),
                 overflow: TextOverflow.ellipsis, 
               ),
