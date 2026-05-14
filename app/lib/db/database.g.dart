@@ -1072,11 +1072,6 @@ class $ClinicalStaffTable extends ClinicalStaff
   late final GeneratedColumn<String> lastName = GeneratedColumn<String>(
       'last_name', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _suffixMeta = const VerificationMeta('suffix');
-  @override
-  late final GeneratedColumn<String> suffix = GeneratedColumn<String>(
-      'suffix', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _isLockedOutMeta =
       const VerificationMeta('isLockedOut');
   @override
@@ -1089,7 +1084,7 @@ class $ClinicalStaffTable extends ClinicalStaff
       defaultValue: const Constant(false));
   @override
   List<GeneratedColumn> get $columns =>
-      [staffId, firstName, middleName, lastName, suffix, isLockedOut];
+      [staffId, firstName, middleName, lastName, isLockedOut];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -1124,10 +1119,6 @@ class $ClinicalStaffTable extends ClinicalStaff
     } else if (isInserting) {
       context.missing(_lastNameMeta);
     }
-    if (data.containsKey('suffix')) {
-      context.handle(_suffixMeta,
-          suffix.isAcceptableOrUnknown(data['suffix']!, _suffixMeta));
-    }
     if (data.containsKey('is_locked_out')) {
       context.handle(
           _isLockedOutMeta,
@@ -1151,8 +1142,6 @@ class $ClinicalStaffTable extends ClinicalStaff
           .read(DriftSqlType.string, data['${effectivePrefix}middle_name']),
       lastName: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}last_name'])!,
-      suffix: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}suffix']),
       isLockedOut: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}is_locked_out'])!,
     );
@@ -1170,14 +1159,12 @@ class ClinicalStaffData extends DataClass
   final String firstName;
   final String? middleName;
   final String lastName;
-  final String? suffix;
   final bool isLockedOut;
   const ClinicalStaffData(
       {required this.staffId,
       required this.firstName,
       this.middleName,
       required this.lastName,
-      this.suffix,
       required this.isLockedOut});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1188,9 +1175,6 @@ class ClinicalStaffData extends DataClass
       map['middle_name'] = Variable<String>(middleName);
     }
     map['last_name'] = Variable<String>(lastName);
-    if (!nullToAbsent || suffix != null) {
-      map['suffix'] = Variable<String>(suffix);
-    }
     map['is_locked_out'] = Variable<bool>(isLockedOut);
     return map;
   }
@@ -1203,8 +1187,6 @@ class ClinicalStaffData extends DataClass
           ? const Value.absent()
           : Value(middleName),
       lastName: Value(lastName),
-      suffix:
-          suffix == null && nullToAbsent ? const Value.absent() : Value(suffix),
       isLockedOut: Value(isLockedOut),
     );
   }
@@ -1217,7 +1199,6 @@ class ClinicalStaffData extends DataClass
       firstName: serializer.fromJson<String>(json['firstName']),
       middleName: serializer.fromJson<String?>(json['middleName']),
       lastName: serializer.fromJson<String>(json['lastName']),
-      suffix: serializer.fromJson<String?>(json['suffix']),
       isLockedOut: serializer.fromJson<bool>(json['isLockedOut']),
     );
   }
@@ -1229,7 +1210,6 @@ class ClinicalStaffData extends DataClass
       'firstName': serializer.toJson<String>(firstName),
       'middleName': serializer.toJson<String?>(middleName),
       'lastName': serializer.toJson<String>(lastName),
-      'suffix': serializer.toJson<String?>(suffix),
       'isLockedOut': serializer.toJson<bool>(isLockedOut),
     };
   }
@@ -1239,14 +1219,12 @@ class ClinicalStaffData extends DataClass
           String? firstName,
           Value<String?> middleName = const Value.absent(),
           String? lastName,
-          Value<String?> suffix = const Value.absent(),
           bool? isLockedOut}) =>
       ClinicalStaffData(
         staffId: staffId ?? this.staffId,
         firstName: firstName ?? this.firstName,
         middleName: middleName.present ? middleName.value : this.middleName,
         lastName: lastName ?? this.lastName,
-        suffix: suffix.present ? suffix.value : this.suffix,
         isLockedOut: isLockedOut ?? this.isLockedOut,
       );
   ClinicalStaffData copyWithCompanion(ClinicalStaffCompanion data) {
@@ -1256,7 +1234,6 @@ class ClinicalStaffData extends DataClass
       middleName:
           data.middleName.present ? data.middleName.value : this.middleName,
       lastName: data.lastName.present ? data.lastName.value : this.lastName,
-      suffix: data.suffix.present ? data.suffix.value : this.suffix,
       isLockedOut:
           data.isLockedOut.present ? data.isLockedOut.value : this.isLockedOut,
     );
@@ -1269,15 +1246,14 @@ class ClinicalStaffData extends DataClass
           ..write('firstName: $firstName, ')
           ..write('middleName: $middleName, ')
           ..write('lastName: $lastName, ')
-          ..write('suffix: $suffix, ')
           ..write('isLockedOut: $isLockedOut')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(
-      staffId, firstName, middleName, lastName, suffix, isLockedOut);
+  int get hashCode =>
+      Object.hash(staffId, firstName, middleName, lastName, isLockedOut);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1286,7 +1262,6 @@ class ClinicalStaffData extends DataClass
           other.firstName == this.firstName &&
           other.middleName == this.middleName &&
           other.lastName == this.lastName &&
-          other.suffix == this.suffix &&
           other.isLockedOut == this.isLockedOut);
 }
 
@@ -1295,7 +1270,6 @@ class ClinicalStaffCompanion extends UpdateCompanion<ClinicalStaffData> {
   final Value<String> firstName;
   final Value<String?> middleName;
   final Value<String> lastName;
-  final Value<String?> suffix;
   final Value<bool> isLockedOut;
   final Value<int> rowid;
   const ClinicalStaffCompanion({
@@ -1303,7 +1277,6 @@ class ClinicalStaffCompanion extends UpdateCompanion<ClinicalStaffData> {
     this.firstName = const Value.absent(),
     this.middleName = const Value.absent(),
     this.lastName = const Value.absent(),
-    this.suffix = const Value.absent(),
     this.isLockedOut = const Value.absent(),
     this.rowid = const Value.absent(),
   });
@@ -1312,7 +1285,6 @@ class ClinicalStaffCompanion extends UpdateCompanion<ClinicalStaffData> {
     required String firstName,
     this.middleName = const Value.absent(),
     required String lastName,
-    this.suffix = const Value.absent(),
     this.isLockedOut = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : staffId = Value(staffId),
@@ -1323,7 +1295,6 @@ class ClinicalStaffCompanion extends UpdateCompanion<ClinicalStaffData> {
     Expression<String>? firstName,
     Expression<String>? middleName,
     Expression<String>? lastName,
-    Expression<String>? suffix,
     Expression<bool>? isLockedOut,
     Expression<int>? rowid,
   }) {
@@ -1332,7 +1303,6 @@ class ClinicalStaffCompanion extends UpdateCompanion<ClinicalStaffData> {
       if (firstName != null) 'first_name': firstName,
       if (middleName != null) 'middle_name': middleName,
       if (lastName != null) 'last_name': lastName,
-      if (suffix != null) 'suffix': suffix,
       if (isLockedOut != null) 'is_locked_out': isLockedOut,
       if (rowid != null) 'rowid': rowid,
     });
@@ -1343,7 +1313,6 @@ class ClinicalStaffCompanion extends UpdateCompanion<ClinicalStaffData> {
       Value<String>? firstName,
       Value<String?>? middleName,
       Value<String>? lastName,
-      Value<String?>? suffix,
       Value<bool>? isLockedOut,
       Value<int>? rowid}) {
     return ClinicalStaffCompanion(
@@ -1351,7 +1320,6 @@ class ClinicalStaffCompanion extends UpdateCompanion<ClinicalStaffData> {
       firstName: firstName ?? this.firstName,
       middleName: middleName ?? this.middleName,
       lastName: lastName ?? this.lastName,
-      suffix: suffix ?? this.suffix,
       isLockedOut: isLockedOut ?? this.isLockedOut,
       rowid: rowid ?? this.rowid,
     );
@@ -1372,9 +1340,6 @@ class ClinicalStaffCompanion extends UpdateCompanion<ClinicalStaffData> {
     if (lastName.present) {
       map['last_name'] = Variable<String>(lastName.value);
     }
-    if (suffix.present) {
-      map['suffix'] = Variable<String>(suffix.value);
-    }
     if (isLockedOut.present) {
       map['is_locked_out'] = Variable<bool>(isLockedOut.value);
     }
@@ -1391,7 +1356,6 @@ class ClinicalStaffCompanion extends UpdateCompanion<ClinicalStaffData> {
           ..write('firstName: $firstName, ')
           ..write('middleName: $middleName, ')
           ..write('lastName: $lastName, ')
-          ..write('suffix: $suffix, ')
           ..write('isLockedOut: $isLockedOut, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -4395,7 +4359,6 @@ typedef $$ClinicalStaffTableCreateCompanionBuilder = ClinicalStaffCompanion
   required String firstName,
   Value<String?> middleName,
   required String lastName,
-  Value<String?> suffix,
   Value<bool> isLockedOut,
   Value<int> rowid,
 });
@@ -4405,7 +4368,6 @@ typedef $$ClinicalStaffTableUpdateCompanionBuilder = ClinicalStaffCompanion
   Value<String> firstName,
   Value<String?> middleName,
   Value<String> lastName,
-  Value<String?> suffix,
   Value<bool> isLockedOut,
   Value<int> rowid,
 });
@@ -4453,9 +4415,6 @@ class $$ClinicalStaffTableFilterComposer
   ColumnFilters<String> get lastName => $composableBuilder(
       column: $table.lastName, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get suffix => $composableBuilder(
-      column: $table.suffix, builder: (column) => ColumnFilters(column));
-
   ColumnFilters<bool> get isLockedOut => $composableBuilder(
       column: $table.isLockedOut, builder: (column) => ColumnFilters(column));
 
@@ -4502,9 +4461,6 @@ class $$ClinicalStaffTableOrderingComposer
   ColumnOrderings<String> get lastName => $composableBuilder(
       column: $table.lastName, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get suffix => $composableBuilder(
-      column: $table.suffix, builder: (column) => ColumnOrderings(column));
-
   ColumnOrderings<bool> get isLockedOut => $composableBuilder(
       column: $table.isLockedOut, builder: (column) => ColumnOrderings(column));
 }
@@ -4529,9 +4485,6 @@ class $$ClinicalStaffTableAnnotationComposer
 
   GeneratedColumn<String> get lastName =>
       $composableBuilder(column: $table.lastName, builder: (column) => column);
-
-  GeneratedColumn<String> get suffix =>
-      $composableBuilder(column: $table.suffix, builder: (column) => column);
 
   GeneratedColumn<bool> get isLockedOut => $composableBuilder(
       column: $table.isLockedOut, builder: (column) => column);
@@ -4585,7 +4538,6 @@ class $$ClinicalStaffTableTableManager extends RootTableManager<
             Value<String> firstName = const Value.absent(),
             Value<String?> middleName = const Value.absent(),
             Value<String> lastName = const Value.absent(),
-            Value<String?> suffix = const Value.absent(),
             Value<bool> isLockedOut = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
@@ -4594,7 +4546,6 @@ class $$ClinicalStaffTableTableManager extends RootTableManager<
             firstName: firstName,
             middleName: middleName,
             lastName: lastName,
-            suffix: suffix,
             isLockedOut: isLockedOut,
             rowid: rowid,
           ),
@@ -4603,7 +4554,6 @@ class $$ClinicalStaffTableTableManager extends RootTableManager<
             required String firstName,
             Value<String?> middleName = const Value.absent(),
             required String lastName,
-            Value<String?> suffix = const Value.absent(),
             Value<bool> isLockedOut = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
@@ -4612,7 +4562,6 @@ class $$ClinicalStaffTableTableManager extends RootTableManager<
             firstName: firstName,
             middleName: middleName,
             lastName: lastName,
-            suffix: suffix,
             isLockedOut: isLockedOut,
             rowid: rowid,
           ),

@@ -46,7 +46,6 @@ class ClinicalStaff extends Table { // Dentist and Staff Entity
   TextColumn get firstName => text()();
   TextColumn get middleName => text().nullable()();
   TextColumn get lastName => text()();
-  TextColumn get suffix => text().nullable()(); // Optional, but good for consistency
 
 // Other Data
   BoolColumn get isLockedOut => boolean().withDefault(const Constant(false))();
