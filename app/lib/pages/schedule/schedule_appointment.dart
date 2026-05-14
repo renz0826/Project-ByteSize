@@ -219,7 +219,7 @@ class _ScheduleAppointmentFormState
           children: [
             Text(
                 isEditing
-                    ? "Edit ${widget.appointmentToEdit?.patient.lastName}, ${widget.appointmentToEdit?.patient.firstName}'s Schedule"
+                    ? "Edit ${widget.appointmentToEdit?.patient.firstName} ${widget.appointmentToEdit?.patient.lastName}'s Schedule"
                     : "Schedule An Appointment",
                 style: Theme.of(context).textTheme.headlineLarge),
             if (!isEditing)
