@@ -18,6 +18,7 @@ class InputField extends StatelessWidget {
   final int maxLines;
   final bool isRequired;
   final bool isHidden;
+  final Widget? suffixIcon;
 
   // Props for standard text input
   final TextEditingController? controller;
@@ -58,7 +59,8 @@ class InputField extends StatelessWidget {
       this.counterMin = 0, // Prevents negative numbers by default
       this.counterMax = 100,
       this.isHidden = false,
-      this.isRequired = false});
+      this.isRequired = false,
+      this.suffixIcon});
 
   @override
   Widget build(BuildContext context) {
@@ -97,7 +99,7 @@ class InputField extends StatelessWidget {
             inputFormatters: inputFormatters,
             style:
                 theme.textTheme.bodySmall?.copyWith(color: AppTheme.black500),
-            decoration: inputStyle);
+            decoration: inputStyle.copyWith(suffixIcon: suffixIcon));
         break;
 
       // SAMPLE USE CASE:
