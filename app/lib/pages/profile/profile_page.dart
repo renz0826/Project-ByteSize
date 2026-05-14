@@ -4,6 +4,7 @@ import '../../widgets/page_header.dart';
 import '../../widgets/input_field.dart'; 
 import '../../widgets/main_buttons.dart'; 
 import '../../widgets/status_toast.dart';
+import '../../widgets/warning_dialog.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key,});
@@ -59,6 +60,26 @@ class _ProfilePageState extends State<ProfilePage> {
         _isPinError = true;
         _pinErrorMessage = 'Incorrect PIN. Please try again.';
       });
+    }
+  }
+
+  Future<void> _confirmUpdatePin() async {
+    final bool? shouldUpdate = await showDialog<bool>(
+      context: context,
+      builder: (context) => const WarningDialog(
+        isCaution: false, 
+        title: 'Update PIN?', 
+        content: 'For your security, you will be automatically logged out after changing your PIN. You will need to log back in using your new credentials.', 
+        secondaryAction: 'Cancel', 
+        primaryAction: 'Update PIN',
+        ),
+    );
+
+    if (shouldUpdate == true && mounted){
+      //TODO: logic if the user confirmed
+
+      // Navigate back to login screen (clearing navigation history for security)
+      Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
     }
   }
   
@@ -162,7 +183,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                   controller: _currentPinController,
                                   obscureText: _isCurrentPinObscured,
                                   suffixIcon: IconButton(
-                                    icon: Icon(_isCurrentPinObscured ? Icons.visibility_off : Icons.visibility),
+                                    icon: Icon(_isCurrentPinObscured ? Icons.visibility_off_outlined : Icons.visibility_outlined),
                                     onPressed: () => setState(
                                       () => _isCurrentPinObscured = !_isCurrentPinObscured),
                                   ),
@@ -202,7 +223,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                         _isNewPinObscured = !_isNewPinObscured;
                                       });
                                     }, 
-                                    icon: Icon(_isNewPinObscured ? Icons.visibility_off : Icons.visibility)),
+                                    icon: Icon(_isNewPinObscured ? Icons.visibility_off_outlined : Icons.visibility_outlined)),
                                   )
                                 ),
                               ),
@@ -225,7 +246,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                         _isConfirmPinObscured = !_isConfirmPinObscured;
                                       });
                                     }, 
-                                    icon: Icon(_isConfirmPinObscured ? Icons.visibility_off : Icons.visibility)),
+                                    icon: Icon(_isConfirmPinObscured ? Icons.visibility_off_outlined : Icons.visibility_outlined)),
                                   )
                                 ),
                               ),
@@ -240,7 +261,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             label: "Update PIN",
                             variant: ButtonVariant.primary,
                             icon: Icons.check,
-                            onPressed: () {
+                            onPressed: () async {
                             // TODO: validate new == confirm, then save to DB
                             if (_newPinController.text != _confirmPinController.text){
                               StatusToast.show(context, 
@@ -250,26 +271,41 @@ class _ProfilePageState extends State<ProfilePage> {
                               );
                               return;
                             }
-                            //TODO: save new PIN to DB
-                              StatusToast.show(context, 
-                              title: 'PIN Updated', 
-                              message: 'Your login PIN has been updated successfully.', 
-                              isSuccess: true,
-                              );
-                            },
-                          )
-                          : Button (
-                            label: 'Verify PIN',
-                            variant: ButtonVariant.secondary,
-                            icon: Icons.lock_open_outlined,
-                            onPressed: _verifyCurrentPin,
-                          )
-                        ),
-                    ],
-                  ),
-              ],
+                            
+                            final bool? shouldUpdate = await showDialog<bool>(
+                              context: context, 
+                              builder: (context) => const WarningDialog(
+                                isCaution: false, 
+                                title: 'Update PIN?', 
+                                content: 'For your security, you will be automatically logged out after changing your PIN. You will need to log back in using your new credentials.', 
+                                secondaryAction: 'Cancel', 
+                                primaryAction: 'Update PIN')
+                                );
+                                if (shouldUpdate == true && mounted){
+                              //TODO: save new PIN to DB
+                                StatusToast.show(
+                                context, 
+                                title: 'PIN Updated', 
+                                message: 'Your login PIN has been updated successfully.', 
+                                isSuccess: true,
+                                );
+
+                                Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
+                                }
+                              },
+                            )
+                            : Button (
+                              label: 'Verify PIN',
+                              variant: ButtonVariant.secondary,
+                              icon: Icons.lock_open_outlined,
+                              onPressed: _verifyCurrentPin,
+                            )
+                          ),
+                      ],
+                    ),
+                ],
+              ),
             ),
-          ),
           )
         ],
       ),
