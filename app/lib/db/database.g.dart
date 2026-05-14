@@ -1054,11 +1054,29 @@ class $ClinicalStaffTable extends ClinicalStaff
   late final GeneratedColumn<int> staffId = GeneratedColumn<int>(
       'staff_id', aliasedName, false,
       type: DriftSqlType.int, requiredDuringInsert: true);
-  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  static const VerificationMeta _firstNameMeta =
+      const VerificationMeta('firstName');
   @override
-  late final GeneratedColumn<String> name = GeneratedColumn<String>(
-      'name', aliasedName, false,
+  late final GeneratedColumn<String> firstName = GeneratedColumn<String>(
+      'first_name', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _middleNameMeta =
+      const VerificationMeta('middleName');
+  @override
+  late final GeneratedColumn<String> middleName = GeneratedColumn<String>(
+      'middle_name', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _lastNameMeta =
+      const VerificationMeta('lastName');
+  @override
+  late final GeneratedColumn<String> lastName = GeneratedColumn<String>(
+      'last_name', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _suffixMeta = const VerificationMeta('suffix');
+  @override
+  late final GeneratedColumn<String> suffix = GeneratedColumn<String>(
+      'suffix', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _isLockedOutMeta =
       const VerificationMeta('isLockedOut');
   @override
@@ -1070,7 +1088,8 @@ class $ClinicalStaffTable extends ClinicalStaff
           'CHECK ("is_locked_out" IN (0, 1))'),
       defaultValue: const Constant(false));
   @override
-  List<GeneratedColumn> get $columns => [staffId, name, isLockedOut];
+  List<GeneratedColumn> get $columns =>
+      [staffId, firstName, middleName, lastName, suffix, isLockedOut];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -1087,11 +1106,27 @@ class $ClinicalStaffTable extends ClinicalStaff
     } else if (isInserting) {
       context.missing(_staffIdMeta);
     }
-    if (data.containsKey('name')) {
-      context.handle(
-          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
+    if (data.containsKey('first_name')) {
+      context.handle(_firstNameMeta,
+          firstName.isAcceptableOrUnknown(data['first_name']!, _firstNameMeta));
     } else if (isInserting) {
-      context.missing(_nameMeta);
+      context.missing(_firstNameMeta);
+    }
+    if (data.containsKey('middle_name')) {
+      context.handle(
+          _middleNameMeta,
+          middleName.isAcceptableOrUnknown(
+              data['middle_name']!, _middleNameMeta));
+    }
+    if (data.containsKey('last_name')) {
+      context.handle(_lastNameMeta,
+          lastName.isAcceptableOrUnknown(data['last_name']!, _lastNameMeta));
+    } else if (isInserting) {
+      context.missing(_lastNameMeta);
+    }
+    if (data.containsKey('suffix')) {
+      context.handle(_suffixMeta,
+          suffix.isAcceptableOrUnknown(data['suffix']!, _suffixMeta));
     }
     if (data.containsKey('is_locked_out')) {
       context.handle(
@@ -1110,8 +1145,14 @@ class $ClinicalStaffTable extends ClinicalStaff
     return ClinicalStaffData(
       staffId: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}staff_id'])!,
-      name: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
+      firstName: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}first_name'])!,
+      middleName: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}middle_name']),
+      lastName: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}last_name'])!,
+      suffix: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}suffix']),
       isLockedOut: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}is_locked_out'])!,
     );
@@ -1126,15 +1167,30 @@ class $ClinicalStaffTable extends ClinicalStaff
 class ClinicalStaffData extends DataClass
     implements Insertable<ClinicalStaffData> {
   final int staffId;
-  final String name;
+  final String firstName;
+  final String? middleName;
+  final String lastName;
+  final String? suffix;
   final bool isLockedOut;
   const ClinicalStaffData(
-      {required this.staffId, required this.name, required this.isLockedOut});
+      {required this.staffId,
+      required this.firstName,
+      this.middleName,
+      required this.lastName,
+      this.suffix,
+      required this.isLockedOut});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['staff_id'] = Variable<int>(staffId);
-    map['name'] = Variable<String>(name);
+    map['first_name'] = Variable<String>(firstName);
+    if (!nullToAbsent || middleName != null) {
+      map['middle_name'] = Variable<String>(middleName);
+    }
+    map['last_name'] = Variable<String>(lastName);
+    if (!nullToAbsent || suffix != null) {
+      map['suffix'] = Variable<String>(suffix);
+    }
     map['is_locked_out'] = Variable<bool>(isLockedOut);
     return map;
   }
@@ -1142,7 +1198,13 @@ class ClinicalStaffData extends DataClass
   ClinicalStaffCompanion toCompanion(bool nullToAbsent) {
     return ClinicalStaffCompanion(
       staffId: Value(staffId),
-      name: Value(name),
+      firstName: Value(firstName),
+      middleName: middleName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(middleName),
+      lastName: Value(lastName),
+      suffix:
+          suffix == null && nullToAbsent ? const Value.absent() : Value(suffix),
       isLockedOut: Value(isLockedOut),
     );
   }
@@ -1152,7 +1214,10 @@ class ClinicalStaffData extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return ClinicalStaffData(
       staffId: serializer.fromJson<int>(json['staffId']),
-      name: serializer.fromJson<String>(json['name']),
+      firstName: serializer.fromJson<String>(json['firstName']),
+      middleName: serializer.fromJson<String?>(json['middleName']),
+      lastName: serializer.fromJson<String>(json['lastName']),
+      suffix: serializer.fromJson<String?>(json['suffix']),
       isLockedOut: serializer.fromJson<bool>(json['isLockedOut']),
     );
   }
@@ -1161,21 +1226,37 @@ class ClinicalStaffData extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'staffId': serializer.toJson<int>(staffId),
-      'name': serializer.toJson<String>(name),
+      'firstName': serializer.toJson<String>(firstName),
+      'middleName': serializer.toJson<String?>(middleName),
+      'lastName': serializer.toJson<String>(lastName),
+      'suffix': serializer.toJson<String?>(suffix),
       'isLockedOut': serializer.toJson<bool>(isLockedOut),
     };
   }
 
-  ClinicalStaffData copyWith({int? staffId, String? name, bool? isLockedOut}) =>
+  ClinicalStaffData copyWith(
+          {int? staffId,
+          String? firstName,
+          Value<String?> middleName = const Value.absent(),
+          String? lastName,
+          Value<String?> suffix = const Value.absent(),
+          bool? isLockedOut}) =>
       ClinicalStaffData(
         staffId: staffId ?? this.staffId,
-        name: name ?? this.name,
+        firstName: firstName ?? this.firstName,
+        middleName: middleName.present ? middleName.value : this.middleName,
+        lastName: lastName ?? this.lastName,
+        suffix: suffix.present ? suffix.value : this.suffix,
         isLockedOut: isLockedOut ?? this.isLockedOut,
       );
   ClinicalStaffData copyWithCompanion(ClinicalStaffCompanion data) {
     return ClinicalStaffData(
       staffId: data.staffId.present ? data.staffId.value : this.staffId,
-      name: data.name.present ? data.name.value : this.name,
+      firstName: data.firstName.present ? data.firstName.value : this.firstName,
+      middleName:
+          data.middleName.present ? data.middleName.value : this.middleName,
+      lastName: data.lastName.present ? data.lastName.value : this.lastName,
+      suffix: data.suffix.present ? data.suffix.value : this.suffix,
       isLockedOut:
           data.isLockedOut.present ? data.isLockedOut.value : this.isLockedOut,
     );
@@ -1185,50 +1266,73 @@ class ClinicalStaffData extends DataClass
   String toString() {
     return (StringBuffer('ClinicalStaffData(')
           ..write('staffId: $staffId, ')
-          ..write('name: $name, ')
+          ..write('firstName: $firstName, ')
+          ..write('middleName: $middleName, ')
+          ..write('lastName: $lastName, ')
+          ..write('suffix: $suffix, ')
           ..write('isLockedOut: $isLockedOut')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(staffId, name, isLockedOut);
+  int get hashCode => Object.hash(
+      staffId, firstName, middleName, lastName, suffix, isLockedOut);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is ClinicalStaffData &&
           other.staffId == this.staffId &&
-          other.name == this.name &&
+          other.firstName == this.firstName &&
+          other.middleName == this.middleName &&
+          other.lastName == this.lastName &&
+          other.suffix == this.suffix &&
           other.isLockedOut == this.isLockedOut);
 }
 
 class ClinicalStaffCompanion extends UpdateCompanion<ClinicalStaffData> {
   final Value<int> staffId;
-  final Value<String> name;
+  final Value<String> firstName;
+  final Value<String?> middleName;
+  final Value<String> lastName;
+  final Value<String?> suffix;
   final Value<bool> isLockedOut;
   final Value<int> rowid;
   const ClinicalStaffCompanion({
     this.staffId = const Value.absent(),
-    this.name = const Value.absent(),
+    this.firstName = const Value.absent(),
+    this.middleName = const Value.absent(),
+    this.lastName = const Value.absent(),
+    this.suffix = const Value.absent(),
     this.isLockedOut = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   ClinicalStaffCompanion.insert({
     required int staffId,
-    required String name,
+    required String firstName,
+    this.middleName = const Value.absent(),
+    required String lastName,
+    this.suffix = const Value.absent(),
     this.isLockedOut = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : staffId = Value(staffId),
-        name = Value(name);
+        firstName = Value(firstName),
+        lastName = Value(lastName);
   static Insertable<ClinicalStaffData> custom({
     Expression<int>? staffId,
-    Expression<String>? name,
+    Expression<String>? firstName,
+    Expression<String>? middleName,
+    Expression<String>? lastName,
+    Expression<String>? suffix,
     Expression<bool>? isLockedOut,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (staffId != null) 'staff_id': staffId,
-      if (name != null) 'name': name,
+      if (firstName != null) 'first_name': firstName,
+      if (middleName != null) 'middle_name': middleName,
+      if (lastName != null) 'last_name': lastName,
+      if (suffix != null) 'suffix': suffix,
       if (isLockedOut != null) 'is_locked_out': isLockedOut,
       if (rowid != null) 'rowid': rowid,
     });
@@ -1236,12 +1340,18 @@ class ClinicalStaffCompanion extends UpdateCompanion<ClinicalStaffData> {
 
   ClinicalStaffCompanion copyWith(
       {Value<int>? staffId,
-      Value<String>? name,
+      Value<String>? firstName,
+      Value<String?>? middleName,
+      Value<String>? lastName,
+      Value<String?>? suffix,
       Value<bool>? isLockedOut,
       Value<int>? rowid}) {
     return ClinicalStaffCompanion(
       staffId: staffId ?? this.staffId,
-      name: name ?? this.name,
+      firstName: firstName ?? this.firstName,
+      middleName: middleName ?? this.middleName,
+      lastName: lastName ?? this.lastName,
+      suffix: suffix ?? this.suffix,
       isLockedOut: isLockedOut ?? this.isLockedOut,
       rowid: rowid ?? this.rowid,
     );
@@ -1253,8 +1363,17 @@ class ClinicalStaffCompanion extends UpdateCompanion<ClinicalStaffData> {
     if (staffId.present) {
       map['staff_id'] = Variable<int>(staffId.value);
     }
-    if (name.present) {
-      map['name'] = Variable<String>(name.value);
+    if (firstName.present) {
+      map['first_name'] = Variable<String>(firstName.value);
+    }
+    if (middleName.present) {
+      map['middle_name'] = Variable<String>(middleName.value);
+    }
+    if (lastName.present) {
+      map['last_name'] = Variable<String>(lastName.value);
+    }
+    if (suffix.present) {
+      map['suffix'] = Variable<String>(suffix.value);
     }
     if (isLockedOut.present) {
       map['is_locked_out'] = Variable<bool>(isLockedOut.value);
@@ -1269,7 +1388,10 @@ class ClinicalStaffCompanion extends UpdateCompanion<ClinicalStaffData> {
   String toString() {
     return (StringBuffer('ClinicalStaffCompanion(')
           ..write('staffId: $staffId, ')
-          ..write('name: $name, ')
+          ..write('firstName: $firstName, ')
+          ..write('middleName: $middleName, ')
+          ..write('lastName: $lastName, ')
+          ..write('suffix: $suffix, ')
           ..write('isLockedOut: $isLockedOut, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -4270,14 +4392,20 @@ typedef $$PatientTableProcessedTableManager = ProcessedTableManager<
 typedef $$ClinicalStaffTableCreateCompanionBuilder = ClinicalStaffCompanion
     Function({
   required int staffId,
-  required String name,
+  required String firstName,
+  Value<String?> middleName,
+  required String lastName,
+  Value<String?> suffix,
   Value<bool> isLockedOut,
   Value<int> rowid,
 });
 typedef $$ClinicalStaffTableUpdateCompanionBuilder = ClinicalStaffCompanion
     Function({
   Value<int> staffId,
-  Value<String> name,
+  Value<String> firstName,
+  Value<String?> middleName,
+  Value<String> lastName,
+  Value<String?> suffix,
   Value<bool> isLockedOut,
   Value<int> rowid,
 });
@@ -4316,8 +4444,17 @@ class $$ClinicalStaffTableFilterComposer
   ColumnFilters<int> get staffId => $composableBuilder(
       column: $table.staffId, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get name => $composableBuilder(
-      column: $table.name, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get firstName => $composableBuilder(
+      column: $table.firstName, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get middleName => $composableBuilder(
+      column: $table.middleName, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get lastName => $composableBuilder(
+      column: $table.lastName, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get suffix => $composableBuilder(
+      column: $table.suffix, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<bool> get isLockedOut => $composableBuilder(
       column: $table.isLockedOut, builder: (column) => ColumnFilters(column));
@@ -4356,8 +4493,17 @@ class $$ClinicalStaffTableOrderingComposer
   ColumnOrderings<int> get staffId => $composableBuilder(
       column: $table.staffId, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get name => $composableBuilder(
-      column: $table.name, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get firstName => $composableBuilder(
+      column: $table.firstName, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get middleName => $composableBuilder(
+      column: $table.middleName, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get lastName => $composableBuilder(
+      column: $table.lastName, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get suffix => $composableBuilder(
+      column: $table.suffix, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<bool> get isLockedOut => $composableBuilder(
       column: $table.isLockedOut, builder: (column) => ColumnOrderings(column));
@@ -4375,8 +4521,17 @@ class $$ClinicalStaffTableAnnotationComposer
   GeneratedColumn<int> get staffId =>
       $composableBuilder(column: $table.staffId, builder: (column) => column);
 
-  GeneratedColumn<String> get name =>
-      $composableBuilder(column: $table.name, builder: (column) => column);
+  GeneratedColumn<String> get firstName =>
+      $composableBuilder(column: $table.firstName, builder: (column) => column);
+
+  GeneratedColumn<String> get middleName => $composableBuilder(
+      column: $table.middleName, builder: (column) => column);
+
+  GeneratedColumn<String> get lastName =>
+      $composableBuilder(column: $table.lastName, builder: (column) => column);
+
+  GeneratedColumn<String> get suffix =>
+      $composableBuilder(column: $table.suffix, builder: (column) => column);
 
   GeneratedColumn<bool> get isLockedOut => $composableBuilder(
       column: $table.isLockedOut, builder: (column) => column);
@@ -4427,25 +4582,37 @@ class $$ClinicalStaffTableTableManager extends RootTableManager<
               $$ClinicalStaffTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
             Value<int> staffId = const Value.absent(),
-            Value<String> name = const Value.absent(),
+            Value<String> firstName = const Value.absent(),
+            Value<String?> middleName = const Value.absent(),
+            Value<String> lastName = const Value.absent(),
+            Value<String?> suffix = const Value.absent(),
             Value<bool> isLockedOut = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               ClinicalStaffCompanion(
             staffId: staffId,
-            name: name,
+            firstName: firstName,
+            middleName: middleName,
+            lastName: lastName,
+            suffix: suffix,
             isLockedOut: isLockedOut,
             rowid: rowid,
           ),
           createCompanionCallback: ({
             required int staffId,
-            required String name,
+            required String firstName,
+            Value<String?> middleName = const Value.absent(),
+            required String lastName,
+            Value<String?> suffix = const Value.absent(),
             Value<bool> isLockedOut = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               ClinicalStaffCompanion.insert(
             staffId: staffId,
-            name: name,
+            firstName: firstName,
+            middleName: middleName,
+            lastName: lastName,
+            suffix: suffix,
             isLockedOut: isLockedOut,
             rowid: rowid,
           ),

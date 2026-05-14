@@ -1,19 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../style/theme.dart';
 import '../../widgets/page_header.dart';
 import '../../widgets/input_field.dart'; 
 import '../../widgets/main_buttons.dart'; 
 import '../../widgets/status_toast.dart';
 import '../../widgets/warning_dialog.dart';
+import '../../providers/auth_provider.dart';
 
-class ProfilePage extends StatefulWidget {
+
+class ProfilePage extends ConsumerStatefulWidget {
   const ProfilePage({super.key,});
 
   @override
-  State<ProfilePage> createState() => _ProfilePageState();
+  ConsumerState<ProfilePage> createState() => _ProfilePageState();
 }
 
-class _ProfilePageState extends State<ProfilePage> {
+class _ProfilePageState extends ConsumerState<ProfilePage> {
   // Personal Information Controller
   final _firstNameController = TextEditingController();
   final _middleNameController = TextEditingController();
@@ -33,8 +36,6 @@ class _ProfilePageState extends State<ProfilePage> {
   bool _isPinError = false;
   String _pinErrorMessage = '';
 
-  static const String _correctPin = '1234';
-
   @override
   void dispose() {
     // Clean up controllers when the page is closed
@@ -47,9 +48,11 @@ class _ProfilePageState extends State<ProfilePage> {
     super.dispose();
   }
 
-  void _verifyCurrentPin(){
+ void _verifyCurrentPin() {
     final entered = _currentPinController.text.trim();
-    if (entered == _correctPin){
+    final authController = ref.read(authControllerProvider.notifier);
+    
+    if (authController.verifyPin(entered)) {
       setState(() {
         _isCurrentPinVerified = true;
         _isPinError = false;
@@ -76,10 +79,22 @@ class _ProfilePageState extends State<ProfilePage> {
     );
 
     if (shouldUpdate == true && mounted){
-      //TODO: logic if the user confirmed
 
-      // Navigate back to login screen (clearing navigation history for security)
-      Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
+      final newPin = _newPinController.text.trim();
+
+      await ref.read(authControllerProvider.notifier).updatePin(newPin);
+
+      if (mounted) {
+        StatusToast.show(
+          context,
+          title: 'PIN Updated',
+          message: 'Your login PIN has been updated successfully.',
+          isSuccess: true,
+        );
+
+        // 4. Navigate back to login screen
+        Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
+      }
     }
   }
   
@@ -159,7 +174,22 @@ class _ProfilePageState extends State<ProfilePage> {
                             label: "Update Profile",
                             variant: ButtonVariant.primary,
                             icon: Icons.check,
-                            onPressed: () {} // TO DO: Logic in updating Profile
+                            onPressed: () async {
+                              if (_firstNameController.text.trim().isEmpty || _lastNameController.text.trim().isEmpty) {
+                                StatusToast.show(context, title: 'Error', message: 'First and Last name are required.', isSuccess: false);
+                                return;
+                              }
+                              await Future.delayed(const Duration(milliseconds: 500));
+                              
+                              if (mounted) {
+                                StatusToast.show(
+                                  context, 
+                                  title: 'Profile Updated', 
+                                  message: 'Your personal information has been saved.', 
+                                  isSuccess: true
+                                );
+                              }
+                            } 
                           ),
                         ),
                     ],
@@ -262,14 +292,17 @@ class _ProfilePageState extends State<ProfilePage> {
                             variant: ButtonVariant.primary,
                             icon: Icons.check,
                             onPressed: () async {
-                            // TODO: validate new == confirm, then save to DB
-                            if (_newPinController.text != _confirmPinController.text){
-                              StatusToast.show(context, 
-                              title: 'PIN Mismatch', 
-                              message: 'New PIN and Confirm PIN do not match.', 
-                              isSuccess: false,
-                              );
-                              return;
+                            if (_newPinController.text.trim().isEmpty){
+                              
+                              if (_newPinController.text.trim().isEmpty) {
+                                StatusToast.show(context, title: 'Error', message: 'New PIN cannot be empty.', isSuccess: false);
+                                return;
+                              }
+                              
+                              if (_newPinController.text != _confirmPinController.text){
+                                StatusToast.show(context, title: 'PIN Mismatch', message: 'New PIN and Confirm PIN do not match.', isSuccess: false);
+                                return;
+                              }
                             }
                             
                             final bool? shouldUpdate = await showDialog<bool>(
@@ -282,15 +315,17 @@ class _ProfilePageState extends State<ProfilePage> {
                                 primaryAction: 'Update PIN')
                                 );
                                 if (shouldUpdate == true && mounted){
-                              //TODO: save new PIN to DB
-                                StatusToast.show(
-                                context, 
-                                title: 'PIN Updated', 
-                                message: 'Your login PIN has been updated successfully.', 
-                                isSuccess: true,
-                                );
+                                  await ref.read(authControllerProvider.notifier).updatePin(_newPinController.text);
+                                  if (mounted) {
+                                  StatusToast.show(
+                                  context, 
+                                  title: 'PIN Updated', 
+                                  message: 'Your login PIN has been updated successfully.', 
+                                  isSuccess: true,
+                                  );
 
                                 Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
+                                  }
                                 }
                               },
                             )

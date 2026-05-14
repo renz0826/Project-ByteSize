@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../style/theme.dart';
+import '../pages/profile/profile_page.dart';
 
 // VARIANTS (PageHeaderType):
 //   plain     — already handled globally in main_layout.dart
@@ -69,7 +70,12 @@ class PageHeader extends StatelessWidget {
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
-        onTap: onProfileTap,
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const ProfilePage()), // go to profile page
+          );
+        },
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           margin: EdgeInsets.only(right: 30),

@@ -38,12 +38,17 @@ DateTimeColumn get createdAt => dateTime()();
 DateTimeColumn get updatedAt => dateTime()();
 }
 
-class ClinicalStaff extends Table {// Dentist and Staff Entity
+class ClinicalStaff extends Table { // Dentist and Staff Entity
 // Primary Key
   IntColumn get staffId => integer()(); 
 
+// Full Name (Updated to match ProfilePage UI)
+  TextColumn get firstName => text()();
+  TextColumn get middleName => text().nullable()();
+  TextColumn get lastName => text()();
+  TextColumn get suffix => text().nullable()(); // Optional, but good for consistency
+
 // Other Data
-  TextColumn get name => text()();
   BoolColumn get isLockedOut => boolean().withDefault(const Constant(false))();
   // PIN is already located in auth_provider
 }
