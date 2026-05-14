@@ -311,7 +311,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                                     isSuccess: true,
                                   );
 
-                                  Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
+                                  Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
                                 }
                               }
                             },
