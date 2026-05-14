@@ -5,6 +5,7 @@ import 'package:heroicons/heroicons.dart';
 import '/../style/theme.dart';
 import '/../widgets/main_buttons.dart';
 import '/../widgets/page_header.dart';
+import '/../widgets/app_status_badge.dart';
 import '../../db/database.dart';
 import '../../providers/app_providers.dart';
 import '../../repositories/invoice_repository.dart';
@@ -161,11 +162,7 @@ class _ProcessPaymentScreenState extends ConsumerState<ProcessPaymentScreen> {
                 Text("Process Payment", style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold)),
                 const SizedBox(width: 16),
                 if (hasDiscount)
-                   Container(
-                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                     decoration: BoxDecoration(color: Colors.green.shade50, borderRadius: BorderRadius.circular(20), border: Border.all(color: Colors.green.shade200)),
-                     child: Text("20% Senior/PWD Eligible", style: TextStyle(color: Colors.green.shade700, fontWeight: FontWeight.bold, fontSize: 12)),
-                   ),
+                  const AppStatusBadge(status: BadgeStatus.discount),
               ],
             ),
             const SizedBox(height: 8),

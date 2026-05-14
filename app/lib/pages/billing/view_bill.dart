@@ -348,58 +348,40 @@ class _ViewBillScreenState extends ConsumerState<ViewBillScreen> {
     );
   }
 
-  Widget _buildProcedureRow(ProcedureChargeData proc, bool hasDiscount) {
-    // Backend calculation for the final amount
-    final amountToBePaid = proc.totalProcedureCharge * (hasDiscount ? 0.8 : 1.0);
+Widget _buildProcedureRow(ProcedureChargeData proc, bool hasDiscount) {
+  final amountToBePaid = proc.totalProcedureCharge * (hasDiscount ? 0.8 : 1.0);
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Row(
-        children: [
-          // Using the AttributeReadView widget for the Procedure Name
-          Expanded(
-            flex: 4,
-            child: AttributeReadView(
-              label: '', // Leaving label empty for table row use
-              content: proc.procedureName,
-            ),
-          ),
+  return Padding(
+    padding: const EdgeInsets.symmetric(vertical: 4.0), 
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Expanded(flex: 4, child: _buildCroppedAttribute(proc.procedureName)),
+        Expanded(flex: 2, child: _buildCroppedAttribute('₱ ${proc.procedureCharge.toStringAsFixed(2)}')),
+        const SizedBox(width: 50),
+        Expanded(flex: 1, child: _buildCroppedAttribute(proc.quantity.toString())),
+        const SizedBox(width: 50),
+        Expanded(flex: 3, child: _buildCroppedAttribute('₱ ${amountToBePaid.toStringAsFixed(2)}')),
+      ],
+    ),
+  );
+}
 
-          // Procedure Charge
-          Expanded(
-            flex: 2,
-            child: AttributeReadView(
-              label: '',
-              content: '₱ ${proc.procedureCharge.toStringAsFixed(2)}',
-            ),
-          ),
-
-          const SizedBox(width: 50),
-
-          // Quantity
-          Expanded(
-            flex: 1,
-            child: AttributeReadView(
-              label: '',
-              content: proc.quantity.toString(),
-            ),
-          ),
-
-          const SizedBox(width: 50),
-
-          // Final Amount to be Paid
-          Expanded(
-            flex: 3,
-            child: AttributeReadView(
-              label: '',
-              content: '₱ ${amountToBePaid.toStringAsFixed(2)}', 
-            ),
-          ),
-        ],
+// This helper crops the top part of the widget to remove the empty label gap
+Widget _buildCroppedAttribute(String content) {
+  return ClipRect(
+    child: Align(
+      alignment: Alignment.bottomLeft,
+      heightFactor: 0.5, // Only shows the bottom half (the content)
+      child: AttributeReadView(
+        label: '', 
+        content: content,
+        isCrucial: false, // Keeps text black as requested
       ),
-    );
-  }
-
+    ),
+  );
+}
+  
   BadgeStatus _mapDatabaseStatusToBadge(String dbStatus) {
     switch (dbStatus.toLowerCase()) {
       case 'waiting':
