@@ -36,7 +36,8 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
       []; // list of filtered records (may be completed or upcoming)
   List<PatientData> _allPatients = []; // list to ge tall patients
   JoinedAppointment? _selectedAppointment;
-  int _currentIndex = 0; // set the current index to 0
+  int _currentIndex = 0;
+  int _previousIndex = 0; // set the current index to 0
 
   final TextEditingController _searchController = TextEditingController();
   int _currentPage = 1;
@@ -123,7 +124,7 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
   }
 
   // Dynamic Popup when clicking back (Allows going back to View or Dashboard)
-  Future<void> _confirmReturnToDashboard({int targetIndex = 0}) async {
+  Future<void> _confirmReturnToPrevious({int targetIndex = 0}) async {
     final bool? shouldDiscard = await showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
@@ -140,8 +141,10 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
     if (shouldDiscard == true) {
       _loadAppointments;
       setState(() {
-        _selectedAppointment = null; // Ensure edit state is cleared
-        _currentIndex = targetIndex;
+        if (_previousIndex == 0) {
+          _selectedAppointment = null;
+        }
+        _currentIndex = _previousIndex; // Dynamically go back!
       });
     }
   }
@@ -278,6 +281,7 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
                                         _formSessionId++;
                                         _selectedAppointment =
                                             null; // Forces CREATE state
+                                        _previousIndex = _currentIndex;
                                         _currentIndex = 1;
                                       });
                                     },
@@ -325,6 +329,7 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
     return GestureDetector(
       onTap: () => setState(() {
         _selectedAppointment = joinedRecord;
+        _previousIndex = _currentIndex;
         _currentIndex = 2;
       }),
       child: ScheduleBar(
@@ -337,6 +342,7 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
             case 'view_appointment': // if user clicks view appointment option -> allows to use cancel and edit options
               setState(() {
                 _selectedAppointment = joinedRecord;
+                _previousIndex = _currentIndex;
                 _currentIndex = 2;
               });
               break;
@@ -345,6 +351,7 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
               setState(() {
                 _formSessionId++; // error handling, in case user edits the same page many times
                 _selectedAppointment = joinedRecord;
+                _previousIndex = _currentIndex;
                 _currentIndex = 1;
               });
               break;
@@ -366,7 +373,7 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
           PageHeader(
             title: 'Back to Schedules',
             type: PageHeaderType.withBack,
-            onBack: _confirmReturnToDashboard,
+            onBack: _confirmReturnToPrevious,
           ),
           Transform.translate(
             offset: const Offset(0, -30),
@@ -382,40 +389,48 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
     );
   }
 
-  Widget _buildViewAppointment() => SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            PageHeader(
-              title: 'Back to Schedules',
-              type: PageHeaderType.withBack,
-              onBack: _goBackToMain,
+  Widget _buildViewAppointment() {
+    if (_selectedAppointment == null) {
+      return const SizedBox.shrink(); // Renders nothing if no data is loaded
+    }
+
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          PageHeader(
+            title: 'Back to Schedules',
+            type: PageHeaderType.withBack,
+            onBack: _goBackToMain,
+          ),
+          Transform.translate(
+            offset: const Offset(0, -30),
+            child: ViewAppointment(
+              key: ValueKey(_selectedAppointment!.appointment.appointmentId),
+              appointmentData: {
+                // display the different appointment datas in the database
+                'patientName':
+                    '${_selectedAppointment?.patient.lastName}, ${_selectedAppointment?.patient.firstName}',
+                'date': _selectedAppointment?.appointment.scheduleDateTime,
+                'time': _selectedAppointment?.appointment.timeSlot,
+                'reason': _selectedAppointment?.appointment.reasonForVisit,
+              },
+              onEdit: () {
+                setState(() {
+                  _formSessionId++;
+                  _previousIndex = _currentIndex;
+                  _currentIndex = 1; // Switches directly to edit mode
+                });
+              },
+              onCancel: () => _cancelAppointmentConfirmation(
+                  _selectedAppointment!
+                      .appointment.appointmentId), // Pass cancellation ID
             ),
-            Transform.translate(
-              offset: const Offset(0, -30),
-              child: ViewAppointment(
-                appointmentData: {
-                  // display the different appointment datas in the database
-                  'patientName':
-                      '${_selectedAppointment?.patient.lastName}, ${_selectedAppointment?.patient.firstName}',
-                  'date': _selectedAppointment?.appointment.scheduleDateTime,
-                  'time': _selectedAppointment?.appointment.timeSlot,
-                  'reason': _selectedAppointment?.appointment.reasonForVisit,
-                },
-                onEdit: () {
-                  setState(() {
-                    _formSessionId++;
-                    _currentIndex = 1; // Switches directly to edit mode
-                  });
-                },
-                onCancel: () => _cancelAppointmentConfirmation(
-                    _selectedAppointment!
-                        .appointment.appointmentId), // Pass cancellation ID
-              ),
-            ),
-          ],
-        ),
-      );
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _buildSearchBar() {
     return AppSearchBar(
