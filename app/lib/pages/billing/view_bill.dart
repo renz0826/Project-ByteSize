@@ -5,6 +5,7 @@ import 'package:heroicons/heroicons.dart';
 import '/../style/theme.dart';
 import '/../widgets/main_buttons.dart';
 import '/../widgets/page_header.dart';
+import '/../widgets/attribute_read_view.dart';
 import '../../db/database.dart';
 import '../../providers/app_providers.dart';
 import '../../repositories/invoice_repository.dart';
@@ -335,10 +336,7 @@ class _ViewBillScreenState extends ConsumerState<ViewBillScreen> {
   }
 
  Widget _buildTableHeaders() {
-    final headerStyle = AppTheme.textTheme.bodyLarge?.copyWith(
-      fontWeight: FontWeight.bold,
-      color: AppTheme.gray400,
-    );
+    final headerStyle = Theme.of(context).textTheme.bodySmall;  
 
     return Row(
       children: [
@@ -351,27 +349,52 @@ class _ViewBillScreenState extends ConsumerState<ViewBillScreen> {
   }
 
   Widget _buildProcedureRow(ProcedureChargeData proc, bool hasDiscount) {
-    final rowStyle = AppTheme.textTheme.bodyMedium?.copyWith(
-      fontWeight: FontWeight.w600,
-    );
-    
+    // Backend calculation for the final amount
     final amountToBePaid = proc.totalProcedureCharge * (hasDiscount ? 0.8 : 1.0);
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
         children: [
-          Expanded(flex: 4, child: Text(proc.procedureName, style: rowStyle)),
+          // Using the AttributeReadView widget for the Procedure Name
           Expanded(
-              flex: 2,
-              child: Text('₱ ${proc.procedureCharge.toStringAsFixed(2)}',
-                  style: rowStyle)), const SizedBox(width: 50,),
+            flex: 4,
+            child: AttributeReadView(
+              label: '', // Leaving label empty for table row use
+              content: proc.procedureName,
+            ),
+          ),
+
+          // Procedure Charge
           Expanded(
-              flex: 1, child: Text(proc.quantity.toString(), style: rowStyle)), const SizedBox(width: 50,),
+            flex: 2,
+            child: AttributeReadView(
+              label: '',
+              content: '₱ ${proc.procedureCharge.toStringAsFixed(2)}',
+            ),
+          ),
+
+          const SizedBox(width: 50),
+
+          // Quantity
           Expanded(
-              flex: 3,
-              child: Text('₱ ${amountToBePaid.toStringAsFixed(2)}',
-                  style: rowStyle)),
+            flex: 1,
+            child: AttributeReadView(
+              label: '',
+              content: proc.quantity.toString(),
+            ),
+          ),
+
+          const SizedBox(width: 50),
+
+          // Final Amount to be Paid
+          Expanded(
+            flex: 3,
+            child: AttributeReadView(
+              label: '',
+              content: '₱ ${amountToBePaid.toStringAsFixed(2)}', 
+            ),
+          ),
         ],
       ),
     );
