@@ -128,18 +128,20 @@ class _ViewBillScreenState extends ConsumerState<ViewBillScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Flexible(
-                      child: Text(
-                        '$invoiceIdString | $formattedDate',
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black87,
-                            ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          '$invoiceIdString | $formattedDate',
+                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black87,
+                              ),
+                        ),
+                        const SizedBox(width: 16), // Fixed spacing per Figma
+                        AppStatusBadge(status: _mapDatabaseStatusToBadge(inv.status)),
+                      ],
                     ),
-                    AppStatusBadge(status: _mapDatabaseStatusToBadge(inv.status)),
-                    const SizedBox(width: 16),
                     Row(
                       children: [
                         if (!isPaid)
