@@ -60,7 +60,6 @@ class AppStatusBadge extends StatelessWidget {
       return const SizedBox.shrink();
     }
     return Container(
-      width: 110,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       decoration: BoxDecoration(
         color: _backgroundColor,

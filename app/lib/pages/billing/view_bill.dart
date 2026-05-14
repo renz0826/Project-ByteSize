@@ -187,11 +187,7 @@ class _ViewBillScreenState extends ConsumerState<ViewBillScreen> {
                         ),
                         const SizedBox(width: 16),
                         if (hasDiscount)
-                          Container(
-                             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                             decoration: BoxDecoration(color: Colors.green.shade50, borderRadius: BorderRadius.circular(20), border: Border.all(color: Colors.green.shade200)),
-                             child: Text("20% Senior/PWD Eligible", style: TextStyle(color: Colors.green.shade700, fontWeight: FontWeight.bold, fontSize: 12)),
-                           ),
+                          const AppStatusBadge(status: BadgeStatus.discount),
                       ]
                     ),
                     const SizedBox(height: 32),
