@@ -9,6 +9,7 @@ enum BadgeStatus {
   cancelled,
   paid,
   pending,
+  discount,
 }
 
 class AppStatusBadge extends StatelessWidget {
@@ -30,6 +31,8 @@ class AppStatusBadge extends StatelessWidget {
         return 'Paid';
       case BadgeStatus.pending:
         return 'Pending';
+      case BadgeStatus.discount:
+        return '20% Senior/PWD Eligible';
       case BadgeStatus.finished:
         return '';
       case BadgeStatus.cancelled:
@@ -48,8 +51,6 @@ class AppStatusBadge extends StatelessWidget {
         return AppTheme.green200;
       case BadgeStatus.pending:
         return AppTheme.yellow200;
-      default:
-        return Colors.transparent;
     }
   }
 
