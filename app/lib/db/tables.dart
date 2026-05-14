@@ -47,6 +47,9 @@ class ClinicalStaff extends Table { // Dentist and Staff Entity
   TextColumn get middleName => text().nullable()();
   TextColumn get lastName => text()();
 
+// PIN
+  TextColumn get pin => text()();
+
 // Other Data
   BoolColumn get isLockedOut => boolean().withDefault(const Constant(false))();
   // PIN is already located in auth_provider
