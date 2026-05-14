@@ -134,14 +134,15 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
     });
   }
 
-  // Archive Function
+ // Archive Function
   Future<void> _archivePatient(PatientData patient) async {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Archive Patient Record'),
         content: Text(
-            'Are you sure you want to archive the record for ${patient.lastName}, ${patient.firstName}?\n\nYou can always restore this later from the Archived filter.'),
+            'Are you sure you want to archive the record for ${patient.lastName}, ${patient.firstName} ${patient.suffix}?\n\n'
+            'This will also automatically CANCEL all scheduled appointments for this patient.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
@@ -161,8 +162,16 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
     if (confirm == true) {
       try {
         final repository = ref.read(patientRepositoryProvider);
+        final db = ref.read(databaseProvider); // Get database instance
 
         await repository.archivePatient(patient.patientId);
+
+        await (db.update(db.appointment)
+              ..where((t) => t.patientId.equals(patient.patientId))
+              ..where((t) => t.status.equals("Scheduled") | t.status.equals("Upcoming")))
+            .write(const AppointmentCompanion(
+              status: drift.Value("Cancelled"),
+            ));
 
         await _loadPatients(); // Refresh the table list
 
@@ -174,16 +183,23 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
           StatusToast.show(
             context,
             title: "Success",
-            message: "${patient.firstName} has been archived.",
+            message: "${patient.firstName}is archived and appointments cancelled.",
             isSuccess: true,
           );
         }
       } catch (e) {
         debugPrint("Failed to archive patient: $e");
+        if (mounted) {
+           StatusToast.show(
+            context,
+            title: "Error",
+            message: "Something went wrong while archiving.",
+            isSuccess: false,
+          );
+        }
       }
     }
   }
-
   //
   Future<void> _unarchivePatient(PatientData patient) async {
     final confirm = await showDialog<bool>(
@@ -191,7 +207,7 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
       builder: (context) => AlertDialog(
         title: const Text('Restore Patient Record'),
         content: Text(
-            'Are you sure you want to restore the record for ${patient.lastName}, ${patient.firstName}?'),
+            'Are you sure you want to restore the record for ${patient.lastName}, ${patient.firstName} ${patient.suffix}?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
@@ -787,7 +803,7 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
     return GestureDetector(
       onTap: () => _goToViewPatient(patient),
       child: PatientRecordBar(
-        fullName: '${patient.lastName}, ${patient.firstName}',
+        fullName: '${patient.lastName}, ${patient.firstName} ${patient.suffix}',
         sex: patient.sex,
         age: DateHelper.calculateAge(patient.birthDate),
         address: '${patient.province}, ${patient.cityMunicipality}',
