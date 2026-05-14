@@ -1,3 +1,5 @@
+import 'package:dentcity_management_system/widgets/page_header.dart';
+
 import 'patient_records/patient_dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:sidebarx/sidebarx.dart';
@@ -182,6 +184,8 @@ class _SidebarState extends State<MainLayout> {
                 final pages = [
                   (title: 'Dashboard', screen: DashboardPage()),
                   (title: 'Patient Records', screen: PatientDashboard()),
+
+                  // ! CRITICAL RESTORE BILLING DASHBOARD
                   (title: 'Billings', screen: BillingDashboard()),
                   (title: 'Scheduling', screen: ScheduleDashboard()),
                   (title: 'Settings', screen: ProfilePage())
