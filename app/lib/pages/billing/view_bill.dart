@@ -253,7 +253,7 @@ Widget _buildTopStatusBar(String id, String date, String status, bool isPaid) {
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('$id | $date', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+            Text('$id | $date', style: Theme.of(context).textTheme.headlineLarge?.copyWith(fontWeight: FontWeight.bold)),
             const SizedBox(width: 16),
             AppStatusBadge(status: _mapDatabaseStatusToBadge(status)),
           ],
@@ -263,7 +263,6 @@ Widget _buildTopStatusBar(String id, String date, String status, bool isPaid) {
             if (!isPaid)
               Button(label: "Edit Invoice", heroIcon: HeroIcons.pencilSquare, variant: ButtonVariant.secondary, onPressed: widget.onEditInvoice),
             const SizedBox(width: 10),
-            Button(label: isPaid ? "Fully Paid" : "Process Payment", variant: isPaid ? ButtonVariant.secondary : ButtonVariant.primary, onPressed: isPaid ? () {} : widget.onProcessPayment),
           ],
         )
       ],
@@ -282,11 +281,11 @@ Widget _buildPatientBillHeader(bool hasDiscount) {
 }
 
   Widget _buildTransactionHistory(bool hasDiscount) {
-    // 1. Calculate the initial balance
+
     double runningBalance = widget.invoiceData.grandTotal * (hasDiscount ? 0.8 : 1.0);
-    
-    // 2. Set headers to bodySmall (14px, gray500) per your theme
-    final headerStyle = Theme.of(context).textTheme.bodySmall;
+    final headerStyle = Theme.of(context).textTheme.bodySmall?.copyWith(
+      fontWeight: FontWeight.w600,
+    );
 
     return Column(
       children: [
