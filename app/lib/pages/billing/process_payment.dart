@@ -6,6 +6,7 @@ import '/../style/theme.dart';
 import '/../widgets/main_buttons.dart';
 import '/../widgets/page_header.dart';
 import '/../widgets/app_status_badge.dart';
+import '/../widgets/attribute_read_view.dart';
 import '../../db/database.dart';
 import '../../providers/app_providers.dart';
 import '../../repositories/invoice_repository.dart';
@@ -340,6 +341,24 @@ class _ProcessPaymentScreenState extends ConsumerState<ProcessPaymentScreen> {
               ],
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCroppedAttribute(String content) {
+    return SizedBox(
+      height: 28,
+      child: ClipRect(
+        child: OverflowBox(
+          alignment: Alignment.bottomLeft,
+          minHeight: 0,
+          maxHeight: 60,
+          child: AttributeReadView(
+            label: '', 
+            content: content,
+            isCrucial: false,
+          ),
         ),
       ),
     );
