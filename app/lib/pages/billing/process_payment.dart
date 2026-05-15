@@ -226,7 +226,7 @@ class _ProcessPaymentScreenState extends ConsumerState<ProcessPaymentScreen> {
     final textStyle = Theme.of(context).textTheme.bodyLarge?.copyWith(
       color: AppTheme.gray500,
     );
-
+    
     return SingleChildScrollView(
       child: Center(
         child: Container(
@@ -295,9 +295,9 @@ class _ProcessPaymentScreenState extends ConsumerState<ProcessPaymentScreen> {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 8),
                         const Divider(color: AppTheme.gray400),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 8),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -310,7 +310,7 @@ class _ProcessPaymentScreenState extends ConsumerState<ProcessPaymentScreen> {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 32),
+                        const SizedBox(height: 16),
                         Align(
                             alignment: Alignment.centerLeft,
                             child: Text("Amount Paid", style: AppTheme.textTheme.bodySmall)),
