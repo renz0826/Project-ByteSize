@@ -108,153 +108,182 @@ class _ViewBillScreenState extends ConsumerState<ViewBillScreen> {
     final isPaid = inv.status.toLowerCase() == 'paid';
     final hasDiscount = _isDiscountApplicable(_patient);
 
-    return Transform.translate(
-      offset: const Offset(0, -30),
-      child: Center(
-        child: Container(
-          constraints: const BoxConstraints(maxWidth: 1200),
-          padding: const EdgeInsets.symmetric(horizontal: 24.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: double.infinity,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
-                decoration: BoxDecoration(
-                  color: AppTheme.white500,
-                  borderRadius: BorderRadius.circular(24),
-                  boxShadow: AppTheme.floatShadow,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          '$invoiceIdString | $formattedDate',
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black87,
-                              ),
-                        ),
-                        const SizedBox(width: 16), // Fixed spacing per Figma
-                        AppStatusBadge(status: _mapDatabaseStatusToBadge(inv.status)),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        if (!isPaid)
-                          Button(
-                            label: "Edit Invoice",
-                            heroIcon: HeroIcons.pencilSquare,
-                            variant: ButtonVariant.secondary,
-                            onPressed: widget.onEditInvoice,
-                          ),
-                        const SizedBox(width: 10),
-                        Button(
-                          label: isPaid ? "Fully Paid" : "Process Payment",
-                          variant: isPaid
-                              ? ButtonVariant.secondary
-                              : ButtonVariant.primary,
-                          onPressed: isPaid ? () {} : widget.onProcessPayment,
-                        ),
-                      ],
-                    )
-                  ],
-                ),
+    // Calculate totals for the summary
+    final double rawTotal = _procedures.fold(0, (sum, item) => sum + item.totalProcedureCharge);
+    final double discount = hasDiscount ? rawTotal * 0.20 : 0.0;
+    final double netTotal = rawTotal - discount;
+
+  return Transform.translate(
+    offset: const Offset(0, -30),
+    child: Center(
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 1200),
+        padding: const EdgeInsets.symmetric(horizontal: 24.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildTopStatusBar(invoiceIdString, formattedDate, inv.status, isPaid),
+            const SizedBox(height: 24),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(32),
+              decoration: BoxDecoration(
+                color: AppTheme.white500,
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: AppTheme.floatShadow,
               ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildPatientBillHeader(hasDiscount),
+                  const SizedBox(height: 32),
+                  _buildTableHeaders(),
+                  const SizedBox(height: 12),
+                  ..._procedures.map((proc) => _buildProcedureRow(proc, hasDiscount)),
+                  const SizedBox(height: 48),
+                  
+                  // Summary aligned to the right
+                  _buildBillingSummary(rawTotal, discount, netTotal, hasDiscount),
 
-              const SizedBox(height: 24),
-
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(32),
-                decoration: BoxDecoration(
-                  color: AppTheme.white500,
-                  borderRadius: BorderRadius.circular(24),
-                  boxShadow: AppTheme.floatShadow,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Text(
-                          "${widget.invoiceData.patientNameReverse}’s Bill",
-                          style:
-                              Theme.of(context).textTheme.headlineLarge?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                        ),
-                        const SizedBox(width: 16),
-                        if (hasDiscount)
-                          const AppStatusBadge(status: BadgeStatus.discount),
-                      ]
-                    ),
-                    const SizedBox(height: 32),
-
-                    _buildTableHeaders(),
-                    const SizedBox(height: 12),
-                    ..._procedures
-                        .map((proc) => _buildProcedureRow(proc, hasDiscount)),
-
+                  // Transaction History correctly nested inside the Column
+                  if (_transactions.isNotEmpty) ...[
                     const SizedBox(height: 48),
-
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: IntrinsicWidth(
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 24, vertical: 16),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: AppTheme.gray400),
-                            borderRadius: BorderRadius.circular(8),
+                    const Divider(color: AppTheme.gray400),
+                    const SizedBox(height: 24),
+                    Text(
+                      "Transaction History",
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
                           ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'Amount to be Paid',
-                                style: AppTheme.textTheme.bodyMedium?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                    color: AppTheme.gray400),
-                              ),
-                              const SizedBox(width: 40),
-                              Text(
-                                '₱ ${(inv.totalBalance).toStringAsFixed(2)}',
-                                style: AppTheme.textTheme.bodyLarge
-                                    ?.copyWith(fontWeight: FontWeight.bold),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
                     ),
-
-                    if (_transactions.isNotEmpty) ...[
-                      const SizedBox(height: 48),
-                      const Divider(color: AppTheme.gray400),
-                      const SizedBox(height: 24),
-                      Text(
-                        "Transaction History",
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
-                      ),
-                      const SizedBox(height: 16),
-                      _buildTransactionHistory(hasDiscount),
-                    ],
+                    const SizedBox(height: 16),
+                    _buildTransactionHistory(hasDiscount),
                   ],
-                ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
+
+Widget _buildBillingSummary(double rawTotal, double discount, double netTotal, bool hasDiscount) {
+  // Define a consistent text style that matches your titleLarge
+  final valueStyle = Theme.of(context).textTheme.titleLarge?.copyWith(
+        fontWeight: FontWeight.normal,
+        color: AppTheme.black500,
+      );
+
+  return Align(
+    alignment: Alignment.centerRight,
+    child: SizedBox(
+      width: 350, // Hard constraint stops "Infinity Pixels" overflow
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          // Subtotal Row
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('Subtotal:', style: valueStyle),
+              Text('₱ ${rawTotal.toStringAsFixed(2)}', style: valueStyle),
+            ],
+          ),
+          
+          if (hasDiscount) ...[
+            const SizedBox(height: 12),
+            // Discount Row
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Discount (20%):', 
+                  style: valueStyle?.copyWith(color: Colors.green.shade700)),
+                Text('- ₱ ${discount.toStringAsFixed(2)}', 
+                  style: valueStyle?.copyWith(color: Colors.green.shade700)),
+              ],
+            ),
+          ],
+
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 16),
+            child: Divider(color: AppTheme.gray400),
+          ),
+
+          // Final Amount to be Paid
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            decoration: BoxDecoration(
+              border: Border.all(color: AppTheme.gray400),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Amount to be Paid',
+                  style: AppTheme.textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.gray400,
+                  ),
+                ),
+                Text(
+                  '₱ ${netTotal.toStringAsFixed(2)}',
+                  style: AppTheme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+Widget _buildTopStatusBar(String id, String date, String status, bool isPaid) {
+  return Container(
+    width: double.infinity,
+    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+    decoration: BoxDecoration(
+      color: AppTheme.white500,
+      borderRadius: BorderRadius.circular(24),
+      boxShadow: AppTheme.floatShadow,
+    ),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('$id | $date', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+            const SizedBox(width: 16),
+            AppStatusBadge(status: _mapDatabaseStatusToBadge(status)),
+          ],
+        ),
+        Row(
+          children: [
+            if (!isPaid)
+              Button(label: "Edit Invoice", heroIcon: HeroIcons.pencilSquare, variant: ButtonVariant.secondary, onPressed: widget.onEditInvoice),
+            const SizedBox(width: 10),
+            Button(label: isPaid ? "Fully Paid" : "Process Payment", variant: isPaid ? ButtonVariant.secondary : ButtonVariant.primary, onPressed: isPaid ? () {} : widget.onProcessPayment),
+          ],
+        )
+      ],
+    ),
+  );
+}
+
+Widget _buildPatientBillHeader(bool hasDiscount) {
+  return Row(
+    children: [
+      Text("${widget.invoiceData.patientNameReverse}’s Bill", style: Theme.of(context).textTheme.headlineLarge?.copyWith(fontWeight: FontWeight.bold)),
+      const SizedBox(width: 16),
+      if (hasDiscount) const AppStatusBadge(status: BadgeStatus.discount),
+    ],
+  );
+}
 
   Widget _buildTransactionHistory(bool hasDiscount) {
     // 1. Calculate the initial balance
