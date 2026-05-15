@@ -257,38 +257,28 @@ class _ViewBillScreenState extends ConsumerState<ViewBillScreen> {
   }
 
   Widget _buildTransactionHistory(bool hasDiscount) {
+    // 1. Calculate the initial balance
     double runningBalance = widget.invoiceData.grandTotal * (hasDiscount ? 0.8 : 1.0);
+    
+    // 2. Set headers to bodySmall (14px, gray500) per your theme
+    final headerStyle = Theme.of(context).textTheme.bodySmall;
 
     return Column(
       children: [
         Row(
           children: [
-            Expanded(
-                flex: 1,
-                child: Text('Date',
-                    style: AppTheme.textTheme.bodyLarge?.copyWith(
-                        fontWeight: FontWeight.bold, color: AppTheme.gray400))), const SizedBox(width: 70,),
-            Expanded(
-                flex: 2,
-                child: Text('Mode of Payment',
-                    style: AppTheme.textTheme.bodyLarge?.copyWith(
-                        fontWeight: FontWeight.bold, color: AppTheme.gray400))),
-            Expanded(
-                flex: 2,
-                child: Text('Amount Paid',
-                    style: AppTheme.textTheme.bodyLarge?.copyWith(
-                        fontWeight: FontWeight.bold, color: AppTheme.gray400))),
-            Expanded(
-                flex: 2,
-                child: Text('Change',
-                    style: AppTheme.textTheme.bodyLarge?.copyWith(
-                        fontWeight: FontWeight.bold, color: AppTheme.gray400))),
+            Expanded(flex: 1, child: Text('Date', style: headerStyle)),
+            const SizedBox(width: 70),
+            Expanded(flex: 2, child: Text('Mode of Payment', style: headerStyle)),
+            Expanded(flex: 2, child: Text('Amount Paid', style: headerStyle)),
+            Expanded(flex: 2, child: Text('Change', style: headerStyle)),
           ],
         ),
         const SizedBox(height: 8),
         ...List.generate(_transactions.length, (index) {
           final trans = _transactions[index];
 
+          // 3. Calculation for change vs running balance
           double change = trans.amountReceived - runningBalance;
           String changeText = "";
 
@@ -304,29 +294,29 @@ class _ViewBillScreenState extends ConsumerState<ViewBillScreen> {
           }
 
           return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            padding: const EdgeInsets.symmetric(vertical: 4.0),
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Expanded(
-                    flex: 1,
-                    child: Text((trans.paymentDate.toString().split(' ')[0]).toString(),
-                        style: AppTheme.textTheme.bodyMedium)), const SizedBox(width: 70,),
+                  flex: 1,
+                  child: _buildCroppedAttribute((trans.paymentDate.toString().split(' ')[0]).toString()),
+                ),
+                const SizedBox(width: 70),
                 Expanded(
-                    flex: 2,
-                    child: Text(trans.modeOfPayment,
-                        style: AppTheme.textTheme.bodyMedium)),
+                  flex: 2,
+                  child: _buildCroppedAttribute(trans.modeOfPayment),
+                ),
                 Expanded(
-                    flex: 2,
-                    child: Text('₱ ${trans.amountReceived.toStringAsFixed(2)}',
-                        style: AppTheme.textTheme.bodyMedium?.copyWith(
-                            color: Colors.green.shade700,
-                            fontWeight: FontWeight.bold))),
+                  flex: 2,
+                  // Amount Paid: Defaults to black500 (removes green)
+                  child: _buildCroppedAttribute('₱ ${trans.amountReceived.toStringAsFixed(2)}'),
+                ),
                 Expanded(
-                    flex: 2,
-                    child: Text(changeText,
-                        style: AppTheme.textTheme.bodyMedium?.copyWith(
-                            color: Colors.blue.shade700,
-                            fontWeight: FontWeight.bold))),
+                  flex: 2,
+                  // Change: Applies the Blue color manually
+                  child: _buildCroppedAttribute(changeText, textColor: AppTheme.blue500),
+                ),
               ],
             ),
           );
@@ -368,17 +358,32 @@ Widget _buildProcedureRow(ProcedureChargeData proc, bool hasDiscount) {
 }
 
 // This helper crops the top part of the widget to remove the empty label gap
-Widget _buildCroppedAttribute(String content) {
-  return ClipRect(
-    child: Align(
-      alignment: Alignment.bottomLeft,
-      heightFactor: 0.5, // Only shows the bottom half (the content)
-      child: AttributeReadView(
-        label: '', 
-        content: content,
-        isCrucial: false, // Keeps text black as requested
-      ),
-    ),
+Widget _buildCroppedAttribute(String content, {Color? textColor}) {
+  return SizedBox(
+    height: 28, // The visual height you want for the row
+    child: textColor == null 
+      ? ClipRect(
+          child: OverflowBox(
+            alignment: Alignment.bottomLeft,
+            minHeight: 0,
+            maxHeight: 60, // Gives the internal Column room to avoid overflow
+            child: AttributeReadView(
+              label: '', 
+              content: content,
+              isCrucial: false, // Ensures text stays black
+            ),
+          ),
+        )
+      : Align(
+          alignment: Alignment.centerLeft,
+          child: Text(
+            content.isNotEmpty ? content : '-',
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              color: textColor, // Blue color for 'Change'
+              fontWeight: FontWeight.normal,
+            ),
+          ),
+        ),
   );
 }
   
