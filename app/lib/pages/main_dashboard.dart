@@ -192,7 +192,8 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                       ),
                     ),
                     SliverPadding(
-                      padding: const EdgeInsets.only(left: 24, right: 12),
+                      padding: const EdgeInsets.only(
+                          left: 24, right: 12, bottom: 32),
                       sliver: SliverToBoxAdapter(
                         child: Container(
                           decoration: BoxDecoration(
@@ -201,7 +202,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                             boxShadow: AppTheme.floatShadow,
                           ),
                           padding: const EdgeInsets.only(
-                              top: 24, bottom: 24, left: 24),
+                              top: 24, bottom: 8, left: 24),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -458,7 +459,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
             boxShadow: AppTheme.floatShadow,
           ),
           padding:
-              const EdgeInsets.only(top: 28, bottom: 28, left: 18, right: 2),
+              const EdgeInsets.only(top: 28, bottom: 8, left: 18, right: 2),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -496,7 +497,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
 
                   return ConstrainedBox(
                     constraints: const BoxConstraints(
-                      maxHeight: 320,
+                      maxHeight: 272,
                     ),
                     child: RawScrollbar(
                       thumbColor: AppTheme.gray400,
