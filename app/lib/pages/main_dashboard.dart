@@ -17,9 +17,9 @@ import '/pages/schedule/schedule_dashboard.dart';
 import '/pages/patient_records/add_patient.dart';
 import '/pages/patient_records/add_clinical_record.dart';
 import '../../db/database.dart';
-import '../../services/scheduling_service.dart'; // IMPORTED for time sorting
+import '../../services/scheduling_service.dart';
 
-// --- 1. NEW DYNAMIC PATIENTS PROVIDER (Filters by selected date) ---
+// Dynamic patient provider
 final dailyNewPatientsProvider =
     StreamProvider.autoDispose.family<int, DateTime>((ref, selectedDate) {
   final db = ref.watch(databaseProvider);
@@ -35,7 +35,7 @@ final dailyNewPatientsProvider =
   return query.watch().map((rows) => rows.length);
 });
 
-// --- 2. NEW DYNAMIC APPOINTMENT PROVIDER (Filters by selected date and sorts by time) ---
+// Dynamic appointment provider
 final dailyAppointmentsProvider = StreamProvider.autoDispose
     .family<List<JoinedAppointment>, DateTime>((ref, selectedDate) {
   final db = ref.watch(databaseProvider);
@@ -60,7 +60,7 @@ final dailyAppointmentsProvider = StreamProvider.autoDispose
       );
     }).toList();
 
-    // Perfectly sort the list by time, mirroring the Schedule Dashboard
+    // Sorts list by time
     list.sort((a, b) {
       int timeA = SchedulingService.timeToMinutes(a.appointment.timeSlot);
       int timeB = SchedulingService.timeToMinutes(b.appointment.timeSlot);
@@ -92,13 +92,11 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
   int _returnIndex = 0;
   Map<String, dynamic>? _patientToEditMap;
 
-  // Status update helper (Updated for JoinedAppointment)
+  // Live queue updating helper
   Future<void> _updateQueueStatus(
       JoinedAppointment item, String newStatus) async {
     try {
       final repo = ref.read(appointmentRepositoryProvider);
-
-      // Auto-capitalize the status (e.g., 'completed' -> 'Completed')
       final formattedStatus =
           newStatus[0].toUpperCase() + newStatus.substring(1).toLowerCase();
 
@@ -193,7 +191,6 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     }
   }
 
-  // Reschedule helper (Now massively faster because we already have the JoinedAppointment data!)
   Future<void> _handleReschedule(JoinedAppointment item) async {
     try {
       final db = ref.read(databaseProvider);
@@ -221,7 +218,6 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
 
   @override
   Widget build(BuildContext context) {
-    // Watch our new date-filtered providers!
     final queueState = ref.watch(dailyAppointmentsProvider(_selectedDate));
     final newPatientsState = ref.watch(dailyNewPatientsProvider(_selectedDate));
 
