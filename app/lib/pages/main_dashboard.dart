@@ -138,6 +138,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
       final total = items.length;
       final treated = items
           .where((i) =>
+              i.status.toLowerCase() == 'completed' ||
               i.status.toLowerCase() == 'finished' ||
               i.status.toLowerCase() == 'paid')
           .length;
@@ -313,6 +314,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
       data: (queueItems) {
         final activeQueue = queueItems
             .where((item) =>
+                item.status.toLowerCase() != 'completed' &&
                 item.status.toLowerCase() != 'finished' &&
                 item.status.toLowerCase() != 'cancelled')
             .toList();
@@ -360,7 +362,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                     _updateQueueStatus(item, 'Cancelled');
                   }
                 } else if (currentStatus == 'in progress') {
-                  _updateQueueStatus(item, 'Finished');
+                  _updateQueueStatus(item, 'Completed');
                 }
               },
               onMenuSelected: (String actionValue) async {
@@ -420,6 +422,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
           data: (queueItems) {
             final treatedQueue = queueItems
                 .where((item) =>
+                    item.status.trim().toLowerCase() == 'completed' ||
                     item.status.trim().toLowerCase() == 'finished' ||
                     item.status.trim().toLowerCase() == 'paid')
                 .toList();
@@ -458,6 +461,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
       case 'in progress':
         return BadgeStatus.inProgress;
       case 'finished':
+      case 'completed':
         return BadgeStatus.finished;
       case 'cancelled':
         return BadgeStatus.cancelled;

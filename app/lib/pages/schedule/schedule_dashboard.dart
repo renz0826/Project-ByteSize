@@ -87,23 +87,40 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
       final a = item.appointment;
       final fullName = '${p.firstName} ${p.lastName}'.toLowerCase();
       final matchesSearch = fullName.contains(query);
+
       final matchesDate = a.scheduleDateTime.year == _selectedDate.year &&
           a.scheduleDateTime.month == _selectedDate.month &&
           a.scheduleDateTime.day == _selectedDate.day;
 
       bool matchesStatus = true;
 
+      // THE FIX: Prevent null crashes by defaulting to 'waiting'
+      final dbStatus = (a.status ?? 'waiting').trim().toLowerCase();
+
       if (_selectedStatus != null && _selectedStatus != 'All') {
-        matchesStatus =
-            a.status.toLowerCase() == _selectedStatus!.toLowerCase();
+        if (_selectedStatus == 'Completed') {
+          matchesStatus = dbStatus == 'completed' ||
+              dbStatus == 'finished' ||
+              dbStatus == 'paid';
+        } else if (_selectedStatus == 'Upcoming') {
+          // THE FIX: Catch 'scheduled' and 'booked' just in case the form saves them that way!
+          matchesStatus = dbStatus == 'waiting' ||
+              dbStatus == 'pending' ||
+              dbStatus == 'in progress' ||
+              dbStatus == 'scheduled' ||
+              dbStatus == 'upcoming' ||
+              dbStatus == 'booked';
+        } else {
+          matchesStatus = dbStatus == _selectedStatus!.toLowerCase();
+        }
       } else {
-        matchesStatus = a.status.toLowerCase() != 'cancelled';
+        matchesStatus = dbStatus != 'cancelled';
       }
 
       return matchesSearch && matchesDate && matchesStatus;
     }).toList();
 
-    // Sorting Function that makes sure that the earliest time is always the first
+    // Sorting Function
     filtered.sort((a, b) {
       int timeA = SchedulingService.timeToMinutes(a.appointment.timeSlot);
       int timeB = SchedulingService.timeToMinutes(b.appointment.timeSlot);
@@ -111,16 +128,18 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
     });
 
     setState(() {
-      _filteredRecords = filtered; // set state to filter the records
+      _filteredRecords = filtered;
     });
   }
 
-  void _goBackToMain() {
-    // back to main function
-    setState(() {
-      _currentIndex = 0; // 0 is the index for the dashboard page
-      _loadAppointments();
-    });
+  void _goBackToMain() async {
+    await _loadAppointments();
+
+    if (mounted) {
+      setState(() {
+        _currentIndex = 0;
+      });
+    }
   }
 
   // Dynamic Popup when clicking back (Allows going back to View or Dashboard)
