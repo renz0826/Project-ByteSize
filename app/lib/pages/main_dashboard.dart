@@ -17,8 +17,6 @@ import '/pages/schedule/schedule_dashboard.dart';
 import '/pages/patient_records/add_patient.dart';
 import '/pages/patient_records/add_clinical_record.dart';
 import '../../db/database.dart';
-import '../../services/patient_service.dart';
-import '../../providers/app_providers.dart';
 
 final newPatientsProvider = FutureProvider<int>((ref) async {
   final repo = ref.watch(patientRepositoryProvider);
