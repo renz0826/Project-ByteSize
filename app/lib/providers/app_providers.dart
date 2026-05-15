@@ -23,25 +23,27 @@ final clinicalRecordRepositoryProvider =
   return ClinicalRecordRepository(ref.watch(databaseProvider));
 });
 
-
 // --- DASHBOARD QUEUE PROVIDER ---
 
 class DashboardQueueItem {
   final int appointmentId;
   final String patientName;
   final String timeSlot;
+  final String reason;
   final String status;
 
   DashboardQueueItem({
     required this.appointmentId,
     required this.patientName,
     required this.timeSlot,
+    required this.reason,
     required this.status,
   });
 }
 
 // autoDispose ensures it refreshes cleanly when you leave and come back to the dashboard
-final todayQueueProvider = FutureProvider.autoDispose<List<DashboardQueueItem>>((ref) async {
+final todayQueueProvider =
+    FutureProvider.autoDispose<List<DashboardQueueItem>>((ref) async {
   final apptRepo = ref.watch(appointmentRepositoryProvider);
   final patientRepo = ref.watch(patientRepositoryProvider);
 
@@ -53,18 +55,17 @@ final todayQueueProvider = FutureProvider.autoDispose<List<DashboardQueueItem>>(
 
   for (var appt in todayAppointments) {
     // IMPORTANT: Make sure getPatientById is inside your patient_repository.dart!
-    // If it's not, add this line to PatientRepository: 
+    // If it's not, add this line to PatientRepository:
     // Future<PatientData> getPatientById(int id) => (db.select(db.patient)..where((p) => p.patientId.equals(id))).getSingle();
-    final patient = await patientRepo.getPatientById(appt.patientId); 
+    final patient = await patientRepo.getPatientById(appt.patientId);
 
-    queueList.add(
-      DashboardQueueItem(
-        appointmentId: appt.appointmentId,
-        patientName: '${patient.firstName} ${patient.lastName}',
-        timeSlot: appt.timeSlot ?? "TBD",
-        status: appt.status,
-      )
-    );
+    queueList.add(DashboardQueueItem(
+      appointmentId: appt.appointmentId,
+      patientName: '${patient.lastName}, ${patient.firstName} ',
+      reason: appt.reasonForVisit,
+      timeSlot: appt.timeSlot,
+      status: appt.status,
+    ));
   }
 
   return queueList;
