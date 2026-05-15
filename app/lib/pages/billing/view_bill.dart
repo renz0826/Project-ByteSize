@@ -170,16 +170,14 @@ class _ViewBillScreenState extends ConsumerState<ViewBillScreen> {
 }
 
 Widget _buildBillingSummary(double rawTotal, double discount, double netTotal, bool hasDiscount) {
-  // Define a consistent text style that matches your titleLarge
   final valueStyle = Theme.of(context).textTheme.titleLarge?.copyWith(
         fontWeight: FontWeight.normal,
-        color: AppTheme.black500,
       );
 
   return Align(
     alignment: Alignment.centerRight,
     child: SizedBox(
-      width: 350, // Hard constraint stops "Infinity Pixels" overflow
+      width: 350,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
@@ -212,29 +210,18 @@ Widget _buildBillingSummary(double rawTotal, double discount, double netTotal, b
           ),
 
           // Final Amount to be Paid
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-            decoration: BoxDecoration(
-              border: Border.all(color: AppTheme.gray400),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Amount to be Paid',
-                  style: AppTheme.textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: AppTheme.gray400,
-                  ),
-                ),
-                Text(
-                  '₱ ${netTotal.toStringAsFixed(2)}',
-                  style: AppTheme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),
-                ),
-              ],
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Amount to be Paid:',
+                style: valueStyle,
+              ),
+              Text(
+                '₱ ${netTotal.toStringAsFixed(2)}',
+                style: valueStyle?.copyWith(fontWeight: FontWeight.bold), 
+              ),
+            ],
           ),
         ],
       ),
