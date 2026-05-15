@@ -233,7 +233,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                     SliverPadding(
                       padding: const EdgeInsets.only(left: 12, right: 24),
                       sliver: SliverToBoxAdapter(
-                        child: _buildRightSidebar(queueState),
+                        child: _buildRightSidePanel(queueState),
                       ),
                     ),
                   ],
@@ -414,7 +414,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     );
   }
 
-  Widget _buildRightSidebar(AsyncValue<List<DashboardQueueItem>> queueState) {
+  Widget _buildRightSidePanel(AsyncValue<List<DashboardQueueItem>> queueState) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -430,50 +430,84 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
         SizedBox(
           width: double.infinity,
           child: Button(
-            label: "Add New Record",
+            label: "Add Patient Record",
             heroIcon: HeroIcons.documentPlus,
             onPressed: () {},
           ),
         ),
         const SizedBox(height: 32),
-        Text(
-          "Patients Treated",
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: AppTheme.black500,
+
+        // Patients Treated
+        Container(
+          decoration: BoxDecoration(
+            color: AppTheme.white500,
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: AppTheme.floatShadow,
+          ),
+          padding:
+              const EdgeInsets.only(top: 28, bottom: 28, left: 18, right: 2),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(right: 16),
+                child: Text(
+                  "Patients Treated",
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.black500,
+                      ),
+                ),
               ),
-        ),
-        const SizedBox(height: 16),
-        queueState.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (error, stack) => const Text('Error loading history'),
-          data: (queueItems) {
-            final treatedQueue = queueItems
-                .where((item) =>
-                    item.status.trim().toLowerCase() == 'completed' ||
-                    item.status.trim().toLowerCase() == 'finished')
-                .toList();
+              const SizedBox(height: 16),
+              queueState.when(
+                loading: () => const Center(child: CircularProgressIndicator()),
+                error: (error, stack) => const Text('Error loading history'),
+                data: (queueItems) {
+                  final treatedQueue = queueItems
+                      .where((item) =>
+                          item.status.trim().toLowerCase() == 'completed' ||
+                          item.status.trim().toLowerCase() == 'finished' ||
+                          item.status.trim().toLowerCase() == 'paid')
+                      .toList();
 
-            if (treatedQueue.isEmpty) {
-              return const Text(
-                "No patients treated yet today.",
-                style: TextStyle(color: AppTheme.gray500, fontSize: 14),
-              );
-            }
+                  if (treatedQueue.isEmpty) {
+                    return const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 24.0),
+                      child: Text(
+                        "No patients treated yet today.",
+                        style: TextStyle(color: AppTheme.gray500, fontSize: 14),
+                      ),
+                    );
+                  }
 
-            return ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: treatedQueue.length,
-              itemBuilder: (context, index) {
-                final item = treatedQueue[index];
-                return PatientsTreatedBar(
-                  fullName: item.patientName,
-                  procedure: "Completed at ${item.timeSlot}",
-                );
-              },
-            );
-          },
+                  return ConstrainedBox(
+                    constraints: const BoxConstraints(
+                      maxHeight: 320,
+                    ),
+                    child: RawScrollbar(
+                      thumbColor: AppTheme.gray400,
+                      radius: const Radius.circular(8),
+                      thickness: 0,
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        padding: const EdgeInsets.only(right: 16),
+                        physics: const BouncingScrollPhysics(),
+                        itemCount: treatedQueue.length,
+                        itemBuilder: (context, index) {
+                          final item = treatedQueue[index];
+                          return PatientsTreatedBar(
+                            fullName: item.patientName,
+                            procedure: item.reason,
+                          );
+                        },
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
         ),
       ],
     );
