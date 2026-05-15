@@ -137,10 +137,11 @@ class _MoreOptions extends StatelessWidget {
 }
 
 // Appointment Bar - Patient in Queue
-// Displays: Name | Time | Procedure | Status Badge | Action Button
+// Displays: Name | Time | Reason | Status Badge | Action Button
 class AppointmentBar extends StatelessWidget {
   final String fullName;
   final String time;
+  final String reason;
   final BadgeStatus status;
   final VoidCallback? onAction; // action depends on status (e.g. cancel / done)
 
@@ -148,6 +149,7 @@ class AppointmentBar extends StatelessWidget {
     super.key,
     required this.fullName,
     required this.time,
+    required this.reason,
     required this.status,
     this.onAction,
   });
@@ -171,6 +173,7 @@ class AppointmentBar extends StatelessWidget {
           ellipsis: true,
         ), // name
         _BarText(time), // time
+        _BarText(reason), // reason
 
         // status badge + action button pushed to right
         Row(
