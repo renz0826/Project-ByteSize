@@ -52,7 +52,7 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
   final TextEditingController _searchController = TextEditingController();
   int _currentPage = 1;
   final int _recordsPerPage = 8;
-  String? _selectedStatus;
+  String _selectedStatus = 'Active';
   int _formSessionId = 0;
 
   @override
@@ -430,7 +430,7 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
   }
 
   // Filter function for the status chips
-  void _onFilter(String? status) {
+  void _onFilter(String status) {
     setState(() {
       _currentPage = 1;
       _selectedStatus = status;
@@ -754,12 +754,11 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
 
   //filter chips - all/archived/active
   Widget _buildFilterChips() {
-    final filters = ['All', 'Active', 'Archived'];
+    final filters = ['Active', 'Archived'];
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: filters.map((filter) {
-        final isSelected = _selectedStatus == filter ||
-            (filter == 'All' && _selectedStatus == null);
+        final isSelected = _selectedStatus == filter;
         return Padding(
           padding: const EdgeInsets.only(right: 8),
           child: SizedBox(
@@ -772,7 +771,7 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
                   : ButtonVariant.smallSecondary,
               onPressed: () {
                 setState(() {
-                  _onFilter(filter == 'All' ? null : filter);
+                  _onFilter(filter);
                 });
               },
             ),
