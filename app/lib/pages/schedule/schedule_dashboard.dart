@@ -42,7 +42,7 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
   final TextEditingController _searchController = TextEditingController();
   int _currentPage = 1;
   final int _recordsPerPage = 8;
-  String? _selectedStatus;
+  String _selectedStatus = 'Upcoming';
   int _formSessionId = 0;
   DateTime _selectedDate = DateTime.now();
 
@@ -87,23 +87,37 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
       final a = item.appointment;
       final fullName = '${p.firstName} ${p.lastName}'.toLowerCase();
       final matchesSearch = fullName.contains(query);
+
       final matchesDate = a.scheduleDateTime.year == _selectedDate.year &&
           a.scheduleDateTime.month == _selectedDate.month &&
           a.scheduleDateTime.day == _selectedDate.day;
 
-      bool matchesStatus = true;
+      bool matchesStatus = false;
 
-      if (_selectedStatus != null && _selectedStatus != 'All') {
-        matchesStatus =
-            a.status.toLowerCase() == _selectedStatus!.toLowerCase();
+      // THE FIX: Prevent null crashes by defaulting to 'waiting'
+      final dbStatus = (a.status).trim().toLowerCase();
+
+      if (_selectedStatus  != 'All') {
+        if (_selectedStatus == 'Completed') {
+          matchesStatus = dbStatus == 'completed' || dbStatus == 'finished';
+        } else if (_selectedStatus == 'Upcoming') {
+          matchesStatus = dbStatus == 'waiting' ||
+              dbStatus == 'pending' ||
+              dbStatus == 'in progress' ||
+              dbStatus == 'scheduled' ||
+              dbStatus == 'upcoming' ||
+              dbStatus == 'booked';
+        } else {
+          matchesStatus = dbStatus == _selectedStatus.toLowerCase();
+        }
       } else {
-        matchesStatus = a.status.toLowerCase() != 'cancelled';
+        matchesStatus = dbStatus != 'cancelled';
       }
 
       return matchesSearch && matchesDate && matchesStatus;
     }).toList();
 
-    // Sorting Function that makes sure that the earliest time is always the first
+    // Sorting Function
     filtered.sort((a, b) {
       int timeA = SchedulingService.timeToMinutes(a.appointment.timeSlot);
       int timeB = SchedulingService.timeToMinutes(b.appointment.timeSlot);
@@ -111,16 +125,18 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
     });
 
     setState(() {
-      _filteredRecords = filtered; // set state to filter the records
+      _filteredRecords = filtered;
     });
   }
 
-  void _goBackToMain() {
-    // back to main function
-    setState(() {
-      _currentIndex = 0; // 0 is the index for the dashboard page
-      _loadAppointments();
-    });
+  void _goBackToMain() async {
+    await _loadAppointments();
+
+    if (mounted) {
+      setState(() {
+        _currentIndex = 0;
+      });
+    }
   }
 
   // Dynamic Popup when clicking back (Allows going back to View or Dashboard)
@@ -172,7 +188,7 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
       if (mounted) {
         StatusToast.show(
           context,
-          title: "Success",
+          title: "Appointment Cancelled",
           message: "Appointment has been successfully cancelled.",
           isSuccess: true,
         ); // confirmation message
@@ -314,7 +330,7 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
     });
   }
 
-  void _onFilter(String? status) {
+  void _onFilter(String status) {
     setState(() {
       _currentPage = 1;
       _selectedStatus = status;
@@ -442,12 +458,11 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
   }
 
   Widget _buildFilterChips() {
-    final filters = ['All', 'Upcoming', 'Completed'];
+    final filters = ['Upcoming', 'Completed'];
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: filters.map((filter) {
-        final isSelected = _selectedStatus == filter ||
-            (filter == 'All' && _selectedStatus == null);
+        final isSelected = _selectedStatus == filter;
         return Padding(
           padding: const EdgeInsets.only(right: 8),
           child: SizedBox(
@@ -458,7 +473,7 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
               variant: isSelected
                   ? ButtonVariant.smallPrimary
                   : ButtonVariant.smallSecondary,
-              onPressed: () => _onFilter(filter == 'All' ? null : filter),
+              onPressed: () => _onFilter(filter),
             ),
           ),
         );

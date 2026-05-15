@@ -67,6 +67,7 @@ class _BarContainer extends StatelessWidget {
         boxShadow: AppTheme.cardShadow,
       ),
       child: Row(
+        spacing: 8,
         children: children,
       ),
     );
@@ -98,6 +99,7 @@ class _MoreOptions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PopupMenuButton<String>(
+      constraints: const BoxConstraints(),
       color: AppTheme.white500,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
@@ -114,22 +116,26 @@ class _MoreOptions extends StatelessWidget {
     return PopupMenuItem<String>(
       value: item.value,
       height: 35,
-      padding: const EdgeInsets.symmetric(horizontal: 8),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
+      padding: EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
         children: [
-          HeroIcon(
-            item.icon,
-            color: item.color ?? AppTheme.gray500,
-            size: 20,
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              HeroIcon(
+                item.icon,
+                color: item.color ?? AppTheme.gray500,
+                size: 20,
+              ),
+              const SizedBox(width: 10),
+              Text(
+                item.label,
+                style: AppTheme.textTheme.bodySmall?.copyWith(
+                  color: item.color ?? AppTheme.black500,
+                ),
+              )
+            ],
           ),
-          const SizedBox(width: 10),
-          Text(
-            item.label,
-            style: AppTheme.textTheme.bodySmall?.copyWith(
-              color: item.color ?? AppTheme.black500,
-            ),
-          )
         ],
       ),
     );
@@ -137,32 +143,39 @@ class _MoreOptions extends StatelessWidget {
 }
 
 // Appointment Bar - Patient in Queue
-// Displays: Name | Time | Procedure | Status Badge | Action Button
+// Displays: Name | Time | Reason | Status Badge | Action Button
 class AppointmentBar extends StatelessWidget {
   final String fullName;
   final String time;
+  final String reason;
   final BadgeStatus status;
-  final VoidCallback? onAction; // action depends on status (e.g. cancel / done)
+  final VoidCallback?
+      onPrimaryAction; // action depends on status (e.g. cancel / done)
+  final ValueChanged<String>? onMenuSelected;
 
   const AppointmentBar({
     super.key,
     required this.fullName,
     required this.time,
+    required this.reason,
     required this.status,
-    this.onAction,
+    this.onPrimaryAction,
+    this.onMenuSelected,
   });
 
   // action icon depends on status — uses IconButtons widget
   Widget _actionButton() {
     final isWaiting = status == BadgeStatus.waiting;
     return IconButtons(
-      onPressed: onAction,
+      onPressed: onPrimaryAction,
       variant: isWaiting ? IconButtonVariant.cancel : IconButtonVariant.finish,
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final isWaiting =
+        status == BadgeStatus.waiting || status == BadgeStatus.pending;
     return _BarContainer(
       children: [
         _BarText(
@@ -170,17 +183,48 @@ class AppointmentBar extends StatelessWidget {
           flex: 3,
           ellipsis: true,
         ), // name
-        _BarText(time), // time
-
-        // status badge + action button pushed to right
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            AppStatusBadge(status: status),
-            const SizedBox(width: 8),
-            _actionButton(),
-          ],
+        _BarText(
+          time,
+          flex: 2,
+        ), // time
+        _BarText(reason, flex: 2, ellipsis: true), // reason
+        Expanded(
+          flex: 2,
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: AppStatusBadge(status: status),
+          ),
         ),
+        _actionButton(),
+        SizedBox(
+          child: _MoreOptions(
+            onSelected: onMenuSelected,
+            items: isWaiting
+                // Menu for WAITING patients
+                ? [
+                    BarMenuItem(
+                      value: 'admit',
+                      icon: HeroIcons.arrowRight,
+                      label: 'Admit Patient',
+                    ),
+                    BarMenuItem(
+                        value: 'reschedule',
+                        icon: HeroIcons.pencilSquare,
+                        label: 'Reschedule Patient'),
+                  ]
+                // Menu for IN PROGRESS patients
+                : [
+                    BarMenuItem(
+                        value: 'send_back',
+                        icon: HeroIcons.arrowLeft,
+                        label: 'Send back to Waiting'),
+                    BarMenuItem(
+                        value: 'reschedule',
+                        icon: HeroIcons.pencilSquare,
+                        label: 'Reschedule Patient'),
+                  ],
+          ),
+        )
       ],
     );
   }

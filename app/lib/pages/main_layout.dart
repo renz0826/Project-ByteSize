@@ -71,11 +71,13 @@ class _SidebarState extends State<MainLayout> {
               selectedIconTheme:
                   const IconThemeData(color: AppTheme.blue500, size: 24),
             ),
-            extendedTheme: const SidebarXTheme(
+            extendedTheme: SidebarXTheme(
+              margin: EdgeInsets.only(right: 32),
               width: 342,
               padding: EdgeInsets.symmetric(horizontal: 42, vertical: 32),
               decoration: BoxDecoration(
                 color: AppTheme.white500,
+                boxShadow: AppTheme.floatShadow,
                 borderRadius: BorderRadius.only(
                     topRight: Radius.circular(24),
                     bottomRight: Radius.circular(24)),
