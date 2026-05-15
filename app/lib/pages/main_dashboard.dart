@@ -12,6 +12,10 @@ import '../widgets/status_toast.dart';
 import '../widgets/warning_dialog.dart';
 import '../providers/app_providers.dart';
 
+import '/pages/schedule/schedule_appointment.dart';
+import '/pages/schedule/schedule_dashboard.dart';
+import '../../db/database.dart';
+
 final newPatientsProvider = FutureProvider<int>((ref) async {
   final repo = ref.watch(patientRepositoryProvider);
   final patients = await repo.getActivePatients();
@@ -34,8 +38,12 @@ class DashboardPage extends ConsumerStatefulWidget {
 class _DashboardPageState extends ConsumerState<DashboardPage> {
   DateTime _selectedDate = DateTime.now();
 
+  int _currentIndex = 0;
+  int _formSessionId = 0;
+  JoinedAppointment? _selectedAppointment;
+  List<PatientData> _allPatients = [];
+
   // Status update helper
-// --- UPDATED HELPER ---
   Future<void> _updateQueueStatus(
       DashboardQueueItem item, String newStatus) async {
     try {
@@ -62,11 +70,66 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     }
   }
 
+  // Reschedule helper using IndexedStack
+  Future<void> _handleReschedule(DashboardQueueItem item) async {
+    try {
+      final db = ref.read(databaseProvider);
+
+      // Fetch the raw data
+      final rawAppt = await (db.select(db.appointment)
+            ..where((a) => a.appointmentId.equals(item.appointmentId)))
+          .getSingle();
+
+      final rawPatient = await (db.select(db.patient)
+            ..where((p) => p.patientId.equals(rawAppt.patientId)))
+          .getSingle();
+
+      final allPatients = await db.select(db.patient).get();
+
+      final joinedRecord = JoinedAppointment(
+        appointment: rawAppt,
+        patient: rawPatient,
+      );
+
+      if (!mounted) return;
+
+      setState(() {
+        _allPatients = allPatients;
+        _selectedAppointment = joinedRecord;
+        _formSessionId++;
+        _currentIndex = 1;
+      });
+    } catch (e) {
+      if (mounted) {
+        StatusToast.show(
+          context,
+          title: 'Error',
+          message: 'Could not load appointment details.',
+          isSuccess: false,
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final queueState = ref.watch(todayQueueProvider);
     final newPatientsState = ref.watch(newPatientsProvider);
 
+    // Return the IndexedStack at the root of the page
+    return IndexedStack(
+      index: _currentIndex,
+      children: [
+        _buildDashboardView(context, queueState, newPatientsState),
+        _buildRescheduleView(),
+      ],
+    );
+  }
+
+  Widget _buildDashboardView(
+      BuildContext context,
+      AsyncValue<List<DashboardQueueItem>> queueState,
+      AsyncValue<int> newPatientsState) {
     String dailyProgress = "0/0";
     String lobbyStatus = "0";
     String newPatients = "0";
@@ -101,12 +164,11 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
           ),
           SliverCrossAxisGroup(
             slivers: [
-              // LEFT COLUMN (Flex 2)
+              // LEFT COLUMN
               SliverCrossAxisExpanded(
                 flex: 2,
                 sliver: SliverMainAxisGroup(
                   slivers: [
-                    // 1. Top Section (Statistics)
                     SliverPadding(
                       padding: const EdgeInsets.only(left: 24, right: 12),
                       sliver: SliverList(
@@ -117,8 +179,6 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                         ]),
                       ),
                     ),
-
-                    // 2. Bottom Section (The White Card Container)
                     SliverPadding(
                       padding: const EdgeInsets.only(left: 24, right: 12),
                       sliver: SliverToBoxAdapter(
@@ -153,6 +213,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                 ),
               ),
 
+              // RIGHT COLUMN
               SliverCrossAxisExpanded(
                 flex: 1,
                 sliver: SliverMainAxisGroup(
@@ -169,6 +230,43 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
             ],
           ),
         ]));
+  }
+
+  Widget _buildRescheduleView() {
+    if (_selectedAppointment == null) return const SizedBox.shrink();
+
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            PageHeader(
+              title: 'Back to Dashboard',
+              type: PageHeaderType.withBack,
+              onBack: () {
+                setState(() {
+                  _currentIndex = 0;
+                });
+              },
+            ),
+            Transform.translate(
+              offset: const Offset(0, -30),
+              child: ScheduleAppointmentForm(
+                key: ValueKey('reschedule_$_formSessionId'),
+                activePatients: _allPatients,
+                appointmentToEdit: _selectedAppointment,
+                onSave: () {
+                  setState(() {
+                    _currentIndex = 0;
+                  });
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildHeader() {
@@ -242,7 +340,6 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
               time: item.timeSlot,
               reason: item.reason,
               status: _mapDatabaseStatusToBadge(item.status),
-
               onPrimaryAction: () async {
                 final currentStatus = item.status.trim().toLowerCase();
                 if (currentStatus == 'waiting' || currentStatus == 'pending') {
@@ -266,8 +363,6 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                   _updateQueueStatus(item, 'Finished');
                 }
               },
-
-              // 2. Dropdown Menu Logic
               onMenuSelected: (String actionValue) async {
                 switch (actionValue) {
                   case 'admit':
@@ -277,13 +372,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                     _updateQueueStatus(item, 'Waiting');
                     break;
                   case 'reschedule':
-                    // Placeholder for now
-                    StatusToast.show(
-                      context,
-                      title: 'Coming Soon',
-                      message: 'Reschedule modal not yet implemented.',
-                      isSuccess: true,
-                    );
+                    _handleReschedule(item);
                     break;
                 }
               },
@@ -331,8 +420,8 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
           data: (queueItems) {
             final treatedQueue = queueItems
                 .where((item) =>
-                    item.status.toLowerCase() == 'finished' ||
-                    item.status.toLowerCase() == 'paid')
+                    item.status.trim().toLowerCase() == 'finished' ||
+                    item.status.trim().toLowerCase() == 'paid')
                 .toList();
 
             if (treatedQueue.isEmpty) {
