@@ -245,10 +245,25 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
             PageHeader(
               title: 'Back to Dashboard',
               type: PageHeaderType.withBack,
-              onBack: () {
-                setState(() {
-                  _currentIndex = 0;
-                });
+              onBack: () async {
+                final bool? shouldDiscard = await showDialog<bool>(
+                  context: this.context,
+                  builder: (BuildContext dialogContext) {
+                    return WarningDialog(
+                        isCaution: false,
+                        title: 'Discard Unsaved Changes?',
+                        content:
+                            'Are you sure you want to return to the dashboard? Any unsaved changes to this schedule will be lost.',
+                        secondaryAction: "Keep Editing",
+                        primaryAction: "Discard");
+                  },
+                );
+
+                if (shouldDiscard == true) {
+                  setState(() {
+                    _currentIndex = 0;
+                  });
+                }
               },
             ),
             Transform.translate(
