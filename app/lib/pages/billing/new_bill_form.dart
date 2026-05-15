@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '/../style/theme.dart';
 import '/../widgets/main_buttons.dart';
 import '/../widgets/input_field.dart';
+import '/../widgets/app_status_badge.dart';
 import '../../db/database.dart';
 import '../../providers/app_providers.dart';
 import '../../repositories/invoice_repository.dart';
@@ -216,7 +217,6 @@ class _InvoiceFormState extends ConsumerState<InvoiceForm> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(isEditing ? "Edit Invoice" : "Billing Entry", style: Theme.of(context).textTheme.headlineLarge),
-                    
                     if (isEditing)
                       Text(
                         "Patient: ${widget.invoiceToEdit!.patientName}  |  INV-${widget.invoiceToEdit!.invoice.invoiceId.toString().padLeft(3, '0')}",
@@ -226,11 +226,7 @@ class _InvoiceFormState extends ConsumerState<InvoiceForm> {
                 ),
                 const SizedBox(width: 16),
                 if (hasDiscount)
-                  Container(
-                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                     decoration: BoxDecoration(color: Colors.green.shade50, borderRadius: BorderRadius.circular(20), border: Border.all(color: Colors.green.shade200)),
-                     child: Text("20% Senior/PWD Eligible", style: TextStyle(color: Colors.green.shade700, fontWeight: FontWeight.bold, fontSize: 12)),
-                   ),
+                  const AppStatusBadge(status: BadgeStatus.discount),
               ],
             ),
             const SizedBox(height: 32),
@@ -287,9 +283,10 @@ class _InvoiceFormState extends ConsumerState<InvoiceForm> {
                         Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Text('Subtotal:', style: AppTheme.textTheme.bodyMedium?.copyWith(color: AppTheme.gray500)),
+                            Text('Subtotal:', style: AppTheme.textTheme.titleLarge?.copyWith(color: AppTheme.gray500)),
                             const SizedBox(width: 32),
-                            Text('₱ ${rawTotal.toStringAsFixed(2)}', style: AppTheme.textTheme.bodyMedium?.copyWith(color: Colors.black)),
+                            Text('₱ ${rawTotal.toStringAsFixed(2)}', style: AppTheme.textTheme.titleLarge,
+                            )
                           ],
                         ),
                         if (hasDiscount) ...[
@@ -297,9 +294,9 @@ class _InvoiceFormState extends ConsumerState<InvoiceForm> {
                           Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Text('Discount (20%):', style: AppTheme.textTheme.bodyMedium?.copyWith(color: Colors.green.shade700)),
+                              Text('Discount (20%):', style: AppTheme.textTheme.titleLarge?.copyWith(color: Colors.green.shade700)),
                               const SizedBox(width: 32),
-                              Text('-₱ ${discount.toStringAsFixed(2)}', style: AppTheme.textTheme.bodyMedium?.copyWith(color: Colors.green.shade700, fontWeight: FontWeight.bold)),
+                              Text('-₱ ${discount.toStringAsFixed(2)}', style: AppTheme.textTheme.titleLarge?.copyWith(color: Colors.green.shade700, fontWeight: FontWeight.bold)),
                             ],
                           ),
                           const SizedBox(height: 8),
@@ -435,13 +432,14 @@ class _ProcedureRowWidget extends StatelessWidget {
                         padding: EdgeInsets.only(left: 12, right: 4),
                         child: Text(
                           '₱',
-                          style: TextStyle(fontWeight: FontWeight.w600),
+                          style: TextStyle(fontWeight: FontWeight.w500),
                         ),
                       ),
                       Expanded(
                         child: TextField(
                           controller: row.priceController,
                           keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                          style: TextStyle(fontWeight: FontWeight.w500),
                           decoration: const InputDecoration(
                             hintText: '0.00',
                             border: InputBorder.none,
