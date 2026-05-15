@@ -84,7 +84,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       orElse: () => null,
     );
 
-    // OVERRIDE the error message with the live ticking clock!
+    // Show the timer counting down
     if (isLockedOut) {
       final minutes = (_secondsRemaining ~/ 60).toString().padLeft(2, '0');
       final seconds = (_secondsRemaining % 60).toString().padLeft(2, '0');

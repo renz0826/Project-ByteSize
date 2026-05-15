@@ -31,7 +31,7 @@ class AuthController extends StateNotifier<AsyncValue<bool>> {
       return;
     }
 
-    // FIX: Check if lockoutUntil is NOT null (instead of staff.isLockedOut)
+    // If there is a lockout
     if (staff.lockoutUntil != null) {
       final now = DateTime.now();
       if (now.isBefore(staff.lockoutUntil!)) {
@@ -70,9 +70,11 @@ class AuthController extends StateNotifier<AsyncValue<bool>> {
         
         if (tier == 1) {
           penaltyMinutes = 5;
-        } else if (tier == 2) {
+        } 
+        else if (tier == 2) {
           penaltyMinutes = 10;
-        } else if (tier >= 3) {
+        } 
+        else if (tier >= 3) {
           penaltyMinutes = 20;
         } 
         else if (tier >= 4) {
