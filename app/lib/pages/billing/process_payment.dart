@@ -223,8 +223,9 @@ class _ProcessPaymentScreenState extends ConsumerState<ProcessPaymentScreen> {
     final amountInput = double.tryParse(_amountController.text.replaceAll(',', '')) ?? 0.0;
     final previewBalance = (remainingBalance - amountInput).clamp(0.0, double.infinity);
 
-    final textStyle = Theme.of(context).textTheme.bodyLarge?.copyWith(
+    final textStyle = Theme.of(context).textTheme.titleLarge?.copyWith(
       color: AppTheme.gray500,
+      fontWeight: FontWeight.w500,
     );
     
     return SingleChildScrollView(
@@ -326,8 +327,9 @@ class _ProcessPaymentScreenState extends ConsumerState<ProcessPaymentScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text('New Balance:', style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                            Text('New Balance:', style: Theme.of(context).textTheme.titleLarge?.copyWith(
                               color: AppTheme.gray500,
+                              fontWeight: FontWeight.w500,
                               )
                             ),
                             Text(

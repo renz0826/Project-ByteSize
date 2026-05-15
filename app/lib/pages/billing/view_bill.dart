@@ -137,8 +137,14 @@ class _ViewBillScreenState extends ConsumerState<ViewBillScreen> {
                 children: [
                   _buildPatientBillHeader(hasDiscount),
                   const SizedBox(height: 32),
+                  Text("Itemized Charges",
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleLarge
+                      ?.copyWith(fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 24),
                   _buildTableHeaders(),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 1),
                   ..._procedures.map((proc) => _buildProcedureRow(proc, hasDiscount)),
                   const SizedBox(height: 48),
                   
@@ -171,8 +177,11 @@ class _ViewBillScreenState extends ConsumerState<ViewBillScreen> {
 
 Widget _buildBillingSummary(double rawTotal, double discount, double netTotal, bool hasDiscount) {
   final valueStyle = Theme.of(context).textTheme.titleLarge?.copyWith(
-        fontWeight: FontWeight.normal,
-      );
+    color: AppTheme.gray500,
+    fontWeight: FontWeight.w500,
+  );
+
+  final textStyle = Theme.of(context).textTheme.titleLarge;
 
   return Align(
     alignment: Alignment.centerRight,
@@ -186,7 +195,7 @@ Widget _buildBillingSummary(double rawTotal, double discount, double netTotal, b
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text('Subtotal:', style: valueStyle),
-              Text('₱ ${rawTotal.toStringAsFixed(2)}', style: valueStyle),
+              Text('₱ ${rawTotal.toStringAsFixed(2)}', style: textStyle),
             ],
           ),
           
@@ -219,7 +228,7 @@ Widget _buildBillingSummary(double rawTotal, double discount, double netTotal, b
               ),
               Text(
                 '₱ ${netTotal.toStringAsFixed(2)}',
-                style: valueStyle?.copyWith(fontWeight: FontWeight.bold), 
+                style: textStyle, 
               ),
             ],
           ),
@@ -265,7 +274,7 @@ Widget _buildTopStatusBar(String id, String date, String status, bool isPaid) {
 Widget _buildPatientBillHeader(bool hasDiscount) {
   return Row(
     children: [
-      Text("${widget.invoiceData.patientNameReverse}’s Bill", style: Theme.of(context).textTheme.headlineLarge?.copyWith(fontWeight: FontWeight.bold)),
+      Text("${widget.invoiceData.patientNameReverse}’s Bill", style: Theme.of(context).textTheme.titleLarge),
       const SizedBox(width: 16),
       if (hasDiscount) const AppStatusBadge(status: BadgeStatus.discount),
     ],
@@ -342,7 +351,10 @@ Widget _buildPatientBillHeader(bool hasDiscount) {
   }
 
  Widget _buildTableHeaders() {
-    final headerStyle = Theme.of(context).textTheme.bodySmall;  
+    final headerStyle = Theme.of(context).textTheme.bodySmall?.copyWith(
+      color: AppTheme.gray500,
+      fontWeight: FontWeight.bold,
+    );  
 
     return Row(
       children: [
@@ -358,7 +370,7 @@ Widget _buildProcedureRow(ProcedureChargeData proc, bool hasDiscount) {
   final amountToBePaid = proc.totalProcedureCharge * (hasDiscount ? 0.8 : 1.0);
 
   return Padding(
-    padding: const EdgeInsets.symmetric(vertical: 1.0), 
+    padding: const EdgeInsets.symmetric(vertical: 12.0), 
     child: Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -376,13 +388,13 @@ Widget _buildProcedureRow(ProcedureChargeData proc, bool hasDiscount) {
 // This helper crops the top part of the widget to remove the empty label gap
 Widget _buildCroppedAttribute(String content, {Color? textColor}) {
   return SizedBox(
-    height: 28, // The visual height you want for the row
+    height: 32,
     child: textColor == null 
       ? ClipRect(
           child: OverflowBox(
             alignment: Alignment.bottomLeft,
             minHeight: 0,
-            maxHeight: 60, // Gives the internal Column room to avoid overflow
+            maxHeight: 60,
             child: AttributeReadView(
               label: '', 
               content: content,
