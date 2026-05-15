@@ -19,19 +19,19 @@ class StatisticCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 36),
         decoration: BoxDecoration(
           color: AppTheme.white500,
           borderRadius: BorderRadius.circular(16),
           boxShadow: AppTheme.cardShadow,
         ),
         child: Column(
+          spacing: 24,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
                 HeroIcon(icon, size: 24, color: AppTheme.gray500),
-                const SizedBox(width: 8),
                 Text(
                   title,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -40,9 +40,7 @@ class StatisticCard extends StatelessWidget {
                 )
               ],
             ),
-            const SizedBox(height: 16),
             Text(value, style: Theme.of(context).textTheme.displayLarge),
-            const SizedBox(height: 8),
             Text(
               subtitle,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
