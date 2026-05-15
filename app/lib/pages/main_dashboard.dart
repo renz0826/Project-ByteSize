@@ -444,7 +444,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
         SizedBox(
           width: double.infinity,
           child: Button(
-            label: "Add Patient Record",
+            label: "Add New Record",
             heroIcon: HeroIcons.documentPlus,
             onPressed: () {},
           ),
