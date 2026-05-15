@@ -252,6 +252,31 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
   Widget _buildRescheduleView() {
     if (_selectedAppointment == null) return const SizedBox.shrink();
 
+    final queueState = ref.watch(todayQueueProvider);
+    final newPatientsState = ref.watch(newPatientsProvider);
+
+    String dailyProgress = "0/0";
+    String lobbyStatus = "0";
+    String newPatients = "0";
+
+    queueState.whenData((items) {
+      final total = items.length;
+      final treated = items.where((i) => 
+        i.status.toLowerCase() == 'finished' || 
+        i.status.toLowerCase() == 'paid').length;
+      final inQueue = items.where((i) => 
+        i.status.toLowerCase() == 'waiting' || 
+        i.status.toLowerCase() == 'pending' || 
+        i.status.toLowerCase() == 'in progress').length;
+      
+      dailyProgress = "$treated/$total";
+      lobbyStatus = inQueue.toString();
+    });
+
+    newPatientsState.whenData((count) {
+      newPatients = count.toString();
+    });
+
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: SingleChildScrollView(
