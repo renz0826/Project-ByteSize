@@ -95,9 +95,9 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
       bool matchesStatus = false;
 
       // THE FIX: Prevent null crashes by defaulting to 'waiting'
-      final dbStatus = (a.status ?? 'waiting').trim().toLowerCase();
+      final dbStatus = (a.status).trim().toLowerCase();
 
-      if (_selectedStatus != null && _selectedStatus != 'All') {
+      if (_selectedStatus  != 'All') {
         if (_selectedStatus == 'Completed') {
           matchesStatus = dbStatus == 'completed' || dbStatus == 'finished';
         } else if (_selectedStatus == 'Upcoming') {
@@ -108,7 +108,7 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
               dbStatus == 'upcoming' ||
               dbStatus == 'booked';
         } else {
-          matchesStatus = dbStatus == _selectedStatus!.toLowerCase();
+          matchesStatus = dbStatus == _selectedStatus.toLowerCase();
         }
       } else {
         matchesStatus = dbStatus != 'cancelled';

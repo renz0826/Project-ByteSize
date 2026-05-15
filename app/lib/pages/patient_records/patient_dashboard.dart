@@ -143,7 +143,7 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
             isCaution: false,
             title: "Restore Patient Record?",
             content:
-                "Are you sure you want to archive ${patient.firstName} ${patient.suffix} ${patient.lastName}'s record? \n\n Archiving this records will automatically CANCEL all  appointments scheduled for this patient.",
+                "Are you sure you want to archive ${patient.firstName} ${patient.lastName} ${patient.suffix}'s record? \n\nArchiving this records will automatically CANCEL all  appointments scheduled for this patient.",
             secondaryAction: "Cancel",
             primaryAction: "Archive");
       },
@@ -175,7 +175,7 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
             context,
             title: "Record Archived",
             message:
-                "${patient.firstName} ${patient.lastName}'s record has been archived.",
+                "${patient.firstName} ${patient.lastName} ${patient.suffix}'s record has been archived.",
             isSuccess: true,
           );
         }
