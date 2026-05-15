@@ -365,11 +365,8 @@ class _ProcessPaymentScreenState extends ConsumerState<ProcessPaymentScreen> {
   }
   
   Widget _buildTableHeaders() {
-    final headerStyle = AppTheme.textTheme.bodyLarge?.copyWith(
-      fontWeight: FontWeight.bold, 
-      color: AppTheme.gray400,
-    );
-
+    final headerStyle = AppTheme.textTheme.bodySmall;
+    
     return Row(
       children: [
         Expanded(flex: 3, child: Text('Procedure', style: headerStyle)),
