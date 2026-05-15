@@ -168,7 +168,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
         StatisticCard(
           title: "New Patients",
           value: newPts,
-          subtitle: "Added today",
+          subtitle: "Records added today",
           icon: HeroIcons.sparkles,
         ),
       ],
