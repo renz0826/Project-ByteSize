@@ -14,12 +14,12 @@ import '../providers/app_providers.dart';
 final newPatientsProvider = FutureProvider<int>((ref) async {
   final repo = ref.watch(patientRepositoryProvider);
   final patients = await repo.getActivePatients();
-  
+
   final now = DateTime.now();
   return patients.where((p) {
-    return p.createdAt.year == now.year && 
-           p.createdAt.month == now.month && 
-           p.createdAt.day == now.day;
+    return p.createdAt.year == now.year &&
+        p.createdAt.month == now.month &&
+        p.createdAt.day == now.day;
   }).length;
 });
 
@@ -44,14 +44,18 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
 
     queueState.whenData((items) {
       final total = items.length;
-      final treated = items.where((i) => 
-        i.status.toLowerCase() == 'finished' || 
-        i.status.toLowerCase() == 'paid').length;
-      final inQueue = items.where((i) => 
-        i.status.toLowerCase() == 'waiting' || 
-        i.status.toLowerCase() == 'pending' || 
-        i.status.toLowerCase() == 'in progress').length;
-      
+      final treated = items
+          .where((i) =>
+              i.status.toLowerCase() == 'finished' ||
+              i.status.toLowerCase() == 'paid')
+          .length;
+      final inQueue = items
+          .where((i) =>
+              i.status.toLowerCase() == 'waiting' ||
+              i.status.toLowerCase() == 'pending' ||
+              i.status.toLowerCase() == 'in progress')
+          .length;
+
       dailyProgress = "$treated/$total";
       lobbyStatus = inQueue.toString();
     });
@@ -61,37 +65,41 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     });
 
     return Scaffold(
-      backgroundColor: AppTheme.gray200,
-      body: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            flex: 7,
-            child: Padding(
-              padding: const EdgeInsets.all(32.0),
-              child: Column(
+        backgroundColor: Colors.transparent,
+        body: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildHeader(),
+            Expanded(
+              child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildHeader(),
-                  const SizedBox(height: 32),
-                  _buildStatisticsSection(dailyProgress, lobbyStatus, newPatients),
-                  const SizedBox(height: 32),
-                  _buildPatientQueue(queueState),
+                  Expanded(
+                    flex: 7,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildStatisticsSection(
+                            dailyProgress, lobbyStatus, newPatients),
+                        const SizedBox(height: 32),
+                        _buildPatientQueue(queueState),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    flex: 3,
+                    child: Container(
+                      color: AppTheme.gray200,
+                      margin: EdgeInsets.symmetric(horizontal: 24),
+                      child: _buildRightSidebar(queueState),
+                    ),
+                  ),
                 ],
               ),
-            ),
-          ),
-          Expanded(
-            flex: 3,
-            child: Container(
-              color: AppTheme.gray200,
-              padding: const EdgeInsets.all(32.0),
-              child: _buildRightSidebar(queueState),
-            ),
-          ),
-        ],
-      ),
-    );
+            )
+          ],
+        ));
   }
 
   Widget _buildHeader() {
@@ -143,12 +151,14 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
           Expanded(
             child: queueState.when(
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (error, stack) => Center(child: Text('Database Error: $error')),
+              error: (error, stack) =>
+                  Center(child: Text('Database Error: $error')),
               data: (queueItems) {
-                final activeQueue = queueItems.where((item) => 
-                  item.status.toLowerCase() != 'finished' && 
-                  item.status.toLowerCase() != 'cancelled'
-                ).toList();
+                final activeQueue = queueItems
+                    .where((item) =>
+                        item.status.toLowerCase() != 'finished' &&
+                        item.status.toLowerCase() != 'cancelled')
+                    .toList();
 
                 if (activeQueue.isEmpty) {
                   return const Center(
@@ -166,23 +176,27 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                     return AppointmentBar(
                       fullName: item.patientName,
                       time: item.timeSlot,
+                      reason: item.reason,
                       status: _mapDatabaseStatusToBadge(item.status),
                       onAction: () async {
-                        String newStatus = item.status.toLowerCase() == 'waiting' 
-                            ? 'Finished' 
-                            : 'Cancelled';
+                        String newStatus =
+                            item.status.toLowerCase() == 'waiting'
+                                ? 'Finished'
+                                : 'Cancelled';
 
                         try {
                           final repo = ref.read(appointmentRepositoryProvider);
-                          await repo.updateAppointmentStatus(item.appointmentId, newStatus);
-                          
+                          await repo.updateAppointmentStatus(
+                              item.appointmentId, newStatus);
+
                           ref.invalidate(todayQueueProvider);
 
                           if (context.mounted) {
                             StatusToast.show(
                               context,
                               title: 'Queue Updated',
-                              message: '${item.patientName} marked as $newStatus.',
+                              message:
+                                  '${item.patientName} marked as $newStatus.',
                               isSuccess: true,
                             );
                           }
@@ -244,10 +258,11 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
             loading: () => const Center(child: CircularProgressIndicator()),
             error: (error, stack) => const Text('Error loading history'),
             data: (queueItems) {
-              final treatedQueue = queueItems.where((item) => 
-                item.status.toLowerCase() == 'finished' || 
-                item.status.toLowerCase() == 'paid'
-              ).toList();
+              final treatedQueue = queueItems
+                  .where((item) =>
+                      item.status.toLowerCase() == 'finished' ||
+                      item.status.toLowerCase() == 'paid')
+                  .toList();
 
               if (treatedQueue.isEmpty) {
                 return const Text(
@@ -282,10 +297,6 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
       case 'in progress':
         return BadgeStatus.inProgress;
       case 'finished':
-      case 'paid':
-        return BadgeStatus.paid; 
-      case 'pending':
-        return BadgeStatus.pending;
       default:
         return BadgeStatus.waiting;
     }
