@@ -10,22 +10,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await windowManager.ensureInitialized();
 
-  // Set minimum window size
-  windowManager.setMinimumSize(const Size(1600, 800));
-
-  // Set window to maximized size at launch
-  WindowOptions windowOptions = const WindowOptions(
-    fullScreen: false,
-    center: true,
-    skipTaskbar: false,
-    titleBarStyle: TitleBarStyle.normal,
-  );
-
-  windowManager.waitUntilReadyToShow(windowOptions, () async {
-    await windowManager.show();
-    await windowManager.focus();
-    await windowManager.maximize();
-  });
+  windowManager.setMinimumSize(const Size(1440, 800));
 
   // Create a container to access the database from your provider
   final container = ProviderContainer();

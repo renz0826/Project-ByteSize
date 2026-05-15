@@ -122,8 +122,8 @@ class $PatientTable extends Patient with TableInfo<$PatientTable, PatientData> {
       const VerificationMeta('zipCode');
   @override
   late final GeneratedColumn<String> zipCode = GeneratedColumn<String>(
-      'zip_code', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
+      'zip_code', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _isArchivedMeta =
       const VerificationMeta('isArchived');
   @override
@@ -300,6 +300,8 @@ class $PatientTable extends Patient with TableInfo<$PatientTable, PatientData> {
     if (data.containsKey('zip_code')) {
       context.handle(_zipCodeMeta,
           zipCode.isAcceptableOrUnknown(data['zip_code']!, _zipCodeMeta));
+    } else if (isInserting) {
+      context.missing(_zipCodeMeta);
     }
     if (data.containsKey('is_archived')) {
       context.handle(
@@ -370,7 +372,7 @@ class $PatientTable extends Patient with TableInfo<$PatientTable, PatientData> {
       province: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}province'])!,
       zipCode: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}zip_code']),
+          .read(DriftSqlType.string, data['${effectivePrefix}zip_code'])!,
       isArchived: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}is_archived'])!,
       isSeniorOrPWD: attachedDatabase.typeMapping.read(
@@ -406,7 +408,7 @@ class PatientData extends DataClass implements Insertable<PatientData> {
   final String barangay;
   final String cityMunicipality;
   final String province;
-  final String? zipCode;
+  final String zipCode;
   final bool isArchived;
   final bool isSeniorOrPWD;
   final DateTime createdAt;
@@ -429,7 +431,7 @@ class PatientData extends DataClass implements Insertable<PatientData> {
       required this.barangay,
       required this.cityMunicipality,
       required this.province,
-      this.zipCode,
+      required this.zipCode,
       required this.isArchived,
       required this.isSeniorOrPWD,
       required this.createdAt,
@@ -466,9 +468,7 @@ class PatientData extends DataClass implements Insertable<PatientData> {
     map['barangay'] = Variable<String>(barangay);
     map['city_municipality'] = Variable<String>(cityMunicipality);
     map['province'] = Variable<String>(province);
-    if (!nullToAbsent || zipCode != null) {
-      map['zip_code'] = Variable<String>(zipCode);
-    }
+    map['zip_code'] = Variable<String>(zipCode);
     map['is_archived'] = Variable<bool>(isArchived);
     map['is_senior_or_p_w_d'] = Variable<bool>(isSeniorOrPWD);
     map['created_at'] = Variable<DateTime>(createdAt);
@@ -506,9 +506,7 @@ class PatientData extends DataClass implements Insertable<PatientData> {
       barangay: Value(barangay),
       cityMunicipality: Value(cityMunicipality),
       province: Value(province),
-      zipCode: zipCode == null && nullToAbsent
-          ? const Value.absent()
-          : Value(zipCode),
+      zipCode: Value(zipCode),
       isArchived: Value(isArchived),
       isSeniorOrPWD: Value(isSeniorOrPWD),
       createdAt: Value(createdAt),
@@ -539,7 +537,7 @@ class PatientData extends DataClass implements Insertable<PatientData> {
       barangay: serializer.fromJson<String>(json['barangay']),
       cityMunicipality: serializer.fromJson<String>(json['cityMunicipality']),
       province: serializer.fromJson<String>(json['province']),
-      zipCode: serializer.fromJson<String?>(json['zipCode']),
+      zipCode: serializer.fromJson<String>(json['zipCode']),
       isArchived: serializer.fromJson<bool>(json['isArchived']),
       isSeniorOrPWD: serializer.fromJson<bool>(json['isSeniorOrPWD']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
@@ -568,7 +566,7 @@ class PatientData extends DataClass implements Insertable<PatientData> {
       'barangay': serializer.toJson<String>(barangay),
       'cityMunicipality': serializer.toJson<String>(cityMunicipality),
       'province': serializer.toJson<String>(province),
-      'zipCode': serializer.toJson<String?>(zipCode),
+      'zipCode': serializer.toJson<String>(zipCode),
       'isArchived': serializer.toJson<bool>(isArchived),
       'isSeniorOrPWD': serializer.toJson<bool>(isSeniorOrPWD),
       'createdAt': serializer.toJson<DateTime>(createdAt),
@@ -594,7 +592,7 @@ class PatientData extends DataClass implements Insertable<PatientData> {
           String? barangay,
           String? cityMunicipality,
           String? province,
-          Value<String?> zipCode = const Value.absent(),
+          String? zipCode,
           bool? isArchived,
           bool? isSeniorOrPWD,
           DateTime? createdAt,
@@ -622,7 +620,7 @@ class PatientData extends DataClass implements Insertable<PatientData> {
         barangay: barangay ?? this.barangay,
         cityMunicipality: cityMunicipality ?? this.cityMunicipality,
         province: province ?? this.province,
-        zipCode: zipCode.present ? zipCode.value : this.zipCode,
+        zipCode: zipCode ?? this.zipCode,
         isArchived: isArchived ?? this.isArchived,
         isSeniorOrPWD: isSeniorOrPWD ?? this.isSeniorOrPWD,
         createdAt: createdAt ?? this.createdAt,
@@ -773,7 +771,7 @@ class PatientCompanion extends UpdateCompanion<PatientData> {
   final Value<String> barangay;
   final Value<String> cityMunicipality;
   final Value<String> province;
-  final Value<String?> zipCode;
+  final Value<String> zipCode;
   final Value<bool> isArchived;
   final Value<bool> isSeniorOrPWD;
   final Value<DateTime> createdAt;
@@ -820,7 +818,7 @@ class PatientCompanion extends UpdateCompanion<PatientData> {
     required String barangay,
     required String cityMunicipality,
     required String province,
-    this.zipCode = const Value.absent(),
+    required String zipCode,
     this.isArchived = const Value.absent(),
     this.isSeniorOrPWD = const Value.absent(),
     required DateTime createdAt,
@@ -835,6 +833,7 @@ class PatientCompanion extends UpdateCompanion<PatientData> {
         barangay = Value(barangay),
         cityMunicipality = Value(cityMunicipality),
         province = Value(province),
+        zipCode = Value(zipCode),
         createdAt = Value(createdAt),
         updatedAt = Value(updatedAt);
   static Insertable<PatientData> custom({
@@ -907,7 +906,7 @@ class PatientCompanion extends UpdateCompanion<PatientData> {
       Value<String>? barangay,
       Value<String>? cityMunicipality,
       Value<String>? province,
-      Value<String?>? zipCode,
+      Value<String>? zipCode,
       Value<bool>? isArchived,
       Value<bool>? isSeniorOrPWD,
       Value<DateTime>? createdAt,
@@ -3625,7 +3624,7 @@ typedef $$PatientTableCreateCompanionBuilder = PatientCompanion Function({
   required String barangay,
   required String cityMunicipality,
   required String province,
-  Value<String?> zipCode,
+  required String zipCode,
   Value<bool> isArchived,
   Value<bool> isSeniorOrPWD,
   required DateTime createdAt,
@@ -3649,7 +3648,7 @@ typedef $$PatientTableUpdateCompanionBuilder = PatientCompanion Function({
   Value<String> barangay,
   Value<String> cityMunicipality,
   Value<String> province,
-  Value<String?> zipCode,
+  Value<String> zipCode,
   Value<bool> isArchived,
   Value<bool> isSeniorOrPWD,
   Value<DateTime> createdAt,
@@ -4113,7 +4112,7 @@ class $$PatientTableTableManager extends RootTableManager<
             Value<String> barangay = const Value.absent(),
             Value<String> cityMunicipality = const Value.absent(),
             Value<String> province = const Value.absent(),
-            Value<String?> zipCode = const Value.absent(),
+            Value<String> zipCode = const Value.absent(),
             Value<bool> isArchived = const Value.absent(),
             Value<bool> isSeniorOrPWD = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
@@ -4161,7 +4160,7 @@ class $$PatientTableTableManager extends RootTableManager<
             required String barangay,
             required String cityMunicipality,
             required String province,
-            Value<String?> zipCode = const Value.absent(),
+            required String zipCode,
             Value<bool> isArchived = const Value.absent(),
             Value<bool> isSeniorOrPWD = const Value.absent(),
             required DateTime createdAt,

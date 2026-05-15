@@ -1,28 +1,19 @@
 import 'package:flutter/material.dart';
 import '../style/theme.dart';
 
-class RequirementDialog extends StatelessWidget {
+class MissingInfoDialog extends StatelessWidget {
   final List<String> missingFields;
-  final String title;
-  final String content;
 
-  const RequirementDialog({
+  const MissingInfoDialog({
     super.key,
-    required this.title,
-    required this.content,
-    this.missingFields = const [],
+    required this.missingFields,
   });
 
   /// A handy static method to call this dialog instantly
-  static Future<void> show(BuildContext context, String title, String content,
-      List<String> missingFields) {
+  static Future<void> show(BuildContext context, List<String> missingFields) {
     return showDialog<void>(
       context: context,
-      builder: (context) => RequirementDialog(
-        title: title,
-        content: content,
-        missingFields: missingFields,
-      ),
+      builder: (context) => MissingInfoDialog(missingFields: missingFields),
     );
   }
 
@@ -40,7 +31,7 @@ class RequirementDialog extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           Text(
-            title,
+            'Missing Information',
             style: Theme.of(context).textTheme.titleLarge,
           ),
         ],
@@ -60,7 +51,7 @@ class RequirementDialog extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                         Text(
-                          content,
+                          'Please provide the following details:',
                           style: Theme.of(context).textTheme.bodyMedium,
                         ),
                         const SizedBox(height: 8),

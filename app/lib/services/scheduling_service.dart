@@ -1,14 +1,13 @@
 import 'package:intl/intl.dart';
 
 class SchedulingService {
-  static const List<String> months = [
-    // array for the months (dropdown menu)
+  
+  static const List<String> months = [ // array for the months (dropdown menu)
     "January", "February", "March", "April", "May", "June",
     "July", "August", "September", "October", "November", "December"
   ];
 
-  static List<String> getDaysInMonth(String? month, String yearStr) {
-    // how many days are in a selected month? (counts leap-years)
+  static List<String> getDaysInMonth(String? month, String yearStr) { // how many days are in a selected month? (counts leap-years)
     if (month == null) return [];
     int year = int.tryParse(yearStr) ?? DateTime.now().year;
     int monthIndex = months.indexOf(month) + 1;
@@ -34,8 +33,7 @@ class SchedulingService {
   }
 
   // Converts the dropdown choices into strings
-  static DateTime? parseSelectedDate(
-      String? selectedMonth, String? selectedDay) {
+  static DateTime? parseSelectedDate(String? selectedMonth, String? selectedDay) {
     if (selectedMonth == null || selectedDay == null) return null;
 
     int year = int.parse(getInferredYear(selectedMonth));
@@ -50,8 +48,7 @@ class SchedulingService {
   // Combines a date and time String
   static DateTime applyTimeToDate(DateTime date, String timeStr) {
     final parsedTime = DateFormat("hh:mm a").parse(timeStr);
-    return DateTime(
-        date.year, date.month, date.day, parsedTime.hour, parsedTime.minute);
+    return DateTime(date.year, date.month, date.day, parsedTime.hour, parsedTime.minute);
   }
 
   // Formats the date function to a specified format
@@ -69,8 +66,7 @@ class SchedulingService {
       "08:00 AM", "08:30 AM", "09:00 AM", "09:30 AM",
       "10:00 AM", "10:30 AM", "11:00 AM", "11:30 AM",
       "01:00 PM", "01:30 PM", "02:00 PM", "02:30 PM",
-      "03:00 PM", "03:30 PM", "04:00 PM", "04:30 PM",
-      "05:00 PM" // to be changed on the clinic's wishes
+      "03:00 PM", "03:30 PM", "04:00 PM", "04:30 PM", "05:00 PM" // to be changed on the clinic's wishes
     ];
   }
 
@@ -82,7 +78,7 @@ class SchedulingService {
     return allSlots.where((slot) => !bookedSlots.contains(slot)).toList();
   }
 
-  static int timeToMinutes(String? timeSlot) {
+   static int timeToMinutes(String? timeSlot) { 
     if (timeSlot == null || timeSlot.isEmpty || timeSlot == '-') return 0;
     try {
       final parts = timeSlot.split(' ');
@@ -98,24 +94,5 @@ class SchedulingService {
     } catch (e) {
       return 0;
     }
-  }
-}
-
-class SchedulingValidator {
-  static List<String> getMissingAppointmentFields({
-    required String? patientName,
-    required String? month,
-    required String? day,
-    required String? timeSlot,
-    required String reason,
-  }) {
-    List<String> missing = [];
-    if (patientName == null || patientName.isEmpty) missing.add('Patient Name');
-    if (month == null || month.isEmpty) missing.add('Month');
-    if (day == null || day.isEmpty) missing.add('Day');
-    if (timeSlot == null || timeSlot.isEmpty) missing.add('Time Slot');
-    if (reason.trim().isEmpty) missing.add('Reason for visit');
-
-    return missing;
   }
 }

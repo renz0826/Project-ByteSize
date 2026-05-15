@@ -5,8 +5,6 @@ import '../style/theme.dart';
 enum BadgeStatus {
   waiting,
   inProgress,
-  finished,
-  cancelled,
   paid,
   pending,
 }
@@ -30,10 +28,6 @@ class AppStatusBadge extends StatelessWidget {
         return 'Paid';
       case BadgeStatus.pending:
         return 'Pending';
-      case BadgeStatus.finished:
-        return '';
-      case BadgeStatus.cancelled:
-        return '';
     }
   }
 
@@ -48,16 +42,11 @@ class AppStatusBadge extends StatelessWidget {
         return AppTheme.green200;
       case BadgeStatus.pending:
         return AppTheme.yellow200;
-      default:
-        return Colors.transparent;
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    if (status == BadgeStatus.finished || status == BadgeStatus.cancelled) {
-      return const SizedBox.shrink();
-    }
     return Container(
       width: 110,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
@@ -65,12 +54,17 @@ class AppStatusBadge extends StatelessWidget {
         color: _backgroundColor,
         borderRadius: BorderRadius.circular(8),
       ),
-      child: Text(_label,
-          textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: AppTheme.black500,
-              fontWeight: FontWeight.w600,
-              fontSize: 13)),
+
+      child: Text(
+        _label,
+        textAlign: TextAlign.center,
+        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+          color: AppTheme.black500,
+          fontWeight: FontWeight.w600,
+          fontSize: 13
+        )
+      ),
     );
   }
+  
 }

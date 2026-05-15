@@ -9,22 +9,17 @@ import '../widgets/app_status_badge.dart';
 import '../widgets/main_buttons.dart';
 import '../widgets/calendar.dart';
 import '../widgets/status_toast.dart';
-import '../widgets/warning_dialog.dart';
 import '../providers/app_providers.dart';
-import 'package:drift/drift.dart' hide Column;
-import '/pages/schedule/schedule_appointment.dart';
-import '/pages/schedule/schedule_dashboard.dart';
-import '../../db/database.dart';
 
 final newPatientsProvider = FutureProvider<int>((ref) async {
   final repo = ref.watch(patientRepositoryProvider);
   final patients = await repo.getActivePatients();
-
+  
   final now = DateTime.now();
   return patients.where((p) {
-    return p.createdAt.year == now.year &&
-        p.createdAt.month == now.month &&
-        p.createdAt.day == now.day;
+    return p.createdAt.year == now.year && 
+           p.createdAt.month == now.month && 
+           p.createdAt.day == now.day;
   }).length;
 });
 

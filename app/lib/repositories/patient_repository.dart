@@ -1,6 +1,6 @@
 import 'package:drift/drift.dart';
 import '../db/database.dart';
-import '../services/patient_service.dart';
+import '../services/patient_onboarding.dart';
 
 class PatientRepository {
   final AppDatabase db;
@@ -8,10 +8,11 @@ class PatientRepository {
 
   PatientRepository(this.db) : onboardingService = PatientOnboardingService(db);
 
-  // Get All Patients Function
-  Future<List<PatientData>> getAllPatients() => db.select(db.patient).get();
+// Get All Patients Function
+  Future<List<PatientData>> getAllPatients() => // Get All Patients Function
+      db.select(db.patient).get();
 
-  // Search Patient Function
+// Search Patient Function
   Future<List<PatientData>> searchPatients(String query) =>
       (db.select(db.patient)
             ..where((p) =>
@@ -21,25 +22,20 @@ class PatientRepository {
                 p.contactNumber.contains(query)))
           .get();
 
-  // Add Patients Function
+// Add Patients Function
   Future<int> addPatient(PatientCompanion patient) =>
       db.into(db.patient).insert(patient);
 
-  // Update Patients Function
+// Update Patients Function
   Future<bool> updatePatient(PatientCompanion patient) =>
       db.update(db.patient).replace(patient);
 
-  // Archive Patients Function
+// Archive Patients Function
   Future<int> archivePatient(int id) =>
       (db.update(db.patient)..where((t) => t.patientId.equals(id)))
-          .write(const PatientCompanion(isArchived: Value(true)));
+          .write(PatientCompanion(isArchived: Value(true)));
 
-  // Restore Function (Unarchive)
-  Future<int> unarchivePatient(int id) =>
-      (db.update(db.patient)..where((t) => t.patientId.equals(id)))
-          .write(const PatientCompanion(isArchived: Value(false)));
-
-  // Uses the onboarding service for the multi-step save process
+// Uses the onboarding service for the multi-step save process
   Future<void> registerPatient(PatientCompanion p, ClinicalRecordCompanion c) =>
       onboardingService.registerNewPatient(patientData: p, clinicalData: c);
 
@@ -57,21 +53,7 @@ class PatientRepository {
     return results.isNotEmpty;
   }
 
-  // Check if another patient (with a different ID) already has this name and birthdate (Used in Edit Patient)
-  Future<bool> isDuplicateForUpdate(
-      int currentPatientId, String first, String last, DateTime dob) async {
-    final query = db.select(db.patient)
-      ..where((t) =>
-          t.firstName.equals(first) &
-          t.lastName.equals(last) &
-          t.birthDate.equals(dob) &
-          t.patientId.equals(currentPatientId).not());
-
-    final match = await query.getSingleOrNull();
-    return match != null;
-  }
-
-  // Soft Check: Duplicate First Name, and Last Name
+// Soft Check: Duplicate First Name, and Last Name
   Future<bool> isNameDuplicate(String firstName, String lastName) async {
     final query = db.select(db.patient)
       ..where(
@@ -86,6 +68,5 @@ class PatientRepository {
       .get();
 
   //for dashboard
-  Future<PatientData> getPatientById(int id) =>
-      (db.select(db.patient)..where((p) => p.patientId.equals(id))).getSingle();
+  Future<PatientData> getPatientById(int id) => (db.select(db.patient)..where((p) => p.patientId.equals(id))).getSingle();
 }

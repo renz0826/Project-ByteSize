@@ -27,7 +27,7 @@ class Patient extends Table { // Patient Entity
   TextColumn get barangay => text()();
   TextColumn get cityMunicipality => text()();
   TextColumn get province => text()();
-  TextColumn get zipCode => text().nullable()();
+  TextColumn get zipCode => text()();
 
 // Flags
 BoolColumn get isArchived => boolean().withDefault(const Constant(false))();

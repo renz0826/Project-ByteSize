@@ -1,3 +1,4 @@
+import 'package:dentcity_management_system/widgets/status_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:drift/drift.dart' as drift;
@@ -9,15 +10,13 @@ import '/../widgets/main_buttons.dart';
 import '/../widgets/filter_dropdown.dart';
 import '/../widgets/page_header.dart';
 import '/../widgets/app_info_bar.dart';
-import '../../widgets/status_toast.dart';
 import '../../db/database.dart';
-import '../../services/patient_service.dart';
+import '../../services/date_helper.dart';
 import '../../providers/app_providers.dart';
 import 'add_patient.dart';
 import 'add_clinical_record.dart';
 import 'view_patient.dart';
-import '../../pages/schedule/schedule_appointment.dart';
-import '../../widgets/warning_dialog.dart';
+import '../../pages/schedule/schedule_appointment.dart'; 
 
 //main screen
 class PatientDashboard extends ConsumerStatefulWidget {
@@ -40,9 +39,8 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
   // This tracks where a user created a new record (to show/add the previous button)
   int _returnIndex = 0;
 
-  // Variables for View & Edit Patient Screen
+  // Variables for View Patient Screen
   PatientData? _patientToView;
-  Map<String, dynamic>? _patientToEditMap;
   List<ClinicalRecordData> _clinicalRecordsToView = [];
 
   // Bug Fix: Using IndexedStack to prevent form data from being deleted when clicking back
@@ -72,12 +70,11 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
     });
   }
 
-  // Send user to add_patient.dart (Adding New)
+  // Send user to add_patient.dart
   void _goToAddPatient() {
     setState(() {
       _draftPatient = null;
       _existingPatientId = null;
-      _patientToEditMap = null; // Ensure we are NOT in edit mode
       _currentIndex = 1;
     });
   }
@@ -105,50 +102,19 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
     });
   }
 
-  // -Send user to the add_patient in edit mode
-  void _goToEditPatient(PatientData patient) {
-    setState(() {
-      _formSessionId++; // Reset form state
-
-      _patientToEditMap = {
-        'patientId': patient.patientId,
-        'firstName': patient.firstName,
-        'middleName': patient.middleName ?? '',
-        'lastName': patient.lastName,
-        'birthDate': patient.birthDate,
-        'sex': patient.sex,
-        'civilStatus': patient.civilStatus,
-        'contactNumber': patient.contactNumber,
-        'emergencyContactNo': patient.emergencyContactNo ?? '',
-        'relationshipEmergency': patient.relationshipEmergency ?? '',
-        'streetAddress': patient.streetAddress,
-        'barangay': patient.barangay,
-        'cityMunicipality': patient.cityMunicipality,
-        'province': patient.province,
-        'zipCode': patient.zipCode,
-        'isSeniorOrPWD': patient.isSeniorOrPWD,
-      };
-
-      _patientToView = patient;
-      _currentIndex = 1; // Send to Index 1 (Add/Edit Patient Form)
-    });
-  }
-
- // Archive Function
+  // Archive Function
   Future<void> _archivePatient(PatientData patient) async {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Archive Patient Record'),
         content: Text(
-            'Are you sure you want to archive the record for ${patient.lastName}, ${patient.firstName} ${patient.suffix}?\n\n'
-            'This will also automatically CANCEL all scheduled appointments for this patient.'),
+            'Are you sure you want to archive the record for ${patient.lastName}, ${patient.firstName}?\n\nYou can always restore this later from the Archived filter.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
             child: Text('Cancel',
-                style:
-                    TextStyle(color: AppTheme.black500.withValues(alpha: 0.6))),
+                style: TextStyle(color: AppTheme.black500.withValues(alpha: 0.6))),
           ),
           ElevatedButton(
             onPressed: () => Navigator.of(context).pop(true),
@@ -162,16 +128,8 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
     if (confirm == true) {
       try {
         final repository = ref.read(patientRepositoryProvider);
-        final db = ref.read(databaseProvider); // Get database instance
 
         await repository.archivePatient(patient.patientId);
-
-        await (db.update(db.appointment)
-              ..where((t) => t.patientId.equals(patient.patientId))
-              ..where((t) => t.status.equals("Scheduled") | t.status.equals("Upcoming")))
-            .write(const AppointmentCompanion(
-              status: drift.Value("Cancelled"),
-            ));
 
         await _loadPatients(); // Refresh the table list
 
@@ -180,74 +138,14 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
         }
 
         if (mounted) {
-          StatusToast.show(
-            context,
-            title: "Success",
-            message: "${patient.firstName}is archived and appointments cancelled.",
-            isSuccess: true,
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+                content: Text(
+                    "${patient.firstName} has been archived.")), // confirmation message
           );
         }
       } catch (e) {
         debugPrint("Failed to archive patient: $e");
-        if (mounted) {
-           StatusToast.show(
-            context,
-            title: "Error",
-            message: "Something went wrong while archiving.",
-            isSuccess: false,
-          );
-        }
-      }
-    }
-  }
-  //
-  Future<void> _unarchivePatient(PatientData patient) async {
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Restore Patient Record'),
-        content: Text(
-            'Are you sure you want to restore the record for ${patient.lastName}, ${patient.firstName} ${patient.suffix}?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text('Cancel',
-                style:
-                    TextStyle(color: AppTheme.black500.withValues(alpha: 0.6))),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            style: ElevatedButton.styleFrom(backgroundColor: AppTheme.blue500),
-            child: const Text('Restore', style: TextStyle(color: Colors.white)),
-          ),
-        ],
-      ),
-    );
-
-    if (confirm == true) {
-      try {
-        final repository = ref.read(patientRepositoryProvider);
-
-        // Call the new unarchive method from the repository
-        await repository.unarchivePatient(patient.patientId);
-
-        await _loadPatients(); // Refresh the table list
-
-        // If restored while viewing the record, send them back to the dashboard
-        if (_currentIndex == 3) {
-          setState(() => _currentIndex = 0);
-        }
-
-        if (mounted) {
-          StatusToast.show(
-            context,
-            title: "Success",
-            message: "${patient.firstName} has been restored.",
-            isSuccess: true,
-          );
-        }
-      } catch (e) {
-        debugPrint("Failed to restore patient: $e");
       }
     }
   }
@@ -301,6 +199,7 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
         StatusToast.show(
           context,
           title: "Success",
+          // FIXED: Changed $newPatient to $finalPatientId
           message: "Patient #$finalPatientId has been created.",
           isSuccess: true,
         );
@@ -328,71 +227,36 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
     }
   }
 
-  // Handle saving the updated patient data
-  Future<void> _handleEditPatientSave(PatientCompanion updatedPatient) async {
-    try {
-      final db = ref.read(databaseProvider);
-
-      // Update the record in the drift database
-      await db.update(db.patient).replace(updatedPatient);
-
-      // Reload the main list of patients
-      await _loadPatients();
-
-      // Fetch the fresh patient data so the View Screen shows the new updates immediately
-      final freshPatientData = await (db.select(db.patient)
-            ..where((t) => t.patientId.equals(updatedPatient.patientId.value)))
-          .getSingle();
-
-      if (mounted) {
-        StatusToast.show(
-          context,
-          title: "Success",
-          message: "Patient details updated successfully.",
-          isSuccess: true,
-        );
-      }
-
-      // Return to the View Patient screen with the fresh data and clear edit state
-      setState(() {
-        _patientToEditMap = null;
-        _patientToView = freshPatientData;
-        _currentIndex = 3;
-      });
-    } catch (e) {
-      debugPrint("Error updating patient: $e");
-      if (mounted) {
-        StatusToast.show(
-          context,
-          title: "Error",
-          message: "Failed to update record: $e",
-          isSuccess: false,
-        );
-      }
-    }
-  }
-
   // Dynamic Popup when clicking back (Allows going back to View or Dashboard)
   Future<void> _confirmReturnToDashboard({int targetIndex = 0}) async {
     final bool? shouldDiscard = await showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
-        return WarningDialog(
-            isCaution: false,
-            title: "Discard Unsaved Changes?",
-            content:
-                "Are you sure you want to return to the records dashboard? Any unsaved data will be lost.",
-            secondaryAction: "Keep Editing",
-            primaryAction: "Discard");
+        return AlertDialog(
+          title: const Text('Discard Changes?'),
+          content: const Text(
+              'Are you sure you want to discard your progress? Any unsaved data will be lost.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text(
+                'Discard',
+                style: TextStyle(color: Colors.red),
+              ),
+            ),
+          ],
+        );
       },
     );
 
     if (shouldDiscard == true) {
       _loadPatients();
-      setState(() {
-        _patientToEditMap = null; // Ensure edit state is cleared
-        _currentIndex = targetIndex;
-      });
+      setState(
+          () => _currentIndex = targetIndex); // Uses the dynamic target index
     }
   }
 
@@ -402,7 +266,6 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
     setState(() {
       _currentIndex = 0;
       _patientToView = null;
-      _patientToEditMap = null;
       _clinicalRecordsToView = [];
     });
   }
@@ -517,40 +380,25 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
           ),
         ),
 
-        // Index 1: Add / Edit Patient Form
+        // Index 1: Add Patient Form
         SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               PageHeader(
-                title: _patientToEditMap != null
-                    ? 'Back to Patient View'
-                    : 'Back to Records',
+                title: 'Back to Records',
                 type: PageHeaderType.withBack,
-                onBack: () => _confirmReturnToDashboard(
-                    targetIndex: _patientToEditMap != null ? 3 : 0),
+                onBack: () => _confirmReturnToDashboard(targetIndex: 0),
               ),
               Transform.translate(
                 offset: const Offset(0, -30),
                 child: AddPatientForm(
-                    key: ValueKey('form_$_formSessionId'),
-                    existingPatient: _patientToEditMap, // Pass the map here
-                    onNext: (data) {
-                      if (_patientToEditMap != null) {
-                        // EDIT LOGIC
-                        _handleEditPatientSave(data);
-                      } else {
-                        // ADD LOGIC
-                        _goToAddClinicalRecord(
-                            draftPatient: data, returnIndex: 0);
-                      }
-                    },
+                    key: ValueKey(_formSessionId),
+                    onNext: (data) => _goToAddClinicalRecord(
+                        draftPatient: data, returnIndex: 0),
                     onBack: () {
                       _loadPatients();
-                      setState(() {
-                        _currentIndex = _patientToEditMap != null ? 3 : 0;
-                        _patientToEditMap = null;
-                      });
+                      setState(() => _currentIndex = 0);
                     }),
               ),
             ],
@@ -613,15 +461,13 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
                       _goToAddClinicalRecord(
                           existingPatientId: _patientToView!.patientId,
                           returnIndex: 3);
-                    } else if (value == 'schedule_appointment') {
+                    } 
+                    // NEW: Action to go to schedule form
+                    else if (value == 'schedule_appointment') {
                       _goToScheduleAppointment(_patientToView!, returnIndex: 3);
-                    } else if (value == 'edit_details') {
-                      _goToEditPatient(_patientToView!);
-                    } else if (value == 'archive') {
+                    }
+                    else if (value == 'archive') {
                       _archivePatient(_patientToView!);
-                    } else if (value == 'unarchive') {
-                      // ---> NEW: Restore action
-                      _unarchivePatient(_patientToView!);
                     }
                   },
                 ),
@@ -631,15 +477,13 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
         else
           const SizedBox.shrink(),
 
-        // Index 4: Schedule Appointment Form
+        // NEW: Index 4: Schedule Appointment Form
         SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               PageHeader(
-                title: _returnIndex == 3
-                    ? 'Back to Patient View'
-                    : 'Back to Records',
+                title: _returnIndex == 3 ? 'Back to Patient View' : 'Back to Records',
                 type: PageHeaderType.withBack,
                 onBack: () => setState(() => _currentIndex = _returnIndex),
               ),
@@ -798,17 +642,16 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
     );
   }
 
-  //
+  // table row using real PatientData
   Widget _buildTableRow(PatientData patient) {
     return GestureDetector(
       onTap: () => _goToViewPatient(patient),
       child: PatientRecordBar(
-        fullName: '${patient.lastName}, ${patient.firstName} ${patient.suffix}',
+        fullName: '${patient.lastName}, ${patient.firstName}',
         sex: patient.sex,
         age: DateHelper.calculateAge(patient.birthDate),
         address: '${patient.province}, ${patient.cityMunicipality}',
         contact: patient.contactNumber,
-        isArchived: patient.isArchived,
         onMenuSelected: (value) {
           if (value == 'add_clinical_record') {
             setState(() {
@@ -816,16 +659,14 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
             });
             _goToAddClinicalRecord(
                 existingPatientId: patient.patientId, returnIndex: 0);
-          } else if (value == 'schedule_appointment') {
+          } 
+          else if (value == 'schedule_appointment') {
             _goToScheduleAppointment(patient, returnIndex: 0);
-          } else if (value == 'view_record') {
+          }
+          else if (value == 'view_record') {
             _goToViewPatient(patient);
           } else if (value == 'archive') {
             _archivePatient(patient);
-          } else if (value == 'unarchive') {
-            _unarchivePatient(patient);
-          } else if (value == 'edit_details') {
-            _goToEditPatient(patient);
           }
         },
       ),
