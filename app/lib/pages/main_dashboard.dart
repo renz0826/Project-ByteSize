@@ -364,26 +364,21 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
           itemBuilder: (BuildContext listContext, int index) {
             final item = activeQueue[index];
 
-            // 1. THE FIX: Calculate the badge FIRST
             final badge = _mapDatabaseStatusToBadge(item.status);
 
             return AppointmentBar(
               fullName: item.patientName,
               time: item.timeSlot,
               reason: item.reason,
-              status: badge, // Pass the exact badge we just calculated
-
+              status: badge,
               onPrimaryAction: () async {
-                // 2. THE FIX: Check the BADGE instead of the raw text string!
                 if (badge == BadgeStatus.waiting ||
                     badge == BadgeStatus.pending) {
                   final bool? shouldCancel = await showDialog<bool>(
-                    // 3. THE FIX: Use the listContext so it always finds the right item
                     context: listContext,
                     builder: (BuildContext dialogContext) {
                       return WarningDialog(
-                          isCaution:
-                              false, // NOTE: Changed this back to TRUE so your button is Red!
+                          isCaution: false,
                           title: 'Cancel Appointment?',
                           content:
                               'Are you sure you want to cancel ${item.patientName}\'s appointment? This action cannot be undone.',
@@ -399,7 +394,6 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                   _updateQueueStatus(item, 'completed');
                 }
               },
-
               onMenuSelected: (String actionValue) async {
                 switch (actionValue) {
                   case 'admit':
@@ -436,9 +430,8 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
         SizedBox(
           width: double.infinity,
           child: Button(
-            label: "Add Patient Record",
-            variant: ButtonVariant.primary,
-            heroIcon: HeroIcons.plus,
+            label: "Add New Record",
+            heroIcon: HeroIcons.documentPlus,
             onPressed: () {},
           ),
         ),
