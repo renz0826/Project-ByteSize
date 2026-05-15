@@ -65,10 +65,8 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     });
 
     return Scaffold(
-      backgroundColor:
-          Colors.transparent, // Kept transparent for the shadow trick!
-      body: CustomScrollView(
-        slivers: [
+        backgroundColor: Colors.transparent,
+        body: CustomScrollView(slivers: [
           SliverToBoxAdapter(
             child: _buildHeader(),
           ),
@@ -79,6 +77,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                 flex: 2,
                 sliver: SliverMainAxisGroup(
                   slivers: [
+                    // 1. Top Section (Statistics)
                     SliverPadding(
                       padding: const EdgeInsets.only(left: 24, right: 12),
                       sliver: SliverList(
@@ -86,29 +85,45 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                           _buildStatisticsSection(
                               dailyProgress, lobbyStatus, newPatients),
                           const SizedBox(height: 32),
-                          Text(
-                            "Patients In Queue",
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleLarge
-                                ?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  color: AppTheme.black500,
-                                ),
-                          ),
-                          const SizedBox(height: 16),
                         ]),
                       ),
                     ),
+
+                    // 2. Bottom Section (The White Card Container)
                     SliverPadding(
                       padding: const EdgeInsets.only(left: 24, right: 12),
-                      sliver: _buildPatientQueue(queueState),
+                      sliver: SliverToBoxAdapter(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: AppTheme.white500,
+                            borderRadius: BorderRadius.circular(24),
+                            boxShadow: AppTheme.floatShadow,
+                          ),
+                          padding: const EdgeInsets.all(24),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Patients In Queue",
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleLarge
+                                    ?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      color: AppTheme.black500,
+                                    ),
+                              ),
+                              const SizedBox(height: 16),
+                              _buildPatientQueue(queueState),
+                            ],
+                          ),
+                        ),
+                      ),
                     ),
                   ],
                 ),
               ),
 
-              // RIGHT COLUMN (Flex 1)
               SliverCrossAxisExpanded(
                 flex: 1,
                 sliver: SliverMainAxisGroup(
@@ -124,9 +139,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
               ),
             ],
           ),
-        ],
-      ),
-    );
+        ]));
   }
 
   Widget _buildHeader() {
@@ -164,9 +177,11 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
 
   Widget _buildPatientQueue(AsyncValue<List<DashboardQueueItem>> queueState) {
     return queueState.when(
-      loading: () => const SliverToBoxAdapter(
+      loading: () => const Padding(
+          padding: EdgeInsets.all(32.0),
           child: Center(child: CircularProgressIndicator())),
-      error: (error, stack) => SliverToBoxAdapter(
+      error: (error, stack) => Padding(
+          padding: const EdgeInsets.all(32.0),
           child: Center(child: Text('Database Error: $error'))),
       data: (queueItems) {
         final activeQueue = queueItems
@@ -176,62 +191,60 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
             .toList();
 
         if (activeQueue.isEmpty) {
-          return const SliverToBoxAdapter(
+          return const Padding(
+            padding: EdgeInsets.symmetric(vertical: 48.0),
             child: Center(
-              child: Padding(
-                padding: EdgeInsets.all(32.0),
-                child: Text(
-                  "No active appointments in the queue.",
-                  style: TextStyle(color: AppTheme.gray500, fontSize: 16),
-                ),
+              child: Text(
+                "No active appointments in the queue.",
+                style: TextStyle(color: AppTheme.gray500, fontSize: 16),
               ),
             ),
           );
         }
 
-        return SliverList(
-          delegate: SliverChildBuilderDelegate(
-            (context, index) {
-              final item = activeQueue[index];
-              return AppointmentBar(
-                fullName: item.patientName,
-                time: item.timeSlot,
-                reason: item.reason,
-                status: _mapDatabaseStatusToBadge(item.status),
-                onAction: () async {
-                  String newStatus = item.status.toLowerCase() == 'waiting'
-                      ? 'Finished'
-                      : 'Cancelled';
+        return ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: activeQueue.length,
+          itemBuilder: (context, index) {
+            final item = activeQueue[index];
+            return AppointmentBar(
+              fullName: item.patientName,
+              time: item.timeSlot,
+              reason: item.reason,
+              status: _mapDatabaseStatusToBadge(item.status),
+              onAction: () async {
+                String newStatus = item.status.toLowerCase() == 'waiting'
+                    ? 'Finished'
+                    : 'Cancelled';
 
-                  try {
-                    final repo = ref.read(appointmentRepositoryProvider);
-                    await repo.updateAppointmentStatus(
-                        item.appointmentId, newStatus);
-                    ref.invalidate(todayQueueProvider);
+                try {
+                  final repo = ref.read(appointmentRepositoryProvider);
+                  await repo.updateAppointmentStatus(
+                      item.appointmentId, newStatus);
+                  ref.invalidate(todayQueueProvider);
 
-                    if (context.mounted) {
-                      StatusToast.show(
-                        context,
-                        title: 'Queue Updated',
-                        message: '${item.patientName} marked as $newStatus.',
-                        isSuccess: true,
-                      );
-                    }
-                  } catch (e) {
-                    if (context.mounted) {
-                      StatusToast.show(
-                        context,
-                        title: 'Error',
-                        message: 'Failed to update database.',
-                        isSuccess: false,
-                      );
-                    }
+                  if (context.mounted) {
+                    StatusToast.show(
+                      context,
+                      title: 'Queue Updated',
+                      message: '${item.patientName} marked as $newStatus.',
+                      isSuccess: true,
+                    );
                   }
-                },
-              );
-            },
-            childCount: activeQueue.length,
-          ),
+                } catch (e) {
+                  if (context.mounted) {
+                    StatusToast.show(
+                      context,
+                      title: 'Error',
+                      message: 'Failed to update database.',
+                      isSuccess: false,
+                    );
+                  }
+                }
+              },
+            );
+          },
         );
       },
     );
