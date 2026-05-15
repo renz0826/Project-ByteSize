@@ -191,7 +191,7 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
       if (mounted) {
         StatusToast.show(
           context,
-          title: "Success",
+          title: "Appointment Cancelled",
           message: "Appointment has been successfully cancelled.",
           isSuccess: true,
         ); // confirmation message
