@@ -81,6 +81,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         _isCurrentPinVerified = true;
         _isPinError = false;
         _pinErrorMessage = '';
+        _currentPinController.clear(); //to clear old PIN
       });
     } else {
       setState(() {
@@ -168,7 +169,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                               final companion = ClinicalStaffCompanion(
                                 staffId: drift.Value(existingStaff?.staffId ?? 1),
                                 firstName: drift.Value(_firstNameController.text.trim()),
-                                middleName: drift.Value(_middleNameController.text.trim()),
+                                middleName: drift.Value(_middleNameController.text.trim().isEmpty ? null : _middleNameController.text.trim()), //so the output won't be ""
                                 lastName: drift.Value(_lastNameController.text.trim()),
 
                                 pin: drift.Value(existingStaff?.pin ?? '0000')
@@ -283,7 +284,12 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                                 StatusToast.show(context, title: 'Error', message: 'New PIN cannot be empty.', isSuccess: false);
                                 return;
                               }
-                              
+                              // FIX: PIN length validation
+                                if (_newPinController.text.trim().length != 4 || 
+                                  !RegExp(r'^\d{4}$').hasMatch(_newPinController.text.trim())) {
+                                StatusToast.show(context, title: 'Invalid PIN', message: 'PIN must be exactly 4 digits.', isSuccess: false);
+                                return;
+                              }  
                               if (_newPinController.text != _confirmPinController.text){
                                 StatusToast.show(context, title: 'PIN Mismatch', message: 'New PIN and Confirm PIN do not match.', isSuccess: false);
                                 return;
@@ -318,7 +324,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                           )
                           : Button (
                             label: 'Verify PIN',
-                            variant: ButtonVariant.secondary,
+                            variant: ButtonVariant.primary,
                             icon: Icons.lock_open_outlined,
                             onPressed: _verifyCurrentPin,
                           )
