@@ -207,12 +207,13 @@ class _ProcessPaymentScreenState extends ConsumerState<ProcessPaymentScreen> {
                         _buildSummaryRow("Previous Payments:",
                             "-₱ ${(discountAmount + totalPaid).toStringAsFixed(2)}",
                             isColorGreen: true),
+                        const SizedBox(height: 4),
 
-                        const SizedBox(height: 16),
-
+                        const Divider(color: AppTheme.gray400),
+                        
                         _buildSummaryRow("Remaining Balance:",
                             "₱ ${remainingBalance.toStringAsFixed(2)}",
-                            isBold: true),
+                            ),
 
                         const SizedBox(height: 32),
 
@@ -252,7 +253,7 @@ class _ProcessPaymentScreenState extends ConsumerState<ProcessPaymentScreen> {
                             SizedBox(
                               width: 160,
                               child: Button(
-                                label: _isProcessing ? "Wait..." : "Process",
+                                label: _isProcessing ? "Wait..." : "Process Payment",
                                 variant: ButtonVariant.primary,
                                 heroIcon: HeroIcons.check,
                                 onPressed:
@@ -277,7 +278,7 @@ class _ProcessPaymentScreenState extends ConsumerState<ProcessPaymentScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: AppTheme.textTheme.bodySmall?.copyWith(
+        Text(label, style: AppTheme.textTheme.bodyMedium?.copyWith(
             color: isColorGreen ? Colors.green.shade700 : AppTheme.gray500,
             fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
         )),
@@ -326,20 +327,6 @@ class _ProcessPaymentScreenState extends ConsumerState<ProcessPaymentScreen> {
           maxHeight: 60,
           child: AttributeReadView(label: '', content: content, isCrucial: false),
         ),
-      ),
-    );
-  }
-
-  Widget _buildBalanceBox(double balance) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-      decoration: BoxDecoration(border: Border.all(color: AppTheme.gray400), borderRadius: BorderRadius.circular(8)),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text('Remaining Balance', style: AppTheme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold, color: AppTheme.gray400)),
-          Text('₱ ${balance.toStringAsFixed(2)}', style: AppTheme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
-        ],
       ),
     );
   }

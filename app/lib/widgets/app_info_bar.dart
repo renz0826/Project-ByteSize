@@ -121,10 +121,6 @@ class _MoreOptions extends StatelessWidget {
         ? (item.color ?? AppTheme.black500)
         : AppTheme.gray400;
 
-    final iconColor = item.enable
-        ? (item.color ?? AppTheme.gray500)
-        : AppTheme.gray400;
-
     return PopupMenuItem<String>(
       value: item.value,
       height: 35,
