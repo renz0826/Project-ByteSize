@@ -164,54 +164,79 @@ class _ProcessPaymentScreenState extends ConsumerState<ProcessPaymentScreen> {
             children: [
               Row(
                 children: [
-                  Text("Process Payment", style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold)),
+                  Text("Process Payment",
+                      style: Theme.of(context)
+                          .textTheme
+                          .headlineMedium
+                          ?.copyWith(fontWeight: FontWeight.bold)),
                   const SizedBox(width: 16),
                   if (hasDiscount) const AppStatusBadge(status: BadgeStatus.discount),
                 ],
               ),
               const SizedBox(height: 8),
-              Text("Patient: ${widget.invoiceData.patientName} | INV-${inv.invoiceId.toString().padLeft(3, '0')}",
-                style: AppTheme.textTheme.bodyMedium),
+              Text(
+                  "Patient: ${widget.invoiceData.patientName} | INV-${inv.invoiceId.toString().padLeft(3, '0')}",
+                  style: AppTheme.textTheme.bodyMedium),
               const SizedBox(height: 32),
 
-              Text("Itemized Charges", style: Theme.of(context).textTheme.titleLarge),
+              Text("Itemized Charges",
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleLarge
+                      ?.copyWith(fontWeight: FontWeight.bold)),
               const SizedBox(height: 16),
 
               _buildTableHeaders(),
               ..._procedures.map((proc) => _buildProcedureRow(proc, hasDiscount)),
               const Divider(color: AppTheme.gray400),
 
-              const SizedBox(height: 24), // Spacing between columns
+              const SizedBox(height: 32),
 
-                  // Right Financial Column - Fixed to 340 to prevent right-overflow
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  const Spacer(),
                   SizedBox(
-                    width: 340,
+                    width: 340, 
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        _buildSummaryRow("Invoice Total:", "₱ ${grandTotal.toStringAsFixed(2)}"),
+                        _buildSummaryRow("Invoice Total:",
+                            "₱ ${grandTotal.toStringAsFixed(2)}"),
                         const SizedBox(height: 8),
-                        _buildSummaryRow("Previous Payments:", "-₱ ${(discountAmount + totalPaid).toStringAsFixed(2)}", isColorGreen: true),
-          
-                        const SizedBox(height: 16), // Replaced Divider with clean space
-                        
-                        _buildSummaryRow("Remaining Balance:", "₱ ${remainingBalance.toStringAsFixed(2)}", isBold: true),
-                        
+                        _buildSummaryRow("Previous Payments:",
+                            "-₱ ${(discountAmount + totalPaid).toStringAsFixed(2)}",
+                            isColorGreen: true),
+
+                        const SizedBox(height: 16),
+
+                        _buildSummaryRow("Remaining Balance:",
+                            "₱ ${remainingBalance.toStringAsFixed(2)}",
+                            isBold: true),
+
                         const SizedBox(height: 32),
 
-                        Align(alignment: Alignment.centerLeft, child: Text("Amount Paid", style: AppTheme.textTheme.bodySmall)),
+                        Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text("Amount Paid",
+                                style: AppTheme.textTheme.bodySmall)),
                         const SizedBox(height: 8),
                         _buildAmountField(),
 
                         const SizedBox(height: 16),
 
-                        Align(alignment: Alignment.centerLeft, child: Text("Mode of Payment", style: AppTheme.textTheme.bodySmall)),
+                        Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text("Mode of Payment",
+                                style: AppTheme.textTheme.bodySmall)),
                         const SizedBox(height: 8),
                         _buildModeDropdown(),
 
                         const SizedBox(height: 32),
 
-                        _buildSummaryRow("New Balance:", "₱ ${previewBalance.toStringAsFixed(2)}", isBold: true),
+                        _buildSummaryRow("New Balance:",
+                            "₱ ${previewBalance.toStringAsFixed(2)}",
+                            isBold: true),
 
                         const SizedBox(height: 40),
 
@@ -219,27 +244,32 @@ class _ProcessPaymentScreenState extends ConsumerState<ProcessPaymentScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             SizedBox(
-                              width: 160,
-                              child: Button(onPressed: widget.onBack, label: 'Cancel', variant: ButtonVariant.secondary)
-                            ),
+                                width: 160,
+                                child: Button(
+                                    onPressed: widget.onBack,
+                                    label: 'Cancel',
+                                    variant: ButtonVariant.secondary)),
                             SizedBox(
-                              width: 160, // Symmetrical width for the Victus
+                              width: 160,
                               child: Button(
                                 label: _isProcessing ? "Wait..." : "Process",
                                 variant: ButtonVariant.primary,
                                 heroIcon: HeroIcons.check,
-                                onPressed: _isProcessing ? () {} : _submitPayment,
+                                onPressed:
+                                    _isProcessing ? () {} : _submitPayment,
                               ),
                             ),
                           ],
                         ),
                       ],
                     ),
-                  ),  
+                  ),
                 ],
               ),
+            ],
           ),
-      )
+        ),
+      ),
     );
   }
 
