@@ -200,19 +200,23 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                             borderRadius: BorderRadius.circular(24),
                             boxShadow: AppTheme.floatShadow,
                           ),
-                          padding: const EdgeInsets.all(24),
+                          padding: const EdgeInsets.only(
+                              top: 24, bottom: 24, left: 24),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                "Patients In Queue",
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleLarge
-                                    ?.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                      color: AppTheme.black500,
-                                    ),
+                              Padding(
+                                padding: const EdgeInsets.only(right: 24),
+                                child: Text(
+                                  "Patients In Queue",
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleLarge
+                                      ?.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        color: AppTheme.black500,
+                                      ),
+                                ),
                               ),
                               const SizedBox(height: 16),
                               _buildPatientQueue(queueState),
@@ -332,10 +336,10 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
   Widget _buildPatientQueue(AsyncValue<List<DashboardQueueItem>> queueState) {
     return queueState.when(
       loading: () => const Padding(
-          padding: EdgeInsets.all(32.0),
+          padding: EdgeInsets.only(top: 32.0, bottom: 32.0, right: 24.0),
           child: Center(child: CircularProgressIndicator())),
       error: (error, stack) => Padding(
-          padding: const EdgeInsets.all(32.0),
+          padding: const EdgeInsets.only(top: 32.0, bottom: 32.0, right: 24.0),
           child: Center(child: Text('Database Error: $error'))),
       data: (queueItems) {
         final activeQueue = queueItems
@@ -347,7 +351,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
 
         if (activeQueue.isEmpty) {
           return const Padding(
-            padding: EdgeInsets.symmetric(vertical: 48.0),
+            padding: EdgeInsets.only(top: 48.0, bottom: 48.0, right: 24.0),
             child: Center(
               child: Text(
                 "No active appointments in the queue.",
@@ -357,58 +361,67 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
           );
         }
 
-        return ListView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: activeQueue.length,
-          itemBuilder: (BuildContext listContext, int index) {
-            final item = activeQueue[index];
+        return ConstrainedBox(
+          constraints: const BoxConstraints(
+            maxHeight: 610,
+          ),
+          child: RawScrollbar(
+            thickness: 0,
+            child: ListView.builder(
+              shrinkWrap: true,
+              padding: const EdgeInsets.only(right: 24),
+              physics: const BouncingScrollPhysics(),
+              itemCount: activeQueue.length,
+              itemBuilder: (BuildContext listContext, int index) {
+                final item = activeQueue[index];
 
-            final badge = _mapDatabaseStatusToBadge(item.status);
+                final badge = _mapDatabaseStatusToBadge(item.status);
 
-            return AppointmentBar(
-              fullName: item.patientName,
-              time: item.timeSlot,
-              reason: item.reason,
-              status: badge,
-              onPrimaryAction: () async {
-                if (badge == BadgeStatus.waiting ||
-                    badge == BadgeStatus.pending) {
-                  final bool? shouldCancel = await showDialog<bool>(
-                    context: listContext,
-                    builder: (BuildContext dialogContext) {
-                      return WarningDialog(
-                          isCaution: false,
-                          title: 'Cancel Appointment?',
-                          content:
-                              'Are you sure you want to cancel ${item.patientName}\'s appointment? This action cannot be undone.',
-                          secondaryAction: "Keep Appointment",
-                          primaryAction: "Cancel Appointment");
-                    },
-                  );
+                return AppointmentBar(
+                  fullName: item.patientName,
+                  time: item.timeSlot,
+                  reason: item.reason,
+                  status: badge,
+                  onPrimaryAction: () async {
+                    if (badge == BadgeStatus.waiting ||
+                        badge == BadgeStatus.pending) {
+                      final bool? shouldCancel = await showDialog<bool>(
+                        context: listContext,
+                        builder: (BuildContext dialogContext) {
+                          return WarningDialog(
+                              isCaution: false,
+                              title: 'Cancel Appointment?',
+                              content:
+                                  'Are you sure you want to cancel ${item.patientName}\'s appointment? This action cannot be undone.',
+                              secondaryAction: "Keep Appointment",
+                              primaryAction: "Cancel Appointment");
+                        },
+                      );
 
-                  if (shouldCancel == true) {
-                    _updateQueueStatus(item, 'cancelled');
-                  }
-                } else if (badge == BadgeStatus.inProgress) {
-                  _updateQueueStatus(item, 'completed');
-                }
+                      if (shouldCancel == true) {
+                        _updateQueueStatus(item, 'cancelled');
+                      }
+                    } else if (badge == BadgeStatus.inProgress) {
+                      _updateQueueStatus(item, 'completed');
+                    }
+                  },
+                  onMenuSelected: (String actionValue) async {
+                    switch (actionValue) {
+                      case 'admit':
+                        _updateQueueStatus(item, 'In Progress');
+                        break;
+                      case 'send_back':
+                        _updateQueueStatus(item, 'Waiting');
+                        break;
+                      case 'reschedule':
+                        _handleReschedule(item);
+                        break;
+                    }
+                  },
+                );
               },
-              onMenuSelected: (String actionValue) async {
-                switch (actionValue) {
-                  case 'admit':
-                    _updateQueueStatus(item, 'In Progress');
-                    break;
-                  case 'send_back':
-                    _updateQueueStatus(item, 'Waiting');
-                    break;
-                  case 'reschedule':
-                    _handleReschedule(item);
-                    break;
-                }
-              },
-            );
-          },
+            ),
+          ),
         );
       },
     );
