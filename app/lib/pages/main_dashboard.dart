@@ -11,7 +11,7 @@ import '../widgets/calendar.dart';
 import '../widgets/status_toast.dart';
 import '../widgets/warning_dialog.dart';
 import '../providers/app_providers.dart';
-
+import 'package:drift/drift.dart' hide Column;
 import '/pages/schedule/schedule_appointment.dart';
 import '/pages/schedule/schedule_dashboard.dart';
 import '../../db/database.dart';
@@ -42,6 +42,21 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
   int _formSessionId = 0;
   JoinedAppointment? _selectedAppointment;
   List<PatientData> _allPatients = [];
+
+  // Realtime patient provider
+  final newPatientsProvider = StreamProvider.autoDispose<int>((ref) {
+    final db = ref.watch(databaseProvider);
+
+    final now = DateTime.now();
+    final startOfDay = DateTime(now.year, now.month, now.day, 0, 0, 0);
+    final endOfDay = DateTime(now.year, now.month, now.day, 23, 59, 59);
+
+    // Watches the patient table and instantly counts anyone created today
+    final query = db.select(db.patient)
+      ..where((p) => p.createdAt.isBetweenValues(startOfDay, endOfDay));
+
+    return query.watch().map((rows) => rows.length);
+  });
 
   // Status update helper
   Future<void> _updateQueueStatus(
@@ -130,33 +145,29 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
       BuildContext context,
       AsyncValue<List<DashboardQueueItem>> queueState,
       AsyncValue<int> newPatientsState) {
-    String dailyProgress = "0/0";
-    String lobbyStatus = "0";
-    String newPatients = "0";
+    final items = queueState.value ?? [];
 
-    queueState.whenData((items) {
-      final total = items.length;
-      final treated = items
-          .where((i) =>
-              i.status.toLowerCase() == 'completed' ||
-              i.status.toLowerCase() == 'finished' ||
-              i.status.toLowerCase() == 'paid')
-          .length;
-      final inQueue = items
-          .where((i) =>
-              i.status.toLowerCase() == 'waiting' ||
-              i.status.toLowerCase() == 'pending' ||
-              i.status.toLowerCase() == 'in progress')
-          .length;
+    // Calculate Lobby Status (Active in Queue)
+    final inQueue = items.where((i) {
+      final status = i.status.trim().toLowerCase();
+      return status != 'completed' &&
+          status != 'finished' &&
+          status != 'cancelled';
+    }).length;
 
-      dailyProgress = "$treated/$total";
-      lobbyStatus = inQueue.toString();
-    });
+    // Calculate Daily Progress (Treated / Total Non-Cancelled)
+    final treated = items.where((i) {
+      final status = i.status.trim().toLowerCase();
+      return status == 'completed' || status == 'finished';
+    }).length;
 
-    newPatientsState.whenData((count) {
-      newPatients = count.toString();
-    });
+    final totalActive = items.where((i) {
+      return i.status.trim().toLowerCase() != 'cancelled';
+    }).length;
 
+    String dailyProgress = "$treated/$totalActive";
+    String lobbyStatus = inQueue.toString();
+    String newPatients = newPatientsState.value?.toString() ?? "0";
     return Scaffold(
         backgroundColor: Colors.transparent,
         body: CustomScrollView(slivers: [
@@ -447,8 +458,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
             final treatedQueue = queueItems
                 .where((item) =>
                     item.status.trim().toLowerCase() == 'completed' ||
-                    item.status.trim().toLowerCase() == 'finished' ||
-                    item.status.trim().toLowerCase() == 'paid')
+                    item.status.trim().toLowerCase() == 'finished')
                 .toList();
 
             if (treatedQueue.isEmpty) {
