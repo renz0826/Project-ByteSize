@@ -174,7 +174,8 @@ class AppointmentBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isWaiting = status == BadgeStatus.waiting;
+    final isWaiting =
+        status == BadgeStatus.waiting || status == BadgeStatus.pending;
     return _BarContainer(
       children: [
         _BarText(
@@ -182,8 +183,11 @@ class AppointmentBar extends StatelessWidget {
           flex: 3,
           ellipsis: true,
         ), // name
-        Expanded(flex: 2, child: _BarText(time)), // time
-        Expanded(flex: 3, child: _BarText(reason)), // reason
+        _BarText(
+          time,
+          flex: 2,
+        ), // time
+        _BarText(reason, flex: 2, ellipsis: true), // reason
         Expanded(
           flex: 2,
           child: Align(
