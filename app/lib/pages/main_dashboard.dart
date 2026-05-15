@@ -54,7 +54,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
         StatusToast.show(
           context,
           title: 'Queue Updated',
-          message: '${item.patientName} marked as $newStatus.',
+          message: '${item.patientName}\'s appoint is $newStatus.',
           isSuccess: true,
         );
       }
@@ -335,21 +335,29 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           itemCount: activeQueue.length,
-          itemBuilder: (context, index) {
+          itemBuilder: (BuildContext listContext, int index) {
             final item = activeQueue[index];
+
+            // 1. THE FIX: Calculate the badge FIRST
+            final badge = _mapDatabaseStatusToBadge(item.status);
+
             return AppointmentBar(
               fullName: item.patientName,
               time: item.timeSlot,
               reason: item.reason,
-              status: _mapDatabaseStatusToBadge(item.status),
+              status: badge, // Pass the exact badge we just calculated
+
               onPrimaryAction: () async {
-                final currentStatus = item.status.trim().toLowerCase();
-                if (currentStatus == 'waiting' || currentStatus == 'pending') {
+                // 2. THE FIX: Check the BADGE instead of the raw text string!
+                if (badge == BadgeStatus.waiting ||
+                    badge == BadgeStatus.pending) {
                   final bool? shouldCancel = await showDialog<bool>(
-                    context: context,
-                    builder: (BuildContext context) {
+                    // 3. THE FIX: Use the listContext so it always finds the right item
+                    context: listContext,
+                    builder: (BuildContext dialogContext) {
                       return WarningDialog(
-                          isCaution: false,
+                          isCaution:
+                              false, // NOTE: Changed this back to TRUE so your button is Red!
                           title: 'Cancel Appointment?',
                           content:
                               'Are you sure you want to cancel ${item.patientName}\'s appointment? This action cannot be undone.',
@@ -359,12 +367,13 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                   );
 
                   if (shouldCancel == true) {
-                    _updateQueueStatus(item, 'Cancelled');
+                    _updateQueueStatus(item, 'cancelled');
                   }
-                } else if (currentStatus == 'in progress') {
-                  _updateQueueStatus(item, 'Completed');
+                } else if (badge == BadgeStatus.inProgress) {
+                  _updateQueueStatus(item, 'completed');
                 }
               },
+
               onMenuSelected: (String actionValue) async {
                 switch (actionValue) {
                   case 'admit':
