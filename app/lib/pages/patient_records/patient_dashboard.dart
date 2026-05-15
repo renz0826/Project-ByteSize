@@ -134,7 +134,7 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
     });
   }
 
- // Archive Function
+  // Archive Function
   Future<void> _archivePatient(PatientData patient) async {
     final confirm = await showDialog<bool>(
       context: context,
@@ -168,10 +168,11 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
 
         await (db.update(db.appointment)
               ..where((t) => t.patientId.equals(patient.patientId))
-              ..where((t) => t.status.equals("Scheduled") | t.status.equals("Upcoming")))
+              ..where((t) =>
+                  t.status.equals("Scheduled") | t.status.equals("Upcoming")))
             .write(const AppointmentCompanion(
-              status: drift.Value("Cancelled"),
-            ));
+          status: drift.Value("Cancelled"),
+        ));
 
         await _loadPatients(); // Refresh the table list
 
@@ -182,17 +183,18 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
         if (mounted) {
           StatusToast.show(
             context,
-            title: "Success",
-            message: "${patient.firstName}is archived and appointments cancelled.",
+            title: "Record Archived",
+            message:
+                "${patient.firstName} ${patient.lastName}'s record has been archived.",
             isSuccess: true,
           );
         }
       } catch (e) {
         debugPrint("Failed to archive patient: $e");
         if (mounted) {
-           StatusToast.show(
+          StatusToast.show(
             context,
-            title: "Error",
+            title: "Archiving Failure",
             message: "Something went wrong while archiving.",
             isSuccess: false,
           );
@@ -200,6 +202,7 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
       }
     }
   }
+
   //
   Future<void> _unarchivePatient(PatientData patient) async {
     final confirm = await showDialog<bool>(
@@ -241,8 +244,9 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
         if (mounted) {
           StatusToast.show(
             context,
-            title: "Success",
-            message: "${patient.firstName} has been restored.",
+            title: "Record Restored",
+            message:
+                "${patient.firstName} ${patient.lastName}'s record has been restored.",
             isSuccess: true,
           );
         }
@@ -300,8 +304,8 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
       if (mounted) {
         StatusToast.show(
           context,
-          title: "Success",
-          message: "Patient #$finalPatientId has been created.",
+          title: "Record Created",
+          message: "Patient record has been successfully created!",
           isSuccess: true,
         );
       }
@@ -347,8 +351,8 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
       if (mounted) {
         StatusToast.show(
           context,
-          title: "Success",
-          message: "Patient details updated successfully.",
+          title: "Record Updated",
+          message: "Patient details has been updated successfully!",
           isSuccess: true,
         );
       }

@@ -146,8 +146,8 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
 
         StatusToast.show(
           context,
-          title: 'Record Saved',
-          message: 'Patient record has been successfully saved!',
+          title: 'Record Created',
+          message: 'Patient record has been successfully created!',
           isSuccess: true,
         );
       }

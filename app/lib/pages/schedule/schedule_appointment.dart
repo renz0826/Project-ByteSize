@@ -175,8 +175,8 @@ class _ScheduleAppointmentFormState
         if (mounted) {
           StatusToast.show(context,
               isSuccess: true,
-              title: "Success",
-              message: "Appointment Updated Successfully!");
+              title: "Appointment Updated",
+              message: "Patient appointment has been updated successfully!");
         }
       } else {
         await repo.addAppointment(companion);
@@ -184,8 +184,8 @@ class _ScheduleAppointmentFormState
         if (mounted) {
           StatusToast.show(context,
               isSuccess: true,
-              title: "Success",
-              message: "Appointment Scheduled Successfully!");
+              title: "Appointment Scheduled",
+              message: "Patient appoint has been scheduled successfully!");
         }
       }
 
