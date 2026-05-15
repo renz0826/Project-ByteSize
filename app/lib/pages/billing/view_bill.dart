@@ -263,6 +263,8 @@ Widget _buildTopStatusBar(String id, String date, String status, bool isPaid) {
             if (!isPaid)
               Button(label: "Edit Invoice", heroIcon: HeroIcons.pencilSquare, variant: ButtonVariant.secondary, onPressed: widget.onEditInvoice),
             const SizedBox(width: 10),
+            Button(label: isPaid ? "Fully Paid" : "Process Payment", variant: isPaid ? ButtonVariant.secondary : ButtonVariant.primary, onPressed: isPaid ? 
+            () {} : widget.onProcessPayment),
           ],
         )
       ],
