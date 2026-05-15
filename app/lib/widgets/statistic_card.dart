@@ -30,7 +30,7 @@ class StatisticCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                HeroIcon(icon, size: 20, color: AppTheme.gray500),
+                HeroIcon(icon, size: 24, color: AppTheme.gray500),
                 const SizedBox(width: 8),
                 Text(
                   title,
