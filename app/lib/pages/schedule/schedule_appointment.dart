@@ -185,7 +185,7 @@ class _ScheduleAppointmentFormState
           StatusToast.show(context,
               isSuccess: true,
               title: "Appointment Scheduled",
-              message: "Patient appoint has been scheduled successfully!");
+              message: "Patient appointment has been scheduled successfully!");
         }
       }
 
