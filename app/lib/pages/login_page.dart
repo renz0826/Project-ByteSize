@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/auth_provider.dart';
+import '../providers/app_providers.dart'; 
 import '../widgets/horizontal_logo.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../widgets/main_buttons.dart';
+import 'dart:async';
 
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
@@ -19,8 +21,34 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   final TextEditingController _pinController = TextEditingController();
   bool _isNavigating = false;
 
+  // Timer Variable
+  Timer? _countdownTimer;
+  int _secondsRemaining = 0;
+
+  void _startTimer(DateTime lockoutUntil) {
+    _countdownTimer?.cancel(); // Cancel any existing timer to avoid duplicates
+    
+    _countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      final now = DateTime.now();
+      if (now.isBefore(lockoutUntil)) {
+        if (mounted) {
+          setState(() {
+            _secondsRemaining = lockoutUntil.difference(now).inSeconds;
+          });
+        }
+      } else {
+        timer.cancel(); // timer hit zero here
+        ref.read(authControllerProvider.notifier).refreshLockoutStatus();
+        if (mounted) {
+          _pinController.clear(); 
+        }
+      }
+    });
+  }
+
   @override
   void dispose() {
+    _countdownTimer?.cancel(); // Prevent memory leaks
     _pinController.dispose();
     super.dispose();
   }
@@ -28,19 +56,47 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authControllerProvider);
+    final staffAsync = ref.watch(currentStaffProvider); // Watch the database
+
+    // Listen to the database and start the timer if locked out
+    ref.listen(currentStaffProvider, (previous, next) {
+      final staff = next.value;
+      if (staff != null && staff.lockoutUntil != null) {
+        final now = DateTime.now();
+        if (now.isBefore(staff.lockoutUntil!)) {
+          _startTimer(staff.lockoutUntil!);
+        }
+      }
+    });
+
+    // Check if currently locked out based on database
+    final staff = staffAsync.value;
+    final isLockedOut = staff != null && 
+        staff.lockoutUntil != null && 
+        DateTime.now().isBefore(staff.lockoutUntil!);
+
     final isLoading = authState.isLoading;
     final showLoading = isLoading || _isNavigating;
-    final errorMessage = authState.maybeWhen(
+    
+    // Get generic error from auth controller
+    String? errorMessage = authState.maybeWhen(
       error: (error, stack) => error.toString(),
       orElse: () => null,
     );
+
+    // OVERRIDE the error message with the live ticking clock!
+    if (isLockedOut) {
+      final minutes = (_secondsRemaining ~/ 60).toString().padLeft(2, '0');
+      final seconds = (_secondsRemaining % 60).toString().padLeft(2, '0');
+      errorMessage = "Too many failed attempts. Locked out for $minutes:$seconds.";
+    }
 
     return Scaffold(
       backgroundColor: Colors.white,
       body: Stack(
         children: [
           Container(
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
@@ -79,11 +135,11 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Row(
+                  const Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const SizedBox(width: 12),
-                      const HorizontalLogo(
+                      SizedBox(width: 12),
+                      HorizontalLogo(
                         logoHeight: 68,
                       )
                     ],
@@ -116,6 +172,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         TextField(
                           controller: _pinController,
                           obscureText: true,
+                          enabled: !isLockedOut, // Completely disables typing when locked out
                           keyboardType: TextInputType.number,
                           textAlign: TextAlign.center,
                           inputFormatters: [
@@ -123,6 +180,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                             LengthLimitingTextInputFormatter(4)
                           ],
                           decoration: InputDecoration(
+                            filled: isLockedOut, 
+                            fillColor: isLockedOut ? Colors.grey.shade200 : Colors.white,
                             contentPadding:
                                 const EdgeInsets.symmetric(vertical: 16.0),
                             enabledBorder: OutlineInputBorder(
@@ -134,6 +193,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                               borderRadius: BorderRadius.circular(30),
                               borderSide: const BorderSide(
                                   color: Color(0xFFB5B5B5), width: 2),
+                            ),
+                            disabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(30),
+                              borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
                             ),
                           ),
                         ),
@@ -149,7 +212,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         const SizedBox(height: 24),
                         // login button
                         Button(
-                          onPressed: isLoading ? null : _submitPin,
+                          onPressed: (isLoading || isLockedOut) ? null : _submitPin,
                           label: "Login",
                           width: double.infinity,
                           icon: Icons.arrow_forward_rounded,
@@ -159,7 +222,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                       ],
                     ),
                   ),
-                  SizedBox(height: 70),
+                  const SizedBox(height: 70),
                 ],
               ),
             ),

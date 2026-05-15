@@ -3,161 +3,164 @@
 part of 'database.dart';
 
 // ignore_for_file: type=lint
-class $PatientTable extends Patient with TableInfo<$PatientTable, PatientData> {
+class $PatientTable extends Patient
+    with drift.TableInfo<$PatientTable, PatientData> {
   @override
-  final GeneratedDatabase attachedDatabase;
+  final drift.GeneratedDatabase attachedDatabase;
   final String? _alias;
   $PatientTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _patientIdMeta =
-      const VerificationMeta('patientId');
+  static const drift.VerificationMeta _patientIdMeta =
+      const drift.VerificationMeta('patientId');
   @override
-  late final GeneratedColumn<int> patientId = GeneratedColumn<int>(
+  late final drift.GeneratedColumn<int> patientId = drift.GeneratedColumn<int>(
       'patient_id', aliasedName, false,
       hasAutoIncrement: true,
       type: DriftSqlType.int,
       requiredDuringInsert: false,
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
-  static const VerificationMeta _firstNameMeta =
-      const VerificationMeta('firstName');
+  static const drift.VerificationMeta _firstNameMeta =
+      const drift.VerificationMeta('firstName');
   @override
-  late final GeneratedColumn<String> firstName = GeneratedColumn<String>(
-      'first_name', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _middleNameMeta =
-      const VerificationMeta('middleName');
+  late final drift.GeneratedColumn<String> firstName =
+      drift.GeneratedColumn<String>('first_name', aliasedName, false,
+          type: DriftSqlType.string, requiredDuringInsert: true);
+  static const drift.VerificationMeta _middleNameMeta =
+      const drift.VerificationMeta('middleName');
   @override
-  late final GeneratedColumn<String> middleName = GeneratedColumn<String>(
-      'middle_name', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _lastNameMeta =
-      const VerificationMeta('lastName');
+  late final drift.GeneratedColumn<String> middleName =
+      drift.GeneratedColumn<String>('middle_name', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
+  static const drift.VerificationMeta _lastNameMeta =
+      const drift.VerificationMeta('lastName');
   @override
-  late final GeneratedColumn<String> lastName = GeneratedColumn<String>(
-      'last_name', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _suffixMeta = const VerificationMeta('suffix');
+  late final drift.GeneratedColumn<String> lastName =
+      drift.GeneratedColumn<String>('last_name', aliasedName, false,
+          type: DriftSqlType.string, requiredDuringInsert: true);
+  static const drift.VerificationMeta _suffixMeta =
+      const drift.VerificationMeta('suffix');
   @override
-  late final GeneratedColumn<String> suffix = GeneratedColumn<String>(
-      'suffix', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _birthDateMeta =
-      const VerificationMeta('birthDate');
+  late final drift.GeneratedColumn<String> suffix =
+      drift.GeneratedColumn<String>('suffix', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
+  static const drift.VerificationMeta _birthDateMeta =
+      const drift.VerificationMeta('birthDate');
   @override
-  late final GeneratedColumn<DateTime> birthDate = GeneratedColumn<DateTime>(
-      'birth_date', aliasedName, false,
-      type: DriftSqlType.dateTime, requiredDuringInsert: true);
-  static const VerificationMeta _sexMeta = const VerificationMeta('sex');
+  late final drift.GeneratedColumn<DateTime> birthDate =
+      drift.GeneratedColumn<DateTime>('birth_date', aliasedName, false,
+          type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const drift.VerificationMeta _sexMeta =
+      const drift.VerificationMeta('sex');
   @override
-  late final GeneratedColumn<String> sex = GeneratedColumn<String>(
+  late final drift.GeneratedColumn<String> sex = drift.GeneratedColumn<String>(
       'sex', aliasedName, false,
       additionalChecks:
           GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 10),
       type: DriftSqlType.string,
       requiredDuringInsert: true);
-  static const VerificationMeta _civilStatusMeta =
-      const VerificationMeta('civilStatus');
+  static const drift.VerificationMeta _civilStatusMeta =
+      const drift.VerificationMeta('civilStatus');
   @override
-  late final GeneratedColumn<String> civilStatus = GeneratedColumn<String>(
-      'civil_status', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _contactNumberMeta =
-      const VerificationMeta('contactNumber');
+  late final drift.GeneratedColumn<String> civilStatus =
+      drift.GeneratedColumn<String>('civil_status', aliasedName, false,
+          type: DriftSqlType.string, requiredDuringInsert: true);
+  static const drift.VerificationMeta _contactNumberMeta =
+      const drift.VerificationMeta('contactNumber');
   @override
-  late final GeneratedColumn<String> contactNumber = GeneratedColumn<String>(
-      'contact_number', aliasedName, false,
-      additionalChecks:
-          GeneratedColumn.checkTextLength(minTextLength: 11, maxTextLength: 11),
-      type: DriftSqlType.string,
-      requiredDuringInsert: true);
-  static const VerificationMeta _emergencyContactNoMeta =
-      const VerificationMeta('emergencyContactNo');
+  late final drift.GeneratedColumn<String> contactNumber =
+      drift.GeneratedColumn<String>('contact_number', aliasedName, false,
+          additionalChecks: GeneratedColumn.checkTextLength(
+              minTextLength: 11, maxTextLength: 11),
+          type: DriftSqlType.string,
+          requiredDuringInsert: true);
+  static const drift.VerificationMeta _emergencyContactNoMeta =
+      const drift.VerificationMeta('emergencyContactNo');
   @override
-  late final GeneratedColumn<String> emergencyContactNo =
-      GeneratedColumn<String>('emergency_contact_no', aliasedName, true,
+  late final drift.GeneratedColumn<String> emergencyContactNo =
+      drift.GeneratedColumn<String>('emergency_contact_no', aliasedName, true,
           type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _referredByMeta =
-      const VerificationMeta('referredBy');
+  static const drift.VerificationMeta _referredByMeta =
+      const drift.VerificationMeta('referredBy');
   @override
-  late final GeneratedColumn<String> referredBy = GeneratedColumn<String>(
-      'referred_by', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _relationshipMeta =
-      const VerificationMeta('relationship');
-  @override
-  late final GeneratedColumn<String> relationship = GeneratedColumn<String>(
-      'relationship', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _relationshipEmergencyMeta =
-      const VerificationMeta('relationshipEmergency');
-  @override
-  late final GeneratedColumn<String> relationshipEmergency =
-      GeneratedColumn<String>('relationship_emergency', aliasedName, true,
+  late final drift.GeneratedColumn<String> referredBy =
+      drift.GeneratedColumn<String>('referred_by', aliasedName, true,
           type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _streetAddressMeta =
-      const VerificationMeta('streetAddress');
+  static const drift.VerificationMeta _relationshipMeta =
+      const drift.VerificationMeta('relationship');
   @override
-  late final GeneratedColumn<String> streetAddress = GeneratedColumn<String>(
-      'street_address', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _barangayMeta =
-      const VerificationMeta('barangay');
+  late final drift.GeneratedColumn<String> relationship =
+      drift.GeneratedColumn<String>('relationship', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
+  static const drift.VerificationMeta _relationshipEmergencyMeta =
+      const drift.VerificationMeta('relationshipEmergency');
   @override
-  late final GeneratedColumn<String> barangay = GeneratedColumn<String>(
-      'barangay', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _cityMunicipalityMeta =
-      const VerificationMeta('cityMunicipality');
+  late final drift.GeneratedColumn<String> relationshipEmergency =
+      drift.GeneratedColumn<String>('relationship_emergency', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
+  static const drift.VerificationMeta _streetAddressMeta =
+      const drift.VerificationMeta('streetAddress');
   @override
-  late final GeneratedColumn<String> cityMunicipality = GeneratedColumn<String>(
-      'city_municipality', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _provinceMeta =
-      const VerificationMeta('province');
+  late final drift.GeneratedColumn<String> streetAddress =
+      drift.GeneratedColumn<String>('street_address', aliasedName, false,
+          type: DriftSqlType.string, requiredDuringInsert: true);
+  static const drift.VerificationMeta _barangayMeta =
+      const drift.VerificationMeta('barangay');
   @override
-  late final GeneratedColumn<String> province = GeneratedColumn<String>(
-      'province', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _zipCodeMeta =
-      const VerificationMeta('zipCode');
+  late final drift.GeneratedColumn<String> barangay =
+      drift.GeneratedColumn<String>('barangay', aliasedName, false,
+          type: DriftSqlType.string, requiredDuringInsert: true);
+  static const drift.VerificationMeta _cityMunicipalityMeta =
+      const drift.VerificationMeta('cityMunicipality');
   @override
-  late final GeneratedColumn<String> zipCode = GeneratedColumn<String>(
-      'zip_code', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _isArchivedMeta =
-      const VerificationMeta('isArchived');
+  late final drift.GeneratedColumn<String> cityMunicipality =
+      drift.GeneratedColumn<String>('city_municipality', aliasedName, false,
+          type: DriftSqlType.string, requiredDuringInsert: true);
+  static const drift.VerificationMeta _provinceMeta =
+      const drift.VerificationMeta('province');
   @override
-  late final GeneratedColumn<bool> isArchived = GeneratedColumn<bool>(
-      'is_archived', aliasedName, false,
-      type: DriftSqlType.bool,
-      requiredDuringInsert: false,
-      defaultConstraints:
-          GeneratedColumn.constraintIsAlways('CHECK ("is_archived" IN (0, 1))'),
-      defaultValue: const Constant(false));
-  static const VerificationMeta _isSeniorOrPWDMeta =
-      const VerificationMeta('isSeniorOrPWD');
+  late final drift.GeneratedColumn<String> province =
+      drift.GeneratedColumn<String>('province', aliasedName, false,
+          type: DriftSqlType.string, requiredDuringInsert: true);
+  static const drift.VerificationMeta _zipCodeMeta =
+      const drift.VerificationMeta('zipCode');
   @override
-  late final GeneratedColumn<bool> isSeniorOrPWD = GeneratedColumn<bool>(
-      'is_senior_or_p_w_d', aliasedName, false,
-      type: DriftSqlType.bool,
-      requiredDuringInsert: false,
-      defaultConstraints: GeneratedColumn.constraintIsAlways(
-          'CHECK ("is_senior_or_p_w_d" IN (0, 1))'),
-      defaultValue: const Constant(false));
-  static const VerificationMeta _createdAtMeta =
-      const VerificationMeta('createdAt');
+  late final drift.GeneratedColumn<String> zipCode =
+      drift.GeneratedColumn<String>('zip_code', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
+  static const drift.VerificationMeta _isArchivedMeta =
+      const drift.VerificationMeta('isArchived');
   @override
-  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
-      'created_at', aliasedName, false,
-      type: DriftSqlType.dateTime, requiredDuringInsert: true);
-  static const VerificationMeta _updatedAtMeta =
-      const VerificationMeta('updatedAt');
+  late final drift.GeneratedColumn<bool> isArchived =
+      drift.GeneratedColumn<bool>('is_archived', aliasedName, false,
+          type: DriftSqlType.bool,
+          requiredDuringInsert: false,
+          defaultConstraints: GeneratedColumn.constraintIsAlways(
+              'CHECK ("is_archived" IN (0, 1))'),
+          defaultValue: const drift.Constant(false));
+  static const drift.VerificationMeta _isSeniorOrPWDMeta =
+      const drift.VerificationMeta('isSeniorOrPWD');
   @override
-  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
-      'updated_at', aliasedName, false,
-      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  late final drift.GeneratedColumn<bool> isSeniorOrPWD =
+      drift.GeneratedColumn<bool>('is_senior_or_p_w_d', aliasedName, false,
+          type: DriftSqlType.bool,
+          requiredDuringInsert: false,
+          defaultConstraints: GeneratedColumn.constraintIsAlways(
+              'CHECK ("is_senior_or_p_w_d" IN (0, 1))'),
+          defaultValue: const drift.Constant(false));
+  static const drift.VerificationMeta _createdAtMeta =
+      const drift.VerificationMeta('createdAt');
   @override
-  List<GeneratedColumn> get $columns => [
+  late final drift.GeneratedColumn<DateTime> createdAt =
+      drift.GeneratedColumn<DateTime>('created_at', aliasedName, false,
+          type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const drift.VerificationMeta _updatedAtMeta =
+      const drift.VerificationMeta('updatedAt');
+  @override
+  late final drift.GeneratedColumn<DateTime> updatedAt =
+      drift.GeneratedColumn<DateTime>('updated_at', aliasedName, false,
+          type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  @override
+  List<drift.GeneratedColumn> get $columns => [
         patientId,
         firstName,
         middleName,
@@ -187,9 +190,10 @@ class $PatientTable extends Patient with TableInfo<$PatientTable, PatientData> {
   String get actualTableName => $name;
   static const String $name = 'patient';
   @override
-  VerificationContext validateIntegrity(Insertable<PatientData> instance,
+  drift.VerificationContext validateIntegrity(
+      drift.Insertable<PatientData> instance,
       {bool isInserting = false}) {
-    final context = VerificationContext();
+    final context = drift.VerificationContext();
     final data = instance.toColumns(true);
     if (data.containsKey('patient_id')) {
       context.handle(_patientIdMeta,
@@ -329,7 +333,7 @@ class $PatientTable extends Patient with TableInfo<$PatientTable, PatientData> {
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {patientId};
+  Set<drift.GeneratedColumn> get $primaryKey => {patientId};
   @override
   PatientData map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
@@ -388,7 +392,8 @@ class $PatientTable extends Patient with TableInfo<$PatientTable, PatientData> {
   }
 }
 
-class PatientData extends DataClass implements Insertable<PatientData> {
+class PatientData extends drift.DataClass
+    implements drift.Insertable<PatientData> {
   final int patientId;
   final String firstName;
   final String? middleName;
@@ -435,90 +440,92 @@ class PatientData extends DataClass implements Insertable<PatientData> {
       required this.createdAt,
       required this.updatedAt});
   @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    map['patient_id'] = Variable<int>(patientId);
-    map['first_name'] = Variable<String>(firstName);
+  Map<String, drift.Expression> toColumns(bool nullToAbsent) {
+    final map = <String, drift.Expression>{};
+    map['patient_id'] = drift.Variable<int>(patientId);
+    map['first_name'] = drift.Variable<String>(firstName);
     if (!nullToAbsent || middleName != null) {
-      map['middle_name'] = Variable<String>(middleName);
+      map['middle_name'] = drift.Variable<String>(middleName);
     }
-    map['last_name'] = Variable<String>(lastName);
+    map['last_name'] = drift.Variable<String>(lastName);
     if (!nullToAbsent || suffix != null) {
-      map['suffix'] = Variable<String>(suffix);
+      map['suffix'] = drift.Variable<String>(suffix);
     }
-    map['birth_date'] = Variable<DateTime>(birthDate);
-    map['sex'] = Variable<String>(sex);
-    map['civil_status'] = Variable<String>(civilStatus);
-    map['contact_number'] = Variable<String>(contactNumber);
+    map['birth_date'] = drift.Variable<DateTime>(birthDate);
+    map['sex'] = drift.Variable<String>(sex);
+    map['civil_status'] = drift.Variable<String>(civilStatus);
+    map['contact_number'] = drift.Variable<String>(contactNumber);
     if (!nullToAbsent || emergencyContactNo != null) {
-      map['emergency_contact_no'] = Variable<String>(emergencyContactNo);
+      map['emergency_contact_no'] = drift.Variable<String>(emergencyContactNo);
     }
     if (!nullToAbsent || referredBy != null) {
-      map['referred_by'] = Variable<String>(referredBy);
+      map['referred_by'] = drift.Variable<String>(referredBy);
     }
     if (!nullToAbsent || relationship != null) {
-      map['relationship'] = Variable<String>(relationship);
+      map['relationship'] = drift.Variable<String>(relationship);
     }
     if (!nullToAbsent || relationshipEmergency != null) {
-      map['relationship_emergency'] = Variable<String>(relationshipEmergency);
+      map['relationship_emergency'] =
+          drift.Variable<String>(relationshipEmergency);
     }
-    map['street_address'] = Variable<String>(streetAddress);
-    map['barangay'] = Variable<String>(barangay);
-    map['city_municipality'] = Variable<String>(cityMunicipality);
-    map['province'] = Variable<String>(province);
+    map['street_address'] = drift.Variable<String>(streetAddress);
+    map['barangay'] = drift.Variable<String>(barangay);
+    map['city_municipality'] = drift.Variable<String>(cityMunicipality);
+    map['province'] = drift.Variable<String>(province);
     if (!nullToAbsent || zipCode != null) {
-      map['zip_code'] = Variable<String>(zipCode);
+      map['zip_code'] = drift.Variable<String>(zipCode);
     }
-    map['is_archived'] = Variable<bool>(isArchived);
-    map['is_senior_or_p_w_d'] = Variable<bool>(isSeniorOrPWD);
-    map['created_at'] = Variable<DateTime>(createdAt);
-    map['updated_at'] = Variable<DateTime>(updatedAt);
+    map['is_archived'] = drift.Variable<bool>(isArchived);
+    map['is_senior_or_p_w_d'] = drift.Variable<bool>(isSeniorOrPWD);
+    map['created_at'] = drift.Variable<DateTime>(createdAt);
+    map['updated_at'] = drift.Variable<DateTime>(updatedAt);
     return map;
   }
 
   PatientCompanion toCompanion(bool nullToAbsent) {
     return PatientCompanion(
-      patientId: Value(patientId),
-      firstName: Value(firstName),
+      patientId: drift.Value(patientId),
+      firstName: drift.Value(firstName),
       middleName: middleName == null && nullToAbsent
-          ? const Value.absent()
-          : Value(middleName),
-      lastName: Value(lastName),
-      suffix:
-          suffix == null && nullToAbsent ? const Value.absent() : Value(suffix),
-      birthDate: Value(birthDate),
-      sex: Value(sex),
-      civilStatus: Value(civilStatus),
-      contactNumber: Value(contactNumber),
+          ? const drift.Value.absent()
+          : drift.Value(middleName),
+      lastName: drift.Value(lastName),
+      suffix: suffix == null && nullToAbsent
+          ? const drift.Value.absent()
+          : drift.Value(suffix),
+      birthDate: drift.Value(birthDate),
+      sex: drift.Value(sex),
+      civilStatus: drift.Value(civilStatus),
+      contactNumber: drift.Value(contactNumber),
       emergencyContactNo: emergencyContactNo == null && nullToAbsent
-          ? const Value.absent()
-          : Value(emergencyContactNo),
+          ? const drift.Value.absent()
+          : drift.Value(emergencyContactNo),
       referredBy: referredBy == null && nullToAbsent
-          ? const Value.absent()
-          : Value(referredBy),
+          ? const drift.Value.absent()
+          : drift.Value(referredBy),
       relationship: relationship == null && nullToAbsent
-          ? const Value.absent()
-          : Value(relationship),
+          ? const drift.Value.absent()
+          : drift.Value(relationship),
       relationshipEmergency: relationshipEmergency == null && nullToAbsent
-          ? const Value.absent()
-          : Value(relationshipEmergency),
-      streetAddress: Value(streetAddress),
-      barangay: Value(barangay),
-      cityMunicipality: Value(cityMunicipality),
-      province: Value(province),
+          ? const drift.Value.absent()
+          : drift.Value(relationshipEmergency),
+      streetAddress: drift.Value(streetAddress),
+      barangay: drift.Value(barangay),
+      cityMunicipality: drift.Value(cityMunicipality),
+      province: drift.Value(province),
       zipCode: zipCode == null && nullToAbsent
-          ? const Value.absent()
-          : Value(zipCode),
-      isArchived: Value(isArchived),
-      isSeniorOrPWD: Value(isSeniorOrPWD),
-      createdAt: Value(createdAt),
-      updatedAt: Value(updatedAt),
+          ? const drift.Value.absent()
+          : drift.Value(zipCode),
+      isArchived: drift.Value(isArchived),
+      isSeniorOrPWD: drift.Value(isSeniorOrPWD),
+      createdAt: drift.Value(createdAt),
+      updatedAt: drift.Value(updatedAt),
     );
   }
 
   factory PatientData.fromJson(Map<String, dynamic> json,
       {ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
+    serializer ??= drift.driftRuntimeOptions.defaultSerializer;
     return PatientData(
       patientId: serializer.fromJson<int>(json['patientId']),
       firstName: serializer.fromJson<String>(json['firstName']),
@@ -548,7 +555,7 @@ class PatientData extends DataClass implements Insertable<PatientData> {
   }
   @override
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
+    serializer ??= drift.driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'patientId': serializer.toJson<int>(patientId),
       'firstName': serializer.toJson<String>(firstName),
@@ -579,22 +586,23 @@ class PatientData extends DataClass implements Insertable<PatientData> {
   PatientData copyWith(
           {int? patientId,
           String? firstName,
-          Value<String?> middleName = const Value.absent(),
+          drift.Value<String?> middleName = const drift.Value.absent(),
           String? lastName,
-          Value<String?> suffix = const Value.absent(),
+          drift.Value<String?> suffix = const drift.Value.absent(),
           DateTime? birthDate,
           String? sex,
           String? civilStatus,
           String? contactNumber,
-          Value<String?> emergencyContactNo = const Value.absent(),
-          Value<String?> referredBy = const Value.absent(),
-          Value<String?> relationship = const Value.absent(),
-          Value<String?> relationshipEmergency = const Value.absent(),
+          drift.Value<String?> emergencyContactNo = const drift.Value.absent(),
+          drift.Value<String?> referredBy = const drift.Value.absent(),
+          drift.Value<String?> relationship = const drift.Value.absent(),
+          drift.Value<String?> relationshipEmergency =
+              const drift.Value.absent(),
           String? streetAddress,
           String? barangay,
           String? cityMunicipality,
           String? province,
-          Value<String?> zipCode = const Value.absent(),
+          drift.Value<String?> zipCode = const drift.Value.absent(),
           bool? isArchived,
           bool? isSeniorOrPWD,
           DateTime? createdAt,
@@ -755,113 +763,113 @@ class PatientData extends DataClass implements Insertable<PatientData> {
           other.updatedAt == this.updatedAt);
 }
 
-class PatientCompanion extends UpdateCompanion<PatientData> {
-  final Value<int> patientId;
-  final Value<String> firstName;
-  final Value<String?> middleName;
-  final Value<String> lastName;
-  final Value<String?> suffix;
-  final Value<DateTime> birthDate;
-  final Value<String> sex;
-  final Value<String> civilStatus;
-  final Value<String> contactNumber;
-  final Value<String?> emergencyContactNo;
-  final Value<String?> referredBy;
-  final Value<String?> relationship;
-  final Value<String?> relationshipEmergency;
-  final Value<String> streetAddress;
-  final Value<String> barangay;
-  final Value<String> cityMunicipality;
-  final Value<String> province;
-  final Value<String?> zipCode;
-  final Value<bool> isArchived;
-  final Value<bool> isSeniorOrPWD;
-  final Value<DateTime> createdAt;
-  final Value<DateTime> updatedAt;
+class PatientCompanion extends drift.UpdateCompanion<PatientData> {
+  final drift.Value<int> patientId;
+  final drift.Value<String> firstName;
+  final drift.Value<String?> middleName;
+  final drift.Value<String> lastName;
+  final drift.Value<String?> suffix;
+  final drift.Value<DateTime> birthDate;
+  final drift.Value<String> sex;
+  final drift.Value<String> civilStatus;
+  final drift.Value<String> contactNumber;
+  final drift.Value<String?> emergencyContactNo;
+  final drift.Value<String?> referredBy;
+  final drift.Value<String?> relationship;
+  final drift.Value<String?> relationshipEmergency;
+  final drift.Value<String> streetAddress;
+  final drift.Value<String> barangay;
+  final drift.Value<String> cityMunicipality;
+  final drift.Value<String> province;
+  final drift.Value<String?> zipCode;
+  final drift.Value<bool> isArchived;
+  final drift.Value<bool> isSeniorOrPWD;
+  final drift.Value<DateTime> createdAt;
+  final drift.Value<DateTime> updatedAt;
   const PatientCompanion({
-    this.patientId = const Value.absent(),
-    this.firstName = const Value.absent(),
-    this.middleName = const Value.absent(),
-    this.lastName = const Value.absent(),
-    this.suffix = const Value.absent(),
-    this.birthDate = const Value.absent(),
-    this.sex = const Value.absent(),
-    this.civilStatus = const Value.absent(),
-    this.contactNumber = const Value.absent(),
-    this.emergencyContactNo = const Value.absent(),
-    this.referredBy = const Value.absent(),
-    this.relationship = const Value.absent(),
-    this.relationshipEmergency = const Value.absent(),
-    this.streetAddress = const Value.absent(),
-    this.barangay = const Value.absent(),
-    this.cityMunicipality = const Value.absent(),
-    this.province = const Value.absent(),
-    this.zipCode = const Value.absent(),
-    this.isArchived = const Value.absent(),
-    this.isSeniorOrPWD = const Value.absent(),
-    this.createdAt = const Value.absent(),
-    this.updatedAt = const Value.absent(),
+    this.patientId = const drift.Value.absent(),
+    this.firstName = const drift.Value.absent(),
+    this.middleName = const drift.Value.absent(),
+    this.lastName = const drift.Value.absent(),
+    this.suffix = const drift.Value.absent(),
+    this.birthDate = const drift.Value.absent(),
+    this.sex = const drift.Value.absent(),
+    this.civilStatus = const drift.Value.absent(),
+    this.contactNumber = const drift.Value.absent(),
+    this.emergencyContactNo = const drift.Value.absent(),
+    this.referredBy = const drift.Value.absent(),
+    this.relationship = const drift.Value.absent(),
+    this.relationshipEmergency = const drift.Value.absent(),
+    this.streetAddress = const drift.Value.absent(),
+    this.barangay = const drift.Value.absent(),
+    this.cityMunicipality = const drift.Value.absent(),
+    this.province = const drift.Value.absent(),
+    this.zipCode = const drift.Value.absent(),
+    this.isArchived = const drift.Value.absent(),
+    this.isSeniorOrPWD = const drift.Value.absent(),
+    this.createdAt = const drift.Value.absent(),
+    this.updatedAt = const drift.Value.absent(),
   });
   PatientCompanion.insert({
-    this.patientId = const Value.absent(),
+    this.patientId = const drift.Value.absent(),
     required String firstName,
-    this.middleName = const Value.absent(),
+    this.middleName = const drift.Value.absent(),
     required String lastName,
-    this.suffix = const Value.absent(),
+    this.suffix = const drift.Value.absent(),
     required DateTime birthDate,
     required String sex,
     required String civilStatus,
     required String contactNumber,
-    this.emergencyContactNo = const Value.absent(),
-    this.referredBy = const Value.absent(),
-    this.relationship = const Value.absent(),
-    this.relationshipEmergency = const Value.absent(),
+    this.emergencyContactNo = const drift.Value.absent(),
+    this.referredBy = const drift.Value.absent(),
+    this.relationship = const drift.Value.absent(),
+    this.relationshipEmergency = const drift.Value.absent(),
     required String streetAddress,
     required String barangay,
     required String cityMunicipality,
     required String province,
-    this.zipCode = const Value.absent(),
-    this.isArchived = const Value.absent(),
-    this.isSeniorOrPWD = const Value.absent(),
+    this.zipCode = const drift.Value.absent(),
+    this.isArchived = const drift.Value.absent(),
+    this.isSeniorOrPWD = const drift.Value.absent(),
     required DateTime createdAt,
     required DateTime updatedAt,
-  })  : firstName = Value(firstName),
-        lastName = Value(lastName),
-        birthDate = Value(birthDate),
-        sex = Value(sex),
-        civilStatus = Value(civilStatus),
-        contactNumber = Value(contactNumber),
-        streetAddress = Value(streetAddress),
-        barangay = Value(barangay),
-        cityMunicipality = Value(cityMunicipality),
-        province = Value(province),
-        createdAt = Value(createdAt),
-        updatedAt = Value(updatedAt);
-  static Insertable<PatientData> custom({
-    Expression<int>? patientId,
-    Expression<String>? firstName,
-    Expression<String>? middleName,
-    Expression<String>? lastName,
-    Expression<String>? suffix,
-    Expression<DateTime>? birthDate,
-    Expression<String>? sex,
-    Expression<String>? civilStatus,
-    Expression<String>? contactNumber,
-    Expression<String>? emergencyContactNo,
-    Expression<String>? referredBy,
-    Expression<String>? relationship,
-    Expression<String>? relationshipEmergency,
-    Expression<String>? streetAddress,
-    Expression<String>? barangay,
-    Expression<String>? cityMunicipality,
-    Expression<String>? province,
-    Expression<String>? zipCode,
-    Expression<bool>? isArchived,
-    Expression<bool>? isSeniorOrPWD,
-    Expression<DateTime>? createdAt,
-    Expression<DateTime>? updatedAt,
+  })  : firstName = drift.Value(firstName),
+        lastName = drift.Value(lastName),
+        birthDate = drift.Value(birthDate),
+        sex = drift.Value(sex),
+        civilStatus = drift.Value(civilStatus),
+        contactNumber = drift.Value(contactNumber),
+        streetAddress = drift.Value(streetAddress),
+        barangay = drift.Value(barangay),
+        cityMunicipality = drift.Value(cityMunicipality),
+        province = drift.Value(province),
+        createdAt = drift.Value(createdAt),
+        updatedAt = drift.Value(updatedAt);
+  static drift.Insertable<PatientData> custom({
+    drift.Expression<int>? patientId,
+    drift.Expression<String>? firstName,
+    drift.Expression<String>? middleName,
+    drift.Expression<String>? lastName,
+    drift.Expression<String>? suffix,
+    drift.Expression<DateTime>? birthDate,
+    drift.Expression<String>? sex,
+    drift.Expression<String>? civilStatus,
+    drift.Expression<String>? contactNumber,
+    drift.Expression<String>? emergencyContactNo,
+    drift.Expression<String>? referredBy,
+    drift.Expression<String>? relationship,
+    drift.Expression<String>? relationshipEmergency,
+    drift.Expression<String>? streetAddress,
+    drift.Expression<String>? barangay,
+    drift.Expression<String>? cityMunicipality,
+    drift.Expression<String>? province,
+    drift.Expression<String>? zipCode,
+    drift.Expression<bool>? isArchived,
+    drift.Expression<bool>? isSeniorOrPWD,
+    drift.Expression<DateTime>? createdAt,
+    drift.Expression<DateTime>? updatedAt,
   }) {
-    return RawValuesInsertable({
+    return drift.RawValuesInsertable({
       if (patientId != null) 'patient_id': patientId,
       if (firstName != null) 'first_name': firstName,
       if (middleName != null) 'middle_name': middleName,
@@ -890,28 +898,28 @@ class PatientCompanion extends UpdateCompanion<PatientData> {
   }
 
   PatientCompanion copyWith(
-      {Value<int>? patientId,
-      Value<String>? firstName,
-      Value<String?>? middleName,
-      Value<String>? lastName,
-      Value<String?>? suffix,
-      Value<DateTime>? birthDate,
-      Value<String>? sex,
-      Value<String>? civilStatus,
-      Value<String>? contactNumber,
-      Value<String?>? emergencyContactNo,
-      Value<String?>? referredBy,
-      Value<String?>? relationship,
-      Value<String?>? relationshipEmergency,
-      Value<String>? streetAddress,
-      Value<String>? barangay,
-      Value<String>? cityMunicipality,
-      Value<String>? province,
-      Value<String?>? zipCode,
-      Value<bool>? isArchived,
-      Value<bool>? isSeniorOrPWD,
-      Value<DateTime>? createdAt,
-      Value<DateTime>? updatedAt}) {
+      {drift.Value<int>? patientId,
+      drift.Value<String>? firstName,
+      drift.Value<String?>? middleName,
+      drift.Value<String>? lastName,
+      drift.Value<String?>? suffix,
+      drift.Value<DateTime>? birthDate,
+      drift.Value<String>? sex,
+      drift.Value<String>? civilStatus,
+      drift.Value<String>? contactNumber,
+      drift.Value<String?>? emergencyContactNo,
+      drift.Value<String?>? referredBy,
+      drift.Value<String?>? relationship,
+      drift.Value<String?>? relationshipEmergency,
+      drift.Value<String>? streetAddress,
+      drift.Value<String>? barangay,
+      drift.Value<String>? cityMunicipality,
+      drift.Value<String>? province,
+      drift.Value<String?>? zipCode,
+      drift.Value<bool>? isArchived,
+      drift.Value<bool>? isSeniorOrPWD,
+      drift.Value<DateTime>? createdAt,
+      drift.Value<DateTime>? updatedAt}) {
     return PatientCompanion(
       patientId: patientId ?? this.patientId,
       firstName: firstName ?? this.firstName,
@@ -940,74 +948,75 @@ class PatientCompanion extends UpdateCompanion<PatientData> {
   }
 
   @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
+  Map<String, drift.Expression> toColumns(bool nullToAbsent) {
+    final map = <String, drift.Expression>{};
     if (patientId.present) {
-      map['patient_id'] = Variable<int>(patientId.value);
+      map['patient_id'] = drift.Variable<int>(patientId.value);
     }
     if (firstName.present) {
-      map['first_name'] = Variable<String>(firstName.value);
+      map['first_name'] = drift.Variable<String>(firstName.value);
     }
     if (middleName.present) {
-      map['middle_name'] = Variable<String>(middleName.value);
+      map['middle_name'] = drift.Variable<String>(middleName.value);
     }
     if (lastName.present) {
-      map['last_name'] = Variable<String>(lastName.value);
+      map['last_name'] = drift.Variable<String>(lastName.value);
     }
     if (suffix.present) {
-      map['suffix'] = Variable<String>(suffix.value);
+      map['suffix'] = drift.Variable<String>(suffix.value);
     }
     if (birthDate.present) {
-      map['birth_date'] = Variable<DateTime>(birthDate.value);
+      map['birth_date'] = drift.Variable<DateTime>(birthDate.value);
     }
     if (sex.present) {
-      map['sex'] = Variable<String>(sex.value);
+      map['sex'] = drift.Variable<String>(sex.value);
     }
     if (civilStatus.present) {
-      map['civil_status'] = Variable<String>(civilStatus.value);
+      map['civil_status'] = drift.Variable<String>(civilStatus.value);
     }
     if (contactNumber.present) {
-      map['contact_number'] = Variable<String>(contactNumber.value);
+      map['contact_number'] = drift.Variable<String>(contactNumber.value);
     }
     if (emergencyContactNo.present) {
-      map['emergency_contact_no'] = Variable<String>(emergencyContactNo.value);
+      map['emergency_contact_no'] =
+          drift.Variable<String>(emergencyContactNo.value);
     }
     if (referredBy.present) {
-      map['referred_by'] = Variable<String>(referredBy.value);
+      map['referred_by'] = drift.Variable<String>(referredBy.value);
     }
     if (relationship.present) {
-      map['relationship'] = Variable<String>(relationship.value);
+      map['relationship'] = drift.Variable<String>(relationship.value);
     }
     if (relationshipEmergency.present) {
       map['relationship_emergency'] =
-          Variable<String>(relationshipEmergency.value);
+          drift.Variable<String>(relationshipEmergency.value);
     }
     if (streetAddress.present) {
-      map['street_address'] = Variable<String>(streetAddress.value);
+      map['street_address'] = drift.Variable<String>(streetAddress.value);
     }
     if (barangay.present) {
-      map['barangay'] = Variable<String>(barangay.value);
+      map['barangay'] = drift.Variable<String>(barangay.value);
     }
     if (cityMunicipality.present) {
-      map['city_municipality'] = Variable<String>(cityMunicipality.value);
+      map['city_municipality'] = drift.Variable<String>(cityMunicipality.value);
     }
     if (province.present) {
-      map['province'] = Variable<String>(province.value);
+      map['province'] = drift.Variable<String>(province.value);
     }
     if (zipCode.present) {
-      map['zip_code'] = Variable<String>(zipCode.value);
+      map['zip_code'] = drift.Variable<String>(zipCode.value);
     }
     if (isArchived.present) {
-      map['is_archived'] = Variable<bool>(isArchived.value);
+      map['is_archived'] = drift.Variable<bool>(isArchived.value);
     }
     if (isSeniorOrPWD.present) {
-      map['is_senior_or_p_w_d'] = Variable<bool>(isSeniorOrPWD.value);
+      map['is_senior_or_p_w_d'] = drift.Variable<bool>(isSeniorOrPWD.value);
     }
     if (createdAt.present) {
-      map['created_at'] = Variable<DateTime>(createdAt.value);
+      map['created_at'] = drift.Variable<DateTime>(createdAt.value);
     }
     if (updatedAt.present) {
-      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+      map['updated_at'] = drift.Variable<DateTime>(updatedAt.value);
     }
     return map;
   }
@@ -1043,62 +1052,95 @@ class PatientCompanion extends UpdateCompanion<PatientData> {
 }
 
 class $ClinicalStaffTable extends ClinicalStaff
-    with TableInfo<$ClinicalStaffTable, ClinicalStaffData> {
+    with drift.TableInfo<$ClinicalStaffTable, ClinicalStaffData> {
   @override
-  final GeneratedDatabase attachedDatabase;
+  final drift.GeneratedDatabase attachedDatabase;
   final String? _alias;
   $ClinicalStaffTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _staffIdMeta =
-      const VerificationMeta('staffId');
+  static const drift.VerificationMeta _staffIdMeta =
+      const drift.VerificationMeta('staffId');
   @override
-  late final GeneratedColumn<int> staffId = GeneratedColumn<int>(
+  late final drift.GeneratedColumn<int> staffId = drift.GeneratedColumn<int>(
       'staff_id', aliasedName, false,
       type: DriftSqlType.int, requiredDuringInsert: true);
-  static const VerificationMeta _firstNameMeta =
-      const VerificationMeta('firstName');
+  static const drift.VerificationMeta _firstNameMeta =
+      const drift.VerificationMeta('firstName');
   @override
-  late final GeneratedColumn<String> firstName = GeneratedColumn<String>(
-      'first_name', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _middleNameMeta =
-      const VerificationMeta('middleName');
+  late final drift.GeneratedColumn<String> firstName =
+      drift.GeneratedColumn<String>('first_name', aliasedName, false,
+          type: DriftSqlType.string, requiredDuringInsert: true);
+  static const drift.VerificationMeta _middleNameMeta =
+      const drift.VerificationMeta('middleName');
   @override
-  late final GeneratedColumn<String> middleName = GeneratedColumn<String>(
-      'middle_name', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _lastNameMeta =
-      const VerificationMeta('lastName');
+  late final drift.GeneratedColumn<String> middleName =
+      drift.GeneratedColumn<String>('middle_name', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
+  static const drift.VerificationMeta _lastNameMeta =
+      const drift.VerificationMeta('lastName');
   @override
-  late final GeneratedColumn<String> lastName = GeneratedColumn<String>(
-      'last_name', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _pinMeta = const VerificationMeta('pin');
+  late final drift.GeneratedColumn<String> lastName =
+      drift.GeneratedColumn<String>('last_name', aliasedName, false,
+          type: DriftSqlType.string, requiredDuringInsert: true);
+  static const drift.VerificationMeta _pinMeta =
+      const drift.VerificationMeta('pin');
   @override
-  late final GeneratedColumn<String> pin = GeneratedColumn<String>(
+  late final drift.GeneratedColumn<String> pin = drift.GeneratedColumn<String>(
       'pin', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _isLockedOutMeta =
-      const VerificationMeta('isLockedOut');
+  static const drift.VerificationMeta _isLockedOutMeta =
+      const drift.VerificationMeta('isLockedOut');
   @override
-  late final GeneratedColumn<bool> isLockedOut = GeneratedColumn<bool>(
-      'is_locked_out', aliasedName, false,
-      type: DriftSqlType.bool,
-      requiredDuringInsert: false,
-      defaultConstraints: GeneratedColumn.constraintIsAlways(
-          'CHECK ("is_locked_out" IN (0, 1))'),
-      defaultValue: const Constant(false));
+  late final drift.GeneratedColumn<bool> isLockedOut =
+      drift.GeneratedColumn<bool>('is_locked_out', aliasedName, false,
+          type: DriftSqlType.bool,
+          requiredDuringInsert: false,
+          defaultConstraints: GeneratedColumn.constraintIsAlways(
+              'CHECK ("is_locked_out" IN (0, 1))'),
+          defaultValue: const drift.Constant(false));
+  static const drift.VerificationMeta _failedAttemptsMeta =
+      const drift.VerificationMeta('failedAttempts');
   @override
-  List<GeneratedColumn> get $columns =>
-      [staffId, firstName, middleName, lastName, pin, isLockedOut];
+  late final drift.GeneratedColumn<int> failedAttempts =
+      drift.GeneratedColumn<int>('failed_attempts', aliasedName, false,
+          type: DriftSqlType.int,
+          requiredDuringInsert: false,
+          defaultValue: const drift.Constant(0));
+  static const drift.VerificationMeta _lockoutTierMeta =
+      const drift.VerificationMeta('lockoutTier');
+  @override
+  late final drift.GeneratedColumn<int> lockoutTier =
+      drift.GeneratedColumn<int>('lockout_tier', aliasedName, false,
+          type: DriftSqlType.int,
+          requiredDuringInsert: false,
+          defaultValue: const drift.Constant(0));
+  static const drift.VerificationMeta _lockoutUntilMeta =
+      const drift.VerificationMeta('lockoutUntil');
+  @override
+  late final drift.GeneratedColumn<DateTime> lockoutUntil =
+      drift.GeneratedColumn<DateTime>('lockout_until', aliasedName, true,
+          type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  @override
+  List<drift.GeneratedColumn> get $columns => [
+        staffId,
+        firstName,
+        middleName,
+        lastName,
+        pin,
+        isLockedOut,
+        failedAttempts,
+        lockoutTier,
+        lockoutUntil
+      ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
   String get actualTableName => $name;
   static const String $name = 'clinical_staff';
   @override
-  VerificationContext validateIntegrity(Insertable<ClinicalStaffData> instance,
+  drift.VerificationContext validateIntegrity(
+      drift.Insertable<ClinicalStaffData> instance,
       {bool isInserting = false}) {
-    final context = VerificationContext();
+    final context = drift.VerificationContext();
     final data = instance.toColumns(true);
     if (data.containsKey('staff_id')) {
       context.handle(_staffIdMeta,
@@ -1136,11 +1178,29 @@ class $ClinicalStaffTable extends ClinicalStaff
           isLockedOut.isAcceptableOrUnknown(
               data['is_locked_out']!, _isLockedOutMeta));
     }
+    if (data.containsKey('failed_attempts')) {
+      context.handle(
+          _failedAttemptsMeta,
+          failedAttempts.isAcceptableOrUnknown(
+              data['failed_attempts']!, _failedAttemptsMeta));
+    }
+    if (data.containsKey('lockout_tier')) {
+      context.handle(
+          _lockoutTierMeta,
+          lockoutTier.isAcceptableOrUnknown(
+              data['lockout_tier']!, _lockoutTierMeta));
+    }
+    if (data.containsKey('lockout_until')) {
+      context.handle(
+          _lockoutUntilMeta,
+          lockoutUntil.isAcceptableOrUnknown(
+              data['lockout_until']!, _lockoutUntilMeta));
+    }
     return context;
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => const {};
+  Set<drift.GeneratedColumn> get $primaryKey => const {};
   @override
   ClinicalStaffData map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
@@ -1157,6 +1217,12 @@ class $ClinicalStaffTable extends ClinicalStaff
           .read(DriftSqlType.string, data['${effectivePrefix}pin'])!,
       isLockedOut: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}is_locked_out'])!,
+      failedAttempts: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}failed_attempts'])!,
+      lockoutTier: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}lockout_tier'])!,
+      lockoutUntil: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}lockout_until']),
     );
   }
 
@@ -1166,51 +1232,67 @@ class $ClinicalStaffTable extends ClinicalStaff
   }
 }
 
-class ClinicalStaffData extends DataClass
-    implements Insertable<ClinicalStaffData> {
+class ClinicalStaffData extends drift.DataClass
+    implements drift.Insertable<ClinicalStaffData> {
   final int staffId;
   final String firstName;
   final String? middleName;
   final String lastName;
   final String pin;
   final bool isLockedOut;
+  final int failedAttempts;
+  final int lockoutTier;
+  final DateTime? lockoutUntil;
   const ClinicalStaffData(
       {required this.staffId,
       required this.firstName,
       this.middleName,
       required this.lastName,
       required this.pin,
-      required this.isLockedOut});
+      required this.isLockedOut,
+      required this.failedAttempts,
+      required this.lockoutTier,
+      this.lockoutUntil});
   @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    map['staff_id'] = Variable<int>(staffId);
-    map['first_name'] = Variable<String>(firstName);
+  Map<String, drift.Expression> toColumns(bool nullToAbsent) {
+    final map = <String, drift.Expression>{};
+    map['staff_id'] = drift.Variable<int>(staffId);
+    map['first_name'] = drift.Variable<String>(firstName);
     if (!nullToAbsent || middleName != null) {
-      map['middle_name'] = Variable<String>(middleName);
+      map['middle_name'] = drift.Variable<String>(middleName);
     }
-    map['last_name'] = Variable<String>(lastName);
-    map['pin'] = Variable<String>(pin);
-    map['is_locked_out'] = Variable<bool>(isLockedOut);
+    map['last_name'] = drift.Variable<String>(lastName);
+    map['pin'] = drift.Variable<String>(pin);
+    map['is_locked_out'] = drift.Variable<bool>(isLockedOut);
+    map['failed_attempts'] = drift.Variable<int>(failedAttempts);
+    map['lockout_tier'] = drift.Variable<int>(lockoutTier);
+    if (!nullToAbsent || lockoutUntil != null) {
+      map['lockout_until'] = drift.Variable<DateTime>(lockoutUntil);
+    }
     return map;
   }
 
   ClinicalStaffCompanion toCompanion(bool nullToAbsent) {
     return ClinicalStaffCompanion(
-      staffId: Value(staffId),
-      firstName: Value(firstName),
+      staffId: drift.Value(staffId),
+      firstName: drift.Value(firstName),
       middleName: middleName == null && nullToAbsent
-          ? const Value.absent()
-          : Value(middleName),
-      lastName: Value(lastName),
-      pin: Value(pin),
-      isLockedOut: Value(isLockedOut),
+          ? const drift.Value.absent()
+          : drift.Value(middleName),
+      lastName: drift.Value(lastName),
+      pin: drift.Value(pin),
+      isLockedOut: drift.Value(isLockedOut),
+      failedAttempts: drift.Value(failedAttempts),
+      lockoutTier: drift.Value(lockoutTier),
+      lockoutUntil: lockoutUntil == null && nullToAbsent
+          ? const drift.Value.absent()
+          : drift.Value(lockoutUntil),
     );
   }
 
   factory ClinicalStaffData.fromJson(Map<String, dynamic> json,
       {ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
+    serializer ??= drift.driftRuntimeOptions.defaultSerializer;
     return ClinicalStaffData(
       staffId: serializer.fromJson<int>(json['staffId']),
       firstName: serializer.fromJson<String>(json['firstName']),
@@ -1218,11 +1300,14 @@ class ClinicalStaffData extends DataClass
       lastName: serializer.fromJson<String>(json['lastName']),
       pin: serializer.fromJson<String>(json['pin']),
       isLockedOut: serializer.fromJson<bool>(json['isLockedOut']),
+      failedAttempts: serializer.fromJson<int>(json['failedAttempts']),
+      lockoutTier: serializer.fromJson<int>(json['lockoutTier']),
+      lockoutUntil: serializer.fromJson<DateTime?>(json['lockoutUntil']),
     );
   }
   @override
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
+    serializer ??= drift.driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'staffId': serializer.toJson<int>(staffId),
       'firstName': serializer.toJson<String>(firstName),
@@ -1230,16 +1315,22 @@ class ClinicalStaffData extends DataClass
       'lastName': serializer.toJson<String>(lastName),
       'pin': serializer.toJson<String>(pin),
       'isLockedOut': serializer.toJson<bool>(isLockedOut),
+      'failedAttempts': serializer.toJson<int>(failedAttempts),
+      'lockoutTier': serializer.toJson<int>(lockoutTier),
+      'lockoutUntil': serializer.toJson<DateTime?>(lockoutUntil),
     };
   }
 
   ClinicalStaffData copyWith(
           {int? staffId,
           String? firstName,
-          Value<String?> middleName = const Value.absent(),
+          drift.Value<String?> middleName = const drift.Value.absent(),
           String? lastName,
           String? pin,
-          bool? isLockedOut}) =>
+          bool? isLockedOut,
+          int? failedAttempts,
+          int? lockoutTier,
+          drift.Value<DateTime?> lockoutUntil = const drift.Value.absent()}) =>
       ClinicalStaffData(
         staffId: staffId ?? this.staffId,
         firstName: firstName ?? this.firstName,
@@ -1247,6 +1338,10 @@ class ClinicalStaffData extends DataClass
         lastName: lastName ?? this.lastName,
         pin: pin ?? this.pin,
         isLockedOut: isLockedOut ?? this.isLockedOut,
+        failedAttempts: failedAttempts ?? this.failedAttempts,
+        lockoutTier: lockoutTier ?? this.lockoutTier,
+        lockoutUntil:
+            lockoutUntil.present ? lockoutUntil.value : this.lockoutUntil,
       );
   ClinicalStaffData copyWithCompanion(ClinicalStaffCompanion data) {
     return ClinicalStaffData(
@@ -1258,6 +1353,14 @@ class ClinicalStaffData extends DataClass
       pin: data.pin.present ? data.pin.value : this.pin,
       isLockedOut:
           data.isLockedOut.present ? data.isLockedOut.value : this.isLockedOut,
+      failedAttempts: data.failedAttempts.present
+          ? data.failedAttempts.value
+          : this.failedAttempts,
+      lockoutTier:
+          data.lockoutTier.present ? data.lockoutTier.value : this.lockoutTier,
+      lockoutUntil: data.lockoutUntil.present
+          ? data.lockoutUntil.value
+          : this.lockoutUntil,
     );
   }
 
@@ -1269,14 +1372,17 @@ class ClinicalStaffData extends DataClass
           ..write('middleName: $middleName, ')
           ..write('lastName: $lastName, ')
           ..write('pin: $pin, ')
-          ..write('isLockedOut: $isLockedOut')
+          ..write('isLockedOut: $isLockedOut, ')
+          ..write('failedAttempts: $failedAttempts, ')
+          ..write('lockoutTier: $lockoutTier, ')
+          ..write('lockoutUntil: $lockoutUntil')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode =>
-      Object.hash(staffId, firstName, middleName, lastName, pin, isLockedOut);
+  int get hashCode => Object.hash(staffId, firstName, middleName, lastName, pin,
+      isLockedOut, failedAttempts, lockoutTier, lockoutUntil);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1286,66 +1392,87 @@ class ClinicalStaffData extends DataClass
           other.middleName == this.middleName &&
           other.lastName == this.lastName &&
           other.pin == this.pin &&
-          other.isLockedOut == this.isLockedOut);
+          other.isLockedOut == this.isLockedOut &&
+          other.failedAttempts == this.failedAttempts &&
+          other.lockoutTier == this.lockoutTier &&
+          other.lockoutUntil == this.lockoutUntil);
 }
 
-class ClinicalStaffCompanion extends UpdateCompanion<ClinicalStaffData> {
-  final Value<int> staffId;
-  final Value<String> firstName;
-  final Value<String?> middleName;
-  final Value<String> lastName;
-  final Value<String> pin;
-  final Value<bool> isLockedOut;
-  final Value<int> rowid;
+class ClinicalStaffCompanion extends drift.UpdateCompanion<ClinicalStaffData> {
+  final drift.Value<int> staffId;
+  final drift.Value<String> firstName;
+  final drift.Value<String?> middleName;
+  final drift.Value<String> lastName;
+  final drift.Value<String> pin;
+  final drift.Value<bool> isLockedOut;
+  final drift.Value<int> failedAttempts;
+  final drift.Value<int> lockoutTier;
+  final drift.Value<DateTime?> lockoutUntil;
+  final drift.Value<int> rowid;
   const ClinicalStaffCompanion({
-    this.staffId = const Value.absent(),
-    this.firstName = const Value.absent(),
-    this.middleName = const Value.absent(),
-    this.lastName = const Value.absent(),
-    this.pin = const Value.absent(),
-    this.isLockedOut = const Value.absent(),
-    this.rowid = const Value.absent(),
+    this.staffId = const drift.Value.absent(),
+    this.firstName = const drift.Value.absent(),
+    this.middleName = const drift.Value.absent(),
+    this.lastName = const drift.Value.absent(),
+    this.pin = const drift.Value.absent(),
+    this.isLockedOut = const drift.Value.absent(),
+    this.failedAttempts = const drift.Value.absent(),
+    this.lockoutTier = const drift.Value.absent(),
+    this.lockoutUntil = const drift.Value.absent(),
+    this.rowid = const drift.Value.absent(),
   });
   ClinicalStaffCompanion.insert({
     required int staffId,
     required String firstName,
-    this.middleName = const Value.absent(),
+    this.middleName = const drift.Value.absent(),
     required String lastName,
     required String pin,
-    this.isLockedOut = const Value.absent(),
-    this.rowid = const Value.absent(),
-  })  : staffId = Value(staffId),
-        firstName = Value(firstName),
-        lastName = Value(lastName),
-        pin = Value(pin);
-  static Insertable<ClinicalStaffData> custom({
-    Expression<int>? staffId,
-    Expression<String>? firstName,
-    Expression<String>? middleName,
-    Expression<String>? lastName,
-    Expression<String>? pin,
-    Expression<bool>? isLockedOut,
-    Expression<int>? rowid,
+    this.isLockedOut = const drift.Value.absent(),
+    this.failedAttempts = const drift.Value.absent(),
+    this.lockoutTier = const drift.Value.absent(),
+    this.lockoutUntil = const drift.Value.absent(),
+    this.rowid = const drift.Value.absent(),
+  })  : staffId = drift.Value(staffId),
+        firstName = drift.Value(firstName),
+        lastName = drift.Value(lastName),
+        pin = drift.Value(pin);
+  static drift.Insertable<ClinicalStaffData> custom({
+    drift.Expression<int>? staffId,
+    drift.Expression<String>? firstName,
+    drift.Expression<String>? middleName,
+    drift.Expression<String>? lastName,
+    drift.Expression<String>? pin,
+    drift.Expression<bool>? isLockedOut,
+    drift.Expression<int>? failedAttempts,
+    drift.Expression<int>? lockoutTier,
+    drift.Expression<DateTime>? lockoutUntil,
+    drift.Expression<int>? rowid,
   }) {
-    return RawValuesInsertable({
+    return drift.RawValuesInsertable({
       if (staffId != null) 'staff_id': staffId,
       if (firstName != null) 'first_name': firstName,
       if (middleName != null) 'middle_name': middleName,
       if (lastName != null) 'last_name': lastName,
       if (pin != null) 'pin': pin,
       if (isLockedOut != null) 'is_locked_out': isLockedOut,
+      if (failedAttempts != null) 'failed_attempts': failedAttempts,
+      if (lockoutTier != null) 'lockout_tier': lockoutTier,
+      if (lockoutUntil != null) 'lockout_until': lockoutUntil,
       if (rowid != null) 'rowid': rowid,
     });
   }
 
   ClinicalStaffCompanion copyWith(
-      {Value<int>? staffId,
-      Value<String>? firstName,
-      Value<String?>? middleName,
-      Value<String>? lastName,
-      Value<String>? pin,
-      Value<bool>? isLockedOut,
-      Value<int>? rowid}) {
+      {drift.Value<int>? staffId,
+      drift.Value<String>? firstName,
+      drift.Value<String?>? middleName,
+      drift.Value<String>? lastName,
+      drift.Value<String>? pin,
+      drift.Value<bool>? isLockedOut,
+      drift.Value<int>? failedAttempts,
+      drift.Value<int>? lockoutTier,
+      drift.Value<DateTime?>? lockoutUntil,
+      drift.Value<int>? rowid}) {
     return ClinicalStaffCompanion(
       staffId: staffId ?? this.staffId,
       firstName: firstName ?? this.firstName,
@@ -1353,33 +1480,45 @@ class ClinicalStaffCompanion extends UpdateCompanion<ClinicalStaffData> {
       lastName: lastName ?? this.lastName,
       pin: pin ?? this.pin,
       isLockedOut: isLockedOut ?? this.isLockedOut,
+      failedAttempts: failedAttempts ?? this.failedAttempts,
+      lockoutTier: lockoutTier ?? this.lockoutTier,
+      lockoutUntil: lockoutUntil ?? this.lockoutUntil,
       rowid: rowid ?? this.rowid,
     );
   }
 
   @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
+  Map<String, drift.Expression> toColumns(bool nullToAbsent) {
+    final map = <String, drift.Expression>{};
     if (staffId.present) {
-      map['staff_id'] = Variable<int>(staffId.value);
+      map['staff_id'] = drift.Variable<int>(staffId.value);
     }
     if (firstName.present) {
-      map['first_name'] = Variable<String>(firstName.value);
+      map['first_name'] = drift.Variable<String>(firstName.value);
     }
     if (middleName.present) {
-      map['middle_name'] = Variable<String>(middleName.value);
+      map['middle_name'] = drift.Variable<String>(middleName.value);
     }
     if (lastName.present) {
-      map['last_name'] = Variable<String>(lastName.value);
+      map['last_name'] = drift.Variable<String>(lastName.value);
     }
     if (pin.present) {
-      map['pin'] = Variable<String>(pin.value);
+      map['pin'] = drift.Variable<String>(pin.value);
     }
     if (isLockedOut.present) {
-      map['is_locked_out'] = Variable<bool>(isLockedOut.value);
+      map['is_locked_out'] = drift.Variable<bool>(isLockedOut.value);
+    }
+    if (failedAttempts.present) {
+      map['failed_attempts'] = drift.Variable<int>(failedAttempts.value);
+    }
+    if (lockoutTier.present) {
+      map['lockout_tier'] = drift.Variable<int>(lockoutTier.value);
+    }
+    if (lockoutUntil.present) {
+      map['lockout_until'] = drift.Variable<DateTime>(lockoutUntil.value);
     }
     if (rowid.present) {
-      map['rowid'] = Variable<int>(rowid.value);
+      map['rowid'] = drift.Variable<int>(rowid.value);
     }
     return map;
   }
@@ -1393,6 +1532,9 @@ class ClinicalStaffCompanion extends UpdateCompanion<ClinicalStaffData> {
           ..write('lastName: $lastName, ')
           ..write('pin: $pin, ')
           ..write('isLockedOut: $isLockedOut, ')
+          ..write('failedAttempts: $failedAttempts, ')
+          ..write('lockoutTier: $lockoutTier, ')
+          ..write('lockoutUntil: $lockoutUntil, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -1400,66 +1542,67 @@ class ClinicalStaffCompanion extends UpdateCompanion<ClinicalStaffData> {
 }
 
 class $AppointmentTable extends Appointment
-    with TableInfo<$AppointmentTable, AppointmentData> {
+    with drift.TableInfo<$AppointmentTable, AppointmentData> {
   @override
-  final GeneratedDatabase attachedDatabase;
+  final drift.GeneratedDatabase attachedDatabase;
   final String? _alias;
   $AppointmentTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _appointmentIdMeta =
-      const VerificationMeta('appointmentId');
+  static const drift.VerificationMeta _appointmentIdMeta =
+      const drift.VerificationMeta('appointmentId');
   @override
-  late final GeneratedColumn<int> appointmentId = GeneratedColumn<int>(
-      'appointment_id', aliasedName, false,
-      hasAutoIncrement: true,
-      type: DriftSqlType.int,
-      requiredDuringInsert: false,
-      defaultConstraints:
-          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
-  static const VerificationMeta _patientIdMeta =
-      const VerificationMeta('patientId');
+  late final drift.GeneratedColumn<int> appointmentId =
+      drift.GeneratedColumn<int>('appointment_id', aliasedName, false,
+          hasAutoIncrement: true,
+          type: DriftSqlType.int,
+          requiredDuringInsert: false,
+          defaultConstraints:
+              GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const drift.VerificationMeta _patientIdMeta =
+      const drift.VerificationMeta('patientId');
   @override
-  late final GeneratedColumn<int> patientId = GeneratedColumn<int>(
+  late final drift.GeneratedColumn<int> patientId = drift.GeneratedColumn<int>(
       'patient_id', aliasedName, false,
       type: DriftSqlType.int,
       requiredDuringInsert: true,
       defaultConstraints: GeneratedColumn.constraintIsAlways(
           'REFERENCES patient (patient_id)'));
-  static const VerificationMeta _staffIdMeta =
-      const VerificationMeta('staffId');
+  static const drift.VerificationMeta _staffIdMeta =
+      const drift.VerificationMeta('staffId');
   @override
-  late final GeneratedColumn<int> staffId = GeneratedColumn<int>(
+  late final drift.GeneratedColumn<int> staffId = drift.GeneratedColumn<int>(
       'staff_id', aliasedName, true,
       type: DriftSqlType.int,
       requiredDuringInsert: false,
       defaultConstraints: GeneratedColumn.constraintIsAlways(
           'REFERENCES clinical_staff (staff_id)'));
-  static const VerificationMeta _scheduleDateTimeMeta =
-      const VerificationMeta('scheduleDateTime');
+  static const drift.VerificationMeta _scheduleDateTimeMeta =
+      const drift.VerificationMeta('scheduleDateTime');
   @override
-  late final GeneratedColumn<DateTime> scheduleDateTime =
-      GeneratedColumn<DateTime>('schedule_date_time', aliasedName, false,
+  late final drift.GeneratedColumn<DateTime> scheduleDateTime =
+      drift.GeneratedColumn<DateTime>('schedule_date_time', aliasedName, false,
           type: DriftSqlType.dateTime, requiredDuringInsert: true);
-  static const VerificationMeta _reasonForVisitMeta =
-      const VerificationMeta('reasonForVisit');
+  static const drift.VerificationMeta _reasonForVisitMeta =
+      const drift.VerificationMeta('reasonForVisit');
   @override
-  late final GeneratedColumn<String> reasonForVisit = GeneratedColumn<String>(
-      'reason_for_visit', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  late final drift.GeneratedColumn<String> reasonForVisit =
+      drift.GeneratedColumn<String>('reason_for_visit', aliasedName, false,
+          type: DriftSqlType.string, requiredDuringInsert: true);
+  static const drift.VerificationMeta _statusMeta =
+      const drift.VerificationMeta('status');
   @override
-  late final GeneratedColumn<String> status = GeneratedColumn<String>(
-      'status', aliasedName, false,
-      type: DriftSqlType.string,
-      requiredDuringInsert: false,
-      defaultValue: const Constant('Scheduled'));
-  static const VerificationMeta _timeSlotMeta =
-      const VerificationMeta('timeSlot');
+  late final drift.GeneratedColumn<String> status =
+      drift.GeneratedColumn<String>('status', aliasedName, false,
+          type: DriftSqlType.string,
+          requiredDuringInsert: false,
+          defaultValue: const drift.Constant('Scheduled'));
+  static const drift.VerificationMeta _timeSlotMeta =
+      const drift.VerificationMeta('timeSlot');
   @override
-  late final GeneratedColumn<String> timeSlot = GeneratedColumn<String>(
-      'time_slot', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
+  late final drift.GeneratedColumn<String> timeSlot =
+      drift.GeneratedColumn<String>('time_slot', aliasedName, false,
+          type: DriftSqlType.string, requiredDuringInsert: true);
   @override
-  List<GeneratedColumn> get $columns => [
+  List<drift.GeneratedColumn> get $columns => [
         appointmentId,
         patientId,
         staffId,
@@ -1474,9 +1617,10 @@ class $AppointmentTable extends Appointment
   String get actualTableName => $name;
   static const String $name = 'appointment';
   @override
-  VerificationContext validateIntegrity(Insertable<AppointmentData> instance,
+  drift.VerificationContext validateIntegrity(
+      drift.Insertable<AppointmentData> instance,
       {bool isInserting = false}) {
-    final context = VerificationContext();
+    final context = drift.VerificationContext();
     final data = instance.toColumns(true);
     if (data.containsKey('appointment_id')) {
       context.handle(
@@ -1524,7 +1668,7 @@ class $AppointmentTable extends Appointment
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {appointmentId};
+  Set<drift.GeneratedColumn> get $primaryKey => {appointmentId};
   @override
   AppointmentData map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
@@ -1552,7 +1696,8 @@ class $AppointmentTable extends Appointment
   }
 }
 
-class AppointmentData extends DataClass implements Insertable<AppointmentData> {
+class AppointmentData extends drift.DataClass
+    implements drift.Insertable<AppointmentData> {
   final int appointmentId;
   final int patientId;
   final int? staffId;
@@ -1569,37 +1714,37 @@ class AppointmentData extends DataClass implements Insertable<AppointmentData> {
       required this.status,
       required this.timeSlot});
   @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    map['appointment_id'] = Variable<int>(appointmentId);
-    map['patient_id'] = Variable<int>(patientId);
+  Map<String, drift.Expression> toColumns(bool nullToAbsent) {
+    final map = <String, drift.Expression>{};
+    map['appointment_id'] = drift.Variable<int>(appointmentId);
+    map['patient_id'] = drift.Variable<int>(patientId);
     if (!nullToAbsent || staffId != null) {
-      map['staff_id'] = Variable<int>(staffId);
+      map['staff_id'] = drift.Variable<int>(staffId);
     }
-    map['schedule_date_time'] = Variable<DateTime>(scheduleDateTime);
-    map['reason_for_visit'] = Variable<String>(reasonForVisit);
-    map['status'] = Variable<String>(status);
-    map['time_slot'] = Variable<String>(timeSlot);
+    map['schedule_date_time'] = drift.Variable<DateTime>(scheduleDateTime);
+    map['reason_for_visit'] = drift.Variable<String>(reasonForVisit);
+    map['status'] = drift.Variable<String>(status);
+    map['time_slot'] = drift.Variable<String>(timeSlot);
     return map;
   }
 
   AppointmentCompanion toCompanion(bool nullToAbsent) {
     return AppointmentCompanion(
-      appointmentId: Value(appointmentId),
-      patientId: Value(patientId),
+      appointmentId: drift.Value(appointmentId),
+      patientId: drift.Value(patientId),
       staffId: staffId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(staffId),
-      scheduleDateTime: Value(scheduleDateTime),
-      reasonForVisit: Value(reasonForVisit),
-      status: Value(status),
-      timeSlot: Value(timeSlot),
+          ? const drift.Value.absent()
+          : drift.Value(staffId),
+      scheduleDateTime: drift.Value(scheduleDateTime),
+      reasonForVisit: drift.Value(reasonForVisit),
+      status: drift.Value(status),
+      timeSlot: drift.Value(timeSlot),
     );
   }
 
   factory AppointmentData.fromJson(Map<String, dynamic> json,
       {ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
+    serializer ??= drift.driftRuntimeOptions.defaultSerializer;
     return AppointmentData(
       appointmentId: serializer.fromJson<int>(json['appointmentId']),
       patientId: serializer.fromJson<int>(json['patientId']),
@@ -1612,7 +1757,7 @@ class AppointmentData extends DataClass implements Insertable<AppointmentData> {
   }
   @override
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
+    serializer ??= drift.driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'appointmentId': serializer.toJson<int>(appointmentId),
       'patientId': serializer.toJson<int>(patientId),
@@ -1627,7 +1772,7 @@ class AppointmentData extends DataClass implements Insertable<AppointmentData> {
   AppointmentData copyWith(
           {int? appointmentId,
           int? patientId,
-          Value<int?> staffId = const Value.absent(),
+          drift.Value<int?> staffId = const drift.Value.absent(),
           DateTime? scheduleDateTime,
           String? reasonForVisit,
           String? status,
@@ -1689,45 +1834,45 @@ class AppointmentData extends DataClass implements Insertable<AppointmentData> {
           other.timeSlot == this.timeSlot);
 }
 
-class AppointmentCompanion extends UpdateCompanion<AppointmentData> {
-  final Value<int> appointmentId;
-  final Value<int> patientId;
-  final Value<int?> staffId;
-  final Value<DateTime> scheduleDateTime;
-  final Value<String> reasonForVisit;
-  final Value<String> status;
-  final Value<String> timeSlot;
+class AppointmentCompanion extends drift.UpdateCompanion<AppointmentData> {
+  final drift.Value<int> appointmentId;
+  final drift.Value<int> patientId;
+  final drift.Value<int?> staffId;
+  final drift.Value<DateTime> scheduleDateTime;
+  final drift.Value<String> reasonForVisit;
+  final drift.Value<String> status;
+  final drift.Value<String> timeSlot;
   const AppointmentCompanion({
-    this.appointmentId = const Value.absent(),
-    this.patientId = const Value.absent(),
-    this.staffId = const Value.absent(),
-    this.scheduleDateTime = const Value.absent(),
-    this.reasonForVisit = const Value.absent(),
-    this.status = const Value.absent(),
-    this.timeSlot = const Value.absent(),
+    this.appointmentId = const drift.Value.absent(),
+    this.patientId = const drift.Value.absent(),
+    this.staffId = const drift.Value.absent(),
+    this.scheduleDateTime = const drift.Value.absent(),
+    this.reasonForVisit = const drift.Value.absent(),
+    this.status = const drift.Value.absent(),
+    this.timeSlot = const drift.Value.absent(),
   });
   AppointmentCompanion.insert({
-    this.appointmentId = const Value.absent(),
+    this.appointmentId = const drift.Value.absent(),
     required int patientId,
-    this.staffId = const Value.absent(),
+    this.staffId = const drift.Value.absent(),
     required DateTime scheduleDateTime,
     required String reasonForVisit,
-    this.status = const Value.absent(),
+    this.status = const drift.Value.absent(),
     required String timeSlot,
-  })  : patientId = Value(patientId),
-        scheduleDateTime = Value(scheduleDateTime),
-        reasonForVisit = Value(reasonForVisit),
-        timeSlot = Value(timeSlot);
-  static Insertable<AppointmentData> custom({
-    Expression<int>? appointmentId,
-    Expression<int>? patientId,
-    Expression<int>? staffId,
-    Expression<DateTime>? scheduleDateTime,
-    Expression<String>? reasonForVisit,
-    Expression<String>? status,
-    Expression<String>? timeSlot,
+  })  : patientId = drift.Value(patientId),
+        scheduleDateTime = drift.Value(scheduleDateTime),
+        reasonForVisit = drift.Value(reasonForVisit),
+        timeSlot = drift.Value(timeSlot);
+  static drift.Insertable<AppointmentData> custom({
+    drift.Expression<int>? appointmentId,
+    drift.Expression<int>? patientId,
+    drift.Expression<int>? staffId,
+    drift.Expression<DateTime>? scheduleDateTime,
+    drift.Expression<String>? reasonForVisit,
+    drift.Expression<String>? status,
+    drift.Expression<String>? timeSlot,
   }) {
-    return RawValuesInsertable({
+    return drift.RawValuesInsertable({
       if (appointmentId != null) 'appointment_id': appointmentId,
       if (patientId != null) 'patient_id': patientId,
       if (staffId != null) 'staff_id': staffId,
@@ -1739,13 +1884,13 @@ class AppointmentCompanion extends UpdateCompanion<AppointmentData> {
   }
 
   AppointmentCompanion copyWith(
-      {Value<int>? appointmentId,
-      Value<int>? patientId,
-      Value<int?>? staffId,
-      Value<DateTime>? scheduleDateTime,
-      Value<String>? reasonForVisit,
-      Value<String>? status,
-      Value<String>? timeSlot}) {
+      {drift.Value<int>? appointmentId,
+      drift.Value<int>? patientId,
+      drift.Value<int?>? staffId,
+      drift.Value<DateTime>? scheduleDateTime,
+      drift.Value<String>? reasonForVisit,
+      drift.Value<String>? status,
+      drift.Value<String>? timeSlot}) {
     return AppointmentCompanion(
       appointmentId: appointmentId ?? this.appointmentId,
       patientId: patientId ?? this.patientId,
@@ -1758,28 +1903,29 @@ class AppointmentCompanion extends UpdateCompanion<AppointmentData> {
   }
 
   @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
+  Map<String, drift.Expression> toColumns(bool nullToAbsent) {
+    final map = <String, drift.Expression>{};
     if (appointmentId.present) {
-      map['appointment_id'] = Variable<int>(appointmentId.value);
+      map['appointment_id'] = drift.Variable<int>(appointmentId.value);
     }
     if (patientId.present) {
-      map['patient_id'] = Variable<int>(patientId.value);
+      map['patient_id'] = drift.Variable<int>(patientId.value);
     }
     if (staffId.present) {
-      map['staff_id'] = Variable<int>(staffId.value);
+      map['staff_id'] = drift.Variable<int>(staffId.value);
     }
     if (scheduleDateTime.present) {
-      map['schedule_date_time'] = Variable<DateTime>(scheduleDateTime.value);
+      map['schedule_date_time'] =
+          drift.Variable<DateTime>(scheduleDateTime.value);
     }
     if (reasonForVisit.present) {
-      map['reason_for_visit'] = Variable<String>(reasonForVisit.value);
+      map['reason_for_visit'] = drift.Variable<String>(reasonForVisit.value);
     }
     if (status.present) {
-      map['status'] = Variable<String>(status.value);
+      map['status'] = drift.Variable<String>(status.value);
     }
     if (timeSlot.present) {
-      map['time_slot'] = Variable<String>(timeSlot.value);
+      map['time_slot'] = drift.Variable<String>(timeSlot.value);
     }
     return map;
   }
@@ -1800,49 +1946,50 @@ class AppointmentCompanion extends UpdateCompanion<AppointmentData> {
 }
 
 class $ProcedureChargeTable extends ProcedureCharge
-    with TableInfo<$ProcedureChargeTable, ProcedureChargeData> {
+    with drift.TableInfo<$ProcedureChargeTable, ProcedureChargeData> {
   @override
-  final GeneratedDatabase attachedDatabase;
+  final drift.GeneratedDatabase attachedDatabase;
   final String? _alias;
   $ProcedureChargeTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _chargeIdMeta =
-      const VerificationMeta('chargeId');
+  static const drift.VerificationMeta _chargeIdMeta =
+      const drift.VerificationMeta('chargeId');
   @override
-  late final GeneratedColumn<int> chargeId = GeneratedColumn<int>(
+  late final drift.GeneratedColumn<int> chargeId = drift.GeneratedColumn<int>(
       'charge_id', aliasedName, false,
       hasAutoIncrement: true,
       type: DriftSqlType.int,
       requiredDuringInsert: false,
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
-  static const VerificationMeta _procedureNameMeta =
-      const VerificationMeta('procedureName');
+  static const drift.VerificationMeta _procedureNameMeta =
+      const drift.VerificationMeta('procedureName');
   @override
-  late final GeneratedColumn<String> procedureName = GeneratedColumn<String>(
-      'procedure_name', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _procedureChargeMeta =
-      const VerificationMeta('procedureCharge');
+  late final drift.GeneratedColumn<String> procedureName =
+      drift.GeneratedColumn<String>('procedure_name', aliasedName, false,
+          type: DriftSqlType.string, requiredDuringInsert: true);
+  static const drift.VerificationMeta _procedureChargeMeta =
+      const drift.VerificationMeta('procedureCharge');
   @override
-  late final GeneratedColumn<double> procedureCharge = GeneratedColumn<double>(
-      'procedure_charge', aliasedName, false,
-      type: DriftSqlType.double, requiredDuringInsert: true);
-  static const VerificationMeta _quantityMeta =
-      const VerificationMeta('quantity');
+  late final drift.GeneratedColumn<double> procedureCharge =
+      drift.GeneratedColumn<double>('procedure_charge', aliasedName, false,
+          type: DriftSqlType.double, requiredDuringInsert: true);
+  static const drift.VerificationMeta _quantityMeta =
+      const drift.VerificationMeta('quantity');
   @override
-  late final GeneratedColumn<int> quantity = GeneratedColumn<int>(
+  late final drift.GeneratedColumn<int> quantity = drift.GeneratedColumn<int>(
       'quantity', aliasedName, false,
       type: DriftSqlType.int,
       requiredDuringInsert: false,
-      defaultValue: const Constant(1));
-  static const VerificationMeta _totalProcedureChargeMeta =
-      const VerificationMeta('totalProcedureCharge');
+      defaultValue: const drift.Constant(1));
+  static const drift.VerificationMeta _totalProcedureChargeMeta =
+      const drift.VerificationMeta('totalProcedureCharge');
   @override
-  late final GeneratedColumn<double> totalProcedureCharge =
-      GeneratedColumn<double>('total_procedure_charge', aliasedName, false,
+  late final drift.GeneratedColumn<double> totalProcedureCharge =
+      drift.GeneratedColumn<double>(
+          'total_procedure_charge', aliasedName, false,
           type: DriftSqlType.double, requiredDuringInsert: true);
   @override
-  List<GeneratedColumn> get $columns => [
+  List<drift.GeneratedColumn> get $columns => [
         chargeId,
         procedureName,
         procedureCharge,
@@ -1855,10 +2002,10 @@ class $ProcedureChargeTable extends ProcedureCharge
   String get actualTableName => $name;
   static const String $name = 'procedure_charge';
   @override
-  VerificationContext validateIntegrity(
-      Insertable<ProcedureChargeData> instance,
+  drift.VerificationContext validateIntegrity(
+      drift.Insertable<ProcedureChargeData> instance,
       {bool isInserting = false}) {
-    final context = VerificationContext();
+    final context = drift.VerificationContext();
     final data = instance.toColumns(true);
     if (data.containsKey('charge_id')) {
       context.handle(_chargeIdMeta,
@@ -1896,7 +2043,7 @@ class $ProcedureChargeTable extends ProcedureCharge
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {chargeId};
+  Set<drift.GeneratedColumn> get $primaryKey => {chargeId};
   @override
   ProcedureChargeData map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
@@ -1921,8 +2068,8 @@ class $ProcedureChargeTable extends ProcedureCharge
   }
 }
 
-class ProcedureChargeData extends DataClass
-    implements Insertable<ProcedureChargeData> {
+class ProcedureChargeData extends drift.DataClass
+    implements drift.Insertable<ProcedureChargeData> {
   final int chargeId;
   final String procedureName;
   final double procedureCharge;
@@ -1935,29 +2082,30 @@ class ProcedureChargeData extends DataClass
       required this.quantity,
       required this.totalProcedureCharge});
   @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    map['charge_id'] = Variable<int>(chargeId);
-    map['procedure_name'] = Variable<String>(procedureName);
-    map['procedure_charge'] = Variable<double>(procedureCharge);
-    map['quantity'] = Variable<int>(quantity);
-    map['total_procedure_charge'] = Variable<double>(totalProcedureCharge);
+  Map<String, drift.Expression> toColumns(bool nullToAbsent) {
+    final map = <String, drift.Expression>{};
+    map['charge_id'] = drift.Variable<int>(chargeId);
+    map['procedure_name'] = drift.Variable<String>(procedureName);
+    map['procedure_charge'] = drift.Variable<double>(procedureCharge);
+    map['quantity'] = drift.Variable<int>(quantity);
+    map['total_procedure_charge'] =
+        drift.Variable<double>(totalProcedureCharge);
     return map;
   }
 
   ProcedureChargeCompanion toCompanion(bool nullToAbsent) {
     return ProcedureChargeCompanion(
-      chargeId: Value(chargeId),
-      procedureName: Value(procedureName),
-      procedureCharge: Value(procedureCharge),
-      quantity: Value(quantity),
-      totalProcedureCharge: Value(totalProcedureCharge),
+      chargeId: drift.Value(chargeId),
+      procedureName: drift.Value(procedureName),
+      procedureCharge: drift.Value(procedureCharge),
+      quantity: drift.Value(quantity),
+      totalProcedureCharge: drift.Value(totalProcedureCharge),
     );
   }
 
   factory ProcedureChargeData.fromJson(Map<String, dynamic> json,
       {ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
+    serializer ??= drift.driftRuntimeOptions.defaultSerializer;
     return ProcedureChargeData(
       chargeId: serializer.fromJson<int>(json['chargeId']),
       procedureName: serializer.fromJson<String>(json['procedureName']),
@@ -1969,7 +2117,7 @@ class ProcedureChargeData extends DataClass
   }
   @override
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
+    serializer ??= drift.driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'chargeId': serializer.toJson<int>(chargeId),
       'procedureName': serializer.toJson<String>(procedureName),
@@ -2034,36 +2182,37 @@ class ProcedureChargeData extends DataClass
           other.totalProcedureCharge == this.totalProcedureCharge);
 }
 
-class ProcedureChargeCompanion extends UpdateCompanion<ProcedureChargeData> {
-  final Value<int> chargeId;
-  final Value<String> procedureName;
-  final Value<double> procedureCharge;
-  final Value<int> quantity;
-  final Value<double> totalProcedureCharge;
+class ProcedureChargeCompanion
+    extends drift.UpdateCompanion<ProcedureChargeData> {
+  final drift.Value<int> chargeId;
+  final drift.Value<String> procedureName;
+  final drift.Value<double> procedureCharge;
+  final drift.Value<int> quantity;
+  final drift.Value<double> totalProcedureCharge;
   const ProcedureChargeCompanion({
-    this.chargeId = const Value.absent(),
-    this.procedureName = const Value.absent(),
-    this.procedureCharge = const Value.absent(),
-    this.quantity = const Value.absent(),
-    this.totalProcedureCharge = const Value.absent(),
+    this.chargeId = const drift.Value.absent(),
+    this.procedureName = const drift.Value.absent(),
+    this.procedureCharge = const drift.Value.absent(),
+    this.quantity = const drift.Value.absent(),
+    this.totalProcedureCharge = const drift.Value.absent(),
   });
   ProcedureChargeCompanion.insert({
-    this.chargeId = const Value.absent(),
+    this.chargeId = const drift.Value.absent(),
     required String procedureName,
     required double procedureCharge,
-    this.quantity = const Value.absent(),
+    this.quantity = const drift.Value.absent(),
     required double totalProcedureCharge,
-  })  : procedureName = Value(procedureName),
-        procedureCharge = Value(procedureCharge),
-        totalProcedureCharge = Value(totalProcedureCharge);
-  static Insertable<ProcedureChargeData> custom({
-    Expression<int>? chargeId,
-    Expression<String>? procedureName,
-    Expression<double>? procedureCharge,
-    Expression<int>? quantity,
-    Expression<double>? totalProcedureCharge,
+  })  : procedureName = drift.Value(procedureName),
+        procedureCharge = drift.Value(procedureCharge),
+        totalProcedureCharge = drift.Value(totalProcedureCharge);
+  static drift.Insertable<ProcedureChargeData> custom({
+    drift.Expression<int>? chargeId,
+    drift.Expression<String>? procedureName,
+    drift.Expression<double>? procedureCharge,
+    drift.Expression<int>? quantity,
+    drift.Expression<double>? totalProcedureCharge,
   }) {
-    return RawValuesInsertable({
+    return drift.RawValuesInsertable({
       if (chargeId != null) 'charge_id': chargeId,
       if (procedureName != null) 'procedure_name': procedureName,
       if (procedureCharge != null) 'procedure_charge': procedureCharge,
@@ -2074,11 +2223,11 @@ class ProcedureChargeCompanion extends UpdateCompanion<ProcedureChargeData> {
   }
 
   ProcedureChargeCompanion copyWith(
-      {Value<int>? chargeId,
-      Value<String>? procedureName,
-      Value<double>? procedureCharge,
-      Value<int>? quantity,
-      Value<double>? totalProcedureCharge}) {
+      {drift.Value<int>? chargeId,
+      drift.Value<String>? procedureName,
+      drift.Value<double>? procedureCharge,
+      drift.Value<int>? quantity,
+      drift.Value<double>? totalProcedureCharge}) {
     return ProcedureChargeCompanion(
       chargeId: chargeId ?? this.chargeId,
       procedureName: procedureName ?? this.procedureName,
@@ -2089,23 +2238,23 @@ class ProcedureChargeCompanion extends UpdateCompanion<ProcedureChargeData> {
   }
 
   @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
+  Map<String, drift.Expression> toColumns(bool nullToAbsent) {
+    final map = <String, drift.Expression>{};
     if (chargeId.present) {
-      map['charge_id'] = Variable<int>(chargeId.value);
+      map['charge_id'] = drift.Variable<int>(chargeId.value);
     }
     if (procedureName.present) {
-      map['procedure_name'] = Variable<String>(procedureName.value);
+      map['procedure_name'] = drift.Variable<String>(procedureName.value);
     }
     if (procedureCharge.present) {
-      map['procedure_charge'] = Variable<double>(procedureCharge.value);
+      map['procedure_charge'] = drift.Variable<double>(procedureCharge.value);
     }
     if (quantity.present) {
-      map['quantity'] = Variable<int>(quantity.value);
+      map['quantity'] = drift.Variable<int>(quantity.value);
     }
     if (totalProcedureCharge.present) {
       map['total_procedure_charge'] =
-          Variable<double>(totalProcedureCharge.value);
+          drift.Variable<double>(totalProcedureCharge.value);
     }
     return map;
   }
@@ -2124,43 +2273,43 @@ class ProcedureChargeCompanion extends UpdateCompanion<ProcedureChargeData> {
 }
 
 class $PaymentTransactionTable extends PaymentTransaction
-    with TableInfo<$PaymentTransactionTable, PaymentTransactionData> {
+    with drift.TableInfo<$PaymentTransactionTable, PaymentTransactionData> {
   @override
-  final GeneratedDatabase attachedDatabase;
+  final drift.GeneratedDatabase attachedDatabase;
   final String? _alias;
   $PaymentTransactionTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _transactionIdMeta =
-      const VerificationMeta('transactionId');
+  static const drift.VerificationMeta _transactionIdMeta =
+      const drift.VerificationMeta('transactionId');
   @override
-  late final GeneratedColumn<int> transactionId = GeneratedColumn<int>(
-      'transaction_id', aliasedName, false,
-      hasAutoIncrement: true,
-      type: DriftSqlType.int,
-      requiredDuringInsert: false,
-      defaultConstraints:
-          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
-  static const VerificationMeta _amountReceivedMeta =
-      const VerificationMeta('amountReceived');
+  late final drift.GeneratedColumn<int> transactionId =
+      drift.GeneratedColumn<int>('transaction_id', aliasedName, false,
+          hasAutoIncrement: true,
+          type: DriftSqlType.int,
+          requiredDuringInsert: false,
+          defaultConstraints:
+              GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const drift.VerificationMeta _amountReceivedMeta =
+      const drift.VerificationMeta('amountReceived');
   @override
-  late final GeneratedColumn<double> amountReceived = GeneratedColumn<double>(
-      'amount_received', aliasedName, false,
-      type: DriftSqlType.double, requiredDuringInsert: true);
-  static const VerificationMeta _modeOfPaymentMeta =
-      const VerificationMeta('modeOfPayment');
+  late final drift.GeneratedColumn<double> amountReceived =
+      drift.GeneratedColumn<double>('amount_received', aliasedName, false,
+          type: DriftSqlType.double, requiredDuringInsert: true);
+  static const drift.VerificationMeta _modeOfPaymentMeta =
+      const drift.VerificationMeta('modeOfPayment');
   @override
-  late final GeneratedColumn<String> modeOfPayment = GeneratedColumn<String>(
-      'mode_of_payment', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _paymentDateMeta =
-      const VerificationMeta('paymentDate');
+  late final drift.GeneratedColumn<String> modeOfPayment =
+      drift.GeneratedColumn<String>('mode_of_payment', aliasedName, false,
+          type: DriftSqlType.string, requiredDuringInsert: true);
+  static const drift.VerificationMeta _paymentDateMeta =
+      const drift.VerificationMeta('paymentDate');
   @override
-  late final GeneratedColumn<DateTime> paymentDate = GeneratedColumn<DateTime>(
-      'payment_date', aliasedName, false,
-      type: DriftSqlType.dateTime,
-      requiredDuringInsert: false,
-      defaultValue: currentDateAndTime);
+  late final drift.GeneratedColumn<DateTime> paymentDate =
+      drift.GeneratedColumn<DateTime>('payment_date', aliasedName, false,
+          type: DriftSqlType.dateTime,
+          requiredDuringInsert: false,
+          defaultValue: drift.currentDateAndTime);
   @override
-  List<GeneratedColumn> get $columns =>
+  List<drift.GeneratedColumn> get $columns =>
       [transactionId, amountReceived, modeOfPayment, paymentDate];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -2168,10 +2317,10 @@ class $PaymentTransactionTable extends PaymentTransaction
   String get actualTableName => $name;
   static const String $name = 'payment_transaction';
   @override
-  VerificationContext validateIntegrity(
-      Insertable<PaymentTransactionData> instance,
+  drift.VerificationContext validateIntegrity(
+      drift.Insertable<PaymentTransactionData> instance,
       {bool isInserting = false}) {
-    final context = VerificationContext();
+    final context = drift.VerificationContext();
     final data = instance.toColumns(true);
     if (data.containsKey('transaction_id')) {
       context.handle(
@@ -2205,7 +2354,7 @@ class $PaymentTransactionTable extends PaymentTransaction
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {transactionId};
+  Set<drift.GeneratedColumn> get $primaryKey => {transactionId};
   @override
   PaymentTransactionData map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
@@ -2227,8 +2376,8 @@ class $PaymentTransactionTable extends PaymentTransaction
   }
 }
 
-class PaymentTransactionData extends DataClass
-    implements Insertable<PaymentTransactionData> {
+class PaymentTransactionData extends drift.DataClass
+    implements drift.Insertable<PaymentTransactionData> {
   final int transactionId;
   final double amountReceived;
   final String modeOfPayment;
@@ -2239,27 +2388,27 @@ class PaymentTransactionData extends DataClass
       required this.modeOfPayment,
       required this.paymentDate});
   @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    map['transaction_id'] = Variable<int>(transactionId);
-    map['amount_received'] = Variable<double>(amountReceived);
-    map['mode_of_payment'] = Variable<String>(modeOfPayment);
-    map['payment_date'] = Variable<DateTime>(paymentDate);
+  Map<String, drift.Expression> toColumns(bool nullToAbsent) {
+    final map = <String, drift.Expression>{};
+    map['transaction_id'] = drift.Variable<int>(transactionId);
+    map['amount_received'] = drift.Variable<double>(amountReceived);
+    map['mode_of_payment'] = drift.Variable<String>(modeOfPayment);
+    map['payment_date'] = drift.Variable<DateTime>(paymentDate);
     return map;
   }
 
   PaymentTransactionCompanion toCompanion(bool nullToAbsent) {
     return PaymentTransactionCompanion(
-      transactionId: Value(transactionId),
-      amountReceived: Value(amountReceived),
-      modeOfPayment: Value(modeOfPayment),
-      paymentDate: Value(paymentDate),
+      transactionId: drift.Value(transactionId),
+      amountReceived: drift.Value(amountReceived),
+      modeOfPayment: drift.Value(modeOfPayment),
+      paymentDate: drift.Value(paymentDate),
     );
   }
 
   factory PaymentTransactionData.fromJson(Map<String, dynamic> json,
       {ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
+    serializer ??= drift.driftRuntimeOptions.defaultSerializer;
     return PaymentTransactionData(
       transactionId: serializer.fromJson<int>(json['transactionId']),
       amountReceived: serializer.fromJson<double>(json['amountReceived']),
@@ -2269,7 +2418,7 @@ class PaymentTransactionData extends DataClass
   }
   @override
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
+    serializer ??= drift.driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'transactionId': serializer.toJson<int>(transactionId),
       'amountReceived': serializer.toJson<double>(amountReceived),
@@ -2330,31 +2479,31 @@ class PaymentTransactionData extends DataClass
 }
 
 class PaymentTransactionCompanion
-    extends UpdateCompanion<PaymentTransactionData> {
-  final Value<int> transactionId;
-  final Value<double> amountReceived;
-  final Value<String> modeOfPayment;
-  final Value<DateTime> paymentDate;
+    extends drift.UpdateCompanion<PaymentTransactionData> {
+  final drift.Value<int> transactionId;
+  final drift.Value<double> amountReceived;
+  final drift.Value<String> modeOfPayment;
+  final drift.Value<DateTime> paymentDate;
   const PaymentTransactionCompanion({
-    this.transactionId = const Value.absent(),
-    this.amountReceived = const Value.absent(),
-    this.modeOfPayment = const Value.absent(),
-    this.paymentDate = const Value.absent(),
+    this.transactionId = const drift.Value.absent(),
+    this.amountReceived = const drift.Value.absent(),
+    this.modeOfPayment = const drift.Value.absent(),
+    this.paymentDate = const drift.Value.absent(),
   });
   PaymentTransactionCompanion.insert({
-    this.transactionId = const Value.absent(),
+    this.transactionId = const drift.Value.absent(),
     required double amountReceived,
     required String modeOfPayment,
-    this.paymentDate = const Value.absent(),
-  })  : amountReceived = Value(amountReceived),
-        modeOfPayment = Value(modeOfPayment);
-  static Insertable<PaymentTransactionData> custom({
-    Expression<int>? transactionId,
-    Expression<double>? amountReceived,
-    Expression<String>? modeOfPayment,
-    Expression<DateTime>? paymentDate,
+    this.paymentDate = const drift.Value.absent(),
+  })  : amountReceived = drift.Value(amountReceived),
+        modeOfPayment = drift.Value(modeOfPayment);
+  static drift.Insertable<PaymentTransactionData> custom({
+    drift.Expression<int>? transactionId,
+    drift.Expression<double>? amountReceived,
+    drift.Expression<String>? modeOfPayment,
+    drift.Expression<DateTime>? paymentDate,
   }) {
-    return RawValuesInsertable({
+    return drift.RawValuesInsertable({
       if (transactionId != null) 'transaction_id': transactionId,
       if (amountReceived != null) 'amount_received': amountReceived,
       if (modeOfPayment != null) 'mode_of_payment': modeOfPayment,
@@ -2363,10 +2512,10 @@ class PaymentTransactionCompanion
   }
 
   PaymentTransactionCompanion copyWith(
-      {Value<int>? transactionId,
-      Value<double>? amountReceived,
-      Value<String>? modeOfPayment,
-      Value<DateTime>? paymentDate}) {
+      {drift.Value<int>? transactionId,
+      drift.Value<double>? amountReceived,
+      drift.Value<String>? modeOfPayment,
+      drift.Value<DateTime>? paymentDate}) {
     return PaymentTransactionCompanion(
       transactionId: transactionId ?? this.transactionId,
       amountReceived: amountReceived ?? this.amountReceived,
@@ -2376,19 +2525,19 @@ class PaymentTransactionCompanion
   }
 
   @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
+  Map<String, drift.Expression> toColumns(bool nullToAbsent) {
+    final map = <String, drift.Expression>{};
     if (transactionId.present) {
-      map['transaction_id'] = Variable<int>(transactionId.value);
+      map['transaction_id'] = drift.Variable<int>(transactionId.value);
     }
     if (amountReceived.present) {
-      map['amount_received'] = Variable<double>(amountReceived.value);
+      map['amount_received'] = drift.Variable<double>(amountReceived.value);
     }
     if (modeOfPayment.present) {
-      map['mode_of_payment'] = Variable<String>(modeOfPayment.value);
+      map['mode_of_payment'] = drift.Variable<String>(modeOfPayment.value);
     }
     if (paymentDate.present) {
-      map['payment_date'] = Variable<DateTime>(paymentDate.value);
+      map['payment_date'] = drift.Variable<DateTime>(paymentDate.value);
     }
     return map;
   }
@@ -2405,69 +2554,71 @@ class PaymentTransactionCompanion
   }
 }
 
-class $InvoiceTable extends Invoice with TableInfo<$InvoiceTable, InvoiceData> {
+class $InvoiceTable extends Invoice
+    with drift.TableInfo<$InvoiceTable, InvoiceData> {
   @override
-  final GeneratedDatabase attachedDatabase;
+  final drift.GeneratedDatabase attachedDatabase;
   final String? _alias;
   $InvoiceTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _invoiceIdMeta =
-      const VerificationMeta('invoiceId');
+  static const drift.VerificationMeta _invoiceIdMeta =
+      const drift.VerificationMeta('invoiceId');
   @override
-  late final GeneratedColumn<int> invoiceId = GeneratedColumn<int>(
+  late final drift.GeneratedColumn<int> invoiceId = drift.GeneratedColumn<int>(
       'invoice_id', aliasedName, false,
       hasAutoIncrement: true,
       type: DriftSqlType.int,
       requiredDuringInsert: false,
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
-  static const VerificationMeta _patientIdMeta =
-      const VerificationMeta('patientId');
+  static const drift.VerificationMeta _patientIdMeta =
+      const drift.VerificationMeta('patientId');
   @override
-  late final GeneratedColumn<int> patientId = GeneratedColumn<int>(
+  late final drift.GeneratedColumn<int> patientId = drift.GeneratedColumn<int>(
       'patient_id', aliasedName, false,
       type: DriftSqlType.int,
       requiredDuringInsert: true,
       defaultConstraints: GeneratedColumn.constraintIsAlways(
           'REFERENCES patient (patient_id)'));
-  static const VerificationMeta _chargeIdMeta =
-      const VerificationMeta('chargeId');
+  static const drift.VerificationMeta _chargeIdMeta =
+      const drift.VerificationMeta('chargeId');
   @override
-  late final GeneratedColumn<int> chargeId = GeneratedColumn<int>(
+  late final drift.GeneratedColumn<int> chargeId = drift.GeneratedColumn<int>(
       'charge_id', aliasedName, false,
       type: DriftSqlType.int,
       requiredDuringInsert: true,
       defaultConstraints: GeneratedColumn.constraintIsAlways(
           'REFERENCES procedure_charge (charge_id)'));
-  static const VerificationMeta _transactionIdMeta =
-      const VerificationMeta('transactionId');
+  static const drift.VerificationMeta _transactionIdMeta =
+      const drift.VerificationMeta('transactionId');
   @override
-  late final GeneratedColumn<int> transactionId = GeneratedColumn<int>(
-      'transaction_id', aliasedName, false,
-      type: DriftSqlType.int,
-      requiredDuringInsert: true,
-      defaultConstraints: GeneratedColumn.constraintIsAlways(
-          'REFERENCES payment_transaction (transaction_id)'));
-  static const VerificationMeta _issuedDateMeta =
-      const VerificationMeta('issuedDate');
+  late final drift.GeneratedColumn<int> transactionId =
+      drift.GeneratedColumn<int>('transaction_id', aliasedName, false,
+          type: DriftSqlType.int,
+          requiredDuringInsert: true,
+          defaultConstraints: GeneratedColumn.constraintIsAlways(
+              'REFERENCES payment_transaction (transaction_id)'));
+  static const drift.VerificationMeta _issuedDateMeta =
+      const drift.VerificationMeta('issuedDate');
   @override
-  late final GeneratedColumn<DateTime> issuedDate = GeneratedColumn<DateTime>(
-      'issued_date', aliasedName, false,
-      type: DriftSqlType.dateTime,
-      requiredDuringInsert: false,
-      defaultValue: currentDateAndTime);
-  static const VerificationMeta _totalBalanceMeta =
-      const VerificationMeta('totalBalance');
+  late final drift.GeneratedColumn<DateTime> issuedDate =
+      drift.GeneratedColumn<DateTime>('issued_date', aliasedName, false,
+          type: DriftSqlType.dateTime,
+          requiredDuringInsert: false,
+          defaultValue: drift.currentDateAndTime);
+  static const drift.VerificationMeta _totalBalanceMeta =
+      const drift.VerificationMeta('totalBalance');
   @override
-  late final GeneratedColumn<double> totalBalance = GeneratedColumn<double>(
-      'total_balance', aliasedName, false,
-      type: DriftSqlType.double, requiredDuringInsert: true);
-  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  late final drift.GeneratedColumn<double> totalBalance =
+      drift.GeneratedColumn<double>('total_balance', aliasedName, false,
+          type: DriftSqlType.double, requiredDuringInsert: true);
+  static const drift.VerificationMeta _statusMeta =
+      const drift.VerificationMeta('status');
   @override
-  late final GeneratedColumn<String> status = GeneratedColumn<String>(
-      'status', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
+  late final drift.GeneratedColumn<String> status =
+      drift.GeneratedColumn<String>('status', aliasedName, false,
+          type: DriftSqlType.string, requiredDuringInsert: true);
   @override
-  List<GeneratedColumn> get $columns => [
+  List<drift.GeneratedColumn> get $columns => [
         invoiceId,
         patientId,
         chargeId,
@@ -2482,9 +2633,10 @@ class $InvoiceTable extends Invoice with TableInfo<$InvoiceTable, InvoiceData> {
   String get actualTableName => $name;
   static const String $name = 'invoice';
   @override
-  VerificationContext validateIntegrity(Insertable<InvoiceData> instance,
+  drift.VerificationContext validateIntegrity(
+      drift.Insertable<InvoiceData> instance,
       {bool isInserting = false}) {
-    final context = VerificationContext();
+    final context = drift.VerificationContext();
     final data = instance.toColumns(true);
     if (data.containsKey('invoice_id')) {
       context.handle(_invoiceIdMeta,
@@ -2534,7 +2686,7 @@ class $InvoiceTable extends Invoice with TableInfo<$InvoiceTable, InvoiceData> {
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {invoiceId};
+  Set<drift.GeneratedColumn> get $primaryKey => {invoiceId};
   @override
   InvoiceData map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
@@ -2562,7 +2714,8 @@ class $InvoiceTable extends Invoice with TableInfo<$InvoiceTable, InvoiceData> {
   }
 }
 
-class InvoiceData extends DataClass implements Insertable<InvoiceData> {
+class InvoiceData extends drift.DataClass
+    implements drift.Insertable<InvoiceData> {
   final int invoiceId;
   final int patientId;
   final int chargeId;
@@ -2579,33 +2732,33 @@ class InvoiceData extends DataClass implements Insertable<InvoiceData> {
       required this.totalBalance,
       required this.status});
   @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    map['invoice_id'] = Variable<int>(invoiceId);
-    map['patient_id'] = Variable<int>(patientId);
-    map['charge_id'] = Variable<int>(chargeId);
-    map['transaction_id'] = Variable<int>(transactionId);
-    map['issued_date'] = Variable<DateTime>(issuedDate);
-    map['total_balance'] = Variable<double>(totalBalance);
-    map['status'] = Variable<String>(status);
+  Map<String, drift.Expression> toColumns(bool nullToAbsent) {
+    final map = <String, drift.Expression>{};
+    map['invoice_id'] = drift.Variable<int>(invoiceId);
+    map['patient_id'] = drift.Variable<int>(patientId);
+    map['charge_id'] = drift.Variable<int>(chargeId);
+    map['transaction_id'] = drift.Variable<int>(transactionId);
+    map['issued_date'] = drift.Variable<DateTime>(issuedDate);
+    map['total_balance'] = drift.Variable<double>(totalBalance);
+    map['status'] = drift.Variable<String>(status);
     return map;
   }
 
   InvoiceCompanion toCompanion(bool nullToAbsent) {
     return InvoiceCompanion(
-      invoiceId: Value(invoiceId),
-      patientId: Value(patientId),
-      chargeId: Value(chargeId),
-      transactionId: Value(transactionId),
-      issuedDate: Value(issuedDate),
-      totalBalance: Value(totalBalance),
-      status: Value(status),
+      invoiceId: drift.Value(invoiceId),
+      patientId: drift.Value(patientId),
+      chargeId: drift.Value(chargeId),
+      transactionId: drift.Value(transactionId),
+      issuedDate: drift.Value(issuedDate),
+      totalBalance: drift.Value(totalBalance),
+      status: drift.Value(status),
     );
   }
 
   factory InvoiceData.fromJson(Map<String, dynamic> json,
       {ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
+    serializer ??= drift.driftRuntimeOptions.defaultSerializer;
     return InvoiceData(
       invoiceId: serializer.fromJson<int>(json['invoiceId']),
       patientId: serializer.fromJson<int>(json['patientId']),
@@ -2618,7 +2771,7 @@ class InvoiceData extends DataClass implements Insertable<InvoiceData> {
   }
   @override
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
+    serializer ??= drift.driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'invoiceId': serializer.toJson<int>(invoiceId),
       'patientId': serializer.toJson<int>(patientId),
@@ -2694,46 +2847,46 @@ class InvoiceData extends DataClass implements Insertable<InvoiceData> {
           other.status == this.status);
 }
 
-class InvoiceCompanion extends UpdateCompanion<InvoiceData> {
-  final Value<int> invoiceId;
-  final Value<int> patientId;
-  final Value<int> chargeId;
-  final Value<int> transactionId;
-  final Value<DateTime> issuedDate;
-  final Value<double> totalBalance;
-  final Value<String> status;
+class InvoiceCompanion extends drift.UpdateCompanion<InvoiceData> {
+  final drift.Value<int> invoiceId;
+  final drift.Value<int> patientId;
+  final drift.Value<int> chargeId;
+  final drift.Value<int> transactionId;
+  final drift.Value<DateTime> issuedDate;
+  final drift.Value<double> totalBalance;
+  final drift.Value<String> status;
   const InvoiceCompanion({
-    this.invoiceId = const Value.absent(),
-    this.patientId = const Value.absent(),
-    this.chargeId = const Value.absent(),
-    this.transactionId = const Value.absent(),
-    this.issuedDate = const Value.absent(),
-    this.totalBalance = const Value.absent(),
-    this.status = const Value.absent(),
+    this.invoiceId = const drift.Value.absent(),
+    this.patientId = const drift.Value.absent(),
+    this.chargeId = const drift.Value.absent(),
+    this.transactionId = const drift.Value.absent(),
+    this.issuedDate = const drift.Value.absent(),
+    this.totalBalance = const drift.Value.absent(),
+    this.status = const drift.Value.absent(),
   });
   InvoiceCompanion.insert({
-    this.invoiceId = const Value.absent(),
+    this.invoiceId = const drift.Value.absent(),
     required int patientId,
     required int chargeId,
     required int transactionId,
-    this.issuedDate = const Value.absent(),
+    this.issuedDate = const drift.Value.absent(),
     required double totalBalance,
     required String status,
-  })  : patientId = Value(patientId),
-        chargeId = Value(chargeId),
-        transactionId = Value(transactionId),
-        totalBalance = Value(totalBalance),
-        status = Value(status);
-  static Insertable<InvoiceData> custom({
-    Expression<int>? invoiceId,
-    Expression<int>? patientId,
-    Expression<int>? chargeId,
-    Expression<int>? transactionId,
-    Expression<DateTime>? issuedDate,
-    Expression<double>? totalBalance,
-    Expression<String>? status,
+  })  : patientId = drift.Value(patientId),
+        chargeId = drift.Value(chargeId),
+        transactionId = drift.Value(transactionId),
+        totalBalance = drift.Value(totalBalance),
+        status = drift.Value(status);
+  static drift.Insertable<InvoiceData> custom({
+    drift.Expression<int>? invoiceId,
+    drift.Expression<int>? patientId,
+    drift.Expression<int>? chargeId,
+    drift.Expression<int>? transactionId,
+    drift.Expression<DateTime>? issuedDate,
+    drift.Expression<double>? totalBalance,
+    drift.Expression<String>? status,
   }) {
-    return RawValuesInsertable({
+    return drift.RawValuesInsertable({
       if (invoiceId != null) 'invoice_id': invoiceId,
       if (patientId != null) 'patient_id': patientId,
       if (chargeId != null) 'charge_id': chargeId,
@@ -2745,13 +2898,13 @@ class InvoiceCompanion extends UpdateCompanion<InvoiceData> {
   }
 
   InvoiceCompanion copyWith(
-      {Value<int>? invoiceId,
-      Value<int>? patientId,
-      Value<int>? chargeId,
-      Value<int>? transactionId,
-      Value<DateTime>? issuedDate,
-      Value<double>? totalBalance,
-      Value<String>? status}) {
+      {drift.Value<int>? invoiceId,
+      drift.Value<int>? patientId,
+      drift.Value<int>? chargeId,
+      drift.Value<int>? transactionId,
+      drift.Value<DateTime>? issuedDate,
+      drift.Value<double>? totalBalance,
+      drift.Value<String>? status}) {
     return InvoiceCompanion(
       invoiceId: invoiceId ?? this.invoiceId,
       patientId: patientId ?? this.patientId,
@@ -2764,28 +2917,28 @@ class InvoiceCompanion extends UpdateCompanion<InvoiceData> {
   }
 
   @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
+  Map<String, drift.Expression> toColumns(bool nullToAbsent) {
+    final map = <String, drift.Expression>{};
     if (invoiceId.present) {
-      map['invoice_id'] = Variable<int>(invoiceId.value);
+      map['invoice_id'] = drift.Variable<int>(invoiceId.value);
     }
     if (patientId.present) {
-      map['patient_id'] = Variable<int>(patientId.value);
+      map['patient_id'] = drift.Variable<int>(patientId.value);
     }
     if (chargeId.present) {
-      map['charge_id'] = Variable<int>(chargeId.value);
+      map['charge_id'] = drift.Variable<int>(chargeId.value);
     }
     if (transactionId.present) {
-      map['transaction_id'] = Variable<int>(transactionId.value);
+      map['transaction_id'] = drift.Variable<int>(transactionId.value);
     }
     if (issuedDate.present) {
-      map['issued_date'] = Variable<DateTime>(issuedDate.value);
+      map['issued_date'] = drift.Variable<DateTime>(issuedDate.value);
     }
     if (totalBalance.present) {
-      map['total_balance'] = Variable<double>(totalBalance.value);
+      map['total_balance'] = drift.Variable<double>(totalBalance.value);
     }
     if (status.present) {
-      map['status'] = Variable<String>(status.value);
+      map['status'] = drift.Variable<String>(status.value);
     }
     return map;
   }
@@ -2806,160 +2959,160 @@ class InvoiceCompanion extends UpdateCompanion<InvoiceData> {
 }
 
 class $ClinicalRecordTable extends ClinicalRecord
-    with TableInfo<$ClinicalRecordTable, ClinicalRecordData> {
+    with drift.TableInfo<$ClinicalRecordTable, ClinicalRecordData> {
   @override
-  final GeneratedDatabase attachedDatabase;
+  final drift.GeneratedDatabase attachedDatabase;
   final String? _alias;
   $ClinicalRecordTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _recordIdMeta =
-      const VerificationMeta('recordId');
+  static const drift.VerificationMeta _recordIdMeta =
+      const drift.VerificationMeta('recordId');
   @override
-  late final GeneratedColumn<int> recordId = GeneratedColumn<int>(
+  late final drift.GeneratedColumn<int> recordId = drift.GeneratedColumn<int>(
       'record_id', aliasedName, false,
       hasAutoIncrement: true,
       type: DriftSqlType.int,
       requiredDuringInsert: false,
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
-  static const VerificationMeta _patientIdMeta =
-      const VerificationMeta('patientId');
+  static const drift.VerificationMeta _patientIdMeta =
+      const drift.VerificationMeta('patientId');
   @override
-  late final GeneratedColumn<int> patientId = GeneratedColumn<int>(
+  late final drift.GeneratedColumn<int> patientId = drift.GeneratedColumn<int>(
       'patient_id', aliasedName, false,
       type: DriftSqlType.int,
       requiredDuringInsert: true,
       defaultConstraints: GeneratedColumn.constraintIsAlways(
           'REFERENCES patient (patient_id)'));
-  static const VerificationMeta _createdAtMeta =
-      const VerificationMeta('createdAt');
+  static const drift.VerificationMeta _createdAtMeta =
+      const drift.VerificationMeta('createdAt');
   @override
-  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
-      'created_at', aliasedName, false,
-      type: DriftSqlType.dateTime,
-      requiredDuringInsert: false,
-      defaultValue: currentDateAndTime);
-  static const VerificationMeta _pastIllnessMeta =
-      const VerificationMeta('pastIllness');
+  late final drift.GeneratedColumn<DateTime> createdAt =
+      drift.GeneratedColumn<DateTime>('created_at', aliasedName, false,
+          type: DriftSqlType.dateTime,
+          requiredDuringInsert: false,
+          defaultValue: drift.currentDateAndTime);
+  static const drift.VerificationMeta _pastIllnessMeta =
+      const drift.VerificationMeta('pastIllness');
   @override
-  late final GeneratedColumn<String> pastIllness = GeneratedColumn<String>(
-      'past_illness', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _presentIllnessMeta =
-      const VerificationMeta('presentIllness');
-  @override
-  late final GeneratedColumn<String> presentIllness = GeneratedColumn<String>(
-      'present_illness', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _allergiesMeta =
-      const VerificationMeta('allergies');
-  @override
-  late final GeneratedColumn<String> allergies = GeneratedColumn<String>(
-      'allergies', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _currentMedicationMeta =
-      const VerificationMeta('currentMedication');
-  @override
-  late final GeneratedColumn<String> currentMedication =
-      GeneratedColumn<String>('current_medication', aliasedName, true,
+  late final drift.GeneratedColumn<String> pastIllness =
+      drift.GeneratedColumn<String>('past_illness', aliasedName, true,
           type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _hasOralDebrisMeta =
-      const VerificationMeta('hasOralDebris');
+  static const drift.VerificationMeta _presentIllnessMeta =
+      const drift.VerificationMeta('presentIllness');
   @override
-  late final GeneratedColumn<bool> hasOralDebris = GeneratedColumn<bool>(
-      'has_oral_debris', aliasedName, false,
-      type: DriftSqlType.bool,
-      requiredDuringInsert: false,
-      defaultConstraints: GeneratedColumn.constraintIsAlways(
-          'CHECK ("has_oral_debris" IN (0, 1))'),
-      defaultValue: const Constant(false));
-  static const VerificationMeta _hasCalculusMeta =
-      const VerificationMeta('hasCalculus');
+  late final drift.GeneratedColumn<String> presentIllness =
+      drift.GeneratedColumn<String>('present_illness', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
+  static const drift.VerificationMeta _allergiesMeta =
+      const drift.VerificationMeta('allergies');
   @override
-  late final GeneratedColumn<bool> hasCalculus = GeneratedColumn<bool>(
-      'has_calculus', aliasedName, false,
-      type: DriftSqlType.bool,
-      requiredDuringInsert: false,
-      defaultConstraints: GeneratedColumn.constraintIsAlways(
-          'CHECK ("has_calculus" IN (0, 1))'),
-      defaultValue: const Constant(false));
-  static const VerificationMeta _hasPeriodontalPocketMeta =
-      const VerificationMeta('hasPeriodontalPocket');
+  late final drift.GeneratedColumn<String> allergies =
+      drift.GeneratedColumn<String>('allergies', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
+  static const drift.VerificationMeta _currentMedicationMeta =
+      const drift.VerificationMeta('currentMedication');
   @override
-  late final GeneratedColumn<bool> hasPeriodontalPocket = GeneratedColumn<bool>(
-      'has_periodontal_pocket', aliasedName, false,
-      type: DriftSqlType.bool,
-      requiredDuringInsert: false,
-      defaultConstraints: GeneratedColumn.constraintIsAlways(
-          'CHECK ("has_periodontal_pocket" IN (0, 1))'),
-      defaultValue: const Constant(false));
-  static const VerificationMeta _hasGingivitisMeta =
-      const VerificationMeta('hasGingivitis');
+  late final drift.GeneratedColumn<String> currentMedication =
+      drift.GeneratedColumn<String>('current_medication', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
+  static const drift.VerificationMeta _hasOralDebrisMeta =
+      const drift.VerificationMeta('hasOralDebris');
   @override
-  late final GeneratedColumn<bool> hasGingivitis = GeneratedColumn<bool>(
-      'has_gingivitis', aliasedName, false,
-      type: DriftSqlType.bool,
-      requiredDuringInsert: false,
-      defaultConstraints: GeneratedColumn.constraintIsAlways(
-          'CHECK ("has_gingivitis" IN (0, 1))'),
-      defaultValue: const Constant(false));
-  static const VerificationMeta _hasDentofacialAnomalyMeta =
-      const VerificationMeta('hasDentofacialAnomaly');
+  late final drift.GeneratedColumn<bool> hasOralDebris =
+      drift.GeneratedColumn<bool>('has_oral_debris', aliasedName, false,
+          type: DriftSqlType.bool,
+          requiredDuringInsert: false,
+          defaultConstraints: GeneratedColumn.constraintIsAlways(
+              'CHECK ("has_oral_debris" IN (0, 1))'),
+          defaultValue: const drift.Constant(false));
+  static const drift.VerificationMeta _hasCalculusMeta =
+      const drift.VerificationMeta('hasCalculus');
   @override
-  late final GeneratedColumn<bool> hasDentofacialAnomaly =
-      GeneratedColumn<bool>('has_dentofacial_anomaly', aliasedName, false,
+  late final drift.GeneratedColumn<bool> hasCalculus =
+      drift.GeneratedColumn<bool>('has_calculus', aliasedName, false,
+          type: DriftSqlType.bool,
+          requiredDuringInsert: false,
+          defaultConstraints: GeneratedColumn.constraintIsAlways(
+              'CHECK ("has_calculus" IN (0, 1))'),
+          defaultValue: const drift.Constant(false));
+  static const drift.VerificationMeta _hasPeriodontalPocketMeta =
+      const drift.VerificationMeta('hasPeriodontalPocket');
+  @override
+  late final drift.GeneratedColumn<bool> hasPeriodontalPocket =
+      drift.GeneratedColumn<bool>('has_periodontal_pocket', aliasedName, false,
+          type: DriftSqlType.bool,
+          requiredDuringInsert: false,
+          defaultConstraints: GeneratedColumn.constraintIsAlways(
+              'CHECK ("has_periodontal_pocket" IN (0, 1))'),
+          defaultValue: const drift.Constant(false));
+  static const drift.VerificationMeta _hasGingivitisMeta =
+      const drift.VerificationMeta('hasGingivitis');
+  @override
+  late final drift.GeneratedColumn<bool> hasGingivitis =
+      drift.GeneratedColumn<bool>('has_gingivitis', aliasedName, false,
+          type: DriftSqlType.bool,
+          requiredDuringInsert: false,
+          defaultConstraints: GeneratedColumn.constraintIsAlways(
+              'CHECK ("has_gingivitis" IN (0, 1))'),
+          defaultValue: const drift.Constant(false));
+  static const drift.VerificationMeta _hasDentofacialAnomalyMeta =
+      const drift.VerificationMeta('hasDentofacialAnomaly');
+  @override
+  late final drift.GeneratedColumn<bool> hasDentofacialAnomaly =
+      drift.GeneratedColumn<bool>('has_dentofacial_anomaly', aliasedName, false,
           type: DriftSqlType.bool,
           requiredDuringInsert: false,
           defaultConstraints: GeneratedColumn.constraintIsAlways(
               'CHECK ("has_dentofacial_anomaly" IN (0, 1))'),
-          defaultValue: const Constant(false));
-  static const VerificationMeta _cariesForFillingMeta =
-      const VerificationMeta('cariesForFilling');
+          defaultValue: const drift.Constant(false));
+  static const drift.VerificationMeta _cariesForFillingMeta =
+      const drift.VerificationMeta('cariesForFilling');
   @override
-  late final GeneratedColumn<int> cariesForFilling = GeneratedColumn<int>(
-      'caries_for_filling', aliasedName, false,
-      type: DriftSqlType.int,
-      requiredDuringInsert: false,
-      defaultValue: const Constant(0));
-  static const VerificationMeta _cariesForExtractionMeta =
-      const VerificationMeta('cariesForExtraction');
+  late final drift.GeneratedColumn<int> cariesForFilling =
+      drift.GeneratedColumn<int>('caries_for_filling', aliasedName, false,
+          type: DriftSqlType.int,
+          requiredDuringInsert: false,
+          defaultValue: const drift.Constant(0));
+  static const drift.VerificationMeta _cariesForExtractionMeta =
+      const drift.VerificationMeta('cariesForExtraction');
   @override
-  late final GeneratedColumn<int> cariesForExtraction = GeneratedColumn<int>(
-      'caries_for_extraction', aliasedName, false,
-      type: DriftSqlType.int,
-      requiredDuringInsert: false,
-      defaultValue: const Constant(0));
-  static const VerificationMeta _rootFragmentMeta =
-      const VerificationMeta('rootFragment');
+  late final drift.GeneratedColumn<int> cariesForExtraction =
+      drift.GeneratedColumn<int>('caries_for_extraction', aliasedName, false,
+          type: DriftSqlType.int,
+          requiredDuringInsert: false,
+          defaultValue: const drift.Constant(0));
+  static const drift.VerificationMeta _rootFragmentMeta =
+      const drift.VerificationMeta('rootFragment');
   @override
-  late final GeneratedColumn<int> rootFragment = GeneratedColumn<int>(
-      'root_fragment', aliasedName, false,
-      type: DriftSqlType.int,
-      requiredDuringInsert: false,
-      defaultValue: const Constant(0));
-  static const VerificationMeta _missingDueToCariesMeta =
-      const VerificationMeta('missingDueToCaries');
+  late final drift.GeneratedColumn<int> rootFragment =
+      drift.GeneratedColumn<int>('root_fragment', aliasedName, false,
+          type: DriftSqlType.int,
+          requiredDuringInsert: false,
+          defaultValue: const drift.Constant(0));
+  static const drift.VerificationMeta _missingDueToCariesMeta =
+      const drift.VerificationMeta('missingDueToCaries');
   @override
-  late final GeneratedColumn<int> missingDueToCaries = GeneratedColumn<int>(
-      'missing_due_to_caries', aliasedName, false,
-      type: DriftSqlType.int,
-      requiredDuringInsert: false,
-      defaultValue: const Constant(0));
-  static const VerificationMeta _filledOrRestoredMeta =
-      const VerificationMeta('filledOrRestored');
+  late final drift.GeneratedColumn<int> missingDueToCaries =
+      drift.GeneratedColumn<int>('missing_due_to_caries', aliasedName, false,
+          type: DriftSqlType.int,
+          requiredDuringInsert: false,
+          defaultValue: const drift.Constant(0));
+  static const drift.VerificationMeta _filledOrRestoredMeta =
+      const drift.VerificationMeta('filledOrRestored');
   @override
-  late final GeneratedColumn<int> filledOrRestored = GeneratedColumn<int>(
-      'filled_or_restored', aliasedName, false,
-      type: DriftSqlType.int,
-      requiredDuringInsert: false,
-      defaultValue: const Constant(0));
-  static const VerificationMeta _clinicalNotesMeta =
-      const VerificationMeta('clinicalNotes');
+  late final drift.GeneratedColumn<int> filledOrRestored =
+      drift.GeneratedColumn<int>('filled_or_restored', aliasedName, false,
+          type: DriftSqlType.int,
+          requiredDuringInsert: false,
+          defaultValue: const drift.Constant(0));
+  static const drift.VerificationMeta _clinicalNotesMeta =
+      const drift.VerificationMeta('clinicalNotes');
   @override
-  late final GeneratedColumn<String> clinicalNotes = GeneratedColumn<String>(
-      'clinical_notes', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
+  late final drift.GeneratedColumn<String> clinicalNotes =
+      drift.GeneratedColumn<String>('clinical_notes', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
   @override
-  List<GeneratedColumn> get $columns => [
+  List<drift.GeneratedColumn> get $columns => [
         recordId,
         patientId,
         createdAt,
@@ -2985,9 +3138,10 @@ class $ClinicalRecordTable extends ClinicalRecord
   String get actualTableName => $name;
   static const String $name = 'clinical_record';
   @override
-  VerificationContext validateIntegrity(Insertable<ClinicalRecordData> instance,
+  drift.VerificationContext validateIntegrity(
+      drift.Insertable<ClinicalRecordData> instance,
       {bool isInserting = false}) {
-    final context = VerificationContext();
+    final context = drift.VerificationContext();
     final data = instance.toColumns(true);
     if (data.containsKey('record_id')) {
       context.handle(_recordIdMeta,
@@ -3095,7 +3249,7 @@ class $ClinicalRecordTable extends ClinicalRecord
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {recordId};
+  Set<drift.GeneratedColumn> get $primaryKey => {recordId};
   @override
   ClinicalRecordData map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
@@ -3146,8 +3300,8 @@ class $ClinicalRecordTable extends ClinicalRecord
   }
 }
 
-class ClinicalRecordData extends DataClass
-    implements Insertable<ClinicalRecordData> {
+class ClinicalRecordData extends drift.DataClass
+    implements drift.Insertable<ClinicalRecordData> {
   final int recordId;
   final int patientId;
   final DateTime createdAt;
@@ -3186,75 +3340,76 @@ class ClinicalRecordData extends DataClass
       required this.filledOrRestored,
       this.clinicalNotes});
   @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    map['record_id'] = Variable<int>(recordId);
-    map['patient_id'] = Variable<int>(patientId);
-    map['created_at'] = Variable<DateTime>(createdAt);
+  Map<String, drift.Expression> toColumns(bool nullToAbsent) {
+    final map = <String, drift.Expression>{};
+    map['record_id'] = drift.Variable<int>(recordId);
+    map['patient_id'] = drift.Variable<int>(patientId);
+    map['created_at'] = drift.Variable<DateTime>(createdAt);
     if (!nullToAbsent || pastIllness != null) {
-      map['past_illness'] = Variable<String>(pastIllness);
+      map['past_illness'] = drift.Variable<String>(pastIllness);
     }
     if (!nullToAbsent || presentIllness != null) {
-      map['present_illness'] = Variable<String>(presentIllness);
+      map['present_illness'] = drift.Variable<String>(presentIllness);
     }
     if (!nullToAbsent || allergies != null) {
-      map['allergies'] = Variable<String>(allergies);
+      map['allergies'] = drift.Variable<String>(allergies);
     }
     if (!nullToAbsent || currentMedication != null) {
-      map['current_medication'] = Variable<String>(currentMedication);
+      map['current_medication'] = drift.Variable<String>(currentMedication);
     }
-    map['has_oral_debris'] = Variable<bool>(hasOralDebris);
-    map['has_calculus'] = Variable<bool>(hasCalculus);
-    map['has_periodontal_pocket'] = Variable<bool>(hasPeriodontalPocket);
-    map['has_gingivitis'] = Variable<bool>(hasGingivitis);
-    map['has_dentofacial_anomaly'] = Variable<bool>(hasDentofacialAnomaly);
-    map['caries_for_filling'] = Variable<int>(cariesForFilling);
-    map['caries_for_extraction'] = Variable<int>(cariesForExtraction);
-    map['root_fragment'] = Variable<int>(rootFragment);
-    map['missing_due_to_caries'] = Variable<int>(missingDueToCaries);
-    map['filled_or_restored'] = Variable<int>(filledOrRestored);
+    map['has_oral_debris'] = drift.Variable<bool>(hasOralDebris);
+    map['has_calculus'] = drift.Variable<bool>(hasCalculus);
+    map['has_periodontal_pocket'] = drift.Variable<bool>(hasPeriodontalPocket);
+    map['has_gingivitis'] = drift.Variable<bool>(hasGingivitis);
+    map['has_dentofacial_anomaly'] =
+        drift.Variable<bool>(hasDentofacialAnomaly);
+    map['caries_for_filling'] = drift.Variable<int>(cariesForFilling);
+    map['caries_for_extraction'] = drift.Variable<int>(cariesForExtraction);
+    map['root_fragment'] = drift.Variable<int>(rootFragment);
+    map['missing_due_to_caries'] = drift.Variable<int>(missingDueToCaries);
+    map['filled_or_restored'] = drift.Variable<int>(filledOrRestored);
     if (!nullToAbsent || clinicalNotes != null) {
-      map['clinical_notes'] = Variable<String>(clinicalNotes);
+      map['clinical_notes'] = drift.Variable<String>(clinicalNotes);
     }
     return map;
   }
 
   ClinicalRecordCompanion toCompanion(bool nullToAbsent) {
     return ClinicalRecordCompanion(
-      recordId: Value(recordId),
-      patientId: Value(patientId),
-      createdAt: Value(createdAt),
+      recordId: drift.Value(recordId),
+      patientId: drift.Value(patientId),
+      createdAt: drift.Value(createdAt),
       pastIllness: pastIllness == null && nullToAbsent
-          ? const Value.absent()
-          : Value(pastIllness),
+          ? const drift.Value.absent()
+          : drift.Value(pastIllness),
       presentIllness: presentIllness == null && nullToAbsent
-          ? const Value.absent()
-          : Value(presentIllness),
+          ? const drift.Value.absent()
+          : drift.Value(presentIllness),
       allergies: allergies == null && nullToAbsent
-          ? const Value.absent()
-          : Value(allergies),
+          ? const drift.Value.absent()
+          : drift.Value(allergies),
       currentMedication: currentMedication == null && nullToAbsent
-          ? const Value.absent()
-          : Value(currentMedication),
-      hasOralDebris: Value(hasOralDebris),
-      hasCalculus: Value(hasCalculus),
-      hasPeriodontalPocket: Value(hasPeriodontalPocket),
-      hasGingivitis: Value(hasGingivitis),
-      hasDentofacialAnomaly: Value(hasDentofacialAnomaly),
-      cariesForFilling: Value(cariesForFilling),
-      cariesForExtraction: Value(cariesForExtraction),
-      rootFragment: Value(rootFragment),
-      missingDueToCaries: Value(missingDueToCaries),
-      filledOrRestored: Value(filledOrRestored),
+          ? const drift.Value.absent()
+          : drift.Value(currentMedication),
+      hasOralDebris: drift.Value(hasOralDebris),
+      hasCalculus: drift.Value(hasCalculus),
+      hasPeriodontalPocket: drift.Value(hasPeriodontalPocket),
+      hasGingivitis: drift.Value(hasGingivitis),
+      hasDentofacialAnomaly: drift.Value(hasDentofacialAnomaly),
+      cariesForFilling: drift.Value(cariesForFilling),
+      cariesForExtraction: drift.Value(cariesForExtraction),
+      rootFragment: drift.Value(rootFragment),
+      missingDueToCaries: drift.Value(missingDueToCaries),
+      filledOrRestored: drift.Value(filledOrRestored),
       clinicalNotes: clinicalNotes == null && nullToAbsent
-          ? const Value.absent()
-          : Value(clinicalNotes),
+          ? const drift.Value.absent()
+          : drift.Value(clinicalNotes),
     );
   }
 
   factory ClinicalRecordData.fromJson(Map<String, dynamic> json,
       {ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
+    serializer ??= drift.driftRuntimeOptions.defaultSerializer;
     return ClinicalRecordData(
       recordId: serializer.fromJson<int>(json['recordId']),
       patientId: serializer.fromJson<int>(json['patientId']),
@@ -3282,7 +3437,7 @@ class ClinicalRecordData extends DataClass
   }
   @override
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
+    serializer ??= drift.driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'recordId': serializer.toJson<int>(recordId),
       'patientId': serializer.toJson<int>(patientId),
@@ -3309,10 +3464,10 @@ class ClinicalRecordData extends DataClass
           {int? recordId,
           int? patientId,
           DateTime? createdAt,
-          Value<String?> pastIllness = const Value.absent(),
-          Value<String?> presentIllness = const Value.absent(),
-          Value<String?> allergies = const Value.absent(),
-          Value<String?> currentMedication = const Value.absent(),
+          drift.Value<String?> pastIllness = const drift.Value.absent(),
+          drift.Value<String?> presentIllness = const drift.Value.absent(),
+          drift.Value<String?> allergies = const drift.Value.absent(),
+          drift.Value<String?> currentMedication = const drift.Value.absent(),
           bool? hasOralDebris,
           bool? hasCalculus,
           bool? hasPeriodontalPocket,
@@ -3323,7 +3478,7 @@ class ClinicalRecordData extends DataClass
           int? rootFragment,
           int? missingDueToCaries,
           int? filledOrRestored,
-          Value<String?> clinicalNotes = const Value.absent()}) =>
+          drift.Value<String?> clinicalNotes = const drift.Value.absent()}) =>
       ClinicalRecordData(
         recordId: recordId ?? this.recordId,
         patientId: patientId ?? this.patientId,
@@ -3467,86 +3622,87 @@ class ClinicalRecordData extends DataClass
           other.clinicalNotes == this.clinicalNotes);
 }
 
-class ClinicalRecordCompanion extends UpdateCompanion<ClinicalRecordData> {
-  final Value<int> recordId;
-  final Value<int> patientId;
-  final Value<DateTime> createdAt;
-  final Value<String?> pastIllness;
-  final Value<String?> presentIllness;
-  final Value<String?> allergies;
-  final Value<String?> currentMedication;
-  final Value<bool> hasOralDebris;
-  final Value<bool> hasCalculus;
-  final Value<bool> hasPeriodontalPocket;
-  final Value<bool> hasGingivitis;
-  final Value<bool> hasDentofacialAnomaly;
-  final Value<int> cariesForFilling;
-  final Value<int> cariesForExtraction;
-  final Value<int> rootFragment;
-  final Value<int> missingDueToCaries;
-  final Value<int> filledOrRestored;
-  final Value<String?> clinicalNotes;
+class ClinicalRecordCompanion
+    extends drift.UpdateCompanion<ClinicalRecordData> {
+  final drift.Value<int> recordId;
+  final drift.Value<int> patientId;
+  final drift.Value<DateTime> createdAt;
+  final drift.Value<String?> pastIllness;
+  final drift.Value<String?> presentIllness;
+  final drift.Value<String?> allergies;
+  final drift.Value<String?> currentMedication;
+  final drift.Value<bool> hasOralDebris;
+  final drift.Value<bool> hasCalculus;
+  final drift.Value<bool> hasPeriodontalPocket;
+  final drift.Value<bool> hasGingivitis;
+  final drift.Value<bool> hasDentofacialAnomaly;
+  final drift.Value<int> cariesForFilling;
+  final drift.Value<int> cariesForExtraction;
+  final drift.Value<int> rootFragment;
+  final drift.Value<int> missingDueToCaries;
+  final drift.Value<int> filledOrRestored;
+  final drift.Value<String?> clinicalNotes;
   const ClinicalRecordCompanion({
-    this.recordId = const Value.absent(),
-    this.patientId = const Value.absent(),
-    this.createdAt = const Value.absent(),
-    this.pastIllness = const Value.absent(),
-    this.presentIllness = const Value.absent(),
-    this.allergies = const Value.absent(),
-    this.currentMedication = const Value.absent(),
-    this.hasOralDebris = const Value.absent(),
-    this.hasCalculus = const Value.absent(),
-    this.hasPeriodontalPocket = const Value.absent(),
-    this.hasGingivitis = const Value.absent(),
-    this.hasDentofacialAnomaly = const Value.absent(),
-    this.cariesForFilling = const Value.absent(),
-    this.cariesForExtraction = const Value.absent(),
-    this.rootFragment = const Value.absent(),
-    this.missingDueToCaries = const Value.absent(),
-    this.filledOrRestored = const Value.absent(),
-    this.clinicalNotes = const Value.absent(),
+    this.recordId = const drift.Value.absent(),
+    this.patientId = const drift.Value.absent(),
+    this.createdAt = const drift.Value.absent(),
+    this.pastIllness = const drift.Value.absent(),
+    this.presentIllness = const drift.Value.absent(),
+    this.allergies = const drift.Value.absent(),
+    this.currentMedication = const drift.Value.absent(),
+    this.hasOralDebris = const drift.Value.absent(),
+    this.hasCalculus = const drift.Value.absent(),
+    this.hasPeriodontalPocket = const drift.Value.absent(),
+    this.hasGingivitis = const drift.Value.absent(),
+    this.hasDentofacialAnomaly = const drift.Value.absent(),
+    this.cariesForFilling = const drift.Value.absent(),
+    this.cariesForExtraction = const drift.Value.absent(),
+    this.rootFragment = const drift.Value.absent(),
+    this.missingDueToCaries = const drift.Value.absent(),
+    this.filledOrRestored = const drift.Value.absent(),
+    this.clinicalNotes = const drift.Value.absent(),
   });
   ClinicalRecordCompanion.insert({
-    this.recordId = const Value.absent(),
+    this.recordId = const drift.Value.absent(),
     required int patientId,
-    this.createdAt = const Value.absent(),
-    this.pastIllness = const Value.absent(),
-    this.presentIllness = const Value.absent(),
-    this.allergies = const Value.absent(),
-    this.currentMedication = const Value.absent(),
-    this.hasOralDebris = const Value.absent(),
-    this.hasCalculus = const Value.absent(),
-    this.hasPeriodontalPocket = const Value.absent(),
-    this.hasGingivitis = const Value.absent(),
-    this.hasDentofacialAnomaly = const Value.absent(),
-    this.cariesForFilling = const Value.absent(),
-    this.cariesForExtraction = const Value.absent(),
-    this.rootFragment = const Value.absent(),
-    this.missingDueToCaries = const Value.absent(),
-    this.filledOrRestored = const Value.absent(),
-    this.clinicalNotes = const Value.absent(),
-  }) : patientId = Value(patientId);
-  static Insertable<ClinicalRecordData> custom({
-    Expression<int>? recordId,
-    Expression<int>? patientId,
-    Expression<DateTime>? createdAt,
-    Expression<String>? pastIllness,
-    Expression<String>? presentIllness,
-    Expression<String>? allergies,
-    Expression<String>? currentMedication,
-    Expression<bool>? hasOralDebris,
-    Expression<bool>? hasCalculus,
-    Expression<bool>? hasPeriodontalPocket,
-    Expression<bool>? hasGingivitis,
-    Expression<bool>? hasDentofacialAnomaly,
-    Expression<int>? cariesForFilling,
-    Expression<int>? cariesForExtraction,
-    Expression<int>? rootFragment,
-    Expression<int>? missingDueToCaries,
-    Expression<int>? filledOrRestored,
-    Expression<String>? clinicalNotes,
+    this.createdAt = const drift.Value.absent(),
+    this.pastIllness = const drift.Value.absent(),
+    this.presentIllness = const drift.Value.absent(),
+    this.allergies = const drift.Value.absent(),
+    this.currentMedication = const drift.Value.absent(),
+    this.hasOralDebris = const drift.Value.absent(),
+    this.hasCalculus = const drift.Value.absent(),
+    this.hasPeriodontalPocket = const drift.Value.absent(),
+    this.hasGingivitis = const drift.Value.absent(),
+    this.hasDentofacialAnomaly = const drift.Value.absent(),
+    this.cariesForFilling = const drift.Value.absent(),
+    this.cariesForExtraction = const drift.Value.absent(),
+    this.rootFragment = const drift.Value.absent(),
+    this.missingDueToCaries = const drift.Value.absent(),
+    this.filledOrRestored = const drift.Value.absent(),
+    this.clinicalNotes = const drift.Value.absent(),
+  }) : patientId = drift.Value(patientId);
+  static drift.Insertable<ClinicalRecordData> custom({
+    drift.Expression<int>? recordId,
+    drift.Expression<int>? patientId,
+    drift.Expression<DateTime>? createdAt,
+    drift.Expression<String>? pastIllness,
+    drift.Expression<String>? presentIllness,
+    drift.Expression<String>? allergies,
+    drift.Expression<String>? currentMedication,
+    drift.Expression<bool>? hasOralDebris,
+    drift.Expression<bool>? hasCalculus,
+    drift.Expression<bool>? hasPeriodontalPocket,
+    drift.Expression<bool>? hasGingivitis,
+    drift.Expression<bool>? hasDentofacialAnomaly,
+    drift.Expression<int>? cariesForFilling,
+    drift.Expression<int>? cariesForExtraction,
+    drift.Expression<int>? rootFragment,
+    drift.Expression<int>? missingDueToCaries,
+    drift.Expression<int>? filledOrRestored,
+    drift.Expression<String>? clinicalNotes,
   }) {
-    return RawValuesInsertable({
+    return drift.RawValuesInsertable({
       if (recordId != null) 'record_id': recordId,
       if (patientId != null) 'patient_id': patientId,
       if (createdAt != null) 'created_at': createdAt,
@@ -3573,24 +3729,24 @@ class ClinicalRecordCompanion extends UpdateCompanion<ClinicalRecordData> {
   }
 
   ClinicalRecordCompanion copyWith(
-      {Value<int>? recordId,
-      Value<int>? patientId,
-      Value<DateTime>? createdAt,
-      Value<String?>? pastIllness,
-      Value<String?>? presentIllness,
-      Value<String?>? allergies,
-      Value<String?>? currentMedication,
-      Value<bool>? hasOralDebris,
-      Value<bool>? hasCalculus,
-      Value<bool>? hasPeriodontalPocket,
-      Value<bool>? hasGingivitis,
-      Value<bool>? hasDentofacialAnomaly,
-      Value<int>? cariesForFilling,
-      Value<int>? cariesForExtraction,
-      Value<int>? rootFragment,
-      Value<int>? missingDueToCaries,
-      Value<int>? filledOrRestored,
-      Value<String?>? clinicalNotes}) {
+      {drift.Value<int>? recordId,
+      drift.Value<int>? patientId,
+      drift.Value<DateTime>? createdAt,
+      drift.Value<String?>? pastIllness,
+      drift.Value<String?>? presentIllness,
+      drift.Value<String?>? allergies,
+      drift.Value<String?>? currentMedication,
+      drift.Value<bool>? hasOralDebris,
+      drift.Value<bool>? hasCalculus,
+      drift.Value<bool>? hasPeriodontalPocket,
+      drift.Value<bool>? hasGingivitis,
+      drift.Value<bool>? hasDentofacialAnomaly,
+      drift.Value<int>? cariesForFilling,
+      drift.Value<int>? cariesForExtraction,
+      drift.Value<int>? rootFragment,
+      drift.Value<int>? missingDueToCaries,
+      drift.Value<int>? filledOrRestored,
+      drift.Value<String?>? clinicalNotes}) {
     return ClinicalRecordCompanion(
       recordId: recordId ?? this.recordId,
       patientId: patientId ?? this.patientId,
@@ -3615,63 +3771,66 @@ class ClinicalRecordCompanion extends UpdateCompanion<ClinicalRecordData> {
   }
 
   @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
+  Map<String, drift.Expression> toColumns(bool nullToAbsent) {
+    final map = <String, drift.Expression>{};
     if (recordId.present) {
-      map['record_id'] = Variable<int>(recordId.value);
+      map['record_id'] = drift.Variable<int>(recordId.value);
     }
     if (patientId.present) {
-      map['patient_id'] = Variable<int>(patientId.value);
+      map['patient_id'] = drift.Variable<int>(patientId.value);
     }
     if (createdAt.present) {
-      map['created_at'] = Variable<DateTime>(createdAt.value);
+      map['created_at'] = drift.Variable<DateTime>(createdAt.value);
     }
     if (pastIllness.present) {
-      map['past_illness'] = Variable<String>(pastIllness.value);
+      map['past_illness'] = drift.Variable<String>(pastIllness.value);
     }
     if (presentIllness.present) {
-      map['present_illness'] = Variable<String>(presentIllness.value);
+      map['present_illness'] = drift.Variable<String>(presentIllness.value);
     }
     if (allergies.present) {
-      map['allergies'] = Variable<String>(allergies.value);
+      map['allergies'] = drift.Variable<String>(allergies.value);
     }
     if (currentMedication.present) {
-      map['current_medication'] = Variable<String>(currentMedication.value);
+      map['current_medication'] =
+          drift.Variable<String>(currentMedication.value);
     }
     if (hasOralDebris.present) {
-      map['has_oral_debris'] = Variable<bool>(hasOralDebris.value);
+      map['has_oral_debris'] = drift.Variable<bool>(hasOralDebris.value);
     }
     if (hasCalculus.present) {
-      map['has_calculus'] = Variable<bool>(hasCalculus.value);
+      map['has_calculus'] = drift.Variable<bool>(hasCalculus.value);
     }
     if (hasPeriodontalPocket.present) {
       map['has_periodontal_pocket'] =
-          Variable<bool>(hasPeriodontalPocket.value);
+          drift.Variable<bool>(hasPeriodontalPocket.value);
     }
     if (hasGingivitis.present) {
-      map['has_gingivitis'] = Variable<bool>(hasGingivitis.value);
+      map['has_gingivitis'] = drift.Variable<bool>(hasGingivitis.value);
     }
     if (hasDentofacialAnomaly.present) {
       map['has_dentofacial_anomaly'] =
-          Variable<bool>(hasDentofacialAnomaly.value);
+          drift.Variable<bool>(hasDentofacialAnomaly.value);
     }
     if (cariesForFilling.present) {
-      map['caries_for_filling'] = Variable<int>(cariesForFilling.value);
+      map['caries_for_filling'] = drift.Variable<int>(cariesForFilling.value);
     }
     if (cariesForExtraction.present) {
-      map['caries_for_extraction'] = Variable<int>(cariesForExtraction.value);
+      map['caries_for_extraction'] =
+          drift.Variable<int>(cariesForExtraction.value);
     }
     if (rootFragment.present) {
-      map['root_fragment'] = Variable<int>(rootFragment.value);
+      map['root_fragment'] = drift.Variable<int>(rootFragment.value);
     }
     if (missingDueToCaries.present) {
-      map['missing_due_to_caries'] = Variable<int>(missingDueToCaries.value);
+      map['missing_due_to_caries'] =
+          drift.Variable<int>(missingDueToCaries.value);
     }
     if (filledOrRestored.present) {
-      map['filled_or_restored'] = Variable<int>(filledOrRestored.value);
+      map['filled_or_restored'] = drift.Variable<int>(filledOrRestored.value);
     }
     if (clinicalNotes.present) {
-      map['clinical_notes'] = Variable<String>(clinicalNotes.value);
+      map['clinical_notes'] = drift.Variable<String>(clinicalNotes.value);
     }
     return map;
   }
@@ -3702,7 +3861,7 @@ class ClinicalRecordCompanion extends UpdateCompanion<ClinicalRecordData> {
   }
 }
 
-abstract class _$AppDatabase extends GeneratedDatabase {
+abstract class _$AppDatabase extends drift.GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
   late final $PatientTable patient = $PatientTable(this);
@@ -3715,10 +3874,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $InvoiceTable invoice = $InvoiceTable(this);
   late final $ClinicalRecordTable clinicalRecord = $ClinicalRecordTable(this);
   @override
-  Iterable<TableInfo<Table, Object?>> get allTables =>
-      allSchemaEntities.whereType<TableInfo<Table, Object?>>();
+  Iterable<drift.TableInfo<drift.Table, Object?>> get allTables =>
+      allSchemaEntities.whereType<drift.TableInfo<drift.Table, Object?>>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities => [
+  List<drift.DatabaseSchemaEntity> get allSchemaEntities => [
         patient,
         clinicalStaff,
         appointment,
@@ -3730,62 +3889,62 @@ abstract class _$AppDatabase extends GeneratedDatabase {
 }
 
 typedef $$PatientTableCreateCompanionBuilder = PatientCompanion Function({
-  Value<int> patientId,
+  drift.Value<int> patientId,
   required String firstName,
-  Value<String?> middleName,
+  drift.Value<String?> middleName,
   required String lastName,
-  Value<String?> suffix,
+  drift.Value<String?> suffix,
   required DateTime birthDate,
   required String sex,
   required String civilStatus,
   required String contactNumber,
-  Value<String?> emergencyContactNo,
-  Value<String?> referredBy,
-  Value<String?> relationship,
-  Value<String?> relationshipEmergency,
+  drift.Value<String?> emergencyContactNo,
+  drift.Value<String?> referredBy,
+  drift.Value<String?> relationship,
+  drift.Value<String?> relationshipEmergency,
   required String streetAddress,
   required String barangay,
   required String cityMunicipality,
   required String province,
-  Value<String?> zipCode,
-  Value<bool> isArchived,
-  Value<bool> isSeniorOrPWD,
+  drift.Value<String?> zipCode,
+  drift.Value<bool> isArchived,
+  drift.Value<bool> isSeniorOrPWD,
   required DateTime createdAt,
   required DateTime updatedAt,
 });
 typedef $$PatientTableUpdateCompanionBuilder = PatientCompanion Function({
-  Value<int> patientId,
-  Value<String> firstName,
-  Value<String?> middleName,
-  Value<String> lastName,
-  Value<String?> suffix,
-  Value<DateTime> birthDate,
-  Value<String> sex,
-  Value<String> civilStatus,
-  Value<String> contactNumber,
-  Value<String?> emergencyContactNo,
-  Value<String?> referredBy,
-  Value<String?> relationship,
-  Value<String?> relationshipEmergency,
-  Value<String> streetAddress,
-  Value<String> barangay,
-  Value<String> cityMunicipality,
-  Value<String> province,
-  Value<String?> zipCode,
-  Value<bool> isArchived,
-  Value<bool> isSeniorOrPWD,
-  Value<DateTime> createdAt,
-  Value<DateTime> updatedAt,
+  drift.Value<int> patientId,
+  drift.Value<String> firstName,
+  drift.Value<String?> middleName,
+  drift.Value<String> lastName,
+  drift.Value<String?> suffix,
+  drift.Value<DateTime> birthDate,
+  drift.Value<String> sex,
+  drift.Value<String> civilStatus,
+  drift.Value<String> contactNumber,
+  drift.Value<String?> emergencyContactNo,
+  drift.Value<String?> referredBy,
+  drift.Value<String?> relationship,
+  drift.Value<String?> relationshipEmergency,
+  drift.Value<String> streetAddress,
+  drift.Value<String> barangay,
+  drift.Value<String> cityMunicipality,
+  drift.Value<String> province,
+  drift.Value<String?> zipCode,
+  drift.Value<bool> isArchived,
+  drift.Value<bool> isSeniorOrPWD,
+  drift.Value<DateTime> createdAt,
+  drift.Value<DateTime> updatedAt,
 });
 
 final class $$PatientTableReferences
-    extends BaseReferences<_$AppDatabase, $PatientTable, PatientData> {
+    extends drift.BaseReferences<_$AppDatabase, $PatientTable, PatientData> {
   $$PatientTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
-  static MultiTypedResultKey<$AppointmentTable, List<AppointmentData>>
+  static drift.MultiTypedResultKey<$AppointmentTable, List<AppointmentData>>
       _appointmentRefsTable(_$AppDatabase db) =>
-          MultiTypedResultKey.fromTable(db.appointment,
-              aliasName: $_aliasNameGenerator(
+          drift.MultiTypedResultKey.fromTable(db.appointment,
+              aliasName: drift.$_aliasNameGenerator(
                   db.patient.patientId, db.appointment.patientId));
 
   $$AppointmentTableProcessedTableManager get appointmentRefs {
@@ -3794,29 +3953,30 @@ final class $$PatientTableReferences
             f.patientId.patientId.sqlEquals($_itemColumn<int>('patient_id')!));
 
     final cache = $_typedResult.readTableOrNull(_appointmentRefsTable($_db));
-    return ProcessedTableManager(
+    return drift.ProcessedTableManager(
         manager.$state.copyWith(prefetchedData: cache));
   }
 
-  static MultiTypedResultKey<$InvoiceTable, List<InvoiceData>>
-      _invoiceRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
-          db.invoice,
-          aliasName:
-              $_aliasNameGenerator(db.patient.patientId, db.invoice.patientId));
+  static drift.MultiTypedResultKey<$InvoiceTable, List<InvoiceData>>
+      _invoiceRefsTable(_$AppDatabase db) =>
+          drift.MultiTypedResultKey.fromTable(db.invoice,
+              aliasName: drift.$_aliasNameGenerator(
+                  db.patient.patientId, db.invoice.patientId));
 
   $$InvoiceTableProcessedTableManager get invoiceRefs {
     final manager = $$InvoiceTableTableManager($_db, $_db.invoice).filter((f) =>
         f.patientId.patientId.sqlEquals($_itemColumn<int>('patient_id')!));
 
     final cache = $_typedResult.readTableOrNull(_invoiceRefsTable($_db));
-    return ProcessedTableManager(
+    return drift.ProcessedTableManager(
         manager.$state.copyWith(prefetchedData: cache));
   }
 
-  static MultiTypedResultKey<$ClinicalRecordTable, List<ClinicalRecordData>>
+  static drift
+      .MultiTypedResultKey<$ClinicalRecordTable, List<ClinicalRecordData>>
       _clinicalRecordRefsTable(_$AppDatabase db) =>
-          MultiTypedResultKey.fromTable(db.clinicalRecord,
-              aliasName: $_aliasNameGenerator(
+          drift.MultiTypedResultKey.fromTable(db.clinicalRecord,
+              aliasName: drift.$_aliasNameGenerator(
                   db.patient.patientId, db.clinicalRecord.patientId));
 
   $$ClinicalRecordTableProcessedTableManager get clinicalRecordRefs {
@@ -3825,13 +3985,13 @@ final class $$PatientTableReferences
             f.patientId.patientId.sqlEquals($_itemColumn<int>('patient_id')!));
 
     final cache = $_typedResult.readTableOrNull(_clinicalRecordRefsTable($_db));
-    return ProcessedTableManager(
+    return drift.ProcessedTableManager(
         manager.$state.copyWith(prefetchedData: cache));
   }
 }
 
 class $$PatientTableFilterComposer
-    extends Composer<_$AppDatabase, $PatientTable> {
+    extends drift.Composer<_$AppDatabase, $PatientTable> {
   $$PatientTableFilterComposer({
     required super.$db,
     required super.$table,
@@ -3839,77 +3999,93 @@ class $$PatientTableFilterComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnFilters<int> get patientId => $composableBuilder(
-      column: $table.patientId, builder: (column) => ColumnFilters(column));
+  drift.ColumnFilters<int> get patientId => $composableBuilder(
+      column: $table.patientId,
+      builder: (column) => drift.ColumnFilters(column));
 
-  ColumnFilters<String> get firstName => $composableBuilder(
-      column: $table.firstName, builder: (column) => ColumnFilters(column));
+  drift.ColumnFilters<String> get firstName => $composableBuilder(
+      column: $table.firstName,
+      builder: (column) => drift.ColumnFilters(column));
 
-  ColumnFilters<String> get middleName => $composableBuilder(
-      column: $table.middleName, builder: (column) => ColumnFilters(column));
+  drift.ColumnFilters<String> get middleName => $composableBuilder(
+      column: $table.middleName,
+      builder: (column) => drift.ColumnFilters(column));
 
-  ColumnFilters<String> get lastName => $composableBuilder(
-      column: $table.lastName, builder: (column) => ColumnFilters(column));
+  drift.ColumnFilters<String> get lastName => $composableBuilder(
+      column: $table.lastName,
+      builder: (column) => drift.ColumnFilters(column));
 
-  ColumnFilters<String> get suffix => $composableBuilder(
-      column: $table.suffix, builder: (column) => ColumnFilters(column));
+  drift.ColumnFilters<String> get suffix => $composableBuilder(
+      column: $table.suffix, builder: (column) => drift.ColumnFilters(column));
 
-  ColumnFilters<DateTime> get birthDate => $composableBuilder(
-      column: $table.birthDate, builder: (column) => ColumnFilters(column));
+  drift.ColumnFilters<DateTime> get birthDate => $composableBuilder(
+      column: $table.birthDate,
+      builder: (column) => drift.ColumnFilters(column));
 
-  ColumnFilters<String> get sex => $composableBuilder(
-      column: $table.sex, builder: (column) => ColumnFilters(column));
+  drift.ColumnFilters<String> get sex => $composableBuilder(
+      column: $table.sex, builder: (column) => drift.ColumnFilters(column));
 
-  ColumnFilters<String> get civilStatus => $composableBuilder(
-      column: $table.civilStatus, builder: (column) => ColumnFilters(column));
+  drift.ColumnFilters<String> get civilStatus => $composableBuilder(
+      column: $table.civilStatus,
+      builder: (column) => drift.ColumnFilters(column));
 
-  ColumnFilters<String> get contactNumber => $composableBuilder(
-      column: $table.contactNumber, builder: (column) => ColumnFilters(column));
+  drift.ColumnFilters<String> get contactNumber => $composableBuilder(
+      column: $table.contactNumber,
+      builder: (column) => drift.ColumnFilters(column));
 
-  ColumnFilters<String> get emergencyContactNo => $composableBuilder(
+  drift.ColumnFilters<String> get emergencyContactNo => $composableBuilder(
       column: $table.emergencyContactNo,
-      builder: (column) => ColumnFilters(column));
+      builder: (column) => drift.ColumnFilters(column));
 
-  ColumnFilters<String> get referredBy => $composableBuilder(
-      column: $table.referredBy, builder: (column) => ColumnFilters(column));
+  drift.ColumnFilters<String> get referredBy => $composableBuilder(
+      column: $table.referredBy,
+      builder: (column) => drift.ColumnFilters(column));
 
-  ColumnFilters<String> get relationship => $composableBuilder(
-      column: $table.relationship, builder: (column) => ColumnFilters(column));
+  drift.ColumnFilters<String> get relationship => $composableBuilder(
+      column: $table.relationship,
+      builder: (column) => drift.ColumnFilters(column));
 
-  ColumnFilters<String> get relationshipEmergency => $composableBuilder(
+  drift.ColumnFilters<String> get relationshipEmergency => $composableBuilder(
       column: $table.relationshipEmergency,
-      builder: (column) => ColumnFilters(column));
+      builder: (column) => drift.ColumnFilters(column));
 
-  ColumnFilters<String> get streetAddress => $composableBuilder(
-      column: $table.streetAddress, builder: (column) => ColumnFilters(column));
+  drift.ColumnFilters<String> get streetAddress => $composableBuilder(
+      column: $table.streetAddress,
+      builder: (column) => drift.ColumnFilters(column));
 
-  ColumnFilters<String> get barangay => $composableBuilder(
-      column: $table.barangay, builder: (column) => ColumnFilters(column));
+  drift.ColumnFilters<String> get barangay => $composableBuilder(
+      column: $table.barangay,
+      builder: (column) => drift.ColumnFilters(column));
 
-  ColumnFilters<String> get cityMunicipality => $composableBuilder(
+  drift.ColumnFilters<String> get cityMunicipality => $composableBuilder(
       column: $table.cityMunicipality,
-      builder: (column) => ColumnFilters(column));
+      builder: (column) => drift.ColumnFilters(column));
 
-  ColumnFilters<String> get province => $composableBuilder(
-      column: $table.province, builder: (column) => ColumnFilters(column));
+  drift.ColumnFilters<String> get province => $composableBuilder(
+      column: $table.province,
+      builder: (column) => drift.ColumnFilters(column));
 
-  ColumnFilters<String> get zipCode => $composableBuilder(
-      column: $table.zipCode, builder: (column) => ColumnFilters(column));
+  drift.ColumnFilters<String> get zipCode => $composableBuilder(
+      column: $table.zipCode, builder: (column) => drift.ColumnFilters(column));
 
-  ColumnFilters<bool> get isArchived => $composableBuilder(
-      column: $table.isArchived, builder: (column) => ColumnFilters(column));
+  drift.ColumnFilters<bool> get isArchived => $composableBuilder(
+      column: $table.isArchived,
+      builder: (column) => drift.ColumnFilters(column));
 
-  ColumnFilters<bool> get isSeniorOrPWD => $composableBuilder(
-      column: $table.isSeniorOrPWD, builder: (column) => ColumnFilters(column));
+  drift.ColumnFilters<bool> get isSeniorOrPWD => $composableBuilder(
+      column: $table.isSeniorOrPWD,
+      builder: (column) => drift.ColumnFilters(column));
 
-  ColumnFilters<DateTime> get createdAt => $composableBuilder(
-      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+  drift.ColumnFilters<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt,
+      builder: (column) => drift.ColumnFilters(column));
 
-  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
-      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+  drift.ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt,
+      builder: (column) => drift.ColumnFilters(column));
 
-  Expression<bool> appointmentRefs(
-      Expression<bool> Function($$AppointmentTableFilterComposer f) f) {
+  drift.Expression<bool> appointmentRefs(
+      drift.Expression<bool> Function($$AppointmentTableFilterComposer f) f) {
     final $$AppointmentTableFilterComposer composer = $composerBuilder(
         composer: this,
         getCurrentColumn: (t) => t.patientId,
@@ -3929,8 +4105,8 @@ class $$PatientTableFilterComposer
     return f(composer);
   }
 
-  Expression<bool> invoiceRefs(
-      Expression<bool> Function($$InvoiceTableFilterComposer f) f) {
+  drift.Expression<bool> invoiceRefs(
+      drift.Expression<bool> Function($$InvoiceTableFilterComposer f) f) {
     final $$InvoiceTableFilterComposer composer = $composerBuilder(
         composer: this,
         getCurrentColumn: (t) => t.patientId,
@@ -3950,8 +4126,9 @@ class $$PatientTableFilterComposer
     return f(composer);
   }
 
-  Expression<bool> clinicalRecordRefs(
-      Expression<bool> Function($$ClinicalRecordTableFilterComposer f) f) {
+  drift.Expression<bool> clinicalRecordRefs(
+      drift.Expression<bool> Function($$ClinicalRecordTableFilterComposer f)
+          f) {
     final $$ClinicalRecordTableFilterComposer composer = $composerBuilder(
         composer: this,
         getCurrentColumn: (t) => t.patientId,
@@ -3973,7 +4150,7 @@ class $$PatientTableFilterComposer
 }
 
 class $$PatientTableOrderingComposer
-    extends Composer<_$AppDatabase, $PatientTable> {
+    extends drift.Composer<_$AppDatabase, $PatientTable> {
   $$PatientTableOrderingComposer({
     required super.$db,
     required super.$table,
@@ -3981,82 +4158,96 @@ class $$PatientTableOrderingComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnOrderings<int> get patientId => $composableBuilder(
-      column: $table.patientId, builder: (column) => ColumnOrderings(column));
+  drift.ColumnOrderings<int> get patientId => $composableBuilder(
+      column: $table.patientId,
+      builder: (column) => drift.ColumnOrderings(column));
 
-  ColumnOrderings<String> get firstName => $composableBuilder(
-      column: $table.firstName, builder: (column) => ColumnOrderings(column));
+  drift.ColumnOrderings<String> get firstName => $composableBuilder(
+      column: $table.firstName,
+      builder: (column) => drift.ColumnOrderings(column));
 
-  ColumnOrderings<String> get middleName => $composableBuilder(
-      column: $table.middleName, builder: (column) => ColumnOrderings(column));
+  drift.ColumnOrderings<String> get middleName => $composableBuilder(
+      column: $table.middleName,
+      builder: (column) => drift.ColumnOrderings(column));
 
-  ColumnOrderings<String> get lastName => $composableBuilder(
-      column: $table.lastName, builder: (column) => ColumnOrderings(column));
+  drift.ColumnOrderings<String> get lastName => $composableBuilder(
+      column: $table.lastName,
+      builder: (column) => drift.ColumnOrderings(column));
 
-  ColumnOrderings<String> get suffix => $composableBuilder(
-      column: $table.suffix, builder: (column) => ColumnOrderings(column));
+  drift.ColumnOrderings<String> get suffix => $composableBuilder(
+      column: $table.suffix,
+      builder: (column) => drift.ColumnOrderings(column));
 
-  ColumnOrderings<DateTime> get birthDate => $composableBuilder(
-      column: $table.birthDate, builder: (column) => ColumnOrderings(column));
+  drift.ColumnOrderings<DateTime> get birthDate => $composableBuilder(
+      column: $table.birthDate,
+      builder: (column) => drift.ColumnOrderings(column));
 
-  ColumnOrderings<String> get sex => $composableBuilder(
-      column: $table.sex, builder: (column) => ColumnOrderings(column));
+  drift.ColumnOrderings<String> get sex => $composableBuilder(
+      column: $table.sex, builder: (column) => drift.ColumnOrderings(column));
 
-  ColumnOrderings<String> get civilStatus => $composableBuilder(
-      column: $table.civilStatus, builder: (column) => ColumnOrderings(column));
+  drift.ColumnOrderings<String> get civilStatus => $composableBuilder(
+      column: $table.civilStatus,
+      builder: (column) => drift.ColumnOrderings(column));
 
-  ColumnOrderings<String> get contactNumber => $composableBuilder(
+  drift.ColumnOrderings<String> get contactNumber => $composableBuilder(
       column: $table.contactNumber,
-      builder: (column) => ColumnOrderings(column));
+      builder: (column) => drift.ColumnOrderings(column));
 
-  ColumnOrderings<String> get emergencyContactNo => $composableBuilder(
+  drift.ColumnOrderings<String> get emergencyContactNo => $composableBuilder(
       column: $table.emergencyContactNo,
-      builder: (column) => ColumnOrderings(column));
+      builder: (column) => drift.ColumnOrderings(column));
 
-  ColumnOrderings<String> get referredBy => $composableBuilder(
-      column: $table.referredBy, builder: (column) => ColumnOrderings(column));
+  drift.ColumnOrderings<String> get referredBy => $composableBuilder(
+      column: $table.referredBy,
+      builder: (column) => drift.ColumnOrderings(column));
 
-  ColumnOrderings<String> get relationship => $composableBuilder(
+  drift.ColumnOrderings<String> get relationship => $composableBuilder(
       column: $table.relationship,
-      builder: (column) => ColumnOrderings(column));
+      builder: (column) => drift.ColumnOrderings(column));
 
-  ColumnOrderings<String> get relationshipEmergency => $composableBuilder(
+  drift.ColumnOrderings<String> get relationshipEmergency => $composableBuilder(
       column: $table.relationshipEmergency,
-      builder: (column) => ColumnOrderings(column));
+      builder: (column) => drift.ColumnOrderings(column));
 
-  ColumnOrderings<String> get streetAddress => $composableBuilder(
+  drift.ColumnOrderings<String> get streetAddress => $composableBuilder(
       column: $table.streetAddress,
-      builder: (column) => ColumnOrderings(column));
+      builder: (column) => drift.ColumnOrderings(column));
 
-  ColumnOrderings<String> get barangay => $composableBuilder(
-      column: $table.barangay, builder: (column) => ColumnOrderings(column));
+  drift.ColumnOrderings<String> get barangay => $composableBuilder(
+      column: $table.barangay,
+      builder: (column) => drift.ColumnOrderings(column));
 
-  ColumnOrderings<String> get cityMunicipality => $composableBuilder(
+  drift.ColumnOrderings<String> get cityMunicipality => $composableBuilder(
       column: $table.cityMunicipality,
-      builder: (column) => ColumnOrderings(column));
+      builder: (column) => drift.ColumnOrderings(column));
 
-  ColumnOrderings<String> get province => $composableBuilder(
-      column: $table.province, builder: (column) => ColumnOrderings(column));
+  drift.ColumnOrderings<String> get province => $composableBuilder(
+      column: $table.province,
+      builder: (column) => drift.ColumnOrderings(column));
 
-  ColumnOrderings<String> get zipCode => $composableBuilder(
-      column: $table.zipCode, builder: (column) => ColumnOrderings(column));
+  drift.ColumnOrderings<String> get zipCode => $composableBuilder(
+      column: $table.zipCode,
+      builder: (column) => drift.ColumnOrderings(column));
 
-  ColumnOrderings<bool> get isArchived => $composableBuilder(
-      column: $table.isArchived, builder: (column) => ColumnOrderings(column));
+  drift.ColumnOrderings<bool> get isArchived => $composableBuilder(
+      column: $table.isArchived,
+      builder: (column) => drift.ColumnOrderings(column));
 
-  ColumnOrderings<bool> get isSeniorOrPWD => $composableBuilder(
+  drift.ColumnOrderings<bool> get isSeniorOrPWD => $composableBuilder(
       column: $table.isSeniorOrPWD,
-      builder: (column) => ColumnOrderings(column));
+      builder: (column) => drift.ColumnOrderings(column));
 
-  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
-      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+  drift.ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt,
+      builder: (column) => drift.ColumnOrderings(column));
 
-  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
-      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+  drift.ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt,
+      builder: (column) => drift.ColumnOrderings(column));
 }
 
 class $$PatientTableAnnotationComposer
-    extends Composer<_$AppDatabase, $PatientTable> {
+    extends drift.Composer<_$AppDatabase, $PatientTable> {
   $$PatientTableAnnotationComposer({
     required super.$db,
     required super.$table,
@@ -4064,74 +4255,74 @@ class $$PatientTableAnnotationComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  GeneratedColumn<int> get patientId =>
+  drift.GeneratedColumn<int> get patientId =>
       $composableBuilder(column: $table.patientId, builder: (column) => column);
 
-  GeneratedColumn<String> get firstName =>
+  drift.GeneratedColumn<String> get firstName =>
       $composableBuilder(column: $table.firstName, builder: (column) => column);
 
-  GeneratedColumn<String> get middleName => $composableBuilder(
+  drift.GeneratedColumn<String> get middleName => $composableBuilder(
       column: $table.middleName, builder: (column) => column);
 
-  GeneratedColumn<String> get lastName =>
+  drift.GeneratedColumn<String> get lastName =>
       $composableBuilder(column: $table.lastName, builder: (column) => column);
 
-  GeneratedColumn<String> get suffix =>
+  drift.GeneratedColumn<String> get suffix =>
       $composableBuilder(column: $table.suffix, builder: (column) => column);
 
-  GeneratedColumn<DateTime> get birthDate =>
+  drift.GeneratedColumn<DateTime> get birthDate =>
       $composableBuilder(column: $table.birthDate, builder: (column) => column);
 
-  GeneratedColumn<String> get sex =>
+  drift.GeneratedColumn<String> get sex =>
       $composableBuilder(column: $table.sex, builder: (column) => column);
 
-  GeneratedColumn<String> get civilStatus => $composableBuilder(
+  drift.GeneratedColumn<String> get civilStatus => $composableBuilder(
       column: $table.civilStatus, builder: (column) => column);
 
-  GeneratedColumn<String> get contactNumber => $composableBuilder(
+  drift.GeneratedColumn<String> get contactNumber => $composableBuilder(
       column: $table.contactNumber, builder: (column) => column);
 
-  GeneratedColumn<String> get emergencyContactNo => $composableBuilder(
+  drift.GeneratedColumn<String> get emergencyContactNo => $composableBuilder(
       column: $table.emergencyContactNo, builder: (column) => column);
 
-  GeneratedColumn<String> get referredBy => $composableBuilder(
+  drift.GeneratedColumn<String> get referredBy => $composableBuilder(
       column: $table.referredBy, builder: (column) => column);
 
-  GeneratedColumn<String> get relationship => $composableBuilder(
+  drift.GeneratedColumn<String> get relationship => $composableBuilder(
       column: $table.relationship, builder: (column) => column);
 
-  GeneratedColumn<String> get relationshipEmergency => $composableBuilder(
+  drift.GeneratedColumn<String> get relationshipEmergency => $composableBuilder(
       column: $table.relationshipEmergency, builder: (column) => column);
 
-  GeneratedColumn<String> get streetAddress => $composableBuilder(
+  drift.GeneratedColumn<String> get streetAddress => $composableBuilder(
       column: $table.streetAddress, builder: (column) => column);
 
-  GeneratedColumn<String> get barangay =>
+  drift.GeneratedColumn<String> get barangay =>
       $composableBuilder(column: $table.barangay, builder: (column) => column);
 
-  GeneratedColumn<String> get cityMunicipality => $composableBuilder(
+  drift.GeneratedColumn<String> get cityMunicipality => $composableBuilder(
       column: $table.cityMunicipality, builder: (column) => column);
 
-  GeneratedColumn<String> get province =>
+  drift.GeneratedColumn<String> get province =>
       $composableBuilder(column: $table.province, builder: (column) => column);
 
-  GeneratedColumn<String> get zipCode =>
+  drift.GeneratedColumn<String> get zipCode =>
       $composableBuilder(column: $table.zipCode, builder: (column) => column);
 
-  GeneratedColumn<bool> get isArchived => $composableBuilder(
+  drift.GeneratedColumn<bool> get isArchived => $composableBuilder(
       column: $table.isArchived, builder: (column) => column);
 
-  GeneratedColumn<bool> get isSeniorOrPWD => $composableBuilder(
+  drift.GeneratedColumn<bool> get isSeniorOrPWD => $composableBuilder(
       column: $table.isSeniorOrPWD, builder: (column) => column);
 
-  GeneratedColumn<DateTime> get createdAt =>
+  drift.GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
 
-  GeneratedColumn<DateTime> get updatedAt =>
+  drift.GeneratedColumn<DateTime> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
 
-  Expression<T> appointmentRefs<T extends Object>(
-      Expression<T> Function($$AppointmentTableAnnotationComposer a) f) {
+  drift.Expression<T> appointmentRefs<T extends Object>(
+      drift.Expression<T> Function($$AppointmentTableAnnotationComposer a) f) {
     final $$AppointmentTableAnnotationComposer composer = $composerBuilder(
         composer: this,
         getCurrentColumn: (t) => t.patientId,
@@ -4151,8 +4342,8 @@ class $$PatientTableAnnotationComposer
     return f(composer);
   }
 
-  Expression<T> invoiceRefs<T extends Object>(
-      Expression<T> Function($$InvoiceTableAnnotationComposer a) f) {
+  drift.Expression<T> invoiceRefs<T extends Object>(
+      drift.Expression<T> Function($$InvoiceTableAnnotationComposer a) f) {
     final $$InvoiceTableAnnotationComposer composer = $composerBuilder(
         composer: this,
         getCurrentColumn: (t) => t.patientId,
@@ -4172,8 +4363,9 @@ class $$PatientTableAnnotationComposer
     return f(composer);
   }
 
-  Expression<T> clinicalRecordRefs<T extends Object>(
-      Expression<T> Function($$ClinicalRecordTableAnnotationComposer a) f) {
+  drift.Expression<T> clinicalRecordRefs<T extends Object>(
+      drift.Expression<T> Function($$ClinicalRecordTableAnnotationComposer a)
+          f) {
     final $$ClinicalRecordTableAnnotationComposer composer = $composerBuilder(
         composer: this,
         getCurrentColumn: (t) => t.patientId,
@@ -4194,7 +4386,7 @@ class $$PatientTableAnnotationComposer
   }
 }
 
-class $$PatientTableTableManager extends RootTableManager<
+class $$PatientTableTableManager extends drift.RootTableManager<
     _$AppDatabase,
     $PatientTable,
     PatientData,
@@ -4205,10 +4397,10 @@ class $$PatientTableTableManager extends RootTableManager<
     $$PatientTableUpdateCompanionBuilder,
     (PatientData, $$PatientTableReferences),
     PatientData,
-    PrefetchHooks Function(
+    drift.PrefetchHooks Function(
         {bool appointmentRefs, bool invoiceRefs, bool clinicalRecordRefs})> {
   $$PatientTableTableManager(_$AppDatabase db, $PatientTable table)
-      : super(TableManagerState(
+      : super(drift.TableManagerState(
           db: db,
           table: table,
           createFilteringComposer: () =>
@@ -4218,28 +4410,30 @@ class $$PatientTableTableManager extends RootTableManager<
           createComputedFieldComposer: () =>
               $$PatientTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
-            Value<int> patientId = const Value.absent(),
-            Value<String> firstName = const Value.absent(),
-            Value<String?> middleName = const Value.absent(),
-            Value<String> lastName = const Value.absent(),
-            Value<String?> suffix = const Value.absent(),
-            Value<DateTime> birthDate = const Value.absent(),
-            Value<String> sex = const Value.absent(),
-            Value<String> civilStatus = const Value.absent(),
-            Value<String> contactNumber = const Value.absent(),
-            Value<String?> emergencyContactNo = const Value.absent(),
-            Value<String?> referredBy = const Value.absent(),
-            Value<String?> relationship = const Value.absent(),
-            Value<String?> relationshipEmergency = const Value.absent(),
-            Value<String> streetAddress = const Value.absent(),
-            Value<String> barangay = const Value.absent(),
-            Value<String> cityMunicipality = const Value.absent(),
-            Value<String> province = const Value.absent(),
-            Value<String?> zipCode = const Value.absent(),
-            Value<bool> isArchived = const Value.absent(),
-            Value<bool> isSeniorOrPWD = const Value.absent(),
-            Value<DateTime> createdAt = const Value.absent(),
-            Value<DateTime> updatedAt = const Value.absent(),
+            drift.Value<int> patientId = const drift.Value.absent(),
+            drift.Value<String> firstName = const drift.Value.absent(),
+            drift.Value<String?> middleName = const drift.Value.absent(),
+            drift.Value<String> lastName = const drift.Value.absent(),
+            drift.Value<String?> suffix = const drift.Value.absent(),
+            drift.Value<DateTime> birthDate = const drift.Value.absent(),
+            drift.Value<String> sex = const drift.Value.absent(),
+            drift.Value<String> civilStatus = const drift.Value.absent(),
+            drift.Value<String> contactNumber = const drift.Value.absent(),
+            drift.Value<String?> emergencyContactNo =
+                const drift.Value.absent(),
+            drift.Value<String?> referredBy = const drift.Value.absent(),
+            drift.Value<String?> relationship = const drift.Value.absent(),
+            drift.Value<String?> relationshipEmergency =
+                const drift.Value.absent(),
+            drift.Value<String> streetAddress = const drift.Value.absent(),
+            drift.Value<String> barangay = const drift.Value.absent(),
+            drift.Value<String> cityMunicipality = const drift.Value.absent(),
+            drift.Value<String> province = const drift.Value.absent(),
+            drift.Value<String?> zipCode = const drift.Value.absent(),
+            drift.Value<bool> isArchived = const drift.Value.absent(),
+            drift.Value<bool> isSeniorOrPWD = const drift.Value.absent(),
+            drift.Value<DateTime> createdAt = const drift.Value.absent(),
+            drift.Value<DateTime> updatedAt = const drift.Value.absent(),
           }) =>
               PatientCompanion(
             patientId: patientId,
@@ -4266,26 +4460,28 @@ class $$PatientTableTableManager extends RootTableManager<
             updatedAt: updatedAt,
           ),
           createCompanionCallback: ({
-            Value<int> patientId = const Value.absent(),
+            drift.Value<int> patientId = const drift.Value.absent(),
             required String firstName,
-            Value<String?> middleName = const Value.absent(),
+            drift.Value<String?> middleName = const drift.Value.absent(),
             required String lastName,
-            Value<String?> suffix = const Value.absent(),
+            drift.Value<String?> suffix = const drift.Value.absent(),
             required DateTime birthDate,
             required String sex,
             required String civilStatus,
             required String contactNumber,
-            Value<String?> emergencyContactNo = const Value.absent(),
-            Value<String?> referredBy = const Value.absent(),
-            Value<String?> relationship = const Value.absent(),
-            Value<String?> relationshipEmergency = const Value.absent(),
+            drift.Value<String?> emergencyContactNo =
+                const drift.Value.absent(),
+            drift.Value<String?> referredBy = const drift.Value.absent(),
+            drift.Value<String?> relationship = const drift.Value.absent(),
+            drift.Value<String?> relationshipEmergency =
+                const drift.Value.absent(),
             required String streetAddress,
             required String barangay,
             required String cityMunicipality,
             required String province,
-            Value<String?> zipCode = const Value.absent(),
-            Value<bool> isArchived = const Value.absent(),
-            Value<bool> isSeniorOrPWD = const Value.absent(),
+            drift.Value<String?> zipCode = const drift.Value.absent(),
+            drift.Value<bool> isArchived = const drift.Value.absent(),
+            drift.Value<bool> isSeniorOrPWD = const drift.Value.absent(),
             required DateTime createdAt,
             required DateTime updatedAt,
           }) =>
@@ -4321,7 +4517,7 @@ class $$PatientTableTableManager extends RootTableManager<
               {appointmentRefs = false,
               invoiceRefs = false,
               clinicalRecordRefs = false}) {
-            return PrefetchHooks(
+            return drift.PrefetchHooks(
               db: db,
               explicitlyWatchedTables: [
                 if (appointmentRefs) db.appointment,
@@ -4332,7 +4528,7 @@ class $$PatientTableTableManager extends RootTableManager<
               getPrefetchedDataCallback: (items) async {
                 return [
                   if (appointmentRefs)
-                    await $_getPrefetchedData<PatientData, $PatientTable,
+                    await drift.$_getPrefetchedData<PatientData, $PatientTable,
                             AppointmentData>(
                         currentTable: table,
                         referencedTable:
@@ -4345,7 +4541,7 @@ class $$PatientTableTableManager extends RootTableManager<
                                 .where((e) => e.patientId == item.patientId),
                         typedResults: items),
                   if (invoiceRefs)
-                    await $_getPrefetchedData<PatientData, $PatientTable,
+                    await drift.$_getPrefetchedData<PatientData, $PatientTable,
                             InvoiceData>(
                         currentTable: table,
                         referencedTable:
@@ -4357,7 +4553,7 @@ class $$PatientTableTableManager extends RootTableManager<
                                 .where((e) => e.patientId == item.patientId),
                         typedResults: items),
                   if (clinicalRecordRefs)
-                    await $_getPrefetchedData<PatientData, $PatientTable,
+                    await drift.$_getPrefetchedData<PatientData, $PatientTable,
                             ClinicalRecordData>(
                         currentTable: table,
                         referencedTable: $$PatientTableReferences
@@ -4376,7 +4572,7 @@ class $$PatientTableTableManager extends RootTableManager<
         ));
 }
 
-typedef $$PatientTableProcessedTableManager = ProcessedTableManager<
+typedef $$PatientTableProcessedTableManager = drift.ProcessedTableManager<
     _$AppDatabase,
     $PatientTable,
     PatientData,
@@ -4387,38 +4583,44 @@ typedef $$PatientTableProcessedTableManager = ProcessedTableManager<
     $$PatientTableUpdateCompanionBuilder,
     (PatientData, $$PatientTableReferences),
     PatientData,
-    PrefetchHooks Function(
+    drift.PrefetchHooks Function(
         {bool appointmentRefs, bool invoiceRefs, bool clinicalRecordRefs})>;
 typedef $$ClinicalStaffTableCreateCompanionBuilder = ClinicalStaffCompanion
     Function({
   required int staffId,
   required String firstName,
-  Value<String?> middleName,
+  drift.Value<String?> middleName,
   required String lastName,
   required String pin,
-  Value<bool> isLockedOut,
-  Value<int> rowid,
+  drift.Value<bool> isLockedOut,
+  drift.Value<int> failedAttempts,
+  drift.Value<int> lockoutTier,
+  drift.Value<DateTime?> lockoutUntil,
+  drift.Value<int> rowid,
 });
 typedef $$ClinicalStaffTableUpdateCompanionBuilder = ClinicalStaffCompanion
     Function({
-  Value<int> staffId,
-  Value<String> firstName,
-  Value<String?> middleName,
-  Value<String> lastName,
-  Value<String> pin,
-  Value<bool> isLockedOut,
-  Value<int> rowid,
+  drift.Value<int> staffId,
+  drift.Value<String> firstName,
+  drift.Value<String?> middleName,
+  drift.Value<String> lastName,
+  drift.Value<String> pin,
+  drift.Value<bool> isLockedOut,
+  drift.Value<int> failedAttempts,
+  drift.Value<int> lockoutTier,
+  drift.Value<DateTime?> lockoutUntil,
+  drift.Value<int> rowid,
 });
 
-final class $$ClinicalStaffTableReferences extends BaseReferences<_$AppDatabase,
-    $ClinicalStaffTable, ClinicalStaffData> {
+final class $$ClinicalStaffTableReferences extends drift
+    .BaseReferences<_$AppDatabase, $ClinicalStaffTable, ClinicalStaffData> {
   $$ClinicalStaffTableReferences(
       super.$_db, super.$_table, super.$_typedResult);
 
-  static MultiTypedResultKey<$AppointmentTable, List<AppointmentData>>
+  static drift.MultiTypedResultKey<$AppointmentTable, List<AppointmentData>>
       _appointmentRefsTable(_$AppDatabase db) =>
-          MultiTypedResultKey.fromTable(db.appointment,
-              aliasName: $_aliasNameGenerator(
+          drift.MultiTypedResultKey.fromTable(db.appointment,
+              aliasName: drift.$_aliasNameGenerator(
                   db.clinicalStaff.staffId, db.appointment.staffId));
 
   $$AppointmentTableProcessedTableManager get appointmentRefs {
@@ -4427,13 +4629,13 @@ final class $$ClinicalStaffTableReferences extends BaseReferences<_$AppDatabase,
             (f) => f.staffId.staffId.sqlEquals($_itemColumn<int>('staff_id')!));
 
     final cache = $_typedResult.readTableOrNull(_appointmentRefsTable($_db));
-    return ProcessedTableManager(
+    return drift.ProcessedTableManager(
         manager.$state.copyWith(prefetchedData: cache));
   }
 }
 
 class $$ClinicalStaffTableFilterComposer
-    extends Composer<_$AppDatabase, $ClinicalStaffTable> {
+    extends drift.Composer<_$AppDatabase, $ClinicalStaffTable> {
   $$ClinicalStaffTableFilterComposer({
     required super.$db,
     required super.$table,
@@ -4441,26 +4643,42 @@ class $$ClinicalStaffTableFilterComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnFilters<int> get staffId => $composableBuilder(
-      column: $table.staffId, builder: (column) => ColumnFilters(column));
+  drift.ColumnFilters<int> get staffId => $composableBuilder(
+      column: $table.staffId, builder: (column) => drift.ColumnFilters(column));
 
-  ColumnFilters<String> get firstName => $composableBuilder(
-      column: $table.firstName, builder: (column) => ColumnFilters(column));
+  drift.ColumnFilters<String> get firstName => $composableBuilder(
+      column: $table.firstName,
+      builder: (column) => drift.ColumnFilters(column));
 
-  ColumnFilters<String> get middleName => $composableBuilder(
-      column: $table.middleName, builder: (column) => ColumnFilters(column));
+  drift.ColumnFilters<String> get middleName => $composableBuilder(
+      column: $table.middleName,
+      builder: (column) => drift.ColumnFilters(column));
 
-  ColumnFilters<String> get lastName => $composableBuilder(
-      column: $table.lastName, builder: (column) => ColumnFilters(column));
+  drift.ColumnFilters<String> get lastName => $composableBuilder(
+      column: $table.lastName,
+      builder: (column) => drift.ColumnFilters(column));
 
-  ColumnFilters<String> get pin => $composableBuilder(
-      column: $table.pin, builder: (column) => ColumnFilters(column));
+  drift.ColumnFilters<String> get pin => $composableBuilder(
+      column: $table.pin, builder: (column) => drift.ColumnFilters(column));
 
-  ColumnFilters<bool> get isLockedOut => $composableBuilder(
-      column: $table.isLockedOut, builder: (column) => ColumnFilters(column));
+  drift.ColumnFilters<bool> get isLockedOut => $composableBuilder(
+      column: $table.isLockedOut,
+      builder: (column) => drift.ColumnFilters(column));
 
-  Expression<bool> appointmentRefs(
-      Expression<bool> Function($$AppointmentTableFilterComposer f) f) {
+  drift.ColumnFilters<int> get failedAttempts => $composableBuilder(
+      column: $table.failedAttempts,
+      builder: (column) => drift.ColumnFilters(column));
+
+  drift.ColumnFilters<int> get lockoutTier => $composableBuilder(
+      column: $table.lockoutTier,
+      builder: (column) => drift.ColumnFilters(column));
+
+  drift.ColumnFilters<DateTime> get lockoutUntil => $composableBuilder(
+      column: $table.lockoutUntil,
+      builder: (column) => drift.ColumnFilters(column));
+
+  drift.Expression<bool> appointmentRefs(
+      drift.Expression<bool> Function($$AppointmentTableFilterComposer f) f) {
     final $$AppointmentTableFilterComposer composer = $composerBuilder(
         composer: this,
         getCurrentColumn: (t) => t.staffId,
@@ -4482,7 +4700,7 @@ class $$ClinicalStaffTableFilterComposer
 }
 
 class $$ClinicalStaffTableOrderingComposer
-    extends Composer<_$AppDatabase, $ClinicalStaffTable> {
+    extends drift.Composer<_$AppDatabase, $ClinicalStaffTable> {
   $$ClinicalStaffTableOrderingComposer({
     required super.$db,
     required super.$table,
@@ -4490,27 +4708,44 @@ class $$ClinicalStaffTableOrderingComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnOrderings<int> get staffId => $composableBuilder(
-      column: $table.staffId, builder: (column) => ColumnOrderings(column));
+  drift.ColumnOrderings<int> get staffId => $composableBuilder(
+      column: $table.staffId,
+      builder: (column) => drift.ColumnOrderings(column));
 
-  ColumnOrderings<String> get firstName => $composableBuilder(
-      column: $table.firstName, builder: (column) => ColumnOrderings(column));
+  drift.ColumnOrderings<String> get firstName => $composableBuilder(
+      column: $table.firstName,
+      builder: (column) => drift.ColumnOrderings(column));
 
-  ColumnOrderings<String> get middleName => $composableBuilder(
-      column: $table.middleName, builder: (column) => ColumnOrderings(column));
+  drift.ColumnOrderings<String> get middleName => $composableBuilder(
+      column: $table.middleName,
+      builder: (column) => drift.ColumnOrderings(column));
 
-  ColumnOrderings<String> get lastName => $composableBuilder(
-      column: $table.lastName, builder: (column) => ColumnOrderings(column));
+  drift.ColumnOrderings<String> get lastName => $composableBuilder(
+      column: $table.lastName,
+      builder: (column) => drift.ColumnOrderings(column));
 
-  ColumnOrderings<String> get pin => $composableBuilder(
-      column: $table.pin, builder: (column) => ColumnOrderings(column));
+  drift.ColumnOrderings<String> get pin => $composableBuilder(
+      column: $table.pin, builder: (column) => drift.ColumnOrderings(column));
 
-  ColumnOrderings<bool> get isLockedOut => $composableBuilder(
-      column: $table.isLockedOut, builder: (column) => ColumnOrderings(column));
+  drift.ColumnOrderings<bool> get isLockedOut => $composableBuilder(
+      column: $table.isLockedOut,
+      builder: (column) => drift.ColumnOrderings(column));
+
+  drift.ColumnOrderings<int> get failedAttempts => $composableBuilder(
+      column: $table.failedAttempts,
+      builder: (column) => drift.ColumnOrderings(column));
+
+  drift.ColumnOrderings<int> get lockoutTier => $composableBuilder(
+      column: $table.lockoutTier,
+      builder: (column) => drift.ColumnOrderings(column));
+
+  drift.ColumnOrderings<DateTime> get lockoutUntil => $composableBuilder(
+      column: $table.lockoutUntil,
+      builder: (column) => drift.ColumnOrderings(column));
 }
 
 class $$ClinicalStaffTableAnnotationComposer
-    extends Composer<_$AppDatabase, $ClinicalStaffTable> {
+    extends drift.Composer<_$AppDatabase, $ClinicalStaffTable> {
   $$ClinicalStaffTableAnnotationComposer({
     required super.$db,
     required super.$table,
@@ -4518,26 +4753,35 @@ class $$ClinicalStaffTableAnnotationComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  GeneratedColumn<int> get staffId =>
+  drift.GeneratedColumn<int> get staffId =>
       $composableBuilder(column: $table.staffId, builder: (column) => column);
 
-  GeneratedColumn<String> get firstName =>
+  drift.GeneratedColumn<String> get firstName =>
       $composableBuilder(column: $table.firstName, builder: (column) => column);
 
-  GeneratedColumn<String> get middleName => $composableBuilder(
+  drift.GeneratedColumn<String> get middleName => $composableBuilder(
       column: $table.middleName, builder: (column) => column);
 
-  GeneratedColumn<String> get lastName =>
+  drift.GeneratedColumn<String> get lastName =>
       $composableBuilder(column: $table.lastName, builder: (column) => column);
 
-  GeneratedColumn<String> get pin =>
+  drift.GeneratedColumn<String> get pin =>
       $composableBuilder(column: $table.pin, builder: (column) => column);
 
-  GeneratedColumn<bool> get isLockedOut => $composableBuilder(
+  drift.GeneratedColumn<bool> get isLockedOut => $composableBuilder(
       column: $table.isLockedOut, builder: (column) => column);
 
-  Expression<T> appointmentRefs<T extends Object>(
-      Expression<T> Function($$AppointmentTableAnnotationComposer a) f) {
+  drift.GeneratedColumn<int> get failedAttempts => $composableBuilder(
+      column: $table.failedAttempts, builder: (column) => column);
+
+  drift.GeneratedColumn<int> get lockoutTier => $composableBuilder(
+      column: $table.lockoutTier, builder: (column) => column);
+
+  drift.GeneratedColumn<DateTime> get lockoutUntil => $composableBuilder(
+      column: $table.lockoutUntil, builder: (column) => column);
+
+  drift.Expression<T> appointmentRefs<T extends Object>(
+      drift.Expression<T> Function($$AppointmentTableAnnotationComposer a) f) {
     final $$AppointmentTableAnnotationComposer composer = $composerBuilder(
         composer: this,
         getCurrentColumn: (t) => t.staffId,
@@ -4558,7 +4802,7 @@ class $$ClinicalStaffTableAnnotationComposer
   }
 }
 
-class $$ClinicalStaffTableTableManager extends RootTableManager<
+class $$ClinicalStaffTableTableManager extends drift.RootTableManager<
     _$AppDatabase,
     $ClinicalStaffTable,
     ClinicalStaffData,
@@ -4569,9 +4813,9 @@ class $$ClinicalStaffTableTableManager extends RootTableManager<
     $$ClinicalStaffTableUpdateCompanionBuilder,
     (ClinicalStaffData, $$ClinicalStaffTableReferences),
     ClinicalStaffData,
-    PrefetchHooks Function({bool appointmentRefs})> {
+    drift.PrefetchHooks Function({bool appointmentRefs})> {
   $$ClinicalStaffTableTableManager(_$AppDatabase db, $ClinicalStaffTable table)
-      : super(TableManagerState(
+      : super(drift.TableManagerState(
           db: db,
           table: table,
           createFilteringComposer: () =>
@@ -4581,13 +4825,16 @@ class $$ClinicalStaffTableTableManager extends RootTableManager<
           createComputedFieldComposer: () =>
               $$ClinicalStaffTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
-            Value<int> staffId = const Value.absent(),
-            Value<String> firstName = const Value.absent(),
-            Value<String?> middleName = const Value.absent(),
-            Value<String> lastName = const Value.absent(),
-            Value<String> pin = const Value.absent(),
-            Value<bool> isLockedOut = const Value.absent(),
-            Value<int> rowid = const Value.absent(),
+            drift.Value<int> staffId = const drift.Value.absent(),
+            drift.Value<String> firstName = const drift.Value.absent(),
+            drift.Value<String?> middleName = const drift.Value.absent(),
+            drift.Value<String> lastName = const drift.Value.absent(),
+            drift.Value<String> pin = const drift.Value.absent(),
+            drift.Value<bool> isLockedOut = const drift.Value.absent(),
+            drift.Value<int> failedAttempts = const drift.Value.absent(),
+            drift.Value<int> lockoutTier = const drift.Value.absent(),
+            drift.Value<DateTime?> lockoutUntil = const drift.Value.absent(),
+            drift.Value<int> rowid = const drift.Value.absent(),
           }) =>
               ClinicalStaffCompanion(
             staffId: staffId,
@@ -4596,16 +4843,22 @@ class $$ClinicalStaffTableTableManager extends RootTableManager<
             lastName: lastName,
             pin: pin,
             isLockedOut: isLockedOut,
+            failedAttempts: failedAttempts,
+            lockoutTier: lockoutTier,
+            lockoutUntil: lockoutUntil,
             rowid: rowid,
           ),
           createCompanionCallback: ({
             required int staffId,
             required String firstName,
-            Value<String?> middleName = const Value.absent(),
+            drift.Value<String?> middleName = const drift.Value.absent(),
             required String lastName,
             required String pin,
-            Value<bool> isLockedOut = const Value.absent(),
-            Value<int> rowid = const Value.absent(),
+            drift.Value<bool> isLockedOut = const drift.Value.absent(),
+            drift.Value<int> failedAttempts = const drift.Value.absent(),
+            drift.Value<int> lockoutTier = const drift.Value.absent(),
+            drift.Value<DateTime?> lockoutUntil = const drift.Value.absent(),
+            drift.Value<int> rowid = const drift.Value.absent(),
           }) =>
               ClinicalStaffCompanion.insert(
             staffId: staffId,
@@ -4614,6 +4867,9 @@ class $$ClinicalStaffTableTableManager extends RootTableManager<
             lastName: lastName,
             pin: pin,
             isLockedOut: isLockedOut,
+            failedAttempts: failedAttempts,
+            lockoutTier: lockoutTier,
+            lockoutUntil: lockoutUntil,
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
@@ -4623,14 +4879,14 @@ class $$ClinicalStaffTableTableManager extends RootTableManager<
                   ))
               .toList(),
           prefetchHooksCallback: ({appointmentRefs = false}) {
-            return PrefetchHooks(
+            return drift.PrefetchHooks(
               db: db,
               explicitlyWatchedTables: [if (appointmentRefs) db.appointment],
               addJoins: null,
               getPrefetchedDataCallback: (items) async {
                 return [
                   if (appointmentRefs)
-                    await $_getPrefetchedData<ClinicalStaffData,
+                    await drift.$_getPrefetchedData<ClinicalStaffData,
                             $ClinicalStaffTable, AppointmentData>(
                         currentTable: table,
                         referencedTable: $$ClinicalStaffTableReferences
@@ -4649,7 +4905,7 @@ class $$ClinicalStaffTableTableManager extends RootTableManager<
         ));
 }
 
-typedef $$ClinicalStaffTableProcessedTableManager = ProcessedTableManager<
+typedef $$ClinicalStaffTableProcessedTableManager = drift.ProcessedTableManager<
     _$AppDatabase,
     $ClinicalStaffTable,
     ClinicalStaffData,
@@ -4660,35 +4916,35 @@ typedef $$ClinicalStaffTableProcessedTableManager = ProcessedTableManager<
     $$ClinicalStaffTableUpdateCompanionBuilder,
     (ClinicalStaffData, $$ClinicalStaffTableReferences),
     ClinicalStaffData,
-    PrefetchHooks Function({bool appointmentRefs})>;
+    drift.PrefetchHooks Function({bool appointmentRefs})>;
 typedef $$AppointmentTableCreateCompanionBuilder = AppointmentCompanion
     Function({
-  Value<int> appointmentId,
+  drift.Value<int> appointmentId,
   required int patientId,
-  Value<int?> staffId,
+  drift.Value<int?> staffId,
   required DateTime scheduleDateTime,
   required String reasonForVisit,
-  Value<String> status,
+  drift.Value<String> status,
   required String timeSlot,
 });
 typedef $$AppointmentTableUpdateCompanionBuilder = AppointmentCompanion
     Function({
-  Value<int> appointmentId,
-  Value<int> patientId,
-  Value<int?> staffId,
-  Value<DateTime> scheduleDateTime,
-  Value<String> reasonForVisit,
-  Value<String> status,
-  Value<String> timeSlot,
+  drift.Value<int> appointmentId,
+  drift.Value<int> patientId,
+  drift.Value<int?> staffId,
+  drift.Value<DateTime> scheduleDateTime,
+  drift.Value<String> reasonForVisit,
+  drift.Value<String> status,
+  drift.Value<String> timeSlot,
 });
 
-final class $$AppointmentTableReferences
-    extends BaseReferences<_$AppDatabase, $AppointmentTable, AppointmentData> {
+final class $$AppointmentTableReferences extends drift
+    .BaseReferences<_$AppDatabase, $AppointmentTable, AppointmentData> {
   $$AppointmentTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
   static $PatientTable _patientIdTable(_$AppDatabase db) =>
-      db.patient.createAlias(
-          $_aliasNameGenerator(db.appointment.patientId, db.patient.patientId));
+      db.patient.createAlias(drift.$_aliasNameGenerator(
+          db.appointment.patientId, db.patient.patientId));
 
   $$PatientTableProcessedTableManager get patientId {
     final $_column = $_itemColumn<int>('patient_id')!;
@@ -4697,12 +4953,12 @@ final class $$AppointmentTableReferences
         .filter((f) => f.patientId.sqlEquals($_column));
     final item = $_typedResult.readTableOrNull(_patientIdTable($_db));
     if (item == null) return manager;
-    return ProcessedTableManager(
+    return drift.ProcessedTableManager(
         manager.$state.copyWith(prefetchedData: [item]));
   }
 
   static $ClinicalStaffTable _staffIdTable(_$AppDatabase db) =>
-      db.clinicalStaff.createAlias($_aliasNameGenerator(
+      db.clinicalStaff.createAlias(drift.$_aliasNameGenerator(
           db.appointment.staffId, db.clinicalStaff.staffId));
 
   $$ClinicalStaffTableProcessedTableManager? get staffId {
@@ -4712,13 +4968,13 @@ final class $$AppointmentTableReferences
         .filter((f) => f.staffId.sqlEquals($_column));
     final item = $_typedResult.readTableOrNull(_staffIdTable($_db));
     if (item == null) return manager;
-    return ProcessedTableManager(
+    return drift.ProcessedTableManager(
         manager.$state.copyWith(prefetchedData: [item]));
   }
 }
 
 class $$AppointmentTableFilterComposer
-    extends Composer<_$AppDatabase, $AppointmentTable> {
+    extends drift.Composer<_$AppDatabase, $AppointmentTable> {
   $$AppointmentTableFilterComposer({
     required super.$db,
     required super.$table,
@@ -4726,22 +4982,24 @@ class $$AppointmentTableFilterComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnFilters<int> get appointmentId => $composableBuilder(
-      column: $table.appointmentId, builder: (column) => ColumnFilters(column));
+  drift.ColumnFilters<int> get appointmentId => $composableBuilder(
+      column: $table.appointmentId,
+      builder: (column) => drift.ColumnFilters(column));
 
-  ColumnFilters<DateTime> get scheduleDateTime => $composableBuilder(
+  drift.ColumnFilters<DateTime> get scheduleDateTime => $composableBuilder(
       column: $table.scheduleDateTime,
-      builder: (column) => ColumnFilters(column));
+      builder: (column) => drift.ColumnFilters(column));
 
-  ColumnFilters<String> get reasonForVisit => $composableBuilder(
+  drift.ColumnFilters<String> get reasonForVisit => $composableBuilder(
       column: $table.reasonForVisit,
-      builder: (column) => ColumnFilters(column));
+      builder: (column) => drift.ColumnFilters(column));
 
-  ColumnFilters<String> get status => $composableBuilder(
-      column: $table.status, builder: (column) => ColumnFilters(column));
+  drift.ColumnFilters<String> get status => $composableBuilder(
+      column: $table.status, builder: (column) => drift.ColumnFilters(column));
 
-  ColumnFilters<String> get timeSlot => $composableBuilder(
-      column: $table.timeSlot, builder: (column) => ColumnFilters(column));
+  drift.ColumnFilters<String> get timeSlot => $composableBuilder(
+      column: $table.timeSlot,
+      builder: (column) => drift.ColumnFilters(column));
 
   $$PatientTableFilterComposer get patientId {
     final $$PatientTableFilterComposer composer = $composerBuilder(
@@ -4785,7 +5043,7 @@ class $$AppointmentTableFilterComposer
 }
 
 class $$AppointmentTableOrderingComposer
-    extends Composer<_$AppDatabase, $AppointmentTable> {
+    extends drift.Composer<_$AppDatabase, $AppointmentTable> {
   $$AppointmentTableOrderingComposer({
     required super.$db,
     required super.$table,
@@ -4793,23 +5051,25 @@ class $$AppointmentTableOrderingComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnOrderings<int> get appointmentId => $composableBuilder(
+  drift.ColumnOrderings<int> get appointmentId => $composableBuilder(
       column: $table.appointmentId,
-      builder: (column) => ColumnOrderings(column));
+      builder: (column) => drift.ColumnOrderings(column));
 
-  ColumnOrderings<DateTime> get scheduleDateTime => $composableBuilder(
+  drift.ColumnOrderings<DateTime> get scheduleDateTime => $composableBuilder(
       column: $table.scheduleDateTime,
-      builder: (column) => ColumnOrderings(column));
+      builder: (column) => drift.ColumnOrderings(column));
 
-  ColumnOrderings<String> get reasonForVisit => $composableBuilder(
+  drift.ColumnOrderings<String> get reasonForVisit => $composableBuilder(
       column: $table.reasonForVisit,
-      builder: (column) => ColumnOrderings(column));
+      builder: (column) => drift.ColumnOrderings(column));
 
-  ColumnOrderings<String> get status => $composableBuilder(
-      column: $table.status, builder: (column) => ColumnOrderings(column));
+  drift.ColumnOrderings<String> get status => $composableBuilder(
+      column: $table.status,
+      builder: (column) => drift.ColumnOrderings(column));
 
-  ColumnOrderings<String> get timeSlot => $composableBuilder(
-      column: $table.timeSlot, builder: (column) => ColumnOrderings(column));
+  drift.ColumnOrderings<String> get timeSlot => $composableBuilder(
+      column: $table.timeSlot,
+      builder: (column) => drift.ColumnOrderings(column));
 
   $$PatientTableOrderingComposer get patientId {
     final $$PatientTableOrderingComposer composer = $composerBuilder(
@@ -4853,7 +5113,7 @@ class $$AppointmentTableOrderingComposer
 }
 
 class $$AppointmentTableAnnotationComposer
-    extends Composer<_$AppDatabase, $AppointmentTable> {
+    extends drift.Composer<_$AppDatabase, $AppointmentTable> {
   $$AppointmentTableAnnotationComposer({
     required super.$db,
     required super.$table,
@@ -4861,19 +5121,19 @@ class $$AppointmentTableAnnotationComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  GeneratedColumn<int> get appointmentId => $composableBuilder(
+  drift.GeneratedColumn<int> get appointmentId => $composableBuilder(
       column: $table.appointmentId, builder: (column) => column);
 
-  GeneratedColumn<DateTime> get scheduleDateTime => $composableBuilder(
+  drift.GeneratedColumn<DateTime> get scheduleDateTime => $composableBuilder(
       column: $table.scheduleDateTime, builder: (column) => column);
 
-  GeneratedColumn<String> get reasonForVisit => $composableBuilder(
+  drift.GeneratedColumn<String> get reasonForVisit => $composableBuilder(
       column: $table.reasonForVisit, builder: (column) => column);
 
-  GeneratedColumn<String> get status =>
+  drift.GeneratedColumn<String> get status =>
       $composableBuilder(column: $table.status, builder: (column) => column);
 
-  GeneratedColumn<String> get timeSlot =>
+  drift.GeneratedColumn<String> get timeSlot =>
       $composableBuilder(column: $table.timeSlot, builder: (column) => column);
 
   $$PatientTableAnnotationComposer get patientId {
@@ -4917,7 +5177,7 @@ class $$AppointmentTableAnnotationComposer
   }
 }
 
-class $$AppointmentTableTableManager extends RootTableManager<
+class $$AppointmentTableTableManager extends drift.RootTableManager<
     _$AppDatabase,
     $AppointmentTable,
     AppointmentData,
@@ -4928,9 +5188,9 @@ class $$AppointmentTableTableManager extends RootTableManager<
     $$AppointmentTableUpdateCompanionBuilder,
     (AppointmentData, $$AppointmentTableReferences),
     AppointmentData,
-    PrefetchHooks Function({bool patientId, bool staffId})> {
+    drift.PrefetchHooks Function({bool patientId, bool staffId})> {
   $$AppointmentTableTableManager(_$AppDatabase db, $AppointmentTable table)
-      : super(TableManagerState(
+      : super(drift.TableManagerState(
           db: db,
           table: table,
           createFilteringComposer: () =>
@@ -4940,13 +5200,13 @@ class $$AppointmentTableTableManager extends RootTableManager<
           createComputedFieldComposer: () =>
               $$AppointmentTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
-            Value<int> appointmentId = const Value.absent(),
-            Value<int> patientId = const Value.absent(),
-            Value<int?> staffId = const Value.absent(),
-            Value<DateTime> scheduleDateTime = const Value.absent(),
-            Value<String> reasonForVisit = const Value.absent(),
-            Value<String> status = const Value.absent(),
-            Value<String> timeSlot = const Value.absent(),
+            drift.Value<int> appointmentId = const drift.Value.absent(),
+            drift.Value<int> patientId = const drift.Value.absent(),
+            drift.Value<int?> staffId = const drift.Value.absent(),
+            drift.Value<DateTime> scheduleDateTime = const drift.Value.absent(),
+            drift.Value<String> reasonForVisit = const drift.Value.absent(),
+            drift.Value<String> status = const drift.Value.absent(),
+            drift.Value<String> timeSlot = const drift.Value.absent(),
           }) =>
               AppointmentCompanion(
             appointmentId: appointmentId,
@@ -4958,12 +5218,12 @@ class $$AppointmentTableTableManager extends RootTableManager<
             timeSlot: timeSlot,
           ),
           createCompanionCallback: ({
-            Value<int> appointmentId = const Value.absent(),
+            drift.Value<int> appointmentId = const drift.Value.absent(),
             required int patientId,
-            Value<int?> staffId = const Value.absent(),
+            drift.Value<int?> staffId = const drift.Value.absent(),
             required DateTime scheduleDateTime,
             required String reasonForVisit,
-            Value<String> status = const Value.absent(),
+            drift.Value<String> status = const drift.Value.absent(),
             required String timeSlot,
           }) =>
               AppointmentCompanion.insert(
@@ -4982,11 +5242,11 @@ class $$AppointmentTableTableManager extends RootTableManager<
                   ))
               .toList(),
           prefetchHooksCallback: ({patientId = false, staffId = false}) {
-            return PrefetchHooks(
+            return drift.PrefetchHooks(
               db: db,
               explicitlyWatchedTables: [],
               addJoins: <
-                  T extends TableManagerState<
+                  T extends drift.TableManagerState<
                       dynamic,
                       dynamic,
                       dynamic,
@@ -5030,7 +5290,7 @@ class $$AppointmentTableTableManager extends RootTableManager<
         ));
 }
 
-typedef $$AppointmentTableProcessedTableManager = ProcessedTableManager<
+typedef $$AppointmentTableProcessedTableManager = drift.ProcessedTableManager<
     _$AppDatabase,
     $AppointmentTable,
     AppointmentData,
@@ -5041,33 +5301,33 @@ typedef $$AppointmentTableProcessedTableManager = ProcessedTableManager<
     $$AppointmentTableUpdateCompanionBuilder,
     (AppointmentData, $$AppointmentTableReferences),
     AppointmentData,
-    PrefetchHooks Function({bool patientId, bool staffId})>;
+    drift.PrefetchHooks Function({bool patientId, bool staffId})>;
 typedef $$ProcedureChargeTableCreateCompanionBuilder = ProcedureChargeCompanion
     Function({
-  Value<int> chargeId,
+  drift.Value<int> chargeId,
   required String procedureName,
   required double procedureCharge,
-  Value<int> quantity,
+  drift.Value<int> quantity,
   required double totalProcedureCharge,
 });
 typedef $$ProcedureChargeTableUpdateCompanionBuilder = ProcedureChargeCompanion
     Function({
-  Value<int> chargeId,
-  Value<String> procedureName,
-  Value<double> procedureCharge,
-  Value<int> quantity,
-  Value<double> totalProcedureCharge,
+  drift.Value<int> chargeId,
+  drift.Value<String> procedureName,
+  drift.Value<double> procedureCharge,
+  drift.Value<int> quantity,
+  drift.Value<double> totalProcedureCharge,
 });
 
-final class $$ProcedureChargeTableReferences extends BaseReferences<
-    _$AppDatabase, $ProcedureChargeTable, ProcedureChargeData> {
+final class $$ProcedureChargeTableReferences extends drift
+    .BaseReferences<_$AppDatabase, $ProcedureChargeTable, ProcedureChargeData> {
   $$ProcedureChargeTableReferences(
       super.$_db, super.$_table, super.$_typedResult);
 
-  static MultiTypedResultKey<$InvoiceTable, List<InvoiceData>>
+  static drift.MultiTypedResultKey<$InvoiceTable, List<InvoiceData>>
       _invoiceRefsTable(_$AppDatabase db) =>
-          MultiTypedResultKey.fromTable(db.invoice,
-              aliasName: $_aliasNameGenerator(
+          drift.MultiTypedResultKey.fromTable(db.invoice,
+              aliasName: drift.$_aliasNameGenerator(
                   db.procedureCharge.chargeId, db.invoice.chargeId));
 
   $$InvoiceTableProcessedTableManager get invoiceRefs {
@@ -5075,13 +5335,13 @@ final class $$ProcedureChargeTableReferences extends BaseReferences<
         (f) => f.chargeId.chargeId.sqlEquals($_itemColumn<int>('charge_id')!));
 
     final cache = $_typedResult.readTableOrNull(_invoiceRefsTable($_db));
-    return ProcessedTableManager(
+    return drift.ProcessedTableManager(
         manager.$state.copyWith(prefetchedData: cache));
   }
 }
 
 class $$ProcedureChargeTableFilterComposer
-    extends Composer<_$AppDatabase, $ProcedureChargeTable> {
+    extends drift.Composer<_$AppDatabase, $ProcedureChargeTable> {
   $$ProcedureChargeTableFilterComposer({
     required super.$db,
     required super.$table,
@@ -5089,25 +5349,28 @@ class $$ProcedureChargeTableFilterComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnFilters<int> get chargeId => $composableBuilder(
-      column: $table.chargeId, builder: (column) => ColumnFilters(column));
+  drift.ColumnFilters<int> get chargeId => $composableBuilder(
+      column: $table.chargeId,
+      builder: (column) => drift.ColumnFilters(column));
 
-  ColumnFilters<String> get procedureName => $composableBuilder(
-      column: $table.procedureName, builder: (column) => ColumnFilters(column));
+  drift.ColumnFilters<String> get procedureName => $composableBuilder(
+      column: $table.procedureName,
+      builder: (column) => drift.ColumnFilters(column));
 
-  ColumnFilters<double> get procedureCharge => $composableBuilder(
+  drift.ColumnFilters<double> get procedureCharge => $composableBuilder(
       column: $table.procedureCharge,
-      builder: (column) => ColumnFilters(column));
+      builder: (column) => drift.ColumnFilters(column));
 
-  ColumnFilters<int> get quantity => $composableBuilder(
-      column: $table.quantity, builder: (column) => ColumnFilters(column));
+  drift.ColumnFilters<int> get quantity => $composableBuilder(
+      column: $table.quantity,
+      builder: (column) => drift.ColumnFilters(column));
 
-  ColumnFilters<double> get totalProcedureCharge => $composableBuilder(
+  drift.ColumnFilters<double> get totalProcedureCharge => $composableBuilder(
       column: $table.totalProcedureCharge,
-      builder: (column) => ColumnFilters(column));
+      builder: (column) => drift.ColumnFilters(column));
 
-  Expression<bool> invoiceRefs(
-      Expression<bool> Function($$InvoiceTableFilterComposer f) f) {
+  drift.Expression<bool> invoiceRefs(
+      drift.Expression<bool> Function($$InvoiceTableFilterComposer f) f) {
     final $$InvoiceTableFilterComposer composer = $composerBuilder(
         composer: this,
         getCurrentColumn: (t) => t.chargeId,
@@ -5129,7 +5392,7 @@ class $$ProcedureChargeTableFilterComposer
 }
 
 class $$ProcedureChargeTableOrderingComposer
-    extends Composer<_$AppDatabase, $ProcedureChargeTable> {
+    extends drift.Composer<_$AppDatabase, $ProcedureChargeTable> {
   $$ProcedureChargeTableOrderingComposer({
     required super.$db,
     required super.$table,
@@ -5137,27 +5400,29 @@ class $$ProcedureChargeTableOrderingComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnOrderings<int> get chargeId => $composableBuilder(
-      column: $table.chargeId, builder: (column) => ColumnOrderings(column));
+  drift.ColumnOrderings<int> get chargeId => $composableBuilder(
+      column: $table.chargeId,
+      builder: (column) => drift.ColumnOrderings(column));
 
-  ColumnOrderings<String> get procedureName => $composableBuilder(
+  drift.ColumnOrderings<String> get procedureName => $composableBuilder(
       column: $table.procedureName,
-      builder: (column) => ColumnOrderings(column));
+      builder: (column) => drift.ColumnOrderings(column));
 
-  ColumnOrderings<double> get procedureCharge => $composableBuilder(
+  drift.ColumnOrderings<double> get procedureCharge => $composableBuilder(
       column: $table.procedureCharge,
-      builder: (column) => ColumnOrderings(column));
+      builder: (column) => drift.ColumnOrderings(column));
 
-  ColumnOrderings<int> get quantity => $composableBuilder(
-      column: $table.quantity, builder: (column) => ColumnOrderings(column));
+  drift.ColumnOrderings<int> get quantity => $composableBuilder(
+      column: $table.quantity,
+      builder: (column) => drift.ColumnOrderings(column));
 
-  ColumnOrderings<double> get totalProcedureCharge => $composableBuilder(
+  drift.ColumnOrderings<double> get totalProcedureCharge => $composableBuilder(
       column: $table.totalProcedureCharge,
-      builder: (column) => ColumnOrderings(column));
+      builder: (column) => drift.ColumnOrderings(column));
 }
 
 class $$ProcedureChargeTableAnnotationComposer
-    extends Composer<_$AppDatabase, $ProcedureChargeTable> {
+    extends drift.Composer<_$AppDatabase, $ProcedureChargeTable> {
   $$ProcedureChargeTableAnnotationComposer({
     required super.$db,
     required super.$table,
@@ -5165,23 +5430,23 @@ class $$ProcedureChargeTableAnnotationComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  GeneratedColumn<int> get chargeId =>
+  drift.GeneratedColumn<int> get chargeId =>
       $composableBuilder(column: $table.chargeId, builder: (column) => column);
 
-  GeneratedColumn<String> get procedureName => $composableBuilder(
+  drift.GeneratedColumn<String> get procedureName => $composableBuilder(
       column: $table.procedureName, builder: (column) => column);
 
-  GeneratedColumn<double> get procedureCharge => $composableBuilder(
+  drift.GeneratedColumn<double> get procedureCharge => $composableBuilder(
       column: $table.procedureCharge, builder: (column) => column);
 
-  GeneratedColumn<int> get quantity =>
+  drift.GeneratedColumn<int> get quantity =>
       $composableBuilder(column: $table.quantity, builder: (column) => column);
 
-  GeneratedColumn<double> get totalProcedureCharge => $composableBuilder(
+  drift.GeneratedColumn<double> get totalProcedureCharge => $composableBuilder(
       column: $table.totalProcedureCharge, builder: (column) => column);
 
-  Expression<T> invoiceRefs<T extends Object>(
-      Expression<T> Function($$InvoiceTableAnnotationComposer a) f) {
+  drift.Expression<T> invoiceRefs<T extends Object>(
+      drift.Expression<T> Function($$InvoiceTableAnnotationComposer a) f) {
     final $$InvoiceTableAnnotationComposer composer = $composerBuilder(
         composer: this,
         getCurrentColumn: (t) => t.chargeId,
@@ -5202,7 +5467,7 @@ class $$ProcedureChargeTableAnnotationComposer
   }
 }
 
-class $$ProcedureChargeTableTableManager extends RootTableManager<
+class $$ProcedureChargeTableTableManager extends drift.RootTableManager<
     _$AppDatabase,
     $ProcedureChargeTable,
     ProcedureChargeData,
@@ -5213,10 +5478,10 @@ class $$ProcedureChargeTableTableManager extends RootTableManager<
     $$ProcedureChargeTableUpdateCompanionBuilder,
     (ProcedureChargeData, $$ProcedureChargeTableReferences),
     ProcedureChargeData,
-    PrefetchHooks Function({bool invoiceRefs})> {
+    drift.PrefetchHooks Function({bool invoiceRefs})> {
   $$ProcedureChargeTableTableManager(
       _$AppDatabase db, $ProcedureChargeTable table)
-      : super(TableManagerState(
+      : super(drift.TableManagerState(
           db: db,
           table: table,
           createFilteringComposer: () =>
@@ -5226,11 +5491,12 @@ class $$ProcedureChargeTableTableManager extends RootTableManager<
           createComputedFieldComposer: () =>
               $$ProcedureChargeTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
-            Value<int> chargeId = const Value.absent(),
-            Value<String> procedureName = const Value.absent(),
-            Value<double> procedureCharge = const Value.absent(),
-            Value<int> quantity = const Value.absent(),
-            Value<double> totalProcedureCharge = const Value.absent(),
+            drift.Value<int> chargeId = const drift.Value.absent(),
+            drift.Value<String> procedureName = const drift.Value.absent(),
+            drift.Value<double> procedureCharge = const drift.Value.absent(),
+            drift.Value<int> quantity = const drift.Value.absent(),
+            drift.Value<double> totalProcedureCharge =
+                const drift.Value.absent(),
           }) =>
               ProcedureChargeCompanion(
             chargeId: chargeId,
@@ -5240,10 +5506,10 @@ class $$ProcedureChargeTableTableManager extends RootTableManager<
             totalProcedureCharge: totalProcedureCharge,
           ),
           createCompanionCallback: ({
-            Value<int> chargeId = const Value.absent(),
+            drift.Value<int> chargeId = const drift.Value.absent(),
             required String procedureName,
             required double procedureCharge,
-            Value<int> quantity = const Value.absent(),
+            drift.Value<int> quantity = const drift.Value.absent(),
             required double totalProcedureCharge,
           }) =>
               ProcedureChargeCompanion.insert(
@@ -5260,14 +5526,14 @@ class $$ProcedureChargeTableTableManager extends RootTableManager<
                   ))
               .toList(),
           prefetchHooksCallback: ({invoiceRefs = false}) {
-            return PrefetchHooks(
+            return drift.PrefetchHooks(
               db: db,
               explicitlyWatchedTables: [if (invoiceRefs) db.invoice],
               addJoins: null,
               getPrefetchedDataCallback: (items) async {
                 return [
                   if (invoiceRefs)
-                    await $_getPrefetchedData<ProcedureChargeData,
+                    await drift.$_getPrefetchedData<ProcedureChargeData,
                             $ProcedureChargeTable, InvoiceData>(
                         currentTable: table,
                         referencedTable: $$ProcedureChargeTableReferences
@@ -5286,43 +5552,45 @@ class $$ProcedureChargeTableTableManager extends RootTableManager<
         ));
 }
 
-typedef $$ProcedureChargeTableProcessedTableManager = ProcessedTableManager<
-    _$AppDatabase,
-    $ProcedureChargeTable,
-    ProcedureChargeData,
-    $$ProcedureChargeTableFilterComposer,
-    $$ProcedureChargeTableOrderingComposer,
-    $$ProcedureChargeTableAnnotationComposer,
-    $$ProcedureChargeTableCreateCompanionBuilder,
-    $$ProcedureChargeTableUpdateCompanionBuilder,
-    (ProcedureChargeData, $$ProcedureChargeTableReferences),
-    ProcedureChargeData,
-    PrefetchHooks Function({bool invoiceRefs})>;
+typedef $$ProcedureChargeTableProcessedTableManager
+    = drift.ProcessedTableManager<
+        _$AppDatabase,
+        $ProcedureChargeTable,
+        ProcedureChargeData,
+        $$ProcedureChargeTableFilterComposer,
+        $$ProcedureChargeTableOrderingComposer,
+        $$ProcedureChargeTableAnnotationComposer,
+        $$ProcedureChargeTableCreateCompanionBuilder,
+        $$ProcedureChargeTableUpdateCompanionBuilder,
+        (ProcedureChargeData, $$ProcedureChargeTableReferences),
+        ProcedureChargeData,
+        drift.PrefetchHooks Function({bool invoiceRefs})>;
 typedef $$PaymentTransactionTableCreateCompanionBuilder
     = PaymentTransactionCompanion Function({
-  Value<int> transactionId,
+  drift.Value<int> transactionId,
   required double amountReceived,
   required String modeOfPayment,
-  Value<DateTime> paymentDate,
+  drift.Value<DateTime> paymentDate,
 });
 typedef $$PaymentTransactionTableUpdateCompanionBuilder
     = PaymentTransactionCompanion Function({
-  Value<int> transactionId,
-  Value<double> amountReceived,
-  Value<String> modeOfPayment,
-  Value<DateTime> paymentDate,
+  drift.Value<int> transactionId,
+  drift.Value<double> amountReceived,
+  drift.Value<String> modeOfPayment,
+  drift.Value<DateTime> paymentDate,
 });
 
-final class $$PaymentTransactionTableReferences extends BaseReferences<
+final class $$PaymentTransactionTableReferences extends drift.BaseReferences<
     _$AppDatabase, $PaymentTransactionTable, PaymentTransactionData> {
   $$PaymentTransactionTableReferences(
       super.$_db, super.$_table, super.$_typedResult);
 
-  static MultiTypedResultKey<$InvoiceTable, List<InvoiceData>>
-      _invoiceRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
-          db.invoice,
-          aliasName: $_aliasNameGenerator(
-              db.paymentTransaction.transactionId, db.invoice.transactionId));
+  static drift.MultiTypedResultKey<$InvoiceTable, List<InvoiceData>>
+      _invoiceRefsTable(_$AppDatabase db) =>
+          drift.MultiTypedResultKey.fromTable(db.invoice,
+              aliasName: drift.$_aliasNameGenerator(
+                  db.paymentTransaction.transactionId,
+                  db.invoice.transactionId));
 
   $$InvoiceTableProcessedTableManager get invoiceRefs {
     final manager = $$InvoiceTableTableManager($_db, $_db.invoice).filter((f) =>
@@ -5330,13 +5598,13 @@ final class $$PaymentTransactionTableReferences extends BaseReferences<
             .sqlEquals($_itemColumn<int>('transaction_id')!));
 
     final cache = $_typedResult.readTableOrNull(_invoiceRefsTable($_db));
-    return ProcessedTableManager(
+    return drift.ProcessedTableManager(
         manager.$state.copyWith(prefetchedData: cache));
   }
 }
 
 class $$PaymentTransactionTableFilterComposer
-    extends Composer<_$AppDatabase, $PaymentTransactionTable> {
+    extends drift.Composer<_$AppDatabase, $PaymentTransactionTable> {
   $$PaymentTransactionTableFilterComposer({
     required super.$db,
     required super.$table,
@@ -5344,21 +5612,24 @@ class $$PaymentTransactionTableFilterComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnFilters<int> get transactionId => $composableBuilder(
-      column: $table.transactionId, builder: (column) => ColumnFilters(column));
+  drift.ColumnFilters<int> get transactionId => $composableBuilder(
+      column: $table.transactionId,
+      builder: (column) => drift.ColumnFilters(column));
 
-  ColumnFilters<double> get amountReceived => $composableBuilder(
+  drift.ColumnFilters<double> get amountReceived => $composableBuilder(
       column: $table.amountReceived,
-      builder: (column) => ColumnFilters(column));
+      builder: (column) => drift.ColumnFilters(column));
 
-  ColumnFilters<String> get modeOfPayment => $composableBuilder(
-      column: $table.modeOfPayment, builder: (column) => ColumnFilters(column));
+  drift.ColumnFilters<String> get modeOfPayment => $composableBuilder(
+      column: $table.modeOfPayment,
+      builder: (column) => drift.ColumnFilters(column));
 
-  ColumnFilters<DateTime> get paymentDate => $composableBuilder(
-      column: $table.paymentDate, builder: (column) => ColumnFilters(column));
+  drift.ColumnFilters<DateTime> get paymentDate => $composableBuilder(
+      column: $table.paymentDate,
+      builder: (column) => drift.ColumnFilters(column));
 
-  Expression<bool> invoiceRefs(
-      Expression<bool> Function($$InvoiceTableFilterComposer f) f) {
+  drift.Expression<bool> invoiceRefs(
+      drift.Expression<bool> Function($$InvoiceTableFilterComposer f) f) {
     final $$InvoiceTableFilterComposer composer = $composerBuilder(
         composer: this,
         getCurrentColumn: (t) => t.transactionId,
@@ -5380,7 +5651,7 @@ class $$PaymentTransactionTableFilterComposer
 }
 
 class $$PaymentTransactionTableOrderingComposer
-    extends Composer<_$AppDatabase, $PaymentTransactionTable> {
+    extends drift.Composer<_$AppDatabase, $PaymentTransactionTable> {
   $$PaymentTransactionTableOrderingComposer({
     required super.$db,
     required super.$table,
@@ -5388,24 +5659,25 @@ class $$PaymentTransactionTableOrderingComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnOrderings<int> get transactionId => $composableBuilder(
+  drift.ColumnOrderings<int> get transactionId => $composableBuilder(
       column: $table.transactionId,
-      builder: (column) => ColumnOrderings(column));
+      builder: (column) => drift.ColumnOrderings(column));
 
-  ColumnOrderings<double> get amountReceived => $composableBuilder(
+  drift.ColumnOrderings<double> get amountReceived => $composableBuilder(
       column: $table.amountReceived,
-      builder: (column) => ColumnOrderings(column));
+      builder: (column) => drift.ColumnOrderings(column));
 
-  ColumnOrderings<String> get modeOfPayment => $composableBuilder(
+  drift.ColumnOrderings<String> get modeOfPayment => $composableBuilder(
       column: $table.modeOfPayment,
-      builder: (column) => ColumnOrderings(column));
+      builder: (column) => drift.ColumnOrderings(column));
 
-  ColumnOrderings<DateTime> get paymentDate => $composableBuilder(
-      column: $table.paymentDate, builder: (column) => ColumnOrderings(column));
+  drift.ColumnOrderings<DateTime> get paymentDate => $composableBuilder(
+      column: $table.paymentDate,
+      builder: (column) => drift.ColumnOrderings(column));
 }
 
 class $$PaymentTransactionTableAnnotationComposer
-    extends Composer<_$AppDatabase, $PaymentTransactionTable> {
+    extends drift.Composer<_$AppDatabase, $PaymentTransactionTable> {
   $$PaymentTransactionTableAnnotationComposer({
     required super.$db,
     required super.$table,
@@ -5413,20 +5685,20 @@ class $$PaymentTransactionTableAnnotationComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  GeneratedColumn<int> get transactionId => $composableBuilder(
+  drift.GeneratedColumn<int> get transactionId => $composableBuilder(
       column: $table.transactionId, builder: (column) => column);
 
-  GeneratedColumn<double> get amountReceived => $composableBuilder(
+  drift.GeneratedColumn<double> get amountReceived => $composableBuilder(
       column: $table.amountReceived, builder: (column) => column);
 
-  GeneratedColumn<String> get modeOfPayment => $composableBuilder(
+  drift.GeneratedColumn<String> get modeOfPayment => $composableBuilder(
       column: $table.modeOfPayment, builder: (column) => column);
 
-  GeneratedColumn<DateTime> get paymentDate => $composableBuilder(
+  drift.GeneratedColumn<DateTime> get paymentDate => $composableBuilder(
       column: $table.paymentDate, builder: (column) => column);
 
-  Expression<T> invoiceRefs<T extends Object>(
-      Expression<T> Function($$InvoiceTableAnnotationComposer a) f) {
+  drift.Expression<T> invoiceRefs<T extends Object>(
+      drift.Expression<T> Function($$InvoiceTableAnnotationComposer a) f) {
     final $$InvoiceTableAnnotationComposer composer = $composerBuilder(
         composer: this,
         getCurrentColumn: (t) => t.transactionId,
@@ -5447,7 +5719,7 @@ class $$PaymentTransactionTableAnnotationComposer
   }
 }
 
-class $$PaymentTransactionTableTableManager extends RootTableManager<
+class $$PaymentTransactionTableTableManager extends drift.RootTableManager<
     _$AppDatabase,
     $PaymentTransactionTable,
     PaymentTransactionData,
@@ -5458,10 +5730,10 @@ class $$PaymentTransactionTableTableManager extends RootTableManager<
     $$PaymentTransactionTableUpdateCompanionBuilder,
     (PaymentTransactionData, $$PaymentTransactionTableReferences),
     PaymentTransactionData,
-    PrefetchHooks Function({bool invoiceRefs})> {
+    drift.PrefetchHooks Function({bool invoiceRefs})> {
   $$PaymentTransactionTableTableManager(
       _$AppDatabase db, $PaymentTransactionTable table)
-      : super(TableManagerState(
+      : super(drift.TableManagerState(
           db: db,
           table: table,
           createFilteringComposer: () =>
@@ -5472,10 +5744,10 @@ class $$PaymentTransactionTableTableManager extends RootTableManager<
               $$PaymentTransactionTableAnnotationComposer(
                   $db: db, $table: table),
           updateCompanionCallback: ({
-            Value<int> transactionId = const Value.absent(),
-            Value<double> amountReceived = const Value.absent(),
-            Value<String> modeOfPayment = const Value.absent(),
-            Value<DateTime> paymentDate = const Value.absent(),
+            drift.Value<int> transactionId = const drift.Value.absent(),
+            drift.Value<double> amountReceived = const drift.Value.absent(),
+            drift.Value<String> modeOfPayment = const drift.Value.absent(),
+            drift.Value<DateTime> paymentDate = const drift.Value.absent(),
           }) =>
               PaymentTransactionCompanion(
             transactionId: transactionId,
@@ -5484,10 +5756,10 @@ class $$PaymentTransactionTableTableManager extends RootTableManager<
             paymentDate: paymentDate,
           ),
           createCompanionCallback: ({
-            Value<int> transactionId = const Value.absent(),
+            drift.Value<int> transactionId = const drift.Value.absent(),
             required double amountReceived,
             required String modeOfPayment,
-            Value<DateTime> paymentDate = const Value.absent(),
+            drift.Value<DateTime> paymentDate = const drift.Value.absent(),
           }) =>
               PaymentTransactionCompanion.insert(
             transactionId: transactionId,
@@ -5502,14 +5774,14 @@ class $$PaymentTransactionTableTableManager extends RootTableManager<
                   ))
               .toList(),
           prefetchHooksCallback: ({invoiceRefs = false}) {
-            return PrefetchHooks(
+            return drift.PrefetchHooks(
               db: db,
               explicitlyWatchedTables: [if (invoiceRefs) db.invoice],
               addJoins: null,
               getPrefetchedDataCallback: (items) async {
                 return [
                   if (invoiceRefs)
-                    await $_getPrefetchedData<PaymentTransactionData,
+                    await drift.$_getPrefetchedData<PaymentTransactionData,
                             $PaymentTransactionTable, InvoiceData>(
                         currentTable: table,
                         referencedTable: $$PaymentTransactionTableReferences
@@ -5528,44 +5800,45 @@ class $$PaymentTransactionTableTableManager extends RootTableManager<
         ));
 }
 
-typedef $$PaymentTransactionTableProcessedTableManager = ProcessedTableManager<
-    _$AppDatabase,
-    $PaymentTransactionTable,
-    PaymentTransactionData,
-    $$PaymentTransactionTableFilterComposer,
-    $$PaymentTransactionTableOrderingComposer,
-    $$PaymentTransactionTableAnnotationComposer,
-    $$PaymentTransactionTableCreateCompanionBuilder,
-    $$PaymentTransactionTableUpdateCompanionBuilder,
-    (PaymentTransactionData, $$PaymentTransactionTableReferences),
-    PaymentTransactionData,
-    PrefetchHooks Function({bool invoiceRefs})>;
+typedef $$PaymentTransactionTableProcessedTableManager
+    = drift.ProcessedTableManager<
+        _$AppDatabase,
+        $PaymentTransactionTable,
+        PaymentTransactionData,
+        $$PaymentTransactionTableFilterComposer,
+        $$PaymentTransactionTableOrderingComposer,
+        $$PaymentTransactionTableAnnotationComposer,
+        $$PaymentTransactionTableCreateCompanionBuilder,
+        $$PaymentTransactionTableUpdateCompanionBuilder,
+        (PaymentTransactionData, $$PaymentTransactionTableReferences),
+        PaymentTransactionData,
+        drift.PrefetchHooks Function({bool invoiceRefs})>;
 typedef $$InvoiceTableCreateCompanionBuilder = InvoiceCompanion Function({
-  Value<int> invoiceId,
+  drift.Value<int> invoiceId,
   required int patientId,
   required int chargeId,
   required int transactionId,
-  Value<DateTime> issuedDate,
+  drift.Value<DateTime> issuedDate,
   required double totalBalance,
   required String status,
 });
 typedef $$InvoiceTableUpdateCompanionBuilder = InvoiceCompanion Function({
-  Value<int> invoiceId,
-  Value<int> patientId,
-  Value<int> chargeId,
-  Value<int> transactionId,
-  Value<DateTime> issuedDate,
-  Value<double> totalBalance,
-  Value<String> status,
+  drift.Value<int> invoiceId,
+  drift.Value<int> patientId,
+  drift.Value<int> chargeId,
+  drift.Value<int> transactionId,
+  drift.Value<DateTime> issuedDate,
+  drift.Value<double> totalBalance,
+  drift.Value<String> status,
 });
 
 final class $$InvoiceTableReferences
-    extends BaseReferences<_$AppDatabase, $InvoiceTable, InvoiceData> {
+    extends drift.BaseReferences<_$AppDatabase, $InvoiceTable, InvoiceData> {
   $$InvoiceTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
   static $PatientTable _patientIdTable(_$AppDatabase db) =>
-      db.patient.createAlias(
-          $_aliasNameGenerator(db.invoice.patientId, db.patient.patientId));
+      db.patient.createAlias(drift.$_aliasNameGenerator(
+          db.invoice.patientId, db.patient.patientId));
 
   $$PatientTableProcessedTableManager get patientId {
     final $_column = $_itemColumn<int>('patient_id')!;
@@ -5574,12 +5847,12 @@ final class $$InvoiceTableReferences
         .filter((f) => f.patientId.sqlEquals($_column));
     final item = $_typedResult.readTableOrNull(_patientIdTable($_db));
     if (item == null) return manager;
-    return ProcessedTableManager(
+    return drift.ProcessedTableManager(
         manager.$state.copyWith(prefetchedData: [item]));
   }
 
   static $ProcedureChargeTable _chargeIdTable(_$AppDatabase db) =>
-      db.procedureCharge.createAlias($_aliasNameGenerator(
+      db.procedureCharge.createAlias(drift.$_aliasNameGenerator(
           db.invoice.chargeId, db.procedureCharge.chargeId));
 
   $$ProcedureChargeTableProcessedTableManager get chargeId {
@@ -5590,12 +5863,12 @@ final class $$InvoiceTableReferences
             .filter((f) => f.chargeId.sqlEquals($_column));
     final item = $_typedResult.readTableOrNull(_chargeIdTable($_db));
     if (item == null) return manager;
-    return ProcessedTableManager(
+    return drift.ProcessedTableManager(
         manager.$state.copyWith(prefetchedData: [item]));
   }
 
   static $PaymentTransactionTable _transactionIdTable(_$AppDatabase db) =>
-      db.paymentTransaction.createAlias($_aliasNameGenerator(
+      db.paymentTransaction.createAlias(drift.$_aliasNameGenerator(
           db.invoice.transactionId, db.paymentTransaction.transactionId));
 
   $$PaymentTransactionTableProcessedTableManager get transactionId {
@@ -5606,13 +5879,13 @@ final class $$InvoiceTableReferences
             .filter((f) => f.transactionId.sqlEquals($_column));
     final item = $_typedResult.readTableOrNull(_transactionIdTable($_db));
     if (item == null) return manager;
-    return ProcessedTableManager(
+    return drift.ProcessedTableManager(
         manager.$state.copyWith(prefetchedData: [item]));
   }
 }
 
 class $$InvoiceTableFilterComposer
-    extends Composer<_$AppDatabase, $InvoiceTable> {
+    extends drift.Composer<_$AppDatabase, $InvoiceTable> {
   $$InvoiceTableFilterComposer({
     required super.$db,
     required super.$table,
@@ -5620,17 +5893,20 @@ class $$InvoiceTableFilterComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnFilters<int> get invoiceId => $composableBuilder(
-      column: $table.invoiceId, builder: (column) => ColumnFilters(column));
+  drift.ColumnFilters<int> get invoiceId => $composableBuilder(
+      column: $table.invoiceId,
+      builder: (column) => drift.ColumnFilters(column));
 
-  ColumnFilters<DateTime> get issuedDate => $composableBuilder(
-      column: $table.issuedDate, builder: (column) => ColumnFilters(column));
+  drift.ColumnFilters<DateTime> get issuedDate => $composableBuilder(
+      column: $table.issuedDate,
+      builder: (column) => drift.ColumnFilters(column));
 
-  ColumnFilters<double> get totalBalance => $composableBuilder(
-      column: $table.totalBalance, builder: (column) => ColumnFilters(column));
+  drift.ColumnFilters<double> get totalBalance => $composableBuilder(
+      column: $table.totalBalance,
+      builder: (column) => drift.ColumnFilters(column));
 
-  ColumnFilters<String> get status => $composableBuilder(
-      column: $table.status, builder: (column) => ColumnFilters(column));
+  drift.ColumnFilters<String> get status => $composableBuilder(
+      column: $table.status, builder: (column) => drift.ColumnFilters(column));
 
   $$PatientTableFilterComposer get patientId {
     final $$PatientTableFilterComposer composer = $composerBuilder(
@@ -5694,7 +5970,7 @@ class $$InvoiceTableFilterComposer
 }
 
 class $$InvoiceTableOrderingComposer
-    extends Composer<_$AppDatabase, $InvoiceTable> {
+    extends drift.Composer<_$AppDatabase, $InvoiceTable> {
   $$InvoiceTableOrderingComposer({
     required super.$db,
     required super.$table,
@@ -5702,18 +5978,21 @@ class $$InvoiceTableOrderingComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnOrderings<int> get invoiceId => $composableBuilder(
-      column: $table.invoiceId, builder: (column) => ColumnOrderings(column));
+  drift.ColumnOrderings<int> get invoiceId => $composableBuilder(
+      column: $table.invoiceId,
+      builder: (column) => drift.ColumnOrderings(column));
 
-  ColumnOrderings<DateTime> get issuedDate => $composableBuilder(
-      column: $table.issuedDate, builder: (column) => ColumnOrderings(column));
+  drift.ColumnOrderings<DateTime> get issuedDate => $composableBuilder(
+      column: $table.issuedDate,
+      builder: (column) => drift.ColumnOrderings(column));
 
-  ColumnOrderings<double> get totalBalance => $composableBuilder(
+  drift.ColumnOrderings<double> get totalBalance => $composableBuilder(
       column: $table.totalBalance,
-      builder: (column) => ColumnOrderings(column));
+      builder: (column) => drift.ColumnOrderings(column));
 
-  ColumnOrderings<String> get status => $composableBuilder(
-      column: $table.status, builder: (column) => ColumnOrderings(column));
+  drift.ColumnOrderings<String> get status => $composableBuilder(
+      column: $table.status,
+      builder: (column) => drift.ColumnOrderings(column));
 
   $$PatientTableOrderingComposer get patientId {
     final $$PatientTableOrderingComposer composer = $composerBuilder(
@@ -5777,7 +6056,7 @@ class $$InvoiceTableOrderingComposer
 }
 
 class $$InvoiceTableAnnotationComposer
-    extends Composer<_$AppDatabase, $InvoiceTable> {
+    extends drift.Composer<_$AppDatabase, $InvoiceTable> {
   $$InvoiceTableAnnotationComposer({
     required super.$db,
     required super.$table,
@@ -5785,16 +6064,16 @@ class $$InvoiceTableAnnotationComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  GeneratedColumn<int> get invoiceId =>
+  drift.GeneratedColumn<int> get invoiceId =>
       $composableBuilder(column: $table.invoiceId, builder: (column) => column);
 
-  GeneratedColumn<DateTime> get issuedDate => $composableBuilder(
+  drift.GeneratedColumn<DateTime> get issuedDate => $composableBuilder(
       column: $table.issuedDate, builder: (column) => column);
 
-  GeneratedColumn<double> get totalBalance => $composableBuilder(
+  drift.GeneratedColumn<double> get totalBalance => $composableBuilder(
       column: $table.totalBalance, builder: (column) => column);
 
-  GeneratedColumn<String> get status =>
+  drift.GeneratedColumn<String> get status =>
       $composableBuilder(column: $table.status, builder: (column) => column);
 
   $$PatientTableAnnotationComposer get patientId {
@@ -5859,7 +6138,7 @@ class $$InvoiceTableAnnotationComposer
   }
 }
 
-class $$InvoiceTableTableManager extends RootTableManager<
+class $$InvoiceTableTableManager extends drift.RootTableManager<
     _$AppDatabase,
     $InvoiceTable,
     InvoiceData,
@@ -5870,10 +6149,10 @@ class $$InvoiceTableTableManager extends RootTableManager<
     $$InvoiceTableUpdateCompanionBuilder,
     (InvoiceData, $$InvoiceTableReferences),
     InvoiceData,
-    PrefetchHooks Function(
+    drift.PrefetchHooks Function(
         {bool patientId, bool chargeId, bool transactionId})> {
   $$InvoiceTableTableManager(_$AppDatabase db, $InvoiceTable table)
-      : super(TableManagerState(
+      : super(drift.TableManagerState(
           db: db,
           table: table,
           createFilteringComposer: () =>
@@ -5883,13 +6162,13 @@ class $$InvoiceTableTableManager extends RootTableManager<
           createComputedFieldComposer: () =>
               $$InvoiceTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
-            Value<int> invoiceId = const Value.absent(),
-            Value<int> patientId = const Value.absent(),
-            Value<int> chargeId = const Value.absent(),
-            Value<int> transactionId = const Value.absent(),
-            Value<DateTime> issuedDate = const Value.absent(),
-            Value<double> totalBalance = const Value.absent(),
-            Value<String> status = const Value.absent(),
+            drift.Value<int> invoiceId = const drift.Value.absent(),
+            drift.Value<int> patientId = const drift.Value.absent(),
+            drift.Value<int> chargeId = const drift.Value.absent(),
+            drift.Value<int> transactionId = const drift.Value.absent(),
+            drift.Value<DateTime> issuedDate = const drift.Value.absent(),
+            drift.Value<double> totalBalance = const drift.Value.absent(),
+            drift.Value<String> status = const drift.Value.absent(),
           }) =>
               InvoiceCompanion(
             invoiceId: invoiceId,
@@ -5901,11 +6180,11 @@ class $$InvoiceTableTableManager extends RootTableManager<
             status: status,
           ),
           createCompanionCallback: ({
-            Value<int> invoiceId = const Value.absent(),
+            drift.Value<int> invoiceId = const drift.Value.absent(),
             required int patientId,
             required int chargeId,
             required int transactionId,
-            Value<DateTime> issuedDate = const Value.absent(),
+            drift.Value<DateTime> issuedDate = const drift.Value.absent(),
             required double totalBalance,
             required String status,
           }) =>
@@ -5924,11 +6203,11 @@ class $$InvoiceTableTableManager extends RootTableManager<
               .toList(),
           prefetchHooksCallback: (
               {patientId = false, chargeId = false, transactionId = false}) {
-            return PrefetchHooks(
+            return drift.PrefetchHooks(
               db: db,
               explicitlyWatchedTables: [],
               addJoins: <
-                  T extends TableManagerState<
+                  T extends drift.TableManagerState<
                       dynamic,
                       dynamic,
                       dynamic,
@@ -5982,7 +6261,7 @@ class $$InvoiceTableTableManager extends RootTableManager<
         ));
 }
 
-typedef $$InvoiceTableProcessedTableManager = ProcessedTableManager<
+typedef $$InvoiceTableProcessedTableManager = drift.ProcessedTableManager<
     _$AppDatabase,
     $InvoiceTable,
     InvoiceData,
@@ -5993,58 +6272,58 @@ typedef $$InvoiceTableProcessedTableManager = ProcessedTableManager<
     $$InvoiceTableUpdateCompanionBuilder,
     (InvoiceData, $$InvoiceTableReferences),
     InvoiceData,
-    PrefetchHooks Function(
+    drift.PrefetchHooks Function(
         {bool patientId, bool chargeId, bool transactionId})>;
 typedef $$ClinicalRecordTableCreateCompanionBuilder = ClinicalRecordCompanion
     Function({
-  Value<int> recordId,
+  drift.Value<int> recordId,
   required int patientId,
-  Value<DateTime> createdAt,
-  Value<String?> pastIllness,
-  Value<String?> presentIllness,
-  Value<String?> allergies,
-  Value<String?> currentMedication,
-  Value<bool> hasOralDebris,
-  Value<bool> hasCalculus,
-  Value<bool> hasPeriodontalPocket,
-  Value<bool> hasGingivitis,
-  Value<bool> hasDentofacialAnomaly,
-  Value<int> cariesForFilling,
-  Value<int> cariesForExtraction,
-  Value<int> rootFragment,
-  Value<int> missingDueToCaries,
-  Value<int> filledOrRestored,
-  Value<String?> clinicalNotes,
+  drift.Value<DateTime> createdAt,
+  drift.Value<String?> pastIllness,
+  drift.Value<String?> presentIllness,
+  drift.Value<String?> allergies,
+  drift.Value<String?> currentMedication,
+  drift.Value<bool> hasOralDebris,
+  drift.Value<bool> hasCalculus,
+  drift.Value<bool> hasPeriodontalPocket,
+  drift.Value<bool> hasGingivitis,
+  drift.Value<bool> hasDentofacialAnomaly,
+  drift.Value<int> cariesForFilling,
+  drift.Value<int> cariesForExtraction,
+  drift.Value<int> rootFragment,
+  drift.Value<int> missingDueToCaries,
+  drift.Value<int> filledOrRestored,
+  drift.Value<String?> clinicalNotes,
 });
 typedef $$ClinicalRecordTableUpdateCompanionBuilder = ClinicalRecordCompanion
     Function({
-  Value<int> recordId,
-  Value<int> patientId,
-  Value<DateTime> createdAt,
-  Value<String?> pastIllness,
-  Value<String?> presentIllness,
-  Value<String?> allergies,
-  Value<String?> currentMedication,
-  Value<bool> hasOralDebris,
-  Value<bool> hasCalculus,
-  Value<bool> hasPeriodontalPocket,
-  Value<bool> hasGingivitis,
-  Value<bool> hasDentofacialAnomaly,
-  Value<int> cariesForFilling,
-  Value<int> cariesForExtraction,
-  Value<int> rootFragment,
-  Value<int> missingDueToCaries,
-  Value<int> filledOrRestored,
-  Value<String?> clinicalNotes,
+  drift.Value<int> recordId,
+  drift.Value<int> patientId,
+  drift.Value<DateTime> createdAt,
+  drift.Value<String?> pastIllness,
+  drift.Value<String?> presentIllness,
+  drift.Value<String?> allergies,
+  drift.Value<String?> currentMedication,
+  drift.Value<bool> hasOralDebris,
+  drift.Value<bool> hasCalculus,
+  drift.Value<bool> hasPeriodontalPocket,
+  drift.Value<bool> hasGingivitis,
+  drift.Value<bool> hasDentofacialAnomaly,
+  drift.Value<int> cariesForFilling,
+  drift.Value<int> cariesForExtraction,
+  drift.Value<int> rootFragment,
+  drift.Value<int> missingDueToCaries,
+  drift.Value<int> filledOrRestored,
+  drift.Value<String?> clinicalNotes,
 });
 
-final class $$ClinicalRecordTableReferences extends BaseReferences<
-    _$AppDatabase, $ClinicalRecordTable, ClinicalRecordData> {
+final class $$ClinicalRecordTableReferences extends drift
+    .BaseReferences<_$AppDatabase, $ClinicalRecordTable, ClinicalRecordData> {
   $$ClinicalRecordTableReferences(
       super.$_db, super.$_table, super.$_typedResult);
 
   static $PatientTable _patientIdTable(_$AppDatabase db) =>
-      db.patient.createAlias($_aliasNameGenerator(
+      db.patient.createAlias(drift.$_aliasNameGenerator(
           db.clinicalRecord.patientId, db.patient.patientId));
 
   $$PatientTableProcessedTableManager get patientId {
@@ -6054,13 +6333,13 @@ final class $$ClinicalRecordTableReferences extends BaseReferences<
         .filter((f) => f.patientId.sqlEquals($_column));
     final item = $_typedResult.readTableOrNull(_patientIdTable($_db));
     if (item == null) return manager;
-    return ProcessedTableManager(
+    return drift.ProcessedTableManager(
         manager.$state.copyWith(prefetchedData: [item]));
   }
 }
 
 class $$ClinicalRecordTableFilterComposer
-    extends Composer<_$AppDatabase, $ClinicalRecordTable> {
+    extends drift.Composer<_$AppDatabase, $ClinicalRecordTable> {
   $$ClinicalRecordTableFilterComposer({
     required super.$db,
     required super.$table,
@@ -6068,64 +6347,73 @@ class $$ClinicalRecordTableFilterComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnFilters<int> get recordId => $composableBuilder(
-      column: $table.recordId, builder: (column) => ColumnFilters(column));
+  drift.ColumnFilters<int> get recordId => $composableBuilder(
+      column: $table.recordId,
+      builder: (column) => drift.ColumnFilters(column));
 
-  ColumnFilters<DateTime> get createdAt => $composableBuilder(
-      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+  drift.ColumnFilters<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt,
+      builder: (column) => drift.ColumnFilters(column));
 
-  ColumnFilters<String> get pastIllness => $composableBuilder(
-      column: $table.pastIllness, builder: (column) => ColumnFilters(column));
+  drift.ColumnFilters<String> get pastIllness => $composableBuilder(
+      column: $table.pastIllness,
+      builder: (column) => drift.ColumnFilters(column));
 
-  ColumnFilters<String> get presentIllness => $composableBuilder(
+  drift.ColumnFilters<String> get presentIllness => $composableBuilder(
       column: $table.presentIllness,
-      builder: (column) => ColumnFilters(column));
+      builder: (column) => drift.ColumnFilters(column));
 
-  ColumnFilters<String> get allergies => $composableBuilder(
-      column: $table.allergies, builder: (column) => ColumnFilters(column));
+  drift.ColumnFilters<String> get allergies => $composableBuilder(
+      column: $table.allergies,
+      builder: (column) => drift.ColumnFilters(column));
 
-  ColumnFilters<String> get currentMedication => $composableBuilder(
+  drift.ColumnFilters<String> get currentMedication => $composableBuilder(
       column: $table.currentMedication,
-      builder: (column) => ColumnFilters(column));
+      builder: (column) => drift.ColumnFilters(column));
 
-  ColumnFilters<bool> get hasOralDebris => $composableBuilder(
-      column: $table.hasOralDebris, builder: (column) => ColumnFilters(column));
+  drift.ColumnFilters<bool> get hasOralDebris => $composableBuilder(
+      column: $table.hasOralDebris,
+      builder: (column) => drift.ColumnFilters(column));
 
-  ColumnFilters<bool> get hasCalculus => $composableBuilder(
-      column: $table.hasCalculus, builder: (column) => ColumnFilters(column));
+  drift.ColumnFilters<bool> get hasCalculus => $composableBuilder(
+      column: $table.hasCalculus,
+      builder: (column) => drift.ColumnFilters(column));
 
-  ColumnFilters<bool> get hasPeriodontalPocket => $composableBuilder(
+  drift.ColumnFilters<bool> get hasPeriodontalPocket => $composableBuilder(
       column: $table.hasPeriodontalPocket,
-      builder: (column) => ColumnFilters(column));
+      builder: (column) => drift.ColumnFilters(column));
 
-  ColumnFilters<bool> get hasGingivitis => $composableBuilder(
-      column: $table.hasGingivitis, builder: (column) => ColumnFilters(column));
+  drift.ColumnFilters<bool> get hasGingivitis => $composableBuilder(
+      column: $table.hasGingivitis,
+      builder: (column) => drift.ColumnFilters(column));
 
-  ColumnFilters<bool> get hasDentofacialAnomaly => $composableBuilder(
+  drift.ColumnFilters<bool> get hasDentofacialAnomaly => $composableBuilder(
       column: $table.hasDentofacialAnomaly,
-      builder: (column) => ColumnFilters(column));
+      builder: (column) => drift.ColumnFilters(column));
 
-  ColumnFilters<int> get cariesForFilling => $composableBuilder(
+  drift.ColumnFilters<int> get cariesForFilling => $composableBuilder(
       column: $table.cariesForFilling,
-      builder: (column) => ColumnFilters(column));
+      builder: (column) => drift.ColumnFilters(column));
 
-  ColumnFilters<int> get cariesForExtraction => $composableBuilder(
+  drift.ColumnFilters<int> get cariesForExtraction => $composableBuilder(
       column: $table.cariesForExtraction,
-      builder: (column) => ColumnFilters(column));
+      builder: (column) => drift.ColumnFilters(column));
 
-  ColumnFilters<int> get rootFragment => $composableBuilder(
-      column: $table.rootFragment, builder: (column) => ColumnFilters(column));
+  drift.ColumnFilters<int> get rootFragment => $composableBuilder(
+      column: $table.rootFragment,
+      builder: (column) => drift.ColumnFilters(column));
 
-  ColumnFilters<int> get missingDueToCaries => $composableBuilder(
+  drift.ColumnFilters<int> get missingDueToCaries => $composableBuilder(
       column: $table.missingDueToCaries,
-      builder: (column) => ColumnFilters(column));
+      builder: (column) => drift.ColumnFilters(column));
 
-  ColumnFilters<int> get filledOrRestored => $composableBuilder(
+  drift.ColumnFilters<int> get filledOrRestored => $composableBuilder(
       column: $table.filledOrRestored,
-      builder: (column) => ColumnFilters(column));
+      builder: (column) => drift.ColumnFilters(column));
 
-  ColumnFilters<String> get clinicalNotes => $composableBuilder(
-      column: $table.clinicalNotes, builder: (column) => ColumnFilters(column));
+  drift.ColumnFilters<String> get clinicalNotes => $composableBuilder(
+      column: $table.clinicalNotes,
+      builder: (column) => drift.ColumnFilters(column));
 
   $$PatientTableFilterComposer get patientId {
     final $$PatientTableFilterComposer composer = $composerBuilder(
@@ -6149,7 +6437,7 @@ class $$ClinicalRecordTableFilterComposer
 }
 
 class $$ClinicalRecordTableOrderingComposer
-    extends Composer<_$AppDatabase, $ClinicalRecordTable> {
+    extends drift.Composer<_$AppDatabase, $ClinicalRecordTable> {
   $$ClinicalRecordTableOrderingComposer({
     required super.$db,
     required super.$table,
@@ -6157,68 +6445,73 @@ class $$ClinicalRecordTableOrderingComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnOrderings<int> get recordId => $composableBuilder(
-      column: $table.recordId, builder: (column) => ColumnOrderings(column));
+  drift.ColumnOrderings<int> get recordId => $composableBuilder(
+      column: $table.recordId,
+      builder: (column) => drift.ColumnOrderings(column));
 
-  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
-      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+  drift.ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt,
+      builder: (column) => drift.ColumnOrderings(column));
 
-  ColumnOrderings<String> get pastIllness => $composableBuilder(
-      column: $table.pastIllness, builder: (column) => ColumnOrderings(column));
+  drift.ColumnOrderings<String> get pastIllness => $composableBuilder(
+      column: $table.pastIllness,
+      builder: (column) => drift.ColumnOrderings(column));
 
-  ColumnOrderings<String> get presentIllness => $composableBuilder(
+  drift.ColumnOrderings<String> get presentIllness => $composableBuilder(
       column: $table.presentIllness,
-      builder: (column) => ColumnOrderings(column));
+      builder: (column) => drift.ColumnOrderings(column));
 
-  ColumnOrderings<String> get allergies => $composableBuilder(
-      column: $table.allergies, builder: (column) => ColumnOrderings(column));
+  drift.ColumnOrderings<String> get allergies => $composableBuilder(
+      column: $table.allergies,
+      builder: (column) => drift.ColumnOrderings(column));
 
-  ColumnOrderings<String> get currentMedication => $composableBuilder(
+  drift.ColumnOrderings<String> get currentMedication => $composableBuilder(
       column: $table.currentMedication,
-      builder: (column) => ColumnOrderings(column));
+      builder: (column) => drift.ColumnOrderings(column));
 
-  ColumnOrderings<bool> get hasOralDebris => $composableBuilder(
+  drift.ColumnOrderings<bool> get hasOralDebris => $composableBuilder(
       column: $table.hasOralDebris,
-      builder: (column) => ColumnOrderings(column));
+      builder: (column) => drift.ColumnOrderings(column));
 
-  ColumnOrderings<bool> get hasCalculus => $composableBuilder(
-      column: $table.hasCalculus, builder: (column) => ColumnOrderings(column));
+  drift.ColumnOrderings<bool> get hasCalculus => $composableBuilder(
+      column: $table.hasCalculus,
+      builder: (column) => drift.ColumnOrderings(column));
 
-  ColumnOrderings<bool> get hasPeriodontalPocket => $composableBuilder(
+  drift.ColumnOrderings<bool> get hasPeriodontalPocket => $composableBuilder(
       column: $table.hasPeriodontalPocket,
-      builder: (column) => ColumnOrderings(column));
+      builder: (column) => drift.ColumnOrderings(column));
 
-  ColumnOrderings<bool> get hasGingivitis => $composableBuilder(
+  drift.ColumnOrderings<bool> get hasGingivitis => $composableBuilder(
       column: $table.hasGingivitis,
-      builder: (column) => ColumnOrderings(column));
+      builder: (column) => drift.ColumnOrderings(column));
 
-  ColumnOrderings<bool> get hasDentofacialAnomaly => $composableBuilder(
+  drift.ColumnOrderings<bool> get hasDentofacialAnomaly => $composableBuilder(
       column: $table.hasDentofacialAnomaly,
-      builder: (column) => ColumnOrderings(column));
+      builder: (column) => drift.ColumnOrderings(column));
 
-  ColumnOrderings<int> get cariesForFilling => $composableBuilder(
+  drift.ColumnOrderings<int> get cariesForFilling => $composableBuilder(
       column: $table.cariesForFilling,
-      builder: (column) => ColumnOrderings(column));
+      builder: (column) => drift.ColumnOrderings(column));
 
-  ColumnOrderings<int> get cariesForExtraction => $composableBuilder(
+  drift.ColumnOrderings<int> get cariesForExtraction => $composableBuilder(
       column: $table.cariesForExtraction,
-      builder: (column) => ColumnOrderings(column));
+      builder: (column) => drift.ColumnOrderings(column));
 
-  ColumnOrderings<int> get rootFragment => $composableBuilder(
+  drift.ColumnOrderings<int> get rootFragment => $composableBuilder(
       column: $table.rootFragment,
-      builder: (column) => ColumnOrderings(column));
+      builder: (column) => drift.ColumnOrderings(column));
 
-  ColumnOrderings<int> get missingDueToCaries => $composableBuilder(
+  drift.ColumnOrderings<int> get missingDueToCaries => $composableBuilder(
       column: $table.missingDueToCaries,
-      builder: (column) => ColumnOrderings(column));
+      builder: (column) => drift.ColumnOrderings(column));
 
-  ColumnOrderings<int> get filledOrRestored => $composableBuilder(
+  drift.ColumnOrderings<int> get filledOrRestored => $composableBuilder(
       column: $table.filledOrRestored,
-      builder: (column) => ColumnOrderings(column));
+      builder: (column) => drift.ColumnOrderings(column));
 
-  ColumnOrderings<String> get clinicalNotes => $composableBuilder(
+  drift.ColumnOrderings<String> get clinicalNotes => $composableBuilder(
       column: $table.clinicalNotes,
-      builder: (column) => ColumnOrderings(column));
+      builder: (column) => drift.ColumnOrderings(column));
 
   $$PatientTableOrderingComposer get patientId {
     final $$PatientTableOrderingComposer composer = $composerBuilder(
@@ -6242,7 +6535,7 @@ class $$ClinicalRecordTableOrderingComposer
 }
 
 class $$ClinicalRecordTableAnnotationComposer
-    extends Composer<_$AppDatabase, $ClinicalRecordTable> {
+    extends drift.Composer<_$AppDatabase, $ClinicalRecordTable> {
   $$ClinicalRecordTableAnnotationComposer({
     required super.$db,
     required super.$table,
@@ -6250,55 +6543,55 @@ class $$ClinicalRecordTableAnnotationComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  GeneratedColumn<int> get recordId =>
+  drift.GeneratedColumn<int> get recordId =>
       $composableBuilder(column: $table.recordId, builder: (column) => column);
 
-  GeneratedColumn<DateTime> get createdAt =>
+  drift.GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
 
-  GeneratedColumn<String> get pastIllness => $composableBuilder(
+  drift.GeneratedColumn<String> get pastIllness => $composableBuilder(
       column: $table.pastIllness, builder: (column) => column);
 
-  GeneratedColumn<String> get presentIllness => $composableBuilder(
+  drift.GeneratedColumn<String> get presentIllness => $composableBuilder(
       column: $table.presentIllness, builder: (column) => column);
 
-  GeneratedColumn<String> get allergies =>
+  drift.GeneratedColumn<String> get allergies =>
       $composableBuilder(column: $table.allergies, builder: (column) => column);
 
-  GeneratedColumn<String> get currentMedication => $composableBuilder(
+  drift.GeneratedColumn<String> get currentMedication => $composableBuilder(
       column: $table.currentMedication, builder: (column) => column);
 
-  GeneratedColumn<bool> get hasOralDebris => $composableBuilder(
+  drift.GeneratedColumn<bool> get hasOralDebris => $composableBuilder(
       column: $table.hasOralDebris, builder: (column) => column);
 
-  GeneratedColumn<bool> get hasCalculus => $composableBuilder(
+  drift.GeneratedColumn<bool> get hasCalculus => $composableBuilder(
       column: $table.hasCalculus, builder: (column) => column);
 
-  GeneratedColumn<bool> get hasPeriodontalPocket => $composableBuilder(
+  drift.GeneratedColumn<bool> get hasPeriodontalPocket => $composableBuilder(
       column: $table.hasPeriodontalPocket, builder: (column) => column);
 
-  GeneratedColumn<bool> get hasGingivitis => $composableBuilder(
+  drift.GeneratedColumn<bool> get hasGingivitis => $composableBuilder(
       column: $table.hasGingivitis, builder: (column) => column);
 
-  GeneratedColumn<bool> get hasDentofacialAnomaly => $composableBuilder(
+  drift.GeneratedColumn<bool> get hasDentofacialAnomaly => $composableBuilder(
       column: $table.hasDentofacialAnomaly, builder: (column) => column);
 
-  GeneratedColumn<int> get cariesForFilling => $composableBuilder(
+  drift.GeneratedColumn<int> get cariesForFilling => $composableBuilder(
       column: $table.cariesForFilling, builder: (column) => column);
 
-  GeneratedColumn<int> get cariesForExtraction => $composableBuilder(
+  drift.GeneratedColumn<int> get cariesForExtraction => $composableBuilder(
       column: $table.cariesForExtraction, builder: (column) => column);
 
-  GeneratedColumn<int> get rootFragment => $composableBuilder(
+  drift.GeneratedColumn<int> get rootFragment => $composableBuilder(
       column: $table.rootFragment, builder: (column) => column);
 
-  GeneratedColumn<int> get missingDueToCaries => $composableBuilder(
+  drift.GeneratedColumn<int> get missingDueToCaries => $composableBuilder(
       column: $table.missingDueToCaries, builder: (column) => column);
 
-  GeneratedColumn<int> get filledOrRestored => $composableBuilder(
+  drift.GeneratedColumn<int> get filledOrRestored => $composableBuilder(
       column: $table.filledOrRestored, builder: (column) => column);
 
-  GeneratedColumn<String> get clinicalNotes => $composableBuilder(
+  drift.GeneratedColumn<String> get clinicalNotes => $composableBuilder(
       column: $table.clinicalNotes, builder: (column) => column);
 
   $$PatientTableAnnotationComposer get patientId {
@@ -6322,7 +6615,7 @@ class $$ClinicalRecordTableAnnotationComposer
   }
 }
 
-class $$ClinicalRecordTableTableManager extends RootTableManager<
+class $$ClinicalRecordTableTableManager extends drift.RootTableManager<
     _$AppDatabase,
     $ClinicalRecordTable,
     ClinicalRecordData,
@@ -6333,10 +6626,10 @@ class $$ClinicalRecordTableTableManager extends RootTableManager<
     $$ClinicalRecordTableUpdateCompanionBuilder,
     (ClinicalRecordData, $$ClinicalRecordTableReferences),
     ClinicalRecordData,
-    PrefetchHooks Function({bool patientId})> {
+    drift.PrefetchHooks Function({bool patientId})> {
   $$ClinicalRecordTableTableManager(
       _$AppDatabase db, $ClinicalRecordTable table)
-      : super(TableManagerState(
+      : super(drift.TableManagerState(
           db: db,
           table: table,
           createFilteringComposer: () =>
@@ -6346,24 +6639,25 @@ class $$ClinicalRecordTableTableManager extends RootTableManager<
           createComputedFieldComposer: () =>
               $$ClinicalRecordTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
-            Value<int> recordId = const Value.absent(),
-            Value<int> patientId = const Value.absent(),
-            Value<DateTime> createdAt = const Value.absent(),
-            Value<String?> pastIllness = const Value.absent(),
-            Value<String?> presentIllness = const Value.absent(),
-            Value<String?> allergies = const Value.absent(),
-            Value<String?> currentMedication = const Value.absent(),
-            Value<bool> hasOralDebris = const Value.absent(),
-            Value<bool> hasCalculus = const Value.absent(),
-            Value<bool> hasPeriodontalPocket = const Value.absent(),
-            Value<bool> hasGingivitis = const Value.absent(),
-            Value<bool> hasDentofacialAnomaly = const Value.absent(),
-            Value<int> cariesForFilling = const Value.absent(),
-            Value<int> cariesForExtraction = const Value.absent(),
-            Value<int> rootFragment = const Value.absent(),
-            Value<int> missingDueToCaries = const Value.absent(),
-            Value<int> filledOrRestored = const Value.absent(),
-            Value<String?> clinicalNotes = const Value.absent(),
+            drift.Value<int> recordId = const drift.Value.absent(),
+            drift.Value<int> patientId = const drift.Value.absent(),
+            drift.Value<DateTime> createdAt = const drift.Value.absent(),
+            drift.Value<String?> pastIllness = const drift.Value.absent(),
+            drift.Value<String?> presentIllness = const drift.Value.absent(),
+            drift.Value<String?> allergies = const drift.Value.absent(),
+            drift.Value<String?> currentMedication = const drift.Value.absent(),
+            drift.Value<bool> hasOralDebris = const drift.Value.absent(),
+            drift.Value<bool> hasCalculus = const drift.Value.absent(),
+            drift.Value<bool> hasPeriodontalPocket = const drift.Value.absent(),
+            drift.Value<bool> hasGingivitis = const drift.Value.absent(),
+            drift.Value<bool> hasDentofacialAnomaly =
+                const drift.Value.absent(),
+            drift.Value<int> cariesForFilling = const drift.Value.absent(),
+            drift.Value<int> cariesForExtraction = const drift.Value.absent(),
+            drift.Value<int> rootFragment = const drift.Value.absent(),
+            drift.Value<int> missingDueToCaries = const drift.Value.absent(),
+            drift.Value<int> filledOrRestored = const drift.Value.absent(),
+            drift.Value<String?> clinicalNotes = const drift.Value.absent(),
           }) =>
               ClinicalRecordCompanion(
             recordId: recordId,
@@ -6386,24 +6680,25 @@ class $$ClinicalRecordTableTableManager extends RootTableManager<
             clinicalNotes: clinicalNotes,
           ),
           createCompanionCallback: ({
-            Value<int> recordId = const Value.absent(),
+            drift.Value<int> recordId = const drift.Value.absent(),
             required int patientId,
-            Value<DateTime> createdAt = const Value.absent(),
-            Value<String?> pastIllness = const Value.absent(),
-            Value<String?> presentIllness = const Value.absent(),
-            Value<String?> allergies = const Value.absent(),
-            Value<String?> currentMedication = const Value.absent(),
-            Value<bool> hasOralDebris = const Value.absent(),
-            Value<bool> hasCalculus = const Value.absent(),
-            Value<bool> hasPeriodontalPocket = const Value.absent(),
-            Value<bool> hasGingivitis = const Value.absent(),
-            Value<bool> hasDentofacialAnomaly = const Value.absent(),
-            Value<int> cariesForFilling = const Value.absent(),
-            Value<int> cariesForExtraction = const Value.absent(),
-            Value<int> rootFragment = const Value.absent(),
-            Value<int> missingDueToCaries = const Value.absent(),
-            Value<int> filledOrRestored = const Value.absent(),
-            Value<String?> clinicalNotes = const Value.absent(),
+            drift.Value<DateTime> createdAt = const drift.Value.absent(),
+            drift.Value<String?> pastIllness = const drift.Value.absent(),
+            drift.Value<String?> presentIllness = const drift.Value.absent(),
+            drift.Value<String?> allergies = const drift.Value.absent(),
+            drift.Value<String?> currentMedication = const drift.Value.absent(),
+            drift.Value<bool> hasOralDebris = const drift.Value.absent(),
+            drift.Value<bool> hasCalculus = const drift.Value.absent(),
+            drift.Value<bool> hasPeriodontalPocket = const drift.Value.absent(),
+            drift.Value<bool> hasGingivitis = const drift.Value.absent(),
+            drift.Value<bool> hasDentofacialAnomaly =
+                const drift.Value.absent(),
+            drift.Value<int> cariesForFilling = const drift.Value.absent(),
+            drift.Value<int> cariesForExtraction = const drift.Value.absent(),
+            drift.Value<int> rootFragment = const drift.Value.absent(),
+            drift.Value<int> missingDueToCaries = const drift.Value.absent(),
+            drift.Value<int> filledOrRestored = const drift.Value.absent(),
+            drift.Value<String?> clinicalNotes = const drift.Value.absent(),
           }) =>
               ClinicalRecordCompanion.insert(
             recordId: recordId,
@@ -6432,11 +6727,11 @@ class $$ClinicalRecordTableTableManager extends RootTableManager<
                   ))
               .toList(),
           prefetchHooksCallback: ({patientId = false}) {
-            return PrefetchHooks(
+            return drift.PrefetchHooks(
               db: db,
               explicitlyWatchedTables: [],
               addJoins: <
-                  T extends TableManagerState<
+                  T extends drift.TableManagerState<
                       dynamic,
                       dynamic,
                       dynamic,
@@ -6470,18 +6765,19 @@ class $$ClinicalRecordTableTableManager extends RootTableManager<
         ));
 }
 
-typedef $$ClinicalRecordTableProcessedTableManager = ProcessedTableManager<
-    _$AppDatabase,
-    $ClinicalRecordTable,
-    ClinicalRecordData,
-    $$ClinicalRecordTableFilterComposer,
-    $$ClinicalRecordTableOrderingComposer,
-    $$ClinicalRecordTableAnnotationComposer,
-    $$ClinicalRecordTableCreateCompanionBuilder,
-    $$ClinicalRecordTableUpdateCompanionBuilder,
-    (ClinicalRecordData, $$ClinicalRecordTableReferences),
-    ClinicalRecordData,
-    PrefetchHooks Function({bool patientId})>;
+typedef $$ClinicalRecordTableProcessedTableManager
+    = drift.ProcessedTableManager<
+        _$AppDatabase,
+        $ClinicalRecordTable,
+        ClinicalRecordData,
+        $$ClinicalRecordTableFilterComposer,
+        $$ClinicalRecordTableOrderingComposer,
+        $$ClinicalRecordTableAnnotationComposer,
+        $$ClinicalRecordTableCreateCompanionBuilder,
+        $$ClinicalRecordTableUpdateCompanionBuilder,
+        (ClinicalRecordData, $$ClinicalRecordTableReferences),
+        ClinicalRecordData,
+        drift.PrefetchHooks Function({bool patientId})>;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
