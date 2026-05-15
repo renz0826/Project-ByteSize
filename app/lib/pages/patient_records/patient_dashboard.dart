@@ -138,25 +138,15 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
   Future<void> _archivePatient(PatientData patient) async {
     final confirm = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Archive Patient Record'),
-        content: Text(
-            'Are you sure you want to archive the record for ${patient.lastName}, ${patient.firstName} ${patient.suffix}?\n\n'
-            'This will also automatically CANCEL all scheduled appointments for this patient.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text('Cancel',
-                style:
-                    TextStyle(color: AppTheme.black500.withValues(alpha: 0.6))),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            style: ElevatedButton.styleFrom(backgroundColor: AppTheme.red600),
-            child: const Text('Archive', style: TextStyle(color: Colors.white)),
-          ),
-        ],
-      ),
+      builder: (BuildContext context) {
+        return WarningDialog(
+            isCaution: false,
+            title: "Restore Patient Record?",
+            content:
+                "Are you sure you want to archive ${patient.firstName} ${patient.suffix} ${patient.lastName}'s record? \n\n Archiving this records will automatically CANCEL all  appointments scheduled for this patient.",
+            secondaryAction: "Cancel",
+            primaryAction: "Archive");
+      },
     );
 
     if (confirm == true) {
