@@ -197,24 +197,15 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
   Future<void> _unarchivePatient(PatientData patient) async {
     final confirm = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Restore Patient Record'),
-        content: Text(
-            'Are you sure you want to restore the record for ${patient.lastName}, ${patient.firstName} ${patient.suffix}?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text('Cancel',
-                style:
-                    TextStyle(color: AppTheme.black500.withValues(alpha: 0.6))),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            style: ElevatedButton.styleFrom(backgroundColor: AppTheme.blue500),
-            child: const Text('Restore', style: TextStyle(color: Colors.white)),
-          ),
-        ],
-      ),
+      builder: (BuildContext context) {
+        return WarningDialog(
+            isCaution: true,
+            title: "Restore Patient Record?",
+            content:
+                "Are you sure you want to restore ${patient.firstName} ${patient.suffix} ${patient.lastName}'s record?",
+            secondaryAction: "Cancel",
+            primaryAction: "Restore");
+      },
     );
 
     if (confirm == true) {
