@@ -1,19 +1,18 @@
 import 'package:dentcity_management_system/db/database.dart';
 import 'package:dentcity_management_system/repositories/patient_repository.dart';
 import 'package:dentcity_management_system/style/theme.dart';
+import 'package:dentcity_management_system/widgets/warning_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:drift/drift.dart' as drift;
 import 'package:flutter/services.dart';
 import '/../widgets/main_buttons.dart';
 import '/../widgets/input_field.dart';
-import '/../widgets/missing_info_dialog.dart';
+import '../../widgets/requirement_dialog.dart';
 import '/../widgets/radio_buttons.dart';
-import '../../services/locations_ph.dart';
-import '../../services/date_service.dart';
-import '../../services/date_helper.dart';
-import '../../services/form_validator.dart';
+import '../../services/patient_service.dart';
 import '../../providers/app_providers.dart';
+import '/../widgets/status_toast.dart';
 
 class AddPatientForm extends ConsumerStatefulWidget {
   final Function(PatientCompanion) onNext;
@@ -58,6 +57,47 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
   String? _selectedBarangay;
   bool _isPWD = false;
 
+  @override
+  void initState() {
+    super.initState();
+    if (isEditing) {
+      // Required fields
+      _firstNameController.text =
+          widget.existingPatient!['firstName'] as String;
+      _lastNameController.text = widget.existingPatient!['lastName'] as String;
+      _contactNumberController.text =
+          widget.existingPatient!['contactNumber'] as String;
+      _streetController.text =
+          widget.existingPatient!['streetAddress'] as String;
+
+      // Optional fields
+      _middleNameController.text =
+          widget.existingPatient!['middleName'] as String? ?? '';
+      _emergencyContactController.text =
+          widget.existingPatient!['emergencyContactNo'] as String? ?? '';
+      _referredByController.text =
+          widget.existingPatient!['referredBy'] as String? ?? '';
+      _relationshipController.text =
+          widget.existingPatient!['relationship'] as String? ?? '';
+      _emergencyContactRelationshipController.text =
+          widget.existingPatient!['relationshipEmergency'] as String? ?? '';
+      _zipController.text = widget.existingPatient!['zipCode'] as String? ?? '';
+
+      _selectedSuffix = widget.existingPatient!['suffix'] as String?;
+      _selectedSex = widget.existingPatient!['sex'] as String?;
+      _selectedStatus = widget.existingPatient!['civilStatus'] as String?;
+      _selectedProvince = widget.existingPatient!['province'] as String?;
+      _selectedCity = widget.existingPatient!['cityMunicipality'] as String?;
+      _selectedBarangay = widget.existingPatient!['barangay'] as String?;
+      _isPWD = widget.existingPatient!['isSeniorOrPWD'] as bool? ?? false;
+
+      final birthDate = widget.existingPatient!['birthDate'] as DateTime;
+      _selectedYear = birthDate.year.toString();
+      _selectedMonth = DateService.months[birthDate.month - 1];
+      _selectedDay = birthDate.day.toString();
+    }
+  }
+
   void _clearFormPatientRecord() {
     setState(() {
       _firstNameController.clear();
@@ -69,6 +109,8 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
       _relationshipController.clear();
       _emergencyContactRelationshipController.clear();
       _streetController.clear();
+      _cityController.clear(); // missing
+      _barangayController.clear(); // missing
       _zipController.clear();
       _barangayController.clear();
       _provinceController.clear();
@@ -87,6 +129,7 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
 
   void _handleNext() async {
     DateTime? birthDate;
+
     if (isEditing &&
         widget.existingPatient != null &&
         widget.existingPatient!['birthDate'] != null) {
@@ -98,6 +141,7 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
           _selectedMonth!, _selectedDay!, _selectedYear!);
     }
 
+    // 1. Required Field Validation
     List<String> missing = FormValidator.getMissingPatientFields(
       firstName: _firstNameController.text.trim(),
       lastName: _lastNameController.text.trim(),
@@ -109,81 +153,119 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
       barangay: _selectedBarangay ?? _barangayController.text.trim(),
       cityMunicipality: _selectedCity ?? _cityController.text.trim(),
       province: _selectedProvince ?? _provinceController.text.trim(),
-      zipCode: _zipController.text.trim(),
     );
 
     if (missing.isNotEmpty) {
-      MissingInfoDialog.show(context, missing);
+      RequirementDialog.show(context, "Missing Information",
+          "Please provide the following details.", missing);
       return;
     }
 
-    // Contact Number & Zip Code PopUp Validators
+    // 2. Format Validation
     List<String> formatErrors = [];
     final contact = _contactNumberController.text.trim();
     final emergencyContact = _emergencyContactController.text.trim();
     final zip = _zipController.text.trim();
 
-    if (contact.isNotEmpty && (contact.length != 11 || !contact.startsWith('09'))) {
-      formatErrors.add("• Mobile Number must be exactly 11 digits and start with '09'.");
+    if (contact.isNotEmpty) {
+      bool hasCorrectLength = contact.length == 11;
+      bool hasCorrectPrefix = contact.startsWith('09');
+
+      if (!hasCorrectLength && !hasCorrectPrefix) {
+        formatErrors.add(
+            "• Mobile Number must be exactly 11 digits and start with '09'.");
+      } else if (!hasCorrectPrefix) {
+        formatErrors.add("• Mobile Number must start with '09'.");
+      } else if (!hasCorrectLength) {
+        formatErrors.add("• Mobile Number must be exactly 11 digits.");
+      }
     }
-    
-    // Only check emergency contact if the user actually typed something in
-    if (emergencyContact.isNotEmpty && (emergencyContact.length != 11 || !emergencyContact.startsWith('09'))) {
-      formatErrors.add("• Emergency Contact Number must be exactly 11 digits and start with '09'.");
+
+    if (emergencyContact.isNotEmpty) {
+      bool hasCorrectLength = emergencyContact.length == 11;
+      bool hasCorrectPrefix = emergencyContact.startsWith('09');
+
+      if (!hasCorrectLength && !hasCorrectPrefix) {
+        formatErrors.add(
+            "• Mobile Number must be exactly 11 digits and start with '09'.");
+      } else if (!hasCorrectPrefix) {
+        formatErrors.add("• Mobile Number must start with '09'.");
+      } else if (!hasCorrectLength) {
+        formatErrors.add("• Mobile Number must be exactly 11 digits.");
+      }
     }
 
     if (zip.isNotEmpty && zip.length != 4) {
       formatErrors.add("• ZIP Code must be exactly 4 digits.");
     }
 
-    // If any formatting errors exist, show this popup
-    // TODO: @Frontend, Please refactor this to suit our theme
     if (formatErrors.isNotEmpty) {
       if (mounted) {
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('Invalid Input Format'),
-            content: Text(formatErrors.join('\n\n')),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('OK'),
-              )
-            ],
-          ),
+        RequirementDialog.show(
+          context,
+          "Invalid Input Format",
+          formatErrors.join('\n'),
+          [],
         );
       }
       return;
     }
-    
-    // TODO: @Frontend, please refactor this, thank you - Fons
+
     final db = ref.read(databaseProvider);
     final repository = PatientRepository(db);
-    if (await repository.isExactDuplicate(
-        _firstNameController.text, _lastNameController.text, birthDate!)) {
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Patient Already Exists'),
-          content: const Text('This patient is already in the system.'),
-          actions: [
-            TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('OK'))
-          ],
-        ),
-      );
-      return;
+
+    // 3. Hard Check for the exact duplicate (Matching firstname and lastname + DOB)
+    if (!isEditing) {
+      if (await repository.isExactDuplicate(_firstNameController.text.trim(),
+          _lastNameController.text.trim(), birthDate!)) {
+        if (mounted) {
+          StatusToast.show(
+            context,
+            isSuccess: false,
+            title: 'Patient Already Exists',
+            message:
+                "A patient with this exact name and birthdate is already in the system.",
+          );
+        }
+        return;
+      }
     }
 
-  // Patient Companion (This will be the data sent to the database)
+    // 4. Soft Check for matching first name and last name
+    if (!isEditing) {
+      bool nameExists = await repository.isNameDuplicate(
+          _firstNameController.text.trim(), _lastNameController.text.trim());
+
+      if (nameExists) {
+        bool? confirm = await showDialog<bool>(
+            context: context,
+            builder: (BuildContext context) {
+              return WarningDialog(
+                isCaution: true,
+                title: 'Similar Patient Found',
+                content:
+                    'A patient named "${_firstNameController.text} ${_lastNameController.text}" already exists. Are you sure this is a different person?',
+                secondaryAction: "Go Back",
+                primaryAction: "Proceed Anyway",
+              );
+            });
+
+        if (confirm != true) return; // Stop if user clicks Cancel
+      }
+    }
+
+    // 5. Proceed to create PatientCompanion and onNext
+    // when isEditing, keep the existing patientId to update the correct record,
+    // otherwise omit it so the database auto-assigns a new one on insert
     final patientEntry = PatientCompanion.insert(
+      patientId: isEditing
+          ? drift.Value(widget.existingPatient!['patientId'] as int)
+          : const drift.Value.absent(),
       firstName: _firstNameController.text.trim(),
       middleName: drift.Value(_middleNameController.text.trim()),
       lastName: _lastNameController.text.trim(),
-      suffix: drift.Value(_selectedSuffix ?? ""), 
-      birthDate: birthDate,
+      suffix: drift.Value(_selectedSuffix ?? ""),
+      birthDate: birthDate!,
       sex: _selectedSex!,
       civilStatus: _selectedStatus ?? "Single",
       contactNumber: _contactNumberController.text.trim(),
@@ -196,7 +278,7 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
       barangay: _selectedBarangay ?? _barangayController.text.trim(),
       cityMunicipality: _selectedCity ?? _cityController.text.trim(),
       province: _selectedProvince ?? _provinceController.text.trim(),
-      zipCode: _zipController.text.trim(),
+      zipCode: drift.Value(_zipController.text.trim()),
       isSeniorOrPWD: drift.Value(_isPWD),
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
@@ -237,8 +319,9 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
                     isRequired: true,
                     controller: _firstNameController, // first name controller
                     inputFormatters: [
-                      FilteringTextInputFormatter.allow(RegExp(
-                          r'[a-zA-Z\s]')), 
+                      FilteringTextInputFormatter.allow(
+                          RegExp(// format to only allow letters in this field
+                              r'[a-zA-Z\s]')),
                     ],
                   )),
               const SizedBox(width: 20),
@@ -273,7 +356,14 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
                   hintText: "e.g. Jr.",
                   variant: InputVariant.dropdown,
                   dropdownValue: _selectedSuffix,
-                  dropdownItems: const ["Jr.", "Sr.", "II", "III", "IV", "V"], // place common suffixes
+                  dropdownItems: const [
+                    "Jr.",
+                    "Sr.",
+                    "II",
+                    "III",
+                    "IV",
+                    "V"
+                  ], // place common suffixes
                   onDropdownChanged: (value) {
                     setState(() {
                       _selectedSuffix = value == "None" ? null : value;
@@ -281,8 +371,8 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
                   },
                 ),
               ),
-            ], 
-          ), 
+            ],
+          ),
           const SizedBox(height: 32),
           Text("Demographic", style: Theme.of(context).textTheme.titleLarge),
           if (!isEditing) ...[
@@ -299,7 +389,8 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
                     isRequired: true,
                     dropdownItems: List.generate(
                         125, (i) => (DateTime.now().year - i).toString()),
-                    onDropdownChanged: (value) { // function to calculate the year based on the system data
+                    onDropdownChanged: (value) {
+                      // function to calculate the year based on the system data
                       setState(() {
                         _selectedYear = value;
                         _selectedMonth = null;
@@ -311,15 +402,17 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
                 const SizedBox(width: 20),
                 Expanded(
                   child: InputField(
-                    hintText: _selectedYear == null // make sure this is dynamic, make user click year first
+                    hintText: _selectedYear ==
+                            null // make sure this is dynamic, make user click year first
                         ? "Select a Year first"
                         : "Select Month",
                     label: "Month",
                     variant: InputVariant.dropdown,
                     dropdownValue: _selectedMonth,
                     isRequired: true,
-                    dropdownItems:
-                        _selectedYear == null ? [] : DateService.months, // use DateService file here
+                    dropdownItems: _selectedYear == null
+                        ? []
+                        : DateService.months, // use DateService file here
                     onDropdownChanged: (value) {
                       setState(() {
                         _selectedMonth = value;
@@ -343,8 +436,10 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
                         (_selectedYear == null || _selectedMonth == null)
                             ? []
                             : List.generate(
-                                DateService.getDaysInMonth( // service file to change the date based on the month selected
-                                    _selectedMonth, _selectedYear),
+                                DateService.getDaysInMonth(
+                                    // service file to change the date based on the month selected
+                                    _selectedMonth,
+                                    _selectedYear),
                                 (index) => (index + 1).toString(),
                               ),
                     onDropdownChanged: (value) =>
@@ -441,7 +536,8 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
                 hintText: "Enter referral name",
                 controller: _referredByController,
                 inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')) // format to letters only
+                  FilteringTextInputFormatter.allow(
+                      RegExp(r'[a-zA-Z\s]')) // format to letters only
                 ],
               )),
               const SizedBox(width: 20),
@@ -451,7 +547,8 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
                 hintText: "Enter relationship to referral",
                 controller: _relationshipController,
                 inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')) // format to letters only
+                  FilteringTextInputFormatter.allow(
+                      RegExp(r'[a-zA-Z\s]')) // format to letters only
                 ],
               )),
             ],
@@ -461,7 +558,7 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
           const SizedBox(height: 12),
           InputField(
               label: "Street Address",
-              hintText: "Enter Street Address", 
+              hintText: "Enter Street Address",
               isRequired: true,
               controller: _streetController), // street controller
           const SizedBox(height: 20),
@@ -473,7 +570,8 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
                       hintText: "Select a province",
                       variant: InputVariant.dropdown,
                       dropdownValue: _selectedProvince,
-                      dropdownItems: PhAddressService.getAllProvinceNames(), // use PhAddressService library
+                      dropdownItems: PhAddressService
+                          .getAllProvinceNames(), // use PhAddressService library
                       isRequired: true,
                       onDropdownChanged: (v) => setState(() {
                             _selectedProvince = v;
@@ -528,11 +626,11 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
                   child: InputField(
                     label: "ZIP Code",
                     hintText: "Enter ZIP code",
-                    isRequired: true,
                     controller: _zipController, // zip code controller
                     inputFormatters: [
                       FilteringTextInputFormatter.digitsOnly,
-                      LengthLimitingTextInputFormatter(4), // filter to allow only numbers and limit to 4 digits
+                      LengthLimitingTextInputFormatter(
+                          4), // filter to allow only numbers and limit to 4 digits
                     ],
                   )),
             ],
@@ -553,11 +651,14 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
                       onPressed: _clearFormPatientRecord),
                 ),
                 SizedBox(
-                  width: 140,
+                  width: isEditing ? 200 : 140,
                   child: Button(
-                      label: "Next",
-                      icon: Icons.arrow_forward,
-                      iconPlacement: IconPlacement.right,
+                      label: isEditing ? "Update Details" : "Next",
+                      icon: isEditing
+                          ? Icons.save_alt_outlined
+                          : Icons.arrow_forward,
+                      iconPlacement:
+                          isEditing ? IconPlacement.left : IconPlacement.right,
                       onPressed: _handleNext),
                 ),
               ],

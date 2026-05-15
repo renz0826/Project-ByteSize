@@ -19,15 +19,15 @@ String formatDate(DateTime date) {
 // shared text style helper
 TextStyle? barTextStyle(BuildContext context) {
   return Theme.of(context).textTheme.bodySmall?.copyWith(
-    color: AppTheme.black500,
-  );
+        color: AppTheme.black500,
+      );
 }
 
 // shared bar text widget - handles style and flex dynamically
 class _BarText extends StatelessWidget {
   final String text;
-  final int flex;   
-  final bool ellipsis; 
+  final int flex;
+  final bool ellipsis;
 
   const _BarText(
     this.text, {
@@ -67,6 +67,7 @@ class _BarContainer extends StatelessWidget {
         boxShadow: AppTheme.cardShadow,
       ),
       child: Row(
+        spacing: 8,
         children: children,
       ),
     );
@@ -90,7 +91,7 @@ class BarMenuItem {
 
 // Shared options button
 class _MoreOptions extends StatelessWidget {
-  final List<BarMenuItem> items; 
+  final List<BarMenuItem> items;
   final ValueChanged<String>? onSelected;
 
   const _MoreOptions({required this.items, this.onSelected});
@@ -98,36 +99,43 @@ class _MoreOptions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PopupMenuButton<String>(
+      constraints: const BoxConstraints(),
       color: AppTheme.white500,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
       padding: EdgeInsetsGeometry.zero,
-      icon: const HeroIcon(HeroIcons.ellipsisHorizontal, color: AppTheme.gray500, size: 30),
+      icon: const HeroIcon(HeroIcons.ellipsisHorizontal,
+          color: AppTheme.gray500, size: 30),
       onSelected: onSelected,
       itemBuilder: (_) => items.map(_buildItem).toList(),
     );
   }
 
-  PopupMenuItem<String>_buildItem(BarMenuItem item){
+  PopupMenuItem<String> _buildItem(BarMenuItem item) {
     return PopupMenuItem<String>(
       value: item.value,
       height: 35,
-      padding: const EdgeInsets.symmetric(horizontal: 8),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
+      padding: EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
         children: [
-          HeroIcon(item.icon,
-          color: item.color ?? AppTheme.gray500,
-          size: 20,
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              HeroIcon(
+                item.icon,
+                color: item.color ?? AppTheme.gray500,
+                size: 20,
+              ),
+              const SizedBox(width: 10),
+              Text(
+                item.label,
+                style: AppTheme.textTheme.bodySmall?.copyWith(
+                  color: item.color ?? AppTheme.black500,
+                ),
+              )
+            ],
           ),
-          const SizedBox(width: 10),
-          Text(
-            item.label,
-            style: AppTheme.textTheme.bodySmall?.copyWith(
-              color: item.color ?? AppTheme.black500,
-            ),
-          )
         ],
       ),
     );
@@ -135,46 +143,88 @@ class _MoreOptions extends StatelessWidget {
 }
 
 // Appointment Bar - Patient in Queue
-// Displays: Name | Time | Procedure | Status Badge | Action Button
+// Displays: Name | Time | Reason | Status Badge | Action Button
 class AppointmentBar extends StatelessWidget {
   final String fullName;
   final String time;
+  final String reason;
   final BadgeStatus status;
-  final VoidCallback? onAction; // action depends on status (e.g. cancel / done)
+  final VoidCallback?
+      onPrimaryAction; // action depends on status (e.g. cancel / done)
+  final ValueChanged<String>? onMenuSelected;
 
   const AppointmentBar({
     super.key,
     required this.fullName,
     required this.time,
+    required this.reason,
     required this.status,
-    this.onAction,
+    this.onPrimaryAction,
+    this.onMenuSelected,
   });
 
   // action icon depends on status — uses IconButtons widget
   Widget _actionButton() {
     final isWaiting = status == BadgeStatus.waiting;
     return IconButtons(
-      onPressed: onAction,
+      onPressed: onPrimaryAction,
       variant: isWaiting ? IconButtonVariant.cancel : IconButtonVariant.finish,
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final isWaiting =
+        status == BadgeStatus.waiting || status == BadgeStatus.pending;
     return _BarContainer(
       children: [
-        _BarText(fullName, flex: 3, ellipsis: true,), // name
-        _BarText(time), // time
-
-        // status badge + action button pushed to right
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            AppStatusBadge(status: status),
-            const SizedBox(width: 8),
-            _actionButton(),
-          ],
+        _BarText(
+          fullName,
+          flex: 3,
+          ellipsis: true,
+        ), // name
+        _BarText(
+          time,
+          flex: 2,
+        ), // time
+        _BarText(reason, flex: 2, ellipsis: true), // reason
+        Expanded(
+          flex: 2,
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: AppStatusBadge(status: status),
+          ),
         ),
+        _actionButton(),
+        SizedBox(
+          child: _MoreOptions(
+            onSelected: onMenuSelected,
+            items: isWaiting
+                // Menu for WAITING patients
+                ? [
+                    BarMenuItem(
+                      value: 'admit',
+                      icon: HeroIcons.arrowRight,
+                      label: 'Admit Patient',
+                    ),
+                    BarMenuItem(
+                        value: 'reschedule',
+                        icon: HeroIcons.pencilSquare,
+                        label: 'Reschedule Patient'),
+                  ]
+                // Menu for IN PROGRESS patients
+                : [
+                    BarMenuItem(
+                        value: 'send_back',
+                        icon: HeroIcons.arrowLeft,
+                        label: 'Send back to Waiting'),
+                    BarMenuItem(
+                        value: 'reschedule',
+                        icon: HeroIcons.pencilSquare,
+                        label: 'Reschedule Patient'),
+                  ],
+          ),
+        )
       ],
     );
   }
@@ -195,7 +245,11 @@ class PatientsTreatedBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return _BarContainer(
       children: [
-        _BarText(fullName, flex: 3, ellipsis: true,), // name
+        _BarText(
+          fullName,
+          flex: 3,
+          ellipsis: true,
+        ), // name
         _BarText(procedure), // procedure
       ],
     );
@@ -210,6 +264,7 @@ class PatientRecordBar extends StatelessWidget {
   final String address;
   final String contact;
   final ValueChanged<String>? onMenuSelected;
+  final bool isArchived;
 
   const PatientRecordBar({
     super.key,
@@ -218,6 +273,7 @@ class PatientRecordBar extends StatelessWidget {
     required this.age,
     required this.address,
     required this.contact,
+    required this.isArchived,
     this.onMenuSelected,
   });
 
@@ -230,21 +286,49 @@ class PatientRecordBar extends StatelessWidget {
         _BarText('$age yo', flex: 2),
         _BarText(address, flex: 5, ellipsis: true),
         _BarText(contact, flex: 3),
-        Expanded(flex:2, child: const SizedBox()),
+        Expanded(flex: 2, child: const SizedBox()),
 
         // more options: Add New Clinical Record, Add Schedule, View Record, Edit Personal Details, Archive Record
         SizedBox(
           width: 70,
           child: _MoreOptions(
-              onSelected: onMenuSelected,
-              items: [
-                BarMenuItem(value: 'add_clinical_record', icon: HeroIcons.documentPlus, label: 'Add New Clinical Record'),
-                BarMenuItem(value: 'add_schedule', icon: HeroIcons.calendar, label: 'Add Schedule'),
-                BarMenuItem(value: 'view_record', icon: HeroIcons.eye, label: 'View Record'),
-                BarMenuItem(value: 'edit_details', icon: HeroIcons.pencilSquare, label: 'Edit Personal Details'),
-                BarMenuItem(value: 'archive', icon: HeroIcons.archiveBox, label: 'Archive Record', color: AppTheme.red600),
+            onSelected: onMenuSelected,
+            items: [
+              if (isArchived) ...[
+                BarMenuItem(
+                    value: 'view_record',
+                    icon: HeroIcons.eye,
+                    label: 'View Record'),
+                BarMenuItem(
+                    value: 'unarchive',
+                    icon: HeroIcons.arrowPath,
+                    label: 'Restore Record',
+                    color: AppTheme.blue500),
+              ] else ...[
+                BarMenuItem(
+                    value: 'add_clinical_record',
+                    icon: HeroIcons.documentPlus,
+                    label: 'Add New Clinical Record'),
+                BarMenuItem(
+                    value: 'add_schedule',
+                    icon: HeroIcons.calendar,
+                    label: 'Add Schedule'),
+                BarMenuItem(
+                    value: 'view_record',
+                    icon: HeroIcons.eye,
+                    label: 'View Record'),
+                BarMenuItem(
+                    value: 'edit_details',
+                    icon: HeroIcons.pencilSquare,
+                    label: 'Edit Personal Details'),
+                BarMenuItem(
+                    value: 'archive',
+                    icon: HeroIcons.archiveBoxXMark,
+                    label: 'Archive Record',
+                    color: AppTheme.red600),
               ],
-            ),
+            ],
+          ),
         ),
       ],
     );
@@ -285,10 +369,16 @@ class BillingBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return _BarContainer(
       children: [
-
         _BarText(invoiceId),
-        _BarText(fullName, flex: 3, ellipsis: true,),
-        _BarText(procedure, ellipsis: true,),
+        _BarText(
+          fullName,
+          flex: 3,
+          ellipsis: true,
+        ),
+        _BarText(
+          procedure,
+          ellipsis: true,
+        ),
         _BarText(_formattedAmount),
         _BarText(formatDate(date)),
         AppStatusBadge(status: status),
@@ -297,8 +387,12 @@ class BillingBar extends StatelessWidget {
         _MoreOptions(
           onSelected: onMenuSelected,
           items: [
-            BarMenuItem(value: 'process_payment', icon: HeroIcons.banknotes, label: 'Process Payment'),
-            BarMenuItem(value: 'view_bill', icon: HeroIcons.eye, label: 'View Bill')
+            BarMenuItem(
+                value: 'process_payment',
+                icon: HeroIcons.banknotes,
+                label: 'Process Payment'),
+            BarMenuItem(
+                value: 'view_bill', icon: HeroIcons.eye, label: 'View Bill')
           ],
         ),
       ],
@@ -327,18 +421,35 @@ class ScheduleBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return _BarContainer(
       children: [
-        _BarText(fullName, flex: 3, ellipsis: true,),
+        _BarText(
+          fullName,
+          flex: 3,
+          ellipsis: true,
+        ),
         _BarText(formatDate(date)),
         _BarText(time),
-        _BarText(procedure, ellipsis: true,),
+        _BarText(
+          procedure,
+          ellipsis: true,
+        ),
 
         // more options: View Appointment, Edit Appointment, Cancel Appointment
         _MoreOptions(
           onSelected: onMenuSelected,
           items: [
-            BarMenuItem(value: 'view_appointment', icon: HeroIcons.eye, label: 'View Appointment'),
-            BarMenuItem(value: 'edit_appointment', icon: HeroIcons.pencilSquare, label: 'Edit Appointment'),
-            BarMenuItem(value: 'cancel_appointment', icon: HeroIcons.xMark, label: 'Cancel Appointment', color: AppTheme.red600)
+            BarMenuItem(
+                value: 'view_appointment',
+                icon: HeroIcons.eye,
+                label: 'View Appointment'),
+            BarMenuItem(
+                value: 'edit_appointment',
+                icon: HeroIcons.pencilSquare,
+                label: 'Edit Appointment'),
+            BarMenuItem(
+                value: 'cancel_appointment',
+                icon: HeroIcons.xMark,
+                label: 'Cancel Appointment',
+                color: AppTheme.red600)
           ],
         ),
       ],

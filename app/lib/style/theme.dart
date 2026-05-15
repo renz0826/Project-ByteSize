@@ -69,8 +69,8 @@ class AppTheme {
 
   static final List<BoxShadow> floatShadow = [
     BoxShadow(
-        color: black500.withOpacity(0.08),
-        blurRadius: 50,
+        color: black500.withOpacity(0.16),
+        blurRadius: 16,
         spreadRadius: 0,
         offset: const Offset(0, 4))
   ];
