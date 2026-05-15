@@ -145,203 +145,143 @@ class _ProcessPaymentScreenState extends ConsumerState<ProcessPaymentScreen> {
     final totalPaid = _transactions.fold(0.0, (sum, t) => sum + t.amountReceived);
     final remainingBalance = (netTotal - totalPaid).clamp(0.0, double.infinity);
 
-    return Center(
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 1200),
-        margin: const EdgeInsets.all(24),
-        padding: const EdgeInsets.all(32),
-        decoration: BoxDecoration(
-          color: AppTheme.white500,
-          borderRadius: BorderRadius.circular(24),
-          boxShadow: AppTheme.floatShadow,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Text("Process Payment", style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold)),
-                const SizedBox(width: 16),
-                if (hasDiscount)
-                  const AppStatusBadge(status: BadgeStatus.discount),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Text(
-              "Patient: ${widget.invoiceData.patientName}  |  INV-${inv.invoiceId.toString().padLeft(3, '0')}",
-              style: AppTheme.textTheme.bodyMedium?.copyWith(color: AppTheme.gray500),
-            ),
-            const SizedBox(height: 32),
+    final amountInput = double.tryParse(_amountController.text.replaceAll(',', '')) ?? 0.0;
+    final previewBalance = (remainingBalance - amountInput).clamp(0.0, double.infinity);
 
-            Text("Itemized Charges", style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 16),
-            _buildTableHeaders(),
-            const SizedBox(height: 8),
-            ..._procedures.map((proc) => _buildProcedureRow(proc, hasDiscount)),
+    return SingleChildScrollView(
+      child: Center(
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 1300),
+          margin: const EdgeInsets.fromLTRB(24, 0, 24, 24), 
+          padding: const EdgeInsets.all(40),
+          decoration: BoxDecoration(
+            color: AppTheme.white500,
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: AppTheme.floatShadow,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Text("Process Payment", style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold)),
+                  const SizedBox(width: 16),
+                  if (hasDiscount) const AppStatusBadge(status: BadgeStatus.discount),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text("Patient: ${widget.invoiceData.patientName} | INV-${inv.invoiceId.toString().padLeft(3, '0')}",
+                style: AppTheme.textTheme.bodyMedium),
+              const SizedBox(height: 32),
 
-            const SizedBox(height: 32),
-            const Divider(color: AppTheme.gray400),
-            const SizedBox(height: 32),
+              Text("Itemized Charges", style: Theme.of(context).textTheme.titleLarge),
+              const SizedBox(height: 16),
 
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
+              _buildTableHeaders(),
+              ..._procedures.map((proc) => _buildProcedureRow(proc, hasDiscount)),
+              const Divider(color: AppTheme.gray400),
 
-                      Row(
-                        children: [
-                          Expanded(flex: 2, child: Text("Subtotal:", style: AppTheme.textTheme.bodyMedium)),
-                          Expanded(flex: 3, child: Text("₱ ${grandTotal.toStringAsFixed(2)}", style: AppTheme.textTheme.bodyMedium)),
-                        ],
-                      ),
-                      if (hasDiscount) ...[
+              const SizedBox(height: 24), // Spacing between columns
+
+                  // Right Financial Column - Fixed to 340 to prevent right-overflow
+                  SizedBox(
+                    width: 340,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        _buildSummaryRow("Invoice Total:", "₱ ${grandTotal.toStringAsFixed(2)}"),
                         const SizedBox(height: 8),
+                        _buildSummaryRow("Previous Payments:", "-₱ ${(discountAmount + totalPaid).toStringAsFixed(2)}", isColorGreen: true),
+          
+                        const SizedBox(height: 16), // Replaced Divider with clean space
+                        
+                        _buildSummaryRow("Remaining Balance:", "₱ ${remainingBalance.toStringAsFixed(2)}", isBold: true),
+                        
+                        const SizedBox(height: 32),
+
+                        Align(alignment: Alignment.centerLeft, child: Text("Amount Paid", style: AppTheme.textTheme.bodySmall)),
+                        const SizedBox(height: 8),
+                        _buildAmountField(),
+
+                        const SizedBox(height: 16),
+
+                        Align(alignment: Alignment.centerLeft, child: Text("Mode of Payment", style: AppTheme.textTheme.bodySmall)),
+                        const SizedBox(height: 8),
+                        _buildModeDropdown(),
+
+                        const SizedBox(height: 32),
+
+                        _buildSummaryRow("New Balance:", "₱ ${previewBalance.toStringAsFixed(2)}", isBold: true),
+
+                        const SizedBox(height: 40),
+
                         Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Expanded(flex: 2, child: Text("Discount (20%):", style: AppTheme.textTheme.bodyMedium?.copyWith(color: Colors.green.shade700))),
-                            Expanded(flex: 3, child: Text("-₱ ${discountAmount.toStringAsFixed(2)}", style: AppTheme.textTheme.bodyMedium?.copyWith(color: Colors.green.shade700, fontWeight: FontWeight.bold))),
+                            SizedBox(
+                              width: 160,
+                              child: Button(onPressed: widget.onBack, label: 'Cancel', variant: ButtonVariant.secondary)
+                            ),
+                            SizedBox(
+                              width: 160, // Symmetrical width for the Victus
+                              child: Button(
+                                label: _isProcessing ? "Wait..." : "Process",
+                                variant: ButtonVariant.primary,
+                                heroIcon: HeroIcons.check,
+                                onPressed: _isProcessing ? () {} : _submitPayment,
+                              ),
+                            ),
                           ],
                         ),
                       ],
-                      const SizedBox(height: 8),
-                      Row(
-                        children: [
-                          Expanded(flex: 2, child: Text("Net Total:", style: AppTheme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold))),
-                          Expanded(flex: 3, child: Text("₱ ${netTotal.toStringAsFixed(2)}", style: AppTheme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold))),
-                        ],
-                      ),
+                    ),
+                  ),  
+                ],
+              ),
+          ),
+      )
+    );
+  }
 
-                      const SizedBox(height: 48),
+  Widget _buildSummaryRow(String label, String value, {bool isColorGreen = false, bool isBold = false}) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(label, style: AppTheme.textTheme.bodySmall?.copyWith(
+            color: isColorGreen ? Colors.green.shade700 : AppTheme.gray500,
+            fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
+        )),
+        Text(value, style: AppTheme.textTheme.bodyLarge?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: isColorGreen ? Colors.green.shade700 : AppTheme.black500,
+        )),
+      ],
+    );
+  }
 
-                      Text("Previous Payments", style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
-                      const SizedBox(height: 16),
-                      if (_transactions.isEmpty)
-                        Text("No previous payments have been made.", style: TextStyle(color: Colors.grey.shade600, fontStyle: FontStyle.italic))
-                      else
-                        Column(
-                          children: [
-                            Row(
-                              children: [
-                                Expanded(flex: 2, child: Text('Particulars', style: AppTheme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold, color: AppTheme.gray400))),
-                                Expanded(flex: 2, child: Text('Mode', style: AppTheme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold, color: AppTheme.gray400))),
-                                Expanded(flex: 2, child: Text('Amount', style: AppTheme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold, color: AppTheme.gray400))),
-                              ],
-                            ),
-                            const SizedBox(height: 8),
-                            ...List.generate(_transactions.length, (index) {
-                              final trans = _transactions[index];
-                              return Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                                child: Row(
-                                  children: [
-                                    Expanded(flex: 2, child: Text(trans.paymentDate.toString().split(" ")[0].toString(), style: AppTheme.textTheme.bodyMedium)),
-                                    Expanded(flex: 2, child: Text(trans.modeOfPayment, style: AppTheme.textTheme.bodyMedium)),
-                                    Expanded(flex: 2, child: Text('₱ ${trans.amountReceived.toStringAsFixed(2)}', style: AppTheme.textTheme.bodyMedium?.copyWith(color: Colors.green.shade700, fontWeight: FontWeight.bold))),
-                                  ],
-                                ),
-                              );
-                            }),
-                          ],
-                        )
-                    ],
-                  ),
-                ),
-                
-                const SizedBox(width: 48),
+  Widget _buildTableHeaders() {
+    final headerStyle = Theme.of(context).textTheme.bodySmall; 
+    return Row(
+      children: [
+        Expanded(flex: 3, child: Text('Procedure', style: headerStyle)),
+        Expanded(flex: 2, child: Text('Charge', style: headerStyle)),
+        Expanded(flex: 1, child: Text('Qty', style: headerStyle)),
+        Expanded(flex: 2, child: Text('Amount to be Paid', style: headerStyle)),
+      ],
+    );
+  }
 
-                SizedBox(
-                  width: 400,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: AppTheme.gray400),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text('Remaining Balance', style: AppTheme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold, color: AppTheme.gray400)),
-                            Text('₱ ${remainingBalance.toStringAsFixed(2)}', style: AppTheme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-
-                      Text("Amount Received", style: AppTheme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold)),
-                      const SizedBox(height: 8),
-                      TextField(
-                        controller: _amountController,
-                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                        inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}'))],
-                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                        decoration: InputDecoration(
-                          prefixText: "₱ ",
-                          prefixStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87),
-                          hintText: "0.00",
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: const BorderSide(color: AppTheme.blue500, width: 2),
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                        ),
-                      ),
-                      
-                      const SizedBox(height: 16),
-
-                      Text("Mode of Payment", style: AppTheme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold)),
-                      const SizedBox(height: 8),
-                      DropdownButtonFormField<String>(
-                        value: _selectedMode,
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                        ),
-                        items: const ["Cash", "G-Cash", "Card"].map((mode) {
-                          return DropdownMenuItem(value: mode, child: Text(mode));
-                        }).toList(),
-                        onChanged: (val) {
-                          if (val != null) setState(() => _selectedMode = val);
-                        },
-                      ),
-
-                      const SizedBox(height: 32),
-
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const SizedBox(width: 15,),
-                          Button(
-                            onPressed: _isProcessing ? null : widget.onBack,
-                            label: 'Cancel', 
-                            variant: ButtonVariant.secondary,
-                          ),
-                          const SizedBox(width: 16),
-                          SizedBox(
-                            width: 220,
-                            child: Button(
-                              label: _isProcessing ? "Processing..." : "Process Payment",
-                              variant: ButtonVariant.primary,
-                              heroIcon: HeroIcons.check,
-                              onPressed: _isProcessing ? () {} : _submitPayment,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
+  Widget _buildProcedureRow(ProcedureChargeData proc, bool hasDiscount) {
+    final amountToBePaid = proc.totalProcedureCharge * (hasDiscount ? 0.8 : 1.0);
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Row(
+        children: [
+          Expanded(flex: 3, child: _buildCroppedAttribute(proc.procedureName)),
+          Expanded(flex: 2, child: _buildCroppedAttribute('₱ ${proc.procedureCharge.toStringAsFixed(2)}')),
+          Expanded(flex: 1, child: _buildCroppedAttribute(proc.quantity.toString())),
+          Expanded(flex: 2, child: _buildCroppedAttribute('₱ ${amountToBePaid.toStringAsFixed(2)}')),
+        ],
       ),
     );
   }
@@ -354,46 +294,49 @@ class _ProcessPaymentScreenState extends ConsumerState<ProcessPaymentScreen> {
           alignment: Alignment.bottomLeft,
           minHeight: 0,
           maxHeight: 60,
-          child: AttributeReadView(
-            label: '', 
-            content: content,
-            isCrucial: false,
-          ),
+          child: AttributeReadView(label: '', content: content, isCrucial: false),
         ),
       ),
     );
   }
-  
-  Widget _buildTableHeaders() {
-    final headerStyle = AppTheme.textTheme.bodySmall;
-    
-    return Row(
-      children: [
-        Expanded(flex: 3, child: Text('Procedure', style: headerStyle)),
-        Expanded(flex: 2, child: Text('Charge', style: headerStyle)),
-        Expanded(flex: 1, child: Text('Qty', style: headerStyle)),
-        Expanded(flex: 2, child: Text('Amount to be Paid', style: headerStyle)),
-      ],
+
+  Widget _buildBalanceBox(double balance) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      decoration: BoxDecoration(border: Border.all(color: AppTheme.gray400), borderRadius: BorderRadius.circular(8)),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text('Remaining Balance', style: AppTheme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold, color: AppTheme.gray400)),
+          Text('₱ ${balance.toStringAsFixed(2)}', style: AppTheme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
+        ],
+      ),
     );
   }
 
-  Widget _buildProcedureRow(ProcedureChargeData proc, bool hasDiscount) {
-    final rowStyle = AppTheme.textTheme.bodyMedium?.copyWith(
-      fontWeight: FontWeight.w600,
-    );
-
-    final amountToBePaid = proc.totalProcedureCharge * (hasDiscount ? 0.8 : 1.0);
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12.0),
-      child: Row(
-        children: [
-          Expanded(flex: 3, child: Text(proc.procedureName, style: rowStyle)),
-          Expanded(flex: 2, child: Text('₱ ${proc.procedureCharge.toStringAsFixed(2)}', style: rowStyle)),
-          Expanded(flex: 1, child: Text(proc.quantity.toString(), style: rowStyle)),
-          Expanded(flex: 2, child: Text('₱ ${amountToBePaid.toStringAsFixed(2)}', style: rowStyle)),
-        ],
+  Widget _buildAmountField() {
+    return TextField(
+      controller: _amountController,
+      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+      inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}'))],
+      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+      decoration: InputDecoration(
+        prefixText: "₱ ",
+        prefixStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87),
+        hintText: "0.00",
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: AppTheme.blue500, width: 2)),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       ),
+    );
+  }
+
+  Widget _buildModeDropdown() {
+    return DropdownButtonFormField<String>(
+      value: _selectedMode,
+      decoration: InputDecoration(border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)), contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16)),
+      items: const ["Cash", "G-Cash", "Card"].map((mode) => DropdownMenuItem(value: mode, child: Text(mode))).toList(),
+      onChanged: (val) { if (val != null) setState(() => _selectedMode = val); },
     );
   }
 }

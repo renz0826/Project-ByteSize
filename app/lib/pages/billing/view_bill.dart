@@ -358,7 +358,7 @@ Widget _buildProcedureRow(ProcedureChargeData proc, bool hasDiscount) {
   final amountToBePaid = proc.totalProcedureCharge * (hasDiscount ? 0.8 : 1.0);
 
   return Padding(
-    padding: const EdgeInsets.symmetric(vertical: 4.0), 
+    padding: const EdgeInsets.symmetric(vertical: 1.0), 
     child: Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
