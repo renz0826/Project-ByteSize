@@ -9,6 +9,7 @@ import '../widgets/app_status_badge.dart';
 import '../widgets/main_buttons.dart';
 import '../widgets/calendar.dart';
 import '../widgets/status_toast.dart';
+import '../widgets/warning_dialog.dart';
 import '../providers/app_providers.dart';
 
 final newPatientsProvider = FutureProvider<int>((ref) async {
@@ -32,6 +33,34 @@ class DashboardPage extends ConsumerStatefulWidget {
 
 class _DashboardPageState extends ConsumerState<DashboardPage> {
   DateTime _selectedDate = DateTime.now();
+
+  // Status update helper
+// --- UPDATED HELPER ---
+  Future<void> _updateQueueStatus(
+      DashboardQueueItem item, String newStatus) async {
+    try {
+      final repo = ref.read(appointmentRepositoryProvider);
+      await repo.updateAppointmentStatus(item.appointmentId, newStatus);
+
+      if (mounted) {
+        StatusToast.show(
+          context,
+          title: 'Queue Updated',
+          message: '${item.patientName} marked as $newStatus.',
+          isSuccess: true,
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        StatusToast.show(
+          context,
+          title: 'Error',
+          message: 'Failed to update database.',
+          isSuccess: false,
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -213,34 +242,49 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
               time: item.timeSlot,
               reason: item.reason,
               status: _mapDatabaseStatusToBadge(item.status),
-              onAction: () async {
-                String newStatus = item.status.toLowerCase() == 'waiting'
-                    ? 'Finished'
-                    : 'Cancelled';
 
-                try {
-                  final repo = ref.read(appointmentRepositoryProvider);
-                  await repo.updateAppointmentStatus(
-                      item.appointmentId, newStatus);
-                  ref.invalidate(todayQueueProvider);
+              onPrimaryAction: () async {
+                final currentStatus = item.status.trim().toLowerCase();
+                if (currentStatus == 'waiting' || currentStatus == 'pending') {
+                  final bool? shouldCancel = await showDialog<bool>(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return WarningDialog(
+                          isCaution: false,
+                          title: 'Cancel Appointment?',
+                          content:
+                              'Are you sure you want to cancel ${item.patientName}\'s appointment? This action cannot be undone.',
+                          secondaryAction: "Keep Appointment",
+                          primaryAction: "Cancel Appointment");
+                    },
+                  );
 
-                  if (context.mounted) {
+                  if (shouldCancel == true) {
+                    _updateQueueStatus(item, 'Cancelled');
+                  }
+                } else if (currentStatus == 'in progress') {
+                  _updateQueueStatus(item, 'Finished');
+                }
+              },
+
+              // 2. Dropdown Menu Logic
+              onMenuSelected: (String actionValue) async {
+                switch (actionValue) {
+                  case 'admit':
+                    _updateQueueStatus(item, 'In Progress');
+                    break;
+                  case 'send_back':
+                    _updateQueueStatus(item, 'Waiting');
+                    break;
+                  case 'reschedule':
+                    // Placeholder for now
                     StatusToast.show(
                       context,
-                      title: 'Queue Updated',
-                      message: '${item.patientName} marked as $newStatus.',
+                      title: 'Coming Soon',
+                      message: 'Reschedule modal not yet implemented.',
                       isSuccess: true,
                     );
-                  }
-                } catch (e) {
-                  if (context.mounted) {
-                    StatusToast.show(
-                      context,
-                      title: 'Error',
-                      message: 'Failed to update database.',
-                      isSuccess: false,
-                    );
-                  }
+                    break;
                 }
               },
             );
@@ -317,12 +361,17 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
   }
 
   BadgeStatus _mapDatabaseStatusToBadge(String dbStatus) {
-    switch (dbStatus.toLowerCase()) {
+    switch (dbStatus.trim().toLowerCase()) {
       case 'waiting':
         return BadgeStatus.waiting;
+      case 'pending':
+        return BadgeStatus.pending;
       case 'in progress':
         return BadgeStatus.inProgress;
       case 'finished':
+        return BadgeStatus.finished;
+      case 'cancelled':
+        return BadgeStatus.cancelled;
       default:
         return BadgeStatus.waiting;
     }
