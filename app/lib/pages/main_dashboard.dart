@@ -14,7 +14,11 @@ import '../providers/app_providers.dart';
 import 'package:drift/drift.dart' hide Column;
 import '/pages/schedule/schedule_appointment.dart';
 import '/pages/schedule/schedule_dashboard.dart';
+import '/pages/patient_records/add_patient.dart';
+import '/pages/patient_records/add_clinical_record.dart';
 import '../../db/database.dart';
+import '../../services/patient_service.dart';
+import '../../providers/app_providers.dart';
 
 final newPatientsProvider = FutureProvider<int>((ref) async {
   final repo = ref.watch(patientRepositoryProvider);
@@ -42,6 +46,12 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
   int _formSessionId = 0;
   JoinedAppointment? _selectedAppointment;
   List<PatientData> _allPatients = [];
+
+  PatientCompanion? _draftPatient;
+  ClinicalRecordCompanion? _draftClinicalRecord;
+  int? _existingPatientId;
+  int _returnIndex = 0;
+  Map<String, dynamic>? _patientToEditMap;
 
   // Realtime patient provider
   final newPatientsProvider = StreamProvider.autoDispose<int>((ref) {
@@ -79,6 +89,76 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
           context,
           title: 'Error',
           message: 'Failed to update database.',
+          isSuccess: false,
+        );
+      }
+    }
+  }
+
+  // Send user to add_patient.dart (Adding New)
+  void _goToAddPatient() {
+    setState(() {
+      _draftPatient = null;
+      _existingPatientId = null;
+      _patientToEditMap = null; // Ensure we are NOT in edit mode
+      _currentIndex = 2;
+    });
+  }
+
+  // Send user to add_clinical_record.dart
+  void _goToAddClinicalRecord(
+      {PatientCompanion? draftPatient,
+      int? existingPatientId,
+      int returnIndex = 0}) {
+    setState(() {
+      _draftPatient = draftPatient;
+      _existingPatientId = existingPatientId;
+      _returnIndex = returnIndex; // Remembers where we came from
+      _currentIndex = 3;
+    });
+  }
+
+  // Save record helper
+  Future<void> _handleSaveClinicalRecord(dynamic clinicalRecordData) async {
+    try {
+      final db = ref.read(databaseProvider);
+
+      if (_draftPatient != null) {
+        final newPatientId = await db.into(db.patient).insert(_draftPatient!);
+
+        final newRecord =
+            (clinicalRecordData as ClinicalRecordCompanion).copyWith(
+          patientId: Value(newPatientId),
+        );
+        await db.into(db.clinicalRecord).insert(newRecord);
+      } else if (_existingPatientId != null) {
+        final newRecord =
+            (clinicalRecordData as ClinicalRecordCompanion).copyWith(
+          patientId: Value(_existingPatientId!),
+        );
+        await db.into(db.clinicalRecord).insert(newRecord);
+      }
+
+      if (mounted) {
+        setState(() {
+          _currentIndex = 0;
+          _draftPatient = null;
+          _existingPatientId = null;
+        });
+
+        StatusToast.show(
+          context,
+          title: 'Record Saved',
+          message: 'Patient record has been successfully saved!',
+          isSuccess: true,
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        StatusToast.show(
+          context,
+          title: 'Error',
+          message: 'Failed to save record. Please try again.',
           isSuccess: false,
         );
       }
@@ -137,6 +217,8 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
       children: [
         _buildDashboardView(context, queueState, newPatientsState),
         _buildRescheduleView(),
+        _buildAddPatientView(),
+        _buildAddClinicalRecordView()
       ],
     );
   }
@@ -247,6 +329,108 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
             ],
           ),
         ]));
+  }
+
+  Widget _buildAddPatientView() {
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            PageHeader(
+              title: 'Back to Dashboard',
+              type: PageHeaderType.withBack,
+              onBack: () async {
+                // Discard warning before leaving the form
+                final bool? shouldDiscard = await showDialog<bool>(
+                  context: this.context,
+                  builder: (BuildContext dialogContext) {
+                    return WarningDialog(
+                        isCaution: false,
+                        title: 'Discard Patient Record?',
+                        content:
+                            'Are you sure you want to return to the dashboard? This patient record has not been saved yet.',
+                        secondaryAction: "Keep Editing",
+                        primaryAction: "Discard");
+                  },
+                );
+
+                if (shouldDiscard == true) {
+                  setState(() {
+                    _currentIndex = 0;
+                  });
+                }
+              },
+            ),
+            Transform.translate(
+              offset: const Offset(0, -30),
+              child: AddPatientForm(
+                  key: ValueKey('form_$_formSessionId'),
+                  existingPatient: _patientToEditMap, // Pass the map here
+                  onNext: (data) {
+                    _goToAddClinicalRecord(draftPatient: data, returnIndex: 0);
+                  },
+                  onBack: () {
+                    setState(() {
+                      _currentIndex = _patientToEditMap != null ? 3 : 0;
+                      _patientToEditMap = null;
+                    });
+                  }),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAddClinicalRecordView() {
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            PageHeader(
+              title: 'Back to Details',
+              type: PageHeaderType.withBack,
+              onBack: () async {
+                final bool? shouldDiscard = await showDialog<bool>(
+                  context: this.context,
+                  builder: (BuildContext dialogContext) {
+                    return WarningDialog(
+                        isCaution: false,
+                        title: 'Discard Clinical Record?',
+                        content:
+                            'Are you sure you want to go back? Any data entered in this clinical record will be lost.',
+                        secondaryAction: "Keep Editing",
+                        primaryAction: "Discard");
+                  },
+                );
+
+                if (shouldDiscard == true) {
+                  setState(() {
+                    _currentIndex = _returnIndex;
+                  });
+                }
+              },
+            ),
+            Transform.translate(
+              offset: const Offset(0, -30),
+              child: AddClinicalRecordForm(
+                patientId: _existingPatientId ?? 0,
+                key: ValueKey(_formSessionId),
+                showPreviousButton: _returnIndex != 3,
+                onPrevious: () {
+                  setState(() => _currentIndex = 2);
+                },
+                onFinish: _handleSaveClinicalRecord,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildRescheduleView() {
@@ -446,7 +630,12 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
           child: Button(
             label: "Add New Record",
             heroIcon: HeroIcons.documentPlus,
-            onPressed: () {},
+            onPressed: () {
+              setState(() {
+                _formSessionId++;
+              });
+              _goToAddPatient();
+            },
           ),
         ),
         const SizedBox(height: 32),
