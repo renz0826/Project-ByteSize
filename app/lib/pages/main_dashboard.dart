@@ -15,8 +15,12 @@ final newPatientsProvider = FutureProvider<int>((ref) async {
   final repo = ref.watch(patientRepositoryProvider);
   final patients = await repo.getActivePatients();
   
+  
   final now = DateTime.now();
   return patients.where((p) {
+    return p.createdAt.year == now.year && 
+           p.createdAt.month == now.month && 
+           p.createdAt.day == now.day;
     return p.createdAt.year == now.year && 
            p.createdAt.month == now.month && 
            p.createdAt.day == now.day;
