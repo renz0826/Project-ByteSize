@@ -65,41 +65,68 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     });
 
     return Scaffold(
-        backgroundColor: Colors.transparent,
-        body: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildHeader(),
-            Expanded(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    flex: 7,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildStatisticsSection(
-                            dailyProgress, lobbyStatus, newPatients),
-                        const SizedBox(height: 32),
-                        _buildPatientQueue(queueState),
-                      ],
+      backgroundColor:
+          Colors.transparent, // Kept transparent for the shadow trick!
+      body: CustomScrollView(
+        slivers: [
+          SliverToBoxAdapter(
+            child: _buildHeader(),
+          ),
+          SliverCrossAxisGroup(
+            slivers: [
+              // LEFT COLUMN (Flex 2)
+              SliverCrossAxisExpanded(
+                flex: 2,
+                sliver: SliverMainAxisGroup(
+                  slivers: [
+                    SliverPadding(
+                      padding: const EdgeInsets.only(left: 24, right: 12),
+                      sliver: SliverList(
+                        delegate: SliverChildListDelegate([
+                          _buildStatisticsSection(
+                              dailyProgress, lobbyStatus, newPatients),
+                          const SizedBox(height: 32),
+                          Text(
+                            "Patients In Queue",
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleLarge
+                                ?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: AppTheme.black500,
+                                ),
+                          ),
+                          const SizedBox(height: 16),
+                        ]),
+                      ),
                     ),
-                  ),
-                  Expanded(
-                    flex: 3,
-                    child: Container(
-                      color: AppTheme.gray200,
-                      margin: EdgeInsets.symmetric(horizontal: 24),
-                      child: _buildRightSidebar(queueState),
+                    SliverPadding(
+                      padding: const EdgeInsets.only(left: 24, right: 12),
+                      sliver: _buildPatientQueue(queueState),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            )
-          ],
-        ));
+
+              // RIGHT COLUMN (Flex 1)
+              SliverCrossAxisExpanded(
+                flex: 1,
+                sliver: SliverMainAxisGroup(
+                  slivers: [
+                    SliverPadding(
+                      padding: const EdgeInsets.only(left: 12, right: 24),
+                      sliver: SliverToBoxAdapter(
+                        child: _buildRightSidebar(queueState),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildHeader() {
@@ -136,157 +163,143 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
   }
 
   Widget _buildPatientQueue(AsyncValue<List<DashboardQueueItem>> queueState) {
-    return Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            "Patients In Queue",
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.black500,
+    return queueState.when(
+      loading: () => const SliverToBoxAdapter(
+          child: Center(child: CircularProgressIndicator())),
+      error: (error, stack) => SliverToBoxAdapter(
+          child: Center(child: Text('Database Error: $error'))),
+      data: (queueItems) {
+        final activeQueue = queueItems
+            .where((item) =>
+                item.status.toLowerCase() != 'finished' &&
+                item.status.toLowerCase() != 'cancelled')
+            .toList();
+
+        if (activeQueue.isEmpty) {
+          return const SliverToBoxAdapter(
+            child: Center(
+              child: Padding(
+                padding: EdgeInsets.all(32.0),
+                child: Text(
+                  "No active appointments in the queue.",
+                  style: TextStyle(color: AppTheme.gray500, fontSize: 16),
                 ),
-          ),
-          const SizedBox(height: 16),
-          Expanded(
-            child: queueState.when(
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error: (error, stack) =>
-                  Center(child: Text('Database Error: $error')),
-              data: (queueItems) {
-                final activeQueue = queueItems
-                    .where((item) =>
-                        item.status.toLowerCase() != 'finished' &&
-                        item.status.toLowerCase() != 'cancelled')
-                    .toList();
-
-                if (activeQueue.isEmpty) {
-                  return const Center(
-                    child: Text(
-                      "No active appointments in the queue.",
-                      style: TextStyle(color: AppTheme.gray500, fontSize: 16),
-                    ),
-                  );
-                }
-
-                return ListView.builder(
-                  itemCount: activeQueue.length,
-                  itemBuilder: (context, index) {
-                    final item = activeQueue[index];
-                    return AppointmentBar(
-                      fullName: item.patientName,
-                      time: item.timeSlot,
-                      reason: item.reason,
-                      status: _mapDatabaseStatusToBadge(item.status),
-                      onAction: () async {
-                        String newStatus =
-                            item.status.toLowerCase() == 'waiting'
-                                ? 'Finished'
-                                : 'Cancelled';
-
-                        try {
-                          final repo = ref.read(appointmentRepositoryProvider);
-                          await repo.updateAppointmentStatus(
-                              item.appointmentId, newStatus);
-
-                          ref.invalidate(todayQueueProvider);
-
-                          if (context.mounted) {
-                            StatusToast.show(
-                              context,
-                              title: 'Queue Updated',
-                              message:
-                                  '${item.patientName} marked as $newStatus.',
-                              isSuccess: true,
-                            );
-                          }
-                        } catch (e) {
-                          if (context.mounted) {
-                            StatusToast.show(
-                              context,
-                              title: 'Error',
-                              message: 'Failed to update database.',
-                              isSuccess: false,
-                            );
-                          }
-                        }
-                      },
-                    );
-                  },
-                );
-              },
+              ),
             ),
+          );
+        }
+
+        return SliverList(
+          delegate: SliverChildBuilderDelegate(
+            (context, index) {
+              final item = activeQueue[index];
+              return AppointmentBar(
+                fullName: item.patientName,
+                time: item.timeSlot,
+                reason: item.reason,
+                status: _mapDatabaseStatusToBadge(item.status),
+                onAction: () async {
+                  String newStatus = item.status.toLowerCase() == 'waiting'
+                      ? 'Finished'
+                      : 'Cancelled';
+
+                  try {
+                    final repo = ref.read(appointmentRepositoryProvider);
+                    await repo.updateAppointmentStatus(
+                        item.appointmentId, newStatus);
+                    ref.invalidate(todayQueueProvider);
+
+                    if (context.mounted) {
+                      StatusToast.show(
+                        context,
+                        title: 'Queue Updated',
+                        message: '${item.patientName} marked as $newStatus.',
+                        isSuccess: true,
+                      );
+                    }
+                  } catch (e) {
+                    if (context.mounted) {
+                      StatusToast.show(
+                        context,
+                        title: 'Error',
+                        message: 'Failed to update database.',
+                        isSuccess: false,
+                      );
+                    }
+                  }
+                },
+              );
+            },
+            childCount: activeQueue.length,
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
   Widget _buildRightSidebar(AsyncValue<List<DashboardQueueItem>> queueState) {
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          AppCalendar(
-            selectedDay: _selectedDate,
-            onDaySelected: (date) {
-              setState(() {
-                _selectedDate = date;
-              });
-            },
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        AppCalendar(
+          selectedDay: _selectedDate,
+          onDaySelected: (date) {
+            setState(() {
+              _selectedDate = date;
+            });
+          },
+        ),
+        const SizedBox(height: 24),
+        SizedBox(
+          width: double.infinity,
+          child: Button(
+            label: "Add Patient Record",
+            variant: ButtonVariant.primary,
+            heroIcon: HeroIcons.plus,
+            onPressed: () {},
           ),
-          const SizedBox(height: 24),
-          SizedBox(
-            width: double.infinity,
-            child: Button(
-              label: "Add Patient Record",
-              variant: ButtonVariant.primary,
-              heroIcon: HeroIcons.plus,
-              onPressed: () {},
-            ),
-          ),
-          const SizedBox(height: 32),
-          Text(
-            "Patients Treated",
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.black500,
-                ),
-          ),
-          const SizedBox(height: 16),
-          queueState.when(
-            loading: () => const Center(child: CircularProgressIndicator()),
-            error: (error, stack) => const Text('Error loading history'),
-            data: (queueItems) {
-              final treatedQueue = queueItems
-                  .where((item) =>
-                      item.status.toLowerCase() == 'finished' ||
-                      item.status.toLowerCase() == 'paid')
-                  .toList();
+        ),
+        const SizedBox(height: 32),
+        Text(
+          "Patients Treated",
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: AppTheme.black500,
+              ),
+        ),
+        const SizedBox(height: 16),
+        queueState.when(
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (error, stack) => const Text('Error loading history'),
+          data: (queueItems) {
+            final treatedQueue = queueItems
+                .where((item) =>
+                    item.status.toLowerCase() == 'finished' ||
+                    item.status.toLowerCase() == 'paid')
+                .toList();
 
-              if (treatedQueue.isEmpty) {
-                return const Text(
-                  "No patients treated yet today.",
-                  style: TextStyle(color: AppTheme.gray500, fontSize: 14),
-                );
-              }
-
-              return ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: treatedQueue.length,
-                itemBuilder: (context, index) {
-                  final item = treatedQueue[index];
-                  return PatientsTreatedBar(
-                    fullName: item.patientName,
-                    procedure: "Completed at ${item.timeSlot}",
-                  );
-                },
+            if (treatedQueue.isEmpty) {
+              return const Text(
+                "No patients treated yet today.",
+                style: TextStyle(color: AppTheme.gray500, fontSize: 14),
               );
-            },
-          ),
-        ],
-      ),
+            }
+
+            return ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: treatedQueue.length,
+              itemBuilder: (context, index) {
+                final item = treatedQueue[index];
+                return PatientsTreatedBar(
+                  fullName: item.patientName,
+                  procedure: "Completed at ${item.timeSlot}",
+                );
+              },
+            );
+          },
+        ),
+      ],
     );
   }
 
