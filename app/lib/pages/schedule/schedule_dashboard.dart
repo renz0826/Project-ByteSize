@@ -42,7 +42,7 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
   final TextEditingController _searchController = TextEditingController();
   int _currentPage = 1;
   final int _recordsPerPage = 8;
-  String? _selectedStatus;
+  String _selectedStatus = 'Upcoming';
   int _formSessionId = 0;
   DateTime _selectedDate = DateTime.now();
 
@@ -92,18 +92,15 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
           a.scheduleDateTime.month == _selectedDate.month &&
           a.scheduleDateTime.day == _selectedDate.day;
 
-      bool matchesStatus = true;
+      bool matchesStatus = false;
 
       // THE FIX: Prevent null crashes by defaulting to 'waiting'
       final dbStatus = (a.status ?? 'waiting').trim().toLowerCase();
 
       if (_selectedStatus != null && _selectedStatus != 'All') {
         if (_selectedStatus == 'Completed') {
-          matchesStatus = dbStatus == 'completed' ||
-              dbStatus == 'finished' ||
-              dbStatus == 'paid';
+          matchesStatus = dbStatus == 'completed' || dbStatus == 'finished';
         } else if (_selectedStatus == 'Upcoming') {
-          // THE FIX: Catch 'scheduled' and 'booked' just in case the form saves them that way!
           matchesStatus = dbStatus == 'waiting' ||
               dbStatus == 'pending' ||
               dbStatus == 'in progress' ||
@@ -333,7 +330,7 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
     });
   }
 
-  void _onFilter(String? status) {
+  void _onFilter(String status) {
     setState(() {
       _currentPage = 1;
       _selectedStatus = status;
@@ -461,12 +458,11 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
   }
 
   Widget _buildFilterChips() {
-    final filters = ['All', 'Upcoming', 'Completed'];
+    final filters = ['Upcoming', 'Completed'];
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: filters.map((filter) {
-        final isSelected = _selectedStatus == filter ||
-            (filter == 'All' && _selectedStatus == null);
+        final isSelected = _selectedStatus == filter;
         return Padding(
           padding: const EdgeInsets.only(right: 8),
           child: SizedBox(
@@ -477,7 +473,7 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
               variant: isSelected
                   ? ButtonVariant.smallPrimary
                   : ButtonVariant.smallSecondary,
-              onPressed: () => _onFilter(filter == 'All' ? null : filter),
+              onPressed: () => _onFilter(filter),
             ),
           ),
         );
