@@ -67,6 +67,7 @@ class _BarContainer extends StatelessWidget {
         boxShadow: AppTheme.cardShadow,
       ),
       child: Row(
+        spacing: 8,
         children: children,
       ),
     );
@@ -174,16 +175,9 @@ class AppointmentBar extends StatelessWidget {
         ), // name
         _BarText(time), // time
         _BarText(reason), // reason
-
-        // status badge + action button pushed to right
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            AppStatusBadge(status: status),
-            const SizedBox(width: 8),
-            _actionButton(),
-          ],
-        ),
+        AppStatusBadge(status: status),
+        Expanded(child: const SizedBox()),
+        _actionButton(),
       ],
     );
   }
