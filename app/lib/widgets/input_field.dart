@@ -19,6 +19,7 @@ class InputField extends StatelessWidget {
   final bool isRequired;
   final bool isHidden;
   final Widget? suffixIcon;
+  final Function(String)? onChanged;
 
   // Props for standard text input
   final TextEditingController? controller;
@@ -60,7 +61,7 @@ class InputField extends StatelessWidget {
       this.counterMax = 100,
       this.isHidden = false,
       this.isRequired = false,
-      this.suffixIcon});
+      this.onChanged});
 
   @override
   Widget build(BuildContext context) {
@@ -140,7 +141,7 @@ class InputField extends StatelessWidget {
           popupProps: PopupProps.menu(
             fit: FlexFit.loose,
             constraints: const BoxConstraints(maxHeight: 208),
-            showSearchBox: true,
+            showSearchBox: false,
             searchFieldProps: TextFieldProps(
               style:
                   theme.textTheme.bodySmall?.copyWith(color: AppTheme.black500),

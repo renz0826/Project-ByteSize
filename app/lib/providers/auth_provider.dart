@@ -19,6 +19,11 @@ class AuthController extends StateNotifier<AsyncValue<bool>> {
     }
   }
 
+  // NEW: A public method to securely verify the PIN from any screen
+  bool verifyPin(String enteredPin) {
+    return enteredPin == _correctPin;
+  }
+
   Future<void> login(String enteredPin, Function onSuccess) async {
     state = const AsyncValue.loading();
     await Future.delayed(const Duration(milliseconds: 300)); 
