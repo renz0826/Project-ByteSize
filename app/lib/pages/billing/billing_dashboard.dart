@@ -155,90 +155,126 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
       setState(() => _currentIndex = 0);
     }
   }
-
   Future<bool> _verifyPin() async {
     final TextEditingController pinController = TextEditingController();
+    final theme = Theme.of(context);
 
     return await showDialog<bool>(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext dialogContext) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(26)), 
-          title: const Text('Admin Authentication', textAlign: TextAlign.center),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text('Enter your 4-digit PIN to edit this invoice.', textAlign: TextAlign.center),
-              const SizedBox(height: 24),
-              TextField(
-                controller: pinController,
-                obscureText: true,
-                keyboardType: TextInputType.number,
-                textAlign: TextAlign.center,
-                autofocus: true,
-                inputFormatters: [
-                  FilteringTextInputFormatter.digitsOnly,
-                  LengthLimitingTextInputFormatter(4)
-                ],
-                decoration: InputDecoration(
-                  contentPadding: const EdgeInsets.symmetric(vertical: 16.0),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30),
-                    borderSide: const BorderSide(color: Color(0xFFB5B5B5)),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30),
-                    borderSide: const BorderSide(color: Color(0xFFB5B5B5), width: 2),
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext dialogContext) {
+            return AlertDialog(
+              backgroundColor: AppTheme.white500,
+              actionsPadding: const EdgeInsets.only(bottom: 40),
+              actionsAlignment: MainAxisAlignment.center,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(24),
+              ),
+              title: Padding(
+                padding: const EdgeInsets.only(top: 16.0),
+                child: Text(
+                  'Admin Authentication',
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.headlineMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.black500,
                   ),
                 ),
               ),
-            ],
-          ),
-          actionsAlignment: MainAxisAlignment.center,
-          actions: [
-            TextButton(
-              onPressed: () {
-                pinController.dispose();
-                Navigator.of(dialogContext).pop(false);
-              },
-              child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
-            ),
-            const SizedBox(width: 8),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.blue500,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12)
+              content: SizedBox(
+                width: 440,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'Enter your 4-digit PIN to edit this invoice.',
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.bodyMedium
+                    ),
+                    const SizedBox(height: 24),
+                    SizedBox(
+                      width: 340,
+                      child: TextField(
+                        controller: pinController,
+                        obscureText: true,
+                        keyboardType: TextInputType.number,
+                        textAlign: TextAlign.center,
+                        maxLength: 4,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                          LengthLimitingTextInputFormatter(4),
+                        ],
+                        style: theme.textTheme.titleLarge?.copyWith(
+                          letterSpacing: 8,
+                        ),
+                        decoration: InputDecoration(
+                          counterText: "", 
+                          contentPadding: const EdgeInsets.symmetric(vertical: 16.0),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(color: AppTheme.gray400, width: 1),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(color: AppTheme.blue500, width: 1),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              onPressed: () {
-                final enteredPin = pinController.text.trim();
-                
-                if (enteredPin.length != 4) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('PIN must be exactly 4 digits.'))
-                  );
-                  return;
-                }
+              actions: [
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(
+                      width: 140,
+                      child: Button(
+                        label: 'Cancel',
+                        variant: ButtonVariant.secondary,
+                        onPressed: () {
+                          pinController.dispose();
+                          Navigator.of(dialogContext).pop(false);
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    SizedBox(
+                      width: 140,
+                      child: Button(
+                        label: 'Verify',
+                        variant: ButtonVariant.primary,
+                        onPressed: () {
+                          final enteredPin = pinController.text.trim();
 
-                final isValid = ref.read(authControllerProvider.notifier).verifyPin(enteredPin);
+                          if (enteredPin.length != 4) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('PIN must be exactly 4 digits.'))
+                            );
+                            return;
+                          }
 
-                if (isValid) { 
-                  pinController.dispose();
-                  Navigator.of(dialogContext).pop(true);
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Incorrect PIN'))
-                  );
-                }
-              },
-              child: const Text('Verify', style: TextStyle(color: Colors.white)),
-            ),
-          ],
-        );
-      },
-    ) ?? false;
-  }
+                          final isValid = ref.read(authControllerProvider.notifier).verifyPin(enteredPin);
+
+                          if (isValid) {
+                            pinController.dispose();
+                            Navigator.of(dialogContext).pop(true);
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Incorrect PIN'))
+                            );
+                          }
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            );
+          },
+        ) ?? false;
+      }
 
   void _triggerEditInvoice(JoinedInvoice invoice) async {
     bool isAuthorized = await _verifyPin();
