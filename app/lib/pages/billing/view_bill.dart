@@ -338,6 +338,12 @@ class _ViewBillScreenState extends ConsumerState<ViewBillScreen> {
             runningBalance -= trans.amountReceived; 
           }
 
+          final DateTime paymentDateTime = trans.paymentDate is DateTime 
+              ? trans.paymentDate as DateTime 
+              : DateTime.parse(trans.paymentDate.toString());
+              
+          final String formattedHistoryDate = _formatDate(paymentDateTime);
+
           return Padding(
             padding: const EdgeInsets.symmetric(vertical: 4.0),
             child: Row(
@@ -345,7 +351,7 @@ class _ViewBillScreenState extends ConsumerState<ViewBillScreen> {
               children: [
                 Expanded(
                   flex: 1,
-                  child: _buildCroppedAttribute((trans.paymentDate.toString().split(' ')[0]).toString()),
+                  child: _buildCroppedAttribute(formattedHistoryDate),
                 ),
                 const SizedBox(width: 70),
                 Expanded(

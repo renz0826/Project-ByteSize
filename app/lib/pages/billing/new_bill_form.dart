@@ -198,7 +198,7 @@ class _InvoiceFormState extends ConsumerState<InvoiceForm> {
           context: context,
           builder: (BuildContext context) {
             return WarningDialog(
-              isCaution: true,
+              isCaution: false,
               title: 'Update Statement',
               content: 'Are you sure you want to change the Invoice for INV-${widget.invoiceToEdit!.invoice.invoiceId.toString().padLeft(3, '0')}?',
               secondaryAction: "Go Back",

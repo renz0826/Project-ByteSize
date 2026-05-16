@@ -83,7 +83,7 @@ class _ProcessPaymentScreenState extends ConsumerState<ProcessPaymentScreen> {
       context: context,
       builder: (BuildContext context) {
         return const WarningDialog(
-          isCaution: true,
+          isCaution: false,
           title: "Discard Unsaved Changes?",
           content: "Are you sure you want to return to the invoice record? Any unsaved data will be lost.",
           secondaryAction: "Keep Editing",
