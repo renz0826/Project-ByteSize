@@ -52,7 +52,7 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
   final TextEditingController _searchController = TextEditingController();
   int _currentPage = 1;
   final int _recordsPerPage = 8;
-  String? _selectedStatus;
+  String _selectedStatus = 'Active';
   int _formSessionId = 0;
 
   @override
@@ -138,31 +138,31 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
   Future<void> _archivePatient(PatientData patient) async {
     final confirm = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Archive Patient Record'),
-        content: Text(
-            'Are you sure you want to archive the record for ${patient.lastName}, ${patient.firstName}?\n\nYou can always restore this later from the Archived filter.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text('Cancel',
-                style:
-                    TextStyle(color: AppTheme.black500.withValues(alpha: 0.6))),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            style: ElevatedButton.styleFrom(backgroundColor: AppTheme.red600),
-            child: const Text('Archive', style: TextStyle(color: Colors.white)),
-          ),
-        ],
-      ),
+      builder: (BuildContext context) {
+        return WarningDialog(
+            isCaution: false,
+            title: "Restore Patient Record?",
+            content:
+                "Are you sure you want to archive ${patient.firstName} ${patient.lastName} ${patient.suffix}'s record? \n\nArchiving this records will automatically CANCEL all  appointments scheduled for this patient.",
+            secondaryAction: "Cancel",
+            primaryAction: "Archive");
+      },
     );
 
     if (confirm == true) {
       try {
         final repository = ref.read(patientRepositoryProvider);
+        final db = ref.read(databaseProvider); // Get database instance
 
         await repository.archivePatient(patient.patientId);
+
+        await (db.update(db.appointment)
+              ..where((t) => t.patientId.equals(patient.patientId))
+              ..where((t) =>
+                  t.status.equals("Scheduled") | t.status.equals("Upcoming")))
+            .write(const AppointmentCompanion(
+          status: drift.Value("Cancelled"),
+        ));
 
         await _loadPatients(); // Refresh the table list
 
@@ -173,13 +173,22 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
         if (mounted) {
           StatusToast.show(
             context,
-            title: "Success",
-            message: "${patient.firstName} has been archived.",
+            title: "Record Archived",
+            message:
+                "${patient.firstName} ${patient.lastName} ${patient.suffix}'s record has been archived.",
             isSuccess: true,
           );
         }
       } catch (e) {
         debugPrint("Failed to archive patient: $e");
+        if (mounted) {
+          StatusToast.show(
+            context,
+            title: "Archiving Failure",
+            message: "Something went wrong while archiving.",
+            isSuccess: false,
+          );
+        }
       }
     }
   }
@@ -188,24 +197,15 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
   Future<void> _unarchivePatient(PatientData patient) async {
     final confirm = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Restore Patient Record'),
-        content: Text(
-            'Are you sure you want to restore the record for ${patient.lastName}, ${patient.firstName}?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text('Cancel',
-                style:
-                    TextStyle(color: AppTheme.black500.withValues(alpha: 0.6))),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            style: ElevatedButton.styleFrom(backgroundColor: AppTheme.blue500),
-            child: const Text('Restore', style: TextStyle(color: Colors.white)),
-          ),
-        ],
-      ),
+      builder: (BuildContext context) {
+        return WarningDialog(
+            isCaution: true,
+            title: "Restore Patient Record?",
+            content:
+                "Are you sure you want to restore ${patient.firstName} ${patient.suffix} ${patient.lastName}'s record?",
+            secondaryAction: "Cancel",
+            primaryAction: "Restore");
+      },
     );
 
     if (confirm == true) {
@@ -225,8 +225,9 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
         if (mounted) {
           StatusToast.show(
             context,
-            title: "Success",
-            message: "${patient.firstName} has been restored.",
+            title: "Record Restored",
+            message:
+                "${patient.firstName} ${patient.lastName}'s record has been restored.",
             isSuccess: true,
           );
         }
@@ -284,8 +285,8 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
       if (mounted) {
         StatusToast.show(
           context,
-          title: "Success",
-          message: "Patient #$finalPatientId has been created.",
+          title: "Record Created",
+          message: "Patient record has been successfully created!",
           isSuccess: true,
         );
       }
@@ -331,8 +332,8 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
       if (mounted) {
         StatusToast.show(
           context,
-          title: "Success",
-          message: "Patient details updated successfully.",
+          title: "Record Updated",
+          message: "Patient details has been updated successfully!",
           isSuccess: true,
         );
       }
@@ -410,7 +411,7 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
   }
 
   // Filter function for the status chips
-  void _onFilter(String? status) {
+  void _onFilter(String status) {
     setState(() {
       _currentPage = 1;
       _selectedStatus = status;
@@ -734,12 +735,11 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
 
   //filter chips - all/archived/active
   Widget _buildFilterChips() {
-    final filters = ['All', 'Active', 'Archived'];
+    final filters = ['Active', 'Archived'];
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: filters.map((filter) {
-        final isSelected = _selectedStatus == filter ||
-            (filter == 'All' && _selectedStatus == null);
+        final isSelected = _selectedStatus == filter;
         return Padding(
           padding: const EdgeInsets.only(right: 8),
           child: SizedBox(
@@ -752,7 +752,7 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
                   : ButtonVariant.smallSecondary,
               onPressed: () {
                 setState(() {
-                  _onFilter(filter == 'All' ? null : filter);
+                  _onFilter(filter);
                 });
               },
             ),
@@ -787,7 +787,7 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
     return GestureDetector(
       onTap: () => _goToViewPatient(patient),
       child: PatientRecordBar(
-        fullName: '${patient.lastName}, ${patient.firstName}',
+        fullName: '${patient.lastName}, ${patient.firstName} ${patient.suffix}',
         sex: patient.sex,
         age: DateHelper.calculateAge(patient.birthDate),
         address: '${patient.province}, ${patient.cityMunicipality}',
