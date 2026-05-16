@@ -1,5 +1,4 @@
 import 'package:dentcity_management_system/widgets/page_header.dart';
-
 import 'patient_records/patient_dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:sidebarx/sidebarx.dart';
@@ -10,6 +9,7 @@ import 'main_dashboard.dart';
 import 'schedule/schedule_dashboard.dart';
 import '../widgets/horizontal_logo.dart';
 import '../pages/profile/profile_page.dart';
+import '../services/offline_backup_service.dart';
 
 class MainLayout extends StatefulWidget {
   const MainLayout({super.key});
@@ -20,6 +20,7 @@ class MainLayout extends StatefulWidget {
 
 class _SidebarState extends State<MainLayout> {
   late SidebarXController _controller;
+  bool _isBackingUp = false;
 
   @override
   void initState() {
@@ -108,8 +109,7 @@ class _SidebarState extends State<MainLayout> {
               SidebarXItem(icon: Icons.home_rounded, label: 'Dashboard'),
               SidebarXItem(icon: Icons.group_rounded, label: 'Records'),
               SidebarXItem(icon: Icons.receipt_rounded, label: 'Billings'),
-              SidebarXItem(
-                  icon: Icons.calendar_month_rounded, label: 'Scheduling'),
+              SidebarXItem(icon: Icons.calendar_month_rounded, label: 'Scheduling'),
             ],
             footerBuilder: (context, extended) {
               final isSettingsSelected = _controller.selectedIndex == 4;
@@ -145,14 +145,35 @@ class _SidebarState extends State<MainLayout> {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  InkWell(
-                    onTap: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const LoginPage()),
-                      );
-                    },
+                 InkWell(
+                        onTap: _isBackingUp ? null : () async {
+                          setState(() {
+                            _isBackingUp = true;
+                          });
+                          // Run the copy function
+                          await OfflineBackupService.executeDualBackup();
+
+                          setState(() {
+                            _isBackingUp = false;
+                          });
+
+                            // TODO: @Frontend, refactor this to a popup (And change this to created maybe)
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Secured database backup to local and external storage'),
+                              backgroundColor: AppTheme.blue500,
+                              duration: Duration(seconds: 2),
+                            ),
+                          );
+
+                          if (context.mounted) {
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const LoginPage()),
+                            );
+                          }
+                        },
                     borderRadius: BorderRadius.circular(16),
                     child: Container(
                       width: double.infinity,

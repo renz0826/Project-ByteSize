@@ -15,8 +15,8 @@ dependencies:
   # Database
   drift: ^2.14.0
   sqflite_common_ffi: ^2.3.0
-  path_provider: ^2.1.0
-  path: ^1.8.0
+  path_provider: ^2.1.5
+  path: ^1.9.1
 
   # State Management
   flutter_riverpod: ^2.5.1
