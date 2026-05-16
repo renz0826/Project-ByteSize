@@ -128,7 +128,7 @@ class _ScheduleAppointmentFormState
 
 // function to save appointments to the database
   Future<void> _saveAppointment() async {
-    // Rqeuired Field Validation
+    // Required Field Validation
     List<String> missing = SchedulingValidator.getMissingAppointmentFields(
       patientName: _selectedPatient,
       month: _selectedMonth,
@@ -147,12 +147,16 @@ class _ScheduleAppointmentFormState
     final date =
         SchedulingService.parseSelectedDate(_selectedMonth, _selectedDay);
 
-    // always show patients that are booked earliest
-    final patient = widget.activePatients.firstWhere((p) {
-      final formattedName =
-          '${p.lastName}, ${p.firstName} ${p.suffix ?? ""}'.trim();
-      return formattedName == _selectedPatient?.trim();
-    });
+    final patient = widget.activePatients.firstWhere(
+      (p) {
+        final dropdownName = "${p.lastName}, ${p.firstName} ${p.suffix ?? ""}".trim();
+        final initName = "${p.lastName}, ${p.firstName} ${p.suffix ?? ""}".trim();
+        
+        return dropdownName == _selectedPatient?.trim() || 
+               initName == _selectedPatient?.trim();
+      },
+      orElse: () => widget.activePatients.first, 
+    );
 
     final companion = AppointmentCompanion(
       patientId: drift.Value(patient.patientId),
