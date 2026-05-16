@@ -7,6 +7,7 @@ import '/../widgets/main_buttons.dart';
 import '/../widgets/page_header.dart';
 import '/../widgets/app_status_badge.dart';
 import '/../widgets/attribute_read_view.dart';
+import '/../widgets/status_toast.dart';
 import '../../db/database.dart';
 import '../../providers/app_providers.dart';
 import '../../repositories/invoice_repository.dart';
@@ -80,8 +81,11 @@ class _ProcessPaymentScreenState extends ConsumerState<ProcessPaymentScreen> {
     final amountPaid = double.tryParse(amountText) ?? 0.0;
 
     if (amountPaid <= 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a valid amount.'), backgroundColor: Colors.red),
+      StatusToast.show(
+        context,
+        title: "Error",
+        message: "Please enter a valid amount.",
+        isSuccess: false,
       );
       return;
     }
@@ -99,15 +103,21 @@ class _ProcessPaymentScreenState extends ConsumerState<ProcessPaymentScreen> {
       );
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Payment processed successfully!'), backgroundColor: Colors.green),
+        StatusToast.show(
+          context,
+          title: "Success",
+          message: "Payment settled for INV-${widget.invoiceData.invoice.invoiceId.toString().padLeft(3, '0')}.",
+          isSuccess: true,
         );
         widget.onBack(); 
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error processing payment: $e'), backgroundColor: Colors.red),
+        StatusToast.show(
+          context,
+          title: "Error",
+          message: "Failed to process payment. Please try again.",
+          isSuccess: false,
         );
         setState(() => _isProcessing = false);
       }
