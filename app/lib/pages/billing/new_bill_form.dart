@@ -10,6 +10,8 @@ import '../../providers/app_providers.dart';
 import '../../repositories/invoice_repository.dart';
 import '../../widgets/icon_buttons.dart';
 import '../../widgets/status_toast.dart';
+import '../../widgets/warning_dialog.dart';
+import '../../widgets/requirement_dialog.dart';
 
 class InvoiceForm extends ConsumerStatefulWidget {
   final VoidCallback onFinish;
@@ -131,42 +133,81 @@ class _InvoiceFormState extends ConsumerState<InvoiceForm> {
   Future<void> _saveInvoice() async {
     if (!isEditing) {
       if (_selectedPatientName == null || !_patientMap.containsKey(_selectedPatientName)) {
-        StatusToast.show(
+        RequirementDialog.show(
           context,
-          title: "Error",
-          message: "Please select a valid patient.",
-          isSuccess: false,
+          "Missing Information",
+          "Please select a valid patient profile before attempting to generate a billing entry statement.",
+          [],
         );
         return;
       }
     }
     
     if (_procedures.isEmpty) {
-      StatusToast.show(
+      RequirementDialog.show(
         context,
-        title: "Error",
-        message: "Failed to create invoice. Please try again.",
-        isSuccess: false,
+        "Missing Information",
+        "Please add at least one itemized procedure charge to complete this statement.",
+        [],
       );
+      return;
+    }
+
+    List<String> formatErrors = [];
+    for (int i = 0; i < _procedures.length; i++) {
+      final row = _procedures[i];
+      final name = row.nameController.text.trim();
+      final price = double.tryParse(row.priceController.text) ?? 0.0;
+      final qty = int.tryParse(row.quantityController.text) ?? 0;
+      final rowNum = i + 1;
+
+      if (name.isEmpty) {
+        formatErrors.add("Row $rowNum: Procedure Description cannot be empty.");
+      }
+      if (price <= 0) {
+        formatErrors.add("Row $rowNum: Procedure Charge must be greater than zero.");
+      }
+      if (qty <= 0) {
+        formatErrors.add("Row $rowNum: Quantity must be 1 or greater.");
+      }
+    }
+
+    if (formatErrors.isNotEmpty) {
+      if (mounted) {
+        RequirementDialog.show(
+          context,
+          "Invalid Entry Layout",
+          "Please check your itemized entries:",
+          formatErrors,
+        );
+      }
       return;
     }
 
     final procedures = <Map<String, dynamic>>[];
     for (final row in _procedures) {
-      final name = row.nameController.text.trim();
-      final price = double.tryParse(row.priceController.text) ?? 0;
-      final qty = int.tryParse(row.quantityController.text) ?? 0;
+      procedures.add({
+        'name': row.nameController.text.trim(),
+        'charge': double.parse(row.priceController.text),
+        'qty': int.parse(row.quantityController.text),
+      });
+    }
 
-      if (name.isEmpty || price <= 0 || qty <= 0) {
-        StatusToast.show(
-          context,
-          title: "Error",
-          message: "Failed to create invoice. Please try again.",
-          isSuccess: false,
-        );
-        return;
-      }
-      procedures.add({'name': name, 'charge': price, 'qty': qty});
+    // Only ask for confirmation if editing an existing invoice
+    if (isEditing) {
+      bool? confirm = await showDialog<bool>(
+          context: context,
+          builder: (BuildContext context) {
+            return WarningDialog(
+              isCaution: true,
+              title: 'Update Statement',
+              content: 'Are you sure you want to change the Invoice for INV-${widget.invoiceToEdit!.invoice.invoiceId.toString().padLeft(3, '0')}?',
+              secondaryAction: "Go Back",
+              primaryAction: "Update Anyway",
+            );
+          });
+
+      if (confirm != true) return;
     }
 
     final db = ref.read(databaseProvider);
@@ -205,11 +246,11 @@ class _InvoiceFormState extends ConsumerState<InvoiceForm> {
       widget.onFinish();
     } catch (e) {
       if (mounted) {
-        StatusToast.show(
+        RequirementDialog.show(
           context,
-          title: "Error",
-          message: "Failed to create invoice. Please try again.",
-          isSuccess: false,
+          "System Error",
+          "Failed to compile structure: $e",
+          [],
         );
       }
     }
