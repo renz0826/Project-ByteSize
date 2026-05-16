@@ -312,7 +312,7 @@ class _InvoiceFormState extends ConsumerState<InvoiceForm> {
             Button(
               onPressed: _addProcedure,
               label: "Add Charge",
-              variant: ButtonVariant.secondary,
+              variant: ButtonVariant.smallSecondary,
               icon: Icons.add,
             ),
 
@@ -446,7 +446,7 @@ class _ProcedureRowWidget extends StatelessWidget {
             flex: 3,
             child: InputField(
               label: 'Procedure',
-              hintText: 'Tooth Extraction',
+              hintText: 'Enter Procedure',
               controller: row.nameController,
               isRequired: true,
             ),
