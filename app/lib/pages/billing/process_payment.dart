@@ -12,7 +12,7 @@ import '../../db/database.dart';
 import '../../providers/app_providers.dart';
 import '../../repositories/invoice_repository.dart';
 import '../../widgets/warning_dialog.dart';
-import '../../widgets/input_field.dart'; // Ensure this matches your project's widget path
+import '../../widgets/input_field.dart'; 
 
 class ProcessPaymentScreen extends ConsumerStatefulWidget {
   final JoinedInvoice invoiceData;
@@ -384,17 +384,27 @@ class _ProcessPaymentScreenState extends ConsumerState<ProcessPaymentScreen> {
       inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}'))],
       style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
       decoration: InputDecoration(
-        prefixText: "₱ ",
-        prefixStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87),
+        // Using prefixIcon for constantActive
+        prefixIcon: const UnconstrainedBox(
+          child: Padding(
+            padding: EdgeInsets.only(left: 16, right: 4),
+            child: Text(
+              "₱ ",
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87),
+            ),
+          ),
+        ),
         hintText: "0.00",
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: AppTheme.blue500, width: 2)),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8), 
+          borderSide: const BorderSide(color: AppTheme.blue500, width: 2),
+        ),
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       ),
     );
   }
 
-  // ✅ Swapped standard dropdown widget out for custom search-disabled InputField variant
   Widget _buildModeDropdown() {
     return InputField(
       label: "Mode of Payment",
