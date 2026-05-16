@@ -314,13 +314,23 @@ class _ProcessPaymentScreenState extends ConsumerState<ProcessPaymentScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text('Discount (20%):', style: textStyle),
+                            Text('Discount (20%):', style: textStyle?.copyWith(
+                              color: Colors.green.shade700,
+                            )),
                             Text(
                               '- ₱ ${discountAmount.toStringAsFixed(2)}',
                               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                                     color: Colors.green.shade700,
                                   ),
                             ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text('Previous Payment:', style: textStyle),
+                            Text('- ₱ ${totalPaid.toStringAsFixed(2)}', style: Theme.of(context).textTheme.titleLarge),
                           ],
                         ),
                         const SizedBox(height: 8),
