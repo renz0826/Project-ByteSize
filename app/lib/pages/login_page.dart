@@ -20,10 +20,22 @@ class LoginPage extends ConsumerStatefulWidget {
 class _LoginPageState extends ConsumerState<LoginPage> {
   final TextEditingController _pinController = TextEditingController();
   bool _isNavigating = false;
+  String? _localValidationError; // add local error variable
 
   // Timer Variable
   Timer? _countdownTimer;
   int _secondsRemaining = 0;
+  
+  // so the error disappears
+  @override
+  void initState() {
+    super.initState();
+    _pinController.addListener(() {
+      if (_localValidationError != null) {
+        setState(() => _localValidationError = null);
+      }
+    });
+  }
 
   void _startTimer(DateTime lockoutUntil) {
     _countdownTimer?.cancel(); // Cancel any existing timer to avoid duplicates
@@ -79,7 +91,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     final showLoading = isLoading || _isNavigating;
     
     // Get generic error from auth controller
-    String? errorMessage = authState.maybeWhen(
+    final errorMessage = _localValidationError ?? authState.maybeWhen(
       error: (error, stack) => error.toString(),
       orElse: () => null,
     );
@@ -88,7 +100,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     if (isLockedOut) {
       final minutes = (_secondsRemaining ~/ 60).toString().padLeft(2, '0');
       final seconds = (_secondsRemaining % 60).toString().padLeft(2, '0');
-      errorMessage = "Too many failed attempts. Locked out for $minutes:$seconds.";
+      setState(() {
+        _localValidationError = "Too many failed attempts. Locked out for $minutes:$seconds.";
+      });  
     }
 
     return Scaffold(
@@ -235,16 +249,16 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   void _submitPin() {
     // this function runs when the "enter pin" button is clicked
     final enteredPin = _pinController.text.trim();
+
+    //to clear any pervious local error before running validation
+    setState(() => _localValidationError = null);
+
     if (enteredPin.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter your PIN.')),
-      );
+      setState(() => _localValidationError = 'Please enter your PIN.');
       return;
     }
     if (enteredPin.length != 4) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('PIN must be exactly 4 digits.')),
-      );
+      setState(() => _localValidationError = 'PIN must be exactly 4 digits.');
       return;
     }
 
