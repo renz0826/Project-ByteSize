@@ -1945,6 +1945,319 @@ class AppointmentCompanion extends drift.UpdateCompanion<AppointmentData> {
   }
 }
 
+class $InvoiceTable extends Invoice
+    with drift.TableInfo<$InvoiceTable, InvoiceData> {
+  @override
+  final drift.GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $InvoiceTable(this.attachedDatabase, [this._alias]);
+  static const drift.VerificationMeta _invoiceIdMeta =
+      const drift.VerificationMeta('invoiceId');
+  @override
+  late final drift.GeneratedColumn<int> invoiceId = drift.GeneratedColumn<int>(
+      'invoice_id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const drift.VerificationMeta _patientIdMeta =
+      const drift.VerificationMeta('patientId');
+  @override
+  late final drift.GeneratedColumn<int> patientId = drift.GeneratedColumn<int>(
+      'patient_id', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES patient (patient_id)'));
+  static const drift.VerificationMeta _issuedDateMeta =
+      const drift.VerificationMeta('issuedDate');
+  @override
+  late final drift.GeneratedColumn<DateTime> issuedDate =
+      drift.GeneratedColumn<DateTime>('issued_date', aliasedName, false,
+          type: DriftSqlType.dateTime,
+          requiredDuringInsert: false,
+          defaultValue: drift.currentDateAndTime);
+  static const drift.VerificationMeta _totalBalanceMeta =
+      const drift.VerificationMeta('totalBalance');
+  @override
+  late final drift.GeneratedColumn<double> totalBalance =
+      drift.GeneratedColumn<double>('total_balance', aliasedName, false,
+          type: DriftSqlType.double, requiredDuringInsert: true);
+  static const drift.VerificationMeta _statusMeta =
+      const drift.VerificationMeta('status');
+  @override
+  late final drift.GeneratedColumn<String> status =
+      drift.GeneratedColumn<String>('status', aliasedName, false,
+          type: DriftSqlType.string, requiredDuringInsert: true);
+  @override
+  List<drift.GeneratedColumn> get $columns =>
+      [invoiceId, patientId, issuedDate, totalBalance, status];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'invoice';
+  @override
+  drift.VerificationContext validateIntegrity(
+      drift.Insertable<InvoiceData> instance,
+      {bool isInserting = false}) {
+    final context = drift.VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('invoice_id')) {
+      context.handle(_invoiceIdMeta,
+          invoiceId.isAcceptableOrUnknown(data['invoice_id']!, _invoiceIdMeta));
+    }
+    if (data.containsKey('patient_id')) {
+      context.handle(_patientIdMeta,
+          patientId.isAcceptableOrUnknown(data['patient_id']!, _patientIdMeta));
+    } else if (isInserting) {
+      context.missing(_patientIdMeta);
+    }
+    if (data.containsKey('issued_date')) {
+      context.handle(
+          _issuedDateMeta,
+          issuedDate.isAcceptableOrUnknown(
+              data['issued_date']!, _issuedDateMeta));
+    }
+    if (data.containsKey('total_balance')) {
+      context.handle(
+          _totalBalanceMeta,
+          totalBalance.isAcceptableOrUnknown(
+              data['total_balance']!, _totalBalanceMeta));
+    } else if (isInserting) {
+      context.missing(_totalBalanceMeta);
+    }
+    if (data.containsKey('status')) {
+      context.handle(_statusMeta,
+          status.isAcceptableOrUnknown(data['status']!, _statusMeta));
+    } else if (isInserting) {
+      context.missing(_statusMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<drift.GeneratedColumn> get $primaryKey => {invoiceId};
+  @override
+  InvoiceData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return InvoiceData(
+      invoiceId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}invoice_id'])!,
+      patientId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}patient_id'])!,
+      issuedDate: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}issued_date'])!,
+      totalBalance: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}total_balance'])!,
+      status: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}status'])!,
+    );
+  }
+
+  @override
+  $InvoiceTable createAlias(String alias) {
+    return $InvoiceTable(attachedDatabase, alias);
+  }
+}
+
+class InvoiceData extends drift.DataClass
+    implements drift.Insertable<InvoiceData> {
+  final int invoiceId;
+  final int patientId;
+  final DateTime issuedDate;
+  final double totalBalance;
+  final String status;
+  const InvoiceData(
+      {required this.invoiceId,
+      required this.patientId,
+      required this.issuedDate,
+      required this.totalBalance,
+      required this.status});
+  @override
+  Map<String, drift.Expression> toColumns(bool nullToAbsent) {
+    final map = <String, drift.Expression>{};
+    map['invoice_id'] = drift.Variable<int>(invoiceId);
+    map['patient_id'] = drift.Variable<int>(patientId);
+    map['issued_date'] = drift.Variable<DateTime>(issuedDate);
+    map['total_balance'] = drift.Variable<double>(totalBalance);
+    map['status'] = drift.Variable<String>(status);
+    return map;
+  }
+
+  InvoiceCompanion toCompanion(bool nullToAbsent) {
+    return InvoiceCompanion(
+      invoiceId: drift.Value(invoiceId),
+      patientId: drift.Value(patientId),
+      issuedDate: drift.Value(issuedDate),
+      totalBalance: drift.Value(totalBalance),
+      status: drift.Value(status),
+    );
+  }
+
+  factory InvoiceData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= drift.driftRuntimeOptions.defaultSerializer;
+    return InvoiceData(
+      invoiceId: serializer.fromJson<int>(json['invoiceId']),
+      patientId: serializer.fromJson<int>(json['patientId']),
+      issuedDate: serializer.fromJson<DateTime>(json['issuedDate']),
+      totalBalance: serializer.fromJson<double>(json['totalBalance']),
+      status: serializer.fromJson<String>(json['status']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= drift.driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'invoiceId': serializer.toJson<int>(invoiceId),
+      'patientId': serializer.toJson<int>(patientId),
+      'issuedDate': serializer.toJson<DateTime>(issuedDate),
+      'totalBalance': serializer.toJson<double>(totalBalance),
+      'status': serializer.toJson<String>(status),
+    };
+  }
+
+  InvoiceData copyWith(
+          {int? invoiceId,
+          int? patientId,
+          DateTime? issuedDate,
+          double? totalBalance,
+          String? status}) =>
+      InvoiceData(
+        invoiceId: invoiceId ?? this.invoiceId,
+        patientId: patientId ?? this.patientId,
+        issuedDate: issuedDate ?? this.issuedDate,
+        totalBalance: totalBalance ?? this.totalBalance,
+        status: status ?? this.status,
+      );
+  InvoiceData copyWithCompanion(InvoiceCompanion data) {
+    return InvoiceData(
+      invoiceId: data.invoiceId.present ? data.invoiceId.value : this.invoiceId,
+      patientId: data.patientId.present ? data.patientId.value : this.patientId,
+      issuedDate:
+          data.issuedDate.present ? data.issuedDate.value : this.issuedDate,
+      totalBalance: data.totalBalance.present
+          ? data.totalBalance.value
+          : this.totalBalance,
+      status: data.status.present ? data.status.value : this.status,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('InvoiceData(')
+          ..write('invoiceId: $invoiceId, ')
+          ..write('patientId: $patientId, ')
+          ..write('issuedDate: $issuedDate, ')
+          ..write('totalBalance: $totalBalance, ')
+          ..write('status: $status')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(invoiceId, patientId, issuedDate, totalBalance, status);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is InvoiceData &&
+          other.invoiceId == this.invoiceId &&
+          other.patientId == this.patientId &&
+          other.issuedDate == this.issuedDate &&
+          other.totalBalance == this.totalBalance &&
+          other.status == this.status);
+}
+
+class InvoiceCompanion extends drift.UpdateCompanion<InvoiceData> {
+  final drift.Value<int> invoiceId;
+  final drift.Value<int> patientId;
+  final drift.Value<DateTime> issuedDate;
+  final drift.Value<double> totalBalance;
+  final drift.Value<String> status;
+  const InvoiceCompanion({
+    this.invoiceId = const drift.Value.absent(),
+    this.patientId = const drift.Value.absent(),
+    this.issuedDate = const drift.Value.absent(),
+    this.totalBalance = const drift.Value.absent(),
+    this.status = const drift.Value.absent(),
+  });
+  InvoiceCompanion.insert({
+    this.invoiceId = const drift.Value.absent(),
+    required int patientId,
+    this.issuedDate = const drift.Value.absent(),
+    required double totalBalance,
+    required String status,
+  })  : patientId = drift.Value(patientId),
+        totalBalance = drift.Value(totalBalance),
+        status = drift.Value(status);
+  static drift.Insertable<InvoiceData> custom({
+    drift.Expression<int>? invoiceId,
+    drift.Expression<int>? patientId,
+    drift.Expression<DateTime>? issuedDate,
+    drift.Expression<double>? totalBalance,
+    drift.Expression<String>? status,
+  }) {
+    return drift.RawValuesInsertable({
+      if (invoiceId != null) 'invoice_id': invoiceId,
+      if (patientId != null) 'patient_id': patientId,
+      if (issuedDate != null) 'issued_date': issuedDate,
+      if (totalBalance != null) 'total_balance': totalBalance,
+      if (status != null) 'status': status,
+    });
+  }
+
+  InvoiceCompanion copyWith(
+      {drift.Value<int>? invoiceId,
+      drift.Value<int>? patientId,
+      drift.Value<DateTime>? issuedDate,
+      drift.Value<double>? totalBalance,
+      drift.Value<String>? status}) {
+    return InvoiceCompanion(
+      invoiceId: invoiceId ?? this.invoiceId,
+      patientId: patientId ?? this.patientId,
+      issuedDate: issuedDate ?? this.issuedDate,
+      totalBalance: totalBalance ?? this.totalBalance,
+      status: status ?? this.status,
+    );
+  }
+
+  @override
+  Map<String, drift.Expression> toColumns(bool nullToAbsent) {
+    final map = <String, drift.Expression>{};
+    if (invoiceId.present) {
+      map['invoice_id'] = drift.Variable<int>(invoiceId.value);
+    }
+    if (patientId.present) {
+      map['patient_id'] = drift.Variable<int>(patientId.value);
+    }
+    if (issuedDate.present) {
+      map['issued_date'] = drift.Variable<DateTime>(issuedDate.value);
+    }
+    if (totalBalance.present) {
+      map['total_balance'] = drift.Variable<double>(totalBalance.value);
+    }
+    if (status.present) {
+      map['status'] = drift.Variable<String>(status.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('InvoiceCompanion(')
+          ..write('invoiceId: $invoiceId, ')
+          ..write('patientId: $patientId, ')
+          ..write('issuedDate: $issuedDate, ')
+          ..write('totalBalance: $totalBalance, ')
+          ..write('status: $status')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $ProcedureChargeTable extends ProcedureCharge
     with drift.TableInfo<$ProcedureChargeTable, ProcedureChargeData> {
   @override
@@ -1961,6 +2274,15 @@ class $ProcedureChargeTable extends ProcedureCharge
       requiredDuringInsert: false,
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const drift.VerificationMeta _invoiceIdMeta =
+      const drift.VerificationMeta('invoiceId');
+  @override
+  late final drift.GeneratedColumn<int> invoiceId = drift.GeneratedColumn<int>(
+      'invoice_id', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES invoice (invoice_id)'));
   static const drift.VerificationMeta _procedureNameMeta =
       const drift.VerificationMeta('procedureName');
   @override
@@ -1991,6 +2313,7 @@ class $ProcedureChargeTable extends ProcedureCharge
   @override
   List<drift.GeneratedColumn> get $columns => [
         chargeId,
+        invoiceId,
         procedureName,
         procedureCharge,
         quantity,
@@ -2010,6 +2333,12 @@ class $ProcedureChargeTable extends ProcedureCharge
     if (data.containsKey('charge_id')) {
       context.handle(_chargeIdMeta,
           chargeId.isAcceptableOrUnknown(data['charge_id']!, _chargeIdMeta));
+    }
+    if (data.containsKey('invoice_id')) {
+      context.handle(_invoiceIdMeta,
+          invoiceId.isAcceptableOrUnknown(data['invoice_id']!, _invoiceIdMeta));
+    } else if (isInserting) {
+      context.missing(_invoiceIdMeta);
     }
     if (data.containsKey('procedure_name')) {
       context.handle(
@@ -2050,6 +2379,8 @@ class $ProcedureChargeTable extends ProcedureCharge
     return ProcedureChargeData(
       chargeId: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}charge_id'])!,
+      invoiceId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}invoice_id'])!,
       procedureName: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}procedure_name'])!,
       procedureCharge: attachedDatabase.typeMapping.read(
@@ -2071,12 +2402,14 @@ class $ProcedureChargeTable extends ProcedureCharge
 class ProcedureChargeData extends drift.DataClass
     implements drift.Insertable<ProcedureChargeData> {
   final int chargeId;
+  final int invoiceId;
   final String procedureName;
   final double procedureCharge;
   final int quantity;
   final double totalProcedureCharge;
   const ProcedureChargeData(
       {required this.chargeId,
+      required this.invoiceId,
       required this.procedureName,
       required this.procedureCharge,
       required this.quantity,
@@ -2085,6 +2418,7 @@ class ProcedureChargeData extends drift.DataClass
   Map<String, drift.Expression> toColumns(bool nullToAbsent) {
     final map = <String, drift.Expression>{};
     map['charge_id'] = drift.Variable<int>(chargeId);
+    map['invoice_id'] = drift.Variable<int>(invoiceId);
     map['procedure_name'] = drift.Variable<String>(procedureName);
     map['procedure_charge'] = drift.Variable<double>(procedureCharge);
     map['quantity'] = drift.Variable<int>(quantity);
@@ -2096,6 +2430,7 @@ class ProcedureChargeData extends drift.DataClass
   ProcedureChargeCompanion toCompanion(bool nullToAbsent) {
     return ProcedureChargeCompanion(
       chargeId: drift.Value(chargeId),
+      invoiceId: drift.Value(invoiceId),
       procedureName: drift.Value(procedureName),
       procedureCharge: drift.Value(procedureCharge),
       quantity: drift.Value(quantity),
@@ -2108,6 +2443,7 @@ class ProcedureChargeData extends drift.DataClass
     serializer ??= drift.driftRuntimeOptions.defaultSerializer;
     return ProcedureChargeData(
       chargeId: serializer.fromJson<int>(json['chargeId']),
+      invoiceId: serializer.fromJson<int>(json['invoiceId']),
       procedureName: serializer.fromJson<String>(json['procedureName']),
       procedureCharge: serializer.fromJson<double>(json['procedureCharge']),
       quantity: serializer.fromJson<int>(json['quantity']),
@@ -2120,6 +2456,7 @@ class ProcedureChargeData extends drift.DataClass
     serializer ??= drift.driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'chargeId': serializer.toJson<int>(chargeId),
+      'invoiceId': serializer.toJson<int>(invoiceId),
       'procedureName': serializer.toJson<String>(procedureName),
       'procedureCharge': serializer.toJson<double>(procedureCharge),
       'quantity': serializer.toJson<int>(quantity),
@@ -2129,12 +2466,14 @@ class ProcedureChargeData extends drift.DataClass
 
   ProcedureChargeData copyWith(
           {int? chargeId,
+          int? invoiceId,
           String? procedureName,
           double? procedureCharge,
           int? quantity,
           double? totalProcedureCharge}) =>
       ProcedureChargeData(
         chargeId: chargeId ?? this.chargeId,
+        invoiceId: invoiceId ?? this.invoiceId,
         procedureName: procedureName ?? this.procedureName,
         procedureCharge: procedureCharge ?? this.procedureCharge,
         quantity: quantity ?? this.quantity,
@@ -2143,6 +2482,7 @@ class ProcedureChargeData extends drift.DataClass
   ProcedureChargeData copyWithCompanion(ProcedureChargeCompanion data) {
     return ProcedureChargeData(
       chargeId: data.chargeId.present ? data.chargeId.value : this.chargeId,
+      invoiceId: data.invoiceId.present ? data.invoiceId.value : this.invoiceId,
       procedureName: data.procedureName.present
           ? data.procedureName.value
           : this.procedureName,
@@ -2160,6 +2500,7 @@ class ProcedureChargeData extends drift.DataClass
   String toString() {
     return (StringBuffer('ProcedureChargeData(')
           ..write('chargeId: $chargeId, ')
+          ..write('invoiceId: $invoiceId, ')
           ..write('procedureName: $procedureName, ')
           ..write('procedureCharge: $procedureCharge, ')
           ..write('quantity: $quantity, ')
@@ -2169,13 +2510,14 @@ class ProcedureChargeData extends drift.DataClass
   }
 
   @override
-  int get hashCode => Object.hash(
-      chargeId, procedureName, procedureCharge, quantity, totalProcedureCharge);
+  int get hashCode => Object.hash(chargeId, invoiceId, procedureName,
+      procedureCharge, quantity, totalProcedureCharge);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is ProcedureChargeData &&
           other.chargeId == this.chargeId &&
+          other.invoiceId == this.invoiceId &&
           other.procedureName == this.procedureName &&
           other.procedureCharge == this.procedureCharge &&
           other.quantity == this.quantity &&
@@ -2185,12 +2527,14 @@ class ProcedureChargeData extends drift.DataClass
 class ProcedureChargeCompanion
     extends drift.UpdateCompanion<ProcedureChargeData> {
   final drift.Value<int> chargeId;
+  final drift.Value<int> invoiceId;
   final drift.Value<String> procedureName;
   final drift.Value<double> procedureCharge;
   final drift.Value<int> quantity;
   final drift.Value<double> totalProcedureCharge;
   const ProcedureChargeCompanion({
     this.chargeId = const drift.Value.absent(),
+    this.invoiceId = const drift.Value.absent(),
     this.procedureName = const drift.Value.absent(),
     this.procedureCharge = const drift.Value.absent(),
     this.quantity = const drift.Value.absent(),
@@ -2198,15 +2542,18 @@ class ProcedureChargeCompanion
   });
   ProcedureChargeCompanion.insert({
     this.chargeId = const drift.Value.absent(),
+    required int invoiceId,
     required String procedureName,
     required double procedureCharge,
     this.quantity = const drift.Value.absent(),
     required double totalProcedureCharge,
-  })  : procedureName = drift.Value(procedureName),
+  })  : invoiceId = drift.Value(invoiceId),
+        procedureName = drift.Value(procedureName),
         procedureCharge = drift.Value(procedureCharge),
         totalProcedureCharge = drift.Value(totalProcedureCharge);
   static drift.Insertable<ProcedureChargeData> custom({
     drift.Expression<int>? chargeId,
+    drift.Expression<int>? invoiceId,
     drift.Expression<String>? procedureName,
     drift.Expression<double>? procedureCharge,
     drift.Expression<int>? quantity,
@@ -2214,6 +2561,7 @@ class ProcedureChargeCompanion
   }) {
     return drift.RawValuesInsertable({
       if (chargeId != null) 'charge_id': chargeId,
+      if (invoiceId != null) 'invoice_id': invoiceId,
       if (procedureName != null) 'procedure_name': procedureName,
       if (procedureCharge != null) 'procedure_charge': procedureCharge,
       if (quantity != null) 'quantity': quantity,
@@ -2224,12 +2572,14 @@ class ProcedureChargeCompanion
 
   ProcedureChargeCompanion copyWith(
       {drift.Value<int>? chargeId,
+      drift.Value<int>? invoiceId,
       drift.Value<String>? procedureName,
       drift.Value<double>? procedureCharge,
       drift.Value<int>? quantity,
       drift.Value<double>? totalProcedureCharge}) {
     return ProcedureChargeCompanion(
       chargeId: chargeId ?? this.chargeId,
+      invoiceId: invoiceId ?? this.invoiceId,
       procedureName: procedureName ?? this.procedureName,
       procedureCharge: procedureCharge ?? this.procedureCharge,
       quantity: quantity ?? this.quantity,
@@ -2242,6 +2592,9 @@ class ProcedureChargeCompanion
     final map = <String, drift.Expression>{};
     if (chargeId.present) {
       map['charge_id'] = drift.Variable<int>(chargeId.value);
+    }
+    if (invoiceId.present) {
+      map['invoice_id'] = drift.Variable<int>(invoiceId.value);
     }
     if (procedureName.present) {
       map['procedure_name'] = drift.Variable<String>(procedureName.value);
@@ -2263,6 +2616,7 @@ class ProcedureChargeCompanion
   String toString() {
     return (StringBuffer('ProcedureChargeCompanion(')
           ..write('chargeId: $chargeId, ')
+          ..write('invoiceId: $invoiceId, ')
           ..write('procedureName: $procedureName, ')
           ..write('procedureCharge: $procedureCharge, ')
           ..write('quantity: $quantity, ')
@@ -2288,6 +2642,15 @@ class $PaymentTransactionTable extends PaymentTransaction
           requiredDuringInsert: false,
           defaultConstraints:
               GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const drift.VerificationMeta _invoiceIdMeta =
+      const drift.VerificationMeta('invoiceId');
+  @override
+  late final drift.GeneratedColumn<int> invoiceId = drift.GeneratedColumn<int>(
+      'invoice_id', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES invoice (invoice_id)'));
   static const drift.VerificationMeta _amountReceivedMeta =
       const drift.VerificationMeta('amountReceived');
   @override
@@ -2310,7 +2673,7 @@ class $PaymentTransactionTable extends PaymentTransaction
           defaultValue: drift.currentDateAndTime);
   @override
   List<drift.GeneratedColumn> get $columns =>
-      [transactionId, amountReceived, modeOfPayment, paymentDate];
+      [transactionId, invoiceId, amountReceived, modeOfPayment, paymentDate];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -2327,6 +2690,12 @@ class $PaymentTransactionTable extends PaymentTransaction
           _transactionIdMeta,
           transactionId.isAcceptableOrUnknown(
               data['transaction_id']!, _transactionIdMeta));
+    }
+    if (data.containsKey('invoice_id')) {
+      context.handle(_invoiceIdMeta,
+          invoiceId.isAcceptableOrUnknown(data['invoice_id']!, _invoiceIdMeta));
+    } else if (isInserting) {
+      context.missing(_invoiceIdMeta);
     }
     if (data.containsKey('amount_received')) {
       context.handle(
@@ -2361,6 +2730,8 @@ class $PaymentTransactionTable extends PaymentTransaction
     return PaymentTransactionData(
       transactionId: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}transaction_id'])!,
+      invoiceId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}invoice_id'])!,
       amountReceived: attachedDatabase.typeMapping.read(
           DriftSqlType.double, data['${effectivePrefix}amount_received'])!,
       modeOfPayment: attachedDatabase.typeMapping.read(
@@ -2379,11 +2750,13 @@ class $PaymentTransactionTable extends PaymentTransaction
 class PaymentTransactionData extends drift.DataClass
     implements drift.Insertable<PaymentTransactionData> {
   final int transactionId;
+  final int invoiceId;
   final double amountReceived;
   final String modeOfPayment;
   final DateTime paymentDate;
   const PaymentTransactionData(
       {required this.transactionId,
+      required this.invoiceId,
       required this.amountReceived,
       required this.modeOfPayment,
       required this.paymentDate});
@@ -2391,6 +2764,7 @@ class PaymentTransactionData extends drift.DataClass
   Map<String, drift.Expression> toColumns(bool nullToAbsent) {
     final map = <String, drift.Expression>{};
     map['transaction_id'] = drift.Variable<int>(transactionId);
+    map['invoice_id'] = drift.Variable<int>(invoiceId);
     map['amount_received'] = drift.Variable<double>(amountReceived);
     map['mode_of_payment'] = drift.Variable<String>(modeOfPayment);
     map['payment_date'] = drift.Variable<DateTime>(paymentDate);
@@ -2400,6 +2774,7 @@ class PaymentTransactionData extends drift.DataClass
   PaymentTransactionCompanion toCompanion(bool nullToAbsent) {
     return PaymentTransactionCompanion(
       transactionId: drift.Value(transactionId),
+      invoiceId: drift.Value(invoiceId),
       amountReceived: drift.Value(amountReceived),
       modeOfPayment: drift.Value(modeOfPayment),
       paymentDate: drift.Value(paymentDate),
@@ -2411,6 +2786,7 @@ class PaymentTransactionData extends drift.DataClass
     serializer ??= drift.driftRuntimeOptions.defaultSerializer;
     return PaymentTransactionData(
       transactionId: serializer.fromJson<int>(json['transactionId']),
+      invoiceId: serializer.fromJson<int>(json['invoiceId']),
       amountReceived: serializer.fromJson<double>(json['amountReceived']),
       modeOfPayment: serializer.fromJson<String>(json['modeOfPayment']),
       paymentDate: serializer.fromJson<DateTime>(json['paymentDate']),
@@ -2421,6 +2797,7 @@ class PaymentTransactionData extends drift.DataClass
     serializer ??= drift.driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'transactionId': serializer.toJson<int>(transactionId),
+      'invoiceId': serializer.toJson<int>(invoiceId),
       'amountReceived': serializer.toJson<double>(amountReceived),
       'modeOfPayment': serializer.toJson<String>(modeOfPayment),
       'paymentDate': serializer.toJson<DateTime>(paymentDate),
@@ -2429,11 +2806,13 @@ class PaymentTransactionData extends drift.DataClass
 
   PaymentTransactionData copyWith(
           {int? transactionId,
+          int? invoiceId,
           double? amountReceived,
           String? modeOfPayment,
           DateTime? paymentDate}) =>
       PaymentTransactionData(
         transactionId: transactionId ?? this.transactionId,
+        invoiceId: invoiceId ?? this.invoiceId,
         amountReceived: amountReceived ?? this.amountReceived,
         modeOfPayment: modeOfPayment ?? this.modeOfPayment,
         paymentDate: paymentDate ?? this.paymentDate,
@@ -2443,6 +2822,7 @@ class PaymentTransactionData extends drift.DataClass
       transactionId: data.transactionId.present
           ? data.transactionId.value
           : this.transactionId,
+      invoiceId: data.invoiceId.present ? data.invoiceId.value : this.invoiceId,
       amountReceived: data.amountReceived.present
           ? data.amountReceived.value
           : this.amountReceived,
@@ -2458,6 +2838,7 @@ class PaymentTransactionData extends drift.DataClass
   String toString() {
     return (StringBuffer('PaymentTransactionData(')
           ..write('transactionId: $transactionId, ')
+          ..write('invoiceId: $invoiceId, ')
           ..write('amountReceived: $amountReceived, ')
           ..write('modeOfPayment: $modeOfPayment, ')
           ..write('paymentDate: $paymentDate')
@@ -2466,13 +2847,14 @@ class PaymentTransactionData extends drift.DataClass
   }
 
   @override
-  int get hashCode =>
-      Object.hash(transactionId, amountReceived, modeOfPayment, paymentDate);
+  int get hashCode => Object.hash(
+      transactionId, invoiceId, amountReceived, modeOfPayment, paymentDate);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is PaymentTransactionData &&
           other.transactionId == this.transactionId &&
+          other.invoiceId == this.invoiceId &&
           other.amountReceived == this.amountReceived &&
           other.modeOfPayment == this.modeOfPayment &&
           other.paymentDate == this.paymentDate);
@@ -2481,30 +2863,36 @@ class PaymentTransactionData extends drift.DataClass
 class PaymentTransactionCompanion
     extends drift.UpdateCompanion<PaymentTransactionData> {
   final drift.Value<int> transactionId;
+  final drift.Value<int> invoiceId;
   final drift.Value<double> amountReceived;
   final drift.Value<String> modeOfPayment;
   final drift.Value<DateTime> paymentDate;
   const PaymentTransactionCompanion({
     this.transactionId = const drift.Value.absent(),
+    this.invoiceId = const drift.Value.absent(),
     this.amountReceived = const drift.Value.absent(),
     this.modeOfPayment = const drift.Value.absent(),
     this.paymentDate = const drift.Value.absent(),
   });
   PaymentTransactionCompanion.insert({
     this.transactionId = const drift.Value.absent(),
+    required int invoiceId,
     required double amountReceived,
     required String modeOfPayment,
     this.paymentDate = const drift.Value.absent(),
-  })  : amountReceived = drift.Value(amountReceived),
+  })  : invoiceId = drift.Value(invoiceId),
+        amountReceived = drift.Value(amountReceived),
         modeOfPayment = drift.Value(modeOfPayment);
   static drift.Insertable<PaymentTransactionData> custom({
     drift.Expression<int>? transactionId,
+    drift.Expression<int>? invoiceId,
     drift.Expression<double>? amountReceived,
     drift.Expression<String>? modeOfPayment,
     drift.Expression<DateTime>? paymentDate,
   }) {
     return drift.RawValuesInsertable({
       if (transactionId != null) 'transaction_id': transactionId,
+      if (invoiceId != null) 'invoice_id': invoiceId,
       if (amountReceived != null) 'amount_received': amountReceived,
       if (modeOfPayment != null) 'mode_of_payment': modeOfPayment,
       if (paymentDate != null) 'payment_date': paymentDate,
@@ -2513,11 +2901,13 @@ class PaymentTransactionCompanion
 
   PaymentTransactionCompanion copyWith(
       {drift.Value<int>? transactionId,
+      drift.Value<int>? invoiceId,
       drift.Value<double>? amountReceived,
       drift.Value<String>? modeOfPayment,
       drift.Value<DateTime>? paymentDate}) {
     return PaymentTransactionCompanion(
       transactionId: transactionId ?? this.transactionId,
+      invoiceId: invoiceId ?? this.invoiceId,
       amountReceived: amountReceived ?? this.amountReceived,
       modeOfPayment: modeOfPayment ?? this.modeOfPayment,
       paymentDate: paymentDate ?? this.paymentDate,
@@ -2529,6 +2919,9 @@ class PaymentTransactionCompanion
     final map = <String, drift.Expression>{};
     if (transactionId.present) {
       map['transaction_id'] = drift.Variable<int>(transactionId.value);
+    }
+    if (invoiceId.present) {
+      map['invoice_id'] = drift.Variable<int>(invoiceId.value);
     }
     if (amountReceived.present) {
       map['amount_received'] = drift.Variable<double>(amountReceived.value);
@@ -2546,413 +2939,10 @@ class PaymentTransactionCompanion
   String toString() {
     return (StringBuffer('PaymentTransactionCompanion(')
           ..write('transactionId: $transactionId, ')
+          ..write('invoiceId: $invoiceId, ')
           ..write('amountReceived: $amountReceived, ')
           ..write('modeOfPayment: $modeOfPayment, ')
           ..write('paymentDate: $paymentDate')
-          ..write(')'))
-        .toString();
-  }
-}
-
-class $InvoiceTable extends Invoice
-    with drift.TableInfo<$InvoiceTable, InvoiceData> {
-  @override
-  final drift.GeneratedDatabase attachedDatabase;
-  final String? _alias;
-  $InvoiceTable(this.attachedDatabase, [this._alias]);
-  static const drift.VerificationMeta _invoiceIdMeta =
-      const drift.VerificationMeta('invoiceId');
-  @override
-  late final drift.GeneratedColumn<int> invoiceId = drift.GeneratedColumn<int>(
-      'invoice_id', aliasedName, false,
-      hasAutoIncrement: true,
-      type: DriftSqlType.int,
-      requiredDuringInsert: false,
-      defaultConstraints:
-          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
-  static const drift.VerificationMeta _patientIdMeta =
-      const drift.VerificationMeta('patientId');
-  @override
-  late final drift.GeneratedColumn<int> patientId = drift.GeneratedColumn<int>(
-      'patient_id', aliasedName, false,
-      type: DriftSqlType.int,
-      requiredDuringInsert: true,
-      defaultConstraints: GeneratedColumn.constraintIsAlways(
-          'REFERENCES patient (patient_id)'));
-  static const drift.VerificationMeta _chargeIdMeta =
-      const drift.VerificationMeta('chargeId');
-  @override
-  late final drift.GeneratedColumn<int> chargeId = drift.GeneratedColumn<int>(
-      'charge_id', aliasedName, false,
-      type: DriftSqlType.int,
-      requiredDuringInsert: true,
-      defaultConstraints: GeneratedColumn.constraintIsAlways(
-          'REFERENCES procedure_charge (charge_id)'));
-  static const drift.VerificationMeta _transactionIdMeta =
-      const drift.VerificationMeta('transactionId');
-  @override
-  late final drift.GeneratedColumn<int> transactionId =
-      drift.GeneratedColumn<int>('transaction_id', aliasedName, false,
-          type: DriftSqlType.int,
-          requiredDuringInsert: true,
-          defaultConstraints: GeneratedColumn.constraintIsAlways(
-              'REFERENCES payment_transaction (transaction_id)'));
-  static const drift.VerificationMeta _issuedDateMeta =
-      const drift.VerificationMeta('issuedDate');
-  @override
-  late final drift.GeneratedColumn<DateTime> issuedDate =
-      drift.GeneratedColumn<DateTime>('issued_date', aliasedName, false,
-          type: DriftSqlType.dateTime,
-          requiredDuringInsert: false,
-          defaultValue: drift.currentDateAndTime);
-  static const drift.VerificationMeta _totalBalanceMeta =
-      const drift.VerificationMeta('totalBalance');
-  @override
-  late final drift.GeneratedColumn<double> totalBalance =
-      drift.GeneratedColumn<double>('total_balance', aliasedName, false,
-          type: DriftSqlType.double, requiredDuringInsert: true);
-  static const drift.VerificationMeta _statusMeta =
-      const drift.VerificationMeta('status');
-  @override
-  late final drift.GeneratedColumn<String> status =
-      drift.GeneratedColumn<String>('status', aliasedName, false,
-          type: DriftSqlType.string, requiredDuringInsert: true);
-  @override
-  List<drift.GeneratedColumn> get $columns => [
-        invoiceId,
-        patientId,
-        chargeId,
-        transactionId,
-        issuedDate,
-        totalBalance,
-        status
-      ];
-  @override
-  String get aliasedName => _alias ?? actualTableName;
-  @override
-  String get actualTableName => $name;
-  static const String $name = 'invoice';
-  @override
-  drift.VerificationContext validateIntegrity(
-      drift.Insertable<InvoiceData> instance,
-      {bool isInserting = false}) {
-    final context = drift.VerificationContext();
-    final data = instance.toColumns(true);
-    if (data.containsKey('invoice_id')) {
-      context.handle(_invoiceIdMeta,
-          invoiceId.isAcceptableOrUnknown(data['invoice_id']!, _invoiceIdMeta));
-    }
-    if (data.containsKey('patient_id')) {
-      context.handle(_patientIdMeta,
-          patientId.isAcceptableOrUnknown(data['patient_id']!, _patientIdMeta));
-    } else if (isInserting) {
-      context.missing(_patientIdMeta);
-    }
-    if (data.containsKey('charge_id')) {
-      context.handle(_chargeIdMeta,
-          chargeId.isAcceptableOrUnknown(data['charge_id']!, _chargeIdMeta));
-    } else if (isInserting) {
-      context.missing(_chargeIdMeta);
-    }
-    if (data.containsKey('transaction_id')) {
-      context.handle(
-          _transactionIdMeta,
-          transactionId.isAcceptableOrUnknown(
-              data['transaction_id']!, _transactionIdMeta));
-    } else if (isInserting) {
-      context.missing(_transactionIdMeta);
-    }
-    if (data.containsKey('issued_date')) {
-      context.handle(
-          _issuedDateMeta,
-          issuedDate.isAcceptableOrUnknown(
-              data['issued_date']!, _issuedDateMeta));
-    }
-    if (data.containsKey('total_balance')) {
-      context.handle(
-          _totalBalanceMeta,
-          totalBalance.isAcceptableOrUnknown(
-              data['total_balance']!, _totalBalanceMeta));
-    } else if (isInserting) {
-      context.missing(_totalBalanceMeta);
-    }
-    if (data.containsKey('status')) {
-      context.handle(_statusMeta,
-          status.isAcceptableOrUnknown(data['status']!, _statusMeta));
-    } else if (isInserting) {
-      context.missing(_statusMeta);
-    }
-    return context;
-  }
-
-  @override
-  Set<drift.GeneratedColumn> get $primaryKey => {invoiceId};
-  @override
-  InvoiceData map(Map<String, dynamic> data, {String? tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return InvoiceData(
-      invoiceId: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}invoice_id'])!,
-      patientId: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}patient_id'])!,
-      chargeId: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}charge_id'])!,
-      transactionId: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}transaction_id'])!,
-      issuedDate: attachedDatabase.typeMapping
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}issued_date'])!,
-      totalBalance: attachedDatabase.typeMapping
-          .read(DriftSqlType.double, data['${effectivePrefix}total_balance'])!,
-      status: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}status'])!,
-    );
-  }
-
-  @override
-  $InvoiceTable createAlias(String alias) {
-    return $InvoiceTable(attachedDatabase, alias);
-  }
-}
-
-class InvoiceData extends drift.DataClass
-    implements drift.Insertable<InvoiceData> {
-  final int invoiceId;
-  final int patientId;
-  final int chargeId;
-  final int transactionId;
-  final DateTime issuedDate;
-  final double totalBalance;
-  final String status;
-  const InvoiceData(
-      {required this.invoiceId,
-      required this.patientId,
-      required this.chargeId,
-      required this.transactionId,
-      required this.issuedDate,
-      required this.totalBalance,
-      required this.status});
-  @override
-  Map<String, drift.Expression> toColumns(bool nullToAbsent) {
-    final map = <String, drift.Expression>{};
-    map['invoice_id'] = drift.Variable<int>(invoiceId);
-    map['patient_id'] = drift.Variable<int>(patientId);
-    map['charge_id'] = drift.Variable<int>(chargeId);
-    map['transaction_id'] = drift.Variable<int>(transactionId);
-    map['issued_date'] = drift.Variable<DateTime>(issuedDate);
-    map['total_balance'] = drift.Variable<double>(totalBalance);
-    map['status'] = drift.Variable<String>(status);
-    return map;
-  }
-
-  InvoiceCompanion toCompanion(bool nullToAbsent) {
-    return InvoiceCompanion(
-      invoiceId: drift.Value(invoiceId),
-      patientId: drift.Value(patientId),
-      chargeId: drift.Value(chargeId),
-      transactionId: drift.Value(transactionId),
-      issuedDate: drift.Value(issuedDate),
-      totalBalance: drift.Value(totalBalance),
-      status: drift.Value(status),
-    );
-  }
-
-  factory InvoiceData.fromJson(Map<String, dynamic> json,
-      {ValueSerializer? serializer}) {
-    serializer ??= drift.driftRuntimeOptions.defaultSerializer;
-    return InvoiceData(
-      invoiceId: serializer.fromJson<int>(json['invoiceId']),
-      patientId: serializer.fromJson<int>(json['patientId']),
-      chargeId: serializer.fromJson<int>(json['chargeId']),
-      transactionId: serializer.fromJson<int>(json['transactionId']),
-      issuedDate: serializer.fromJson<DateTime>(json['issuedDate']),
-      totalBalance: serializer.fromJson<double>(json['totalBalance']),
-      status: serializer.fromJson<String>(json['status']),
-    );
-  }
-  @override
-  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= drift.driftRuntimeOptions.defaultSerializer;
-    return <String, dynamic>{
-      'invoiceId': serializer.toJson<int>(invoiceId),
-      'patientId': serializer.toJson<int>(patientId),
-      'chargeId': serializer.toJson<int>(chargeId),
-      'transactionId': serializer.toJson<int>(transactionId),
-      'issuedDate': serializer.toJson<DateTime>(issuedDate),
-      'totalBalance': serializer.toJson<double>(totalBalance),
-      'status': serializer.toJson<String>(status),
-    };
-  }
-
-  InvoiceData copyWith(
-          {int? invoiceId,
-          int? patientId,
-          int? chargeId,
-          int? transactionId,
-          DateTime? issuedDate,
-          double? totalBalance,
-          String? status}) =>
-      InvoiceData(
-        invoiceId: invoiceId ?? this.invoiceId,
-        patientId: patientId ?? this.patientId,
-        chargeId: chargeId ?? this.chargeId,
-        transactionId: transactionId ?? this.transactionId,
-        issuedDate: issuedDate ?? this.issuedDate,
-        totalBalance: totalBalance ?? this.totalBalance,
-        status: status ?? this.status,
-      );
-  InvoiceData copyWithCompanion(InvoiceCompanion data) {
-    return InvoiceData(
-      invoiceId: data.invoiceId.present ? data.invoiceId.value : this.invoiceId,
-      patientId: data.patientId.present ? data.patientId.value : this.patientId,
-      chargeId: data.chargeId.present ? data.chargeId.value : this.chargeId,
-      transactionId: data.transactionId.present
-          ? data.transactionId.value
-          : this.transactionId,
-      issuedDate:
-          data.issuedDate.present ? data.issuedDate.value : this.issuedDate,
-      totalBalance: data.totalBalance.present
-          ? data.totalBalance.value
-          : this.totalBalance,
-      status: data.status.present ? data.status.value : this.status,
-    );
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('InvoiceData(')
-          ..write('invoiceId: $invoiceId, ')
-          ..write('patientId: $patientId, ')
-          ..write('chargeId: $chargeId, ')
-          ..write('transactionId: $transactionId, ')
-          ..write('issuedDate: $issuedDate, ')
-          ..write('totalBalance: $totalBalance, ')
-          ..write('status: $status')
-          ..write(')'))
-        .toString();
-  }
-
-  @override
-  int get hashCode => Object.hash(invoiceId, patientId, chargeId, transactionId,
-      issuedDate, totalBalance, status);
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is InvoiceData &&
-          other.invoiceId == this.invoiceId &&
-          other.patientId == this.patientId &&
-          other.chargeId == this.chargeId &&
-          other.transactionId == this.transactionId &&
-          other.issuedDate == this.issuedDate &&
-          other.totalBalance == this.totalBalance &&
-          other.status == this.status);
-}
-
-class InvoiceCompanion extends drift.UpdateCompanion<InvoiceData> {
-  final drift.Value<int> invoiceId;
-  final drift.Value<int> patientId;
-  final drift.Value<int> chargeId;
-  final drift.Value<int> transactionId;
-  final drift.Value<DateTime> issuedDate;
-  final drift.Value<double> totalBalance;
-  final drift.Value<String> status;
-  const InvoiceCompanion({
-    this.invoiceId = const drift.Value.absent(),
-    this.patientId = const drift.Value.absent(),
-    this.chargeId = const drift.Value.absent(),
-    this.transactionId = const drift.Value.absent(),
-    this.issuedDate = const drift.Value.absent(),
-    this.totalBalance = const drift.Value.absent(),
-    this.status = const drift.Value.absent(),
-  });
-  InvoiceCompanion.insert({
-    this.invoiceId = const drift.Value.absent(),
-    required int patientId,
-    required int chargeId,
-    required int transactionId,
-    this.issuedDate = const drift.Value.absent(),
-    required double totalBalance,
-    required String status,
-  })  : patientId = drift.Value(patientId),
-        chargeId = drift.Value(chargeId),
-        transactionId = drift.Value(transactionId),
-        totalBalance = drift.Value(totalBalance),
-        status = drift.Value(status);
-  static drift.Insertable<InvoiceData> custom({
-    drift.Expression<int>? invoiceId,
-    drift.Expression<int>? patientId,
-    drift.Expression<int>? chargeId,
-    drift.Expression<int>? transactionId,
-    drift.Expression<DateTime>? issuedDate,
-    drift.Expression<double>? totalBalance,
-    drift.Expression<String>? status,
-  }) {
-    return drift.RawValuesInsertable({
-      if (invoiceId != null) 'invoice_id': invoiceId,
-      if (patientId != null) 'patient_id': patientId,
-      if (chargeId != null) 'charge_id': chargeId,
-      if (transactionId != null) 'transaction_id': transactionId,
-      if (issuedDate != null) 'issued_date': issuedDate,
-      if (totalBalance != null) 'total_balance': totalBalance,
-      if (status != null) 'status': status,
-    });
-  }
-
-  InvoiceCompanion copyWith(
-      {drift.Value<int>? invoiceId,
-      drift.Value<int>? patientId,
-      drift.Value<int>? chargeId,
-      drift.Value<int>? transactionId,
-      drift.Value<DateTime>? issuedDate,
-      drift.Value<double>? totalBalance,
-      drift.Value<String>? status}) {
-    return InvoiceCompanion(
-      invoiceId: invoiceId ?? this.invoiceId,
-      patientId: patientId ?? this.patientId,
-      chargeId: chargeId ?? this.chargeId,
-      transactionId: transactionId ?? this.transactionId,
-      issuedDate: issuedDate ?? this.issuedDate,
-      totalBalance: totalBalance ?? this.totalBalance,
-      status: status ?? this.status,
-    );
-  }
-
-  @override
-  Map<String, drift.Expression> toColumns(bool nullToAbsent) {
-    final map = <String, drift.Expression>{};
-    if (invoiceId.present) {
-      map['invoice_id'] = drift.Variable<int>(invoiceId.value);
-    }
-    if (patientId.present) {
-      map['patient_id'] = drift.Variable<int>(patientId.value);
-    }
-    if (chargeId.present) {
-      map['charge_id'] = drift.Variable<int>(chargeId.value);
-    }
-    if (transactionId.present) {
-      map['transaction_id'] = drift.Variable<int>(transactionId.value);
-    }
-    if (issuedDate.present) {
-      map['issued_date'] = drift.Variable<DateTime>(issuedDate.value);
-    }
-    if (totalBalance.present) {
-      map['total_balance'] = drift.Variable<double>(totalBalance.value);
-    }
-    if (status.present) {
-      map['status'] = drift.Variable<String>(status.value);
-    }
-    return map;
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('InvoiceCompanion(')
-          ..write('invoiceId: $invoiceId, ')
-          ..write('patientId: $patientId, ')
-          ..write('chargeId: $chargeId, ')
-          ..write('transactionId: $transactionId, ')
-          ..write('issuedDate: $issuedDate, ')
-          ..write('totalBalance: $totalBalance, ')
-          ..write('status: $status')
           ..write(')'))
         .toString();
   }
@@ -3867,11 +3857,11 @@ abstract class _$AppDatabase extends drift.GeneratedDatabase {
   late final $PatientTable patient = $PatientTable(this);
   late final $ClinicalStaffTable clinicalStaff = $ClinicalStaffTable(this);
   late final $AppointmentTable appointment = $AppointmentTable(this);
+  late final $InvoiceTable invoice = $InvoiceTable(this);
   late final $ProcedureChargeTable procedureCharge =
       $ProcedureChargeTable(this);
   late final $PaymentTransactionTable paymentTransaction =
       $PaymentTransactionTable(this);
-  late final $InvoiceTable invoice = $InvoiceTable(this);
   late final $ClinicalRecordTable clinicalRecord = $ClinicalRecordTable(this);
   @override
   Iterable<drift.TableInfo<drift.Table, Object?>> get allTables =>
@@ -3881,9 +3871,9 @@ abstract class _$AppDatabase extends drift.GeneratedDatabase {
         patient,
         clinicalStaff,
         appointment,
+        invoice,
         procedureCharge,
         paymentTransaction,
-        invoice,
         clinicalRecord
       ];
 }
@@ -5302,522 +5292,9 @@ typedef $$AppointmentTableProcessedTableManager = drift.ProcessedTableManager<
     (AppointmentData, $$AppointmentTableReferences),
     AppointmentData,
     drift.PrefetchHooks Function({bool patientId, bool staffId})>;
-typedef $$ProcedureChargeTableCreateCompanionBuilder = ProcedureChargeCompanion
-    Function({
-  drift.Value<int> chargeId,
-  required String procedureName,
-  required double procedureCharge,
-  drift.Value<int> quantity,
-  required double totalProcedureCharge,
-});
-typedef $$ProcedureChargeTableUpdateCompanionBuilder = ProcedureChargeCompanion
-    Function({
-  drift.Value<int> chargeId,
-  drift.Value<String> procedureName,
-  drift.Value<double> procedureCharge,
-  drift.Value<int> quantity,
-  drift.Value<double> totalProcedureCharge,
-});
-
-final class $$ProcedureChargeTableReferences extends drift
-    .BaseReferences<_$AppDatabase, $ProcedureChargeTable, ProcedureChargeData> {
-  $$ProcedureChargeTableReferences(
-      super.$_db, super.$_table, super.$_typedResult);
-
-  static drift.MultiTypedResultKey<$InvoiceTable, List<InvoiceData>>
-      _invoiceRefsTable(_$AppDatabase db) =>
-          drift.MultiTypedResultKey.fromTable(db.invoice,
-              aliasName: drift.$_aliasNameGenerator(
-                  db.procedureCharge.chargeId, db.invoice.chargeId));
-
-  $$InvoiceTableProcessedTableManager get invoiceRefs {
-    final manager = $$InvoiceTableTableManager($_db, $_db.invoice).filter(
-        (f) => f.chargeId.chargeId.sqlEquals($_itemColumn<int>('charge_id')!));
-
-    final cache = $_typedResult.readTableOrNull(_invoiceRefsTable($_db));
-    return drift.ProcessedTableManager(
-        manager.$state.copyWith(prefetchedData: cache));
-  }
-}
-
-class $$ProcedureChargeTableFilterComposer
-    extends drift.Composer<_$AppDatabase, $ProcedureChargeTable> {
-  $$ProcedureChargeTableFilterComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  drift.ColumnFilters<int> get chargeId => $composableBuilder(
-      column: $table.chargeId,
-      builder: (column) => drift.ColumnFilters(column));
-
-  drift.ColumnFilters<String> get procedureName => $composableBuilder(
-      column: $table.procedureName,
-      builder: (column) => drift.ColumnFilters(column));
-
-  drift.ColumnFilters<double> get procedureCharge => $composableBuilder(
-      column: $table.procedureCharge,
-      builder: (column) => drift.ColumnFilters(column));
-
-  drift.ColumnFilters<int> get quantity => $composableBuilder(
-      column: $table.quantity,
-      builder: (column) => drift.ColumnFilters(column));
-
-  drift.ColumnFilters<double> get totalProcedureCharge => $composableBuilder(
-      column: $table.totalProcedureCharge,
-      builder: (column) => drift.ColumnFilters(column));
-
-  drift.Expression<bool> invoiceRefs(
-      drift.Expression<bool> Function($$InvoiceTableFilterComposer f) f) {
-    final $$InvoiceTableFilterComposer composer = $composerBuilder(
-        composer: this,
-        getCurrentColumn: (t) => t.chargeId,
-        referencedTable: $db.invoice,
-        getReferencedColumn: (t) => t.chargeId,
-        builder: (joinBuilder,
-                {$addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer}) =>
-            $$InvoiceTableFilterComposer(
-              $db: $db,
-              $table: $db.invoice,
-              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-              joinBuilder: joinBuilder,
-              $removeJoinBuilderFromRootComposer:
-                  $removeJoinBuilderFromRootComposer,
-            ));
-    return f(composer);
-  }
-}
-
-class $$ProcedureChargeTableOrderingComposer
-    extends drift.Composer<_$AppDatabase, $ProcedureChargeTable> {
-  $$ProcedureChargeTableOrderingComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  drift.ColumnOrderings<int> get chargeId => $composableBuilder(
-      column: $table.chargeId,
-      builder: (column) => drift.ColumnOrderings(column));
-
-  drift.ColumnOrderings<String> get procedureName => $composableBuilder(
-      column: $table.procedureName,
-      builder: (column) => drift.ColumnOrderings(column));
-
-  drift.ColumnOrderings<double> get procedureCharge => $composableBuilder(
-      column: $table.procedureCharge,
-      builder: (column) => drift.ColumnOrderings(column));
-
-  drift.ColumnOrderings<int> get quantity => $composableBuilder(
-      column: $table.quantity,
-      builder: (column) => drift.ColumnOrderings(column));
-
-  drift.ColumnOrderings<double> get totalProcedureCharge => $composableBuilder(
-      column: $table.totalProcedureCharge,
-      builder: (column) => drift.ColumnOrderings(column));
-}
-
-class $$ProcedureChargeTableAnnotationComposer
-    extends drift.Composer<_$AppDatabase, $ProcedureChargeTable> {
-  $$ProcedureChargeTableAnnotationComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  drift.GeneratedColumn<int> get chargeId =>
-      $composableBuilder(column: $table.chargeId, builder: (column) => column);
-
-  drift.GeneratedColumn<String> get procedureName => $composableBuilder(
-      column: $table.procedureName, builder: (column) => column);
-
-  drift.GeneratedColumn<double> get procedureCharge => $composableBuilder(
-      column: $table.procedureCharge, builder: (column) => column);
-
-  drift.GeneratedColumn<int> get quantity =>
-      $composableBuilder(column: $table.quantity, builder: (column) => column);
-
-  drift.GeneratedColumn<double> get totalProcedureCharge => $composableBuilder(
-      column: $table.totalProcedureCharge, builder: (column) => column);
-
-  drift.Expression<T> invoiceRefs<T extends Object>(
-      drift.Expression<T> Function($$InvoiceTableAnnotationComposer a) f) {
-    final $$InvoiceTableAnnotationComposer composer = $composerBuilder(
-        composer: this,
-        getCurrentColumn: (t) => t.chargeId,
-        referencedTable: $db.invoice,
-        getReferencedColumn: (t) => t.chargeId,
-        builder: (joinBuilder,
-                {$addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer}) =>
-            $$InvoiceTableAnnotationComposer(
-              $db: $db,
-              $table: $db.invoice,
-              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-              joinBuilder: joinBuilder,
-              $removeJoinBuilderFromRootComposer:
-                  $removeJoinBuilderFromRootComposer,
-            ));
-    return f(composer);
-  }
-}
-
-class $$ProcedureChargeTableTableManager extends drift.RootTableManager<
-    _$AppDatabase,
-    $ProcedureChargeTable,
-    ProcedureChargeData,
-    $$ProcedureChargeTableFilterComposer,
-    $$ProcedureChargeTableOrderingComposer,
-    $$ProcedureChargeTableAnnotationComposer,
-    $$ProcedureChargeTableCreateCompanionBuilder,
-    $$ProcedureChargeTableUpdateCompanionBuilder,
-    (ProcedureChargeData, $$ProcedureChargeTableReferences),
-    ProcedureChargeData,
-    drift.PrefetchHooks Function({bool invoiceRefs})> {
-  $$ProcedureChargeTableTableManager(
-      _$AppDatabase db, $ProcedureChargeTable table)
-      : super(drift.TableManagerState(
-          db: db,
-          table: table,
-          createFilteringComposer: () =>
-              $$ProcedureChargeTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () =>
-              $$ProcedureChargeTableOrderingComposer($db: db, $table: table),
-          createComputedFieldComposer: () =>
-              $$ProcedureChargeTableAnnotationComposer($db: db, $table: table),
-          updateCompanionCallback: ({
-            drift.Value<int> chargeId = const drift.Value.absent(),
-            drift.Value<String> procedureName = const drift.Value.absent(),
-            drift.Value<double> procedureCharge = const drift.Value.absent(),
-            drift.Value<int> quantity = const drift.Value.absent(),
-            drift.Value<double> totalProcedureCharge =
-                const drift.Value.absent(),
-          }) =>
-              ProcedureChargeCompanion(
-            chargeId: chargeId,
-            procedureName: procedureName,
-            procedureCharge: procedureCharge,
-            quantity: quantity,
-            totalProcedureCharge: totalProcedureCharge,
-          ),
-          createCompanionCallback: ({
-            drift.Value<int> chargeId = const drift.Value.absent(),
-            required String procedureName,
-            required double procedureCharge,
-            drift.Value<int> quantity = const drift.Value.absent(),
-            required double totalProcedureCharge,
-          }) =>
-              ProcedureChargeCompanion.insert(
-            chargeId: chargeId,
-            procedureName: procedureName,
-            procedureCharge: procedureCharge,
-            quantity: quantity,
-            totalProcedureCharge: totalProcedureCharge,
-          ),
-          withReferenceMapper: (p0) => p0
-              .map((e) => (
-                    e.readTable(table),
-                    $$ProcedureChargeTableReferences(db, table, e)
-                  ))
-              .toList(),
-          prefetchHooksCallback: ({invoiceRefs = false}) {
-            return drift.PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [if (invoiceRefs) db.invoice],
-              addJoins: null,
-              getPrefetchedDataCallback: (items) async {
-                return [
-                  if (invoiceRefs)
-                    await drift.$_getPrefetchedData<ProcedureChargeData,
-                            $ProcedureChargeTable, InvoiceData>(
-                        currentTable: table,
-                        referencedTable: $$ProcedureChargeTableReferences
-                            ._invoiceRefsTable(db),
-                        managerFromTypedResult: (p0) =>
-                            $$ProcedureChargeTableReferences(db, table, p0)
-                                .invoiceRefs,
-                        referencedItemsForCurrentItem:
-                            (item, referencedItems) => referencedItems
-                                .where((e) => e.chargeId == item.chargeId),
-                        typedResults: items)
-                ];
-              },
-            );
-          },
-        ));
-}
-
-typedef $$ProcedureChargeTableProcessedTableManager
-    = drift.ProcessedTableManager<
-        _$AppDatabase,
-        $ProcedureChargeTable,
-        ProcedureChargeData,
-        $$ProcedureChargeTableFilterComposer,
-        $$ProcedureChargeTableOrderingComposer,
-        $$ProcedureChargeTableAnnotationComposer,
-        $$ProcedureChargeTableCreateCompanionBuilder,
-        $$ProcedureChargeTableUpdateCompanionBuilder,
-        (ProcedureChargeData, $$ProcedureChargeTableReferences),
-        ProcedureChargeData,
-        drift.PrefetchHooks Function({bool invoiceRefs})>;
-typedef $$PaymentTransactionTableCreateCompanionBuilder
-    = PaymentTransactionCompanion Function({
-  drift.Value<int> transactionId,
-  required double amountReceived,
-  required String modeOfPayment,
-  drift.Value<DateTime> paymentDate,
-});
-typedef $$PaymentTransactionTableUpdateCompanionBuilder
-    = PaymentTransactionCompanion Function({
-  drift.Value<int> transactionId,
-  drift.Value<double> amountReceived,
-  drift.Value<String> modeOfPayment,
-  drift.Value<DateTime> paymentDate,
-});
-
-final class $$PaymentTransactionTableReferences extends drift.BaseReferences<
-    _$AppDatabase, $PaymentTransactionTable, PaymentTransactionData> {
-  $$PaymentTransactionTableReferences(
-      super.$_db, super.$_table, super.$_typedResult);
-
-  static drift.MultiTypedResultKey<$InvoiceTable, List<InvoiceData>>
-      _invoiceRefsTable(_$AppDatabase db) =>
-          drift.MultiTypedResultKey.fromTable(db.invoice,
-              aliasName: drift.$_aliasNameGenerator(
-                  db.paymentTransaction.transactionId,
-                  db.invoice.transactionId));
-
-  $$InvoiceTableProcessedTableManager get invoiceRefs {
-    final manager = $$InvoiceTableTableManager($_db, $_db.invoice).filter((f) =>
-        f.transactionId.transactionId
-            .sqlEquals($_itemColumn<int>('transaction_id')!));
-
-    final cache = $_typedResult.readTableOrNull(_invoiceRefsTable($_db));
-    return drift.ProcessedTableManager(
-        manager.$state.copyWith(prefetchedData: cache));
-  }
-}
-
-class $$PaymentTransactionTableFilterComposer
-    extends drift.Composer<_$AppDatabase, $PaymentTransactionTable> {
-  $$PaymentTransactionTableFilterComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  drift.ColumnFilters<int> get transactionId => $composableBuilder(
-      column: $table.transactionId,
-      builder: (column) => drift.ColumnFilters(column));
-
-  drift.ColumnFilters<double> get amountReceived => $composableBuilder(
-      column: $table.amountReceived,
-      builder: (column) => drift.ColumnFilters(column));
-
-  drift.ColumnFilters<String> get modeOfPayment => $composableBuilder(
-      column: $table.modeOfPayment,
-      builder: (column) => drift.ColumnFilters(column));
-
-  drift.ColumnFilters<DateTime> get paymentDate => $composableBuilder(
-      column: $table.paymentDate,
-      builder: (column) => drift.ColumnFilters(column));
-
-  drift.Expression<bool> invoiceRefs(
-      drift.Expression<bool> Function($$InvoiceTableFilterComposer f) f) {
-    final $$InvoiceTableFilterComposer composer = $composerBuilder(
-        composer: this,
-        getCurrentColumn: (t) => t.transactionId,
-        referencedTable: $db.invoice,
-        getReferencedColumn: (t) => t.transactionId,
-        builder: (joinBuilder,
-                {$addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer}) =>
-            $$InvoiceTableFilterComposer(
-              $db: $db,
-              $table: $db.invoice,
-              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-              joinBuilder: joinBuilder,
-              $removeJoinBuilderFromRootComposer:
-                  $removeJoinBuilderFromRootComposer,
-            ));
-    return f(composer);
-  }
-}
-
-class $$PaymentTransactionTableOrderingComposer
-    extends drift.Composer<_$AppDatabase, $PaymentTransactionTable> {
-  $$PaymentTransactionTableOrderingComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  drift.ColumnOrderings<int> get transactionId => $composableBuilder(
-      column: $table.transactionId,
-      builder: (column) => drift.ColumnOrderings(column));
-
-  drift.ColumnOrderings<double> get amountReceived => $composableBuilder(
-      column: $table.amountReceived,
-      builder: (column) => drift.ColumnOrderings(column));
-
-  drift.ColumnOrderings<String> get modeOfPayment => $composableBuilder(
-      column: $table.modeOfPayment,
-      builder: (column) => drift.ColumnOrderings(column));
-
-  drift.ColumnOrderings<DateTime> get paymentDate => $composableBuilder(
-      column: $table.paymentDate,
-      builder: (column) => drift.ColumnOrderings(column));
-}
-
-class $$PaymentTransactionTableAnnotationComposer
-    extends drift.Composer<_$AppDatabase, $PaymentTransactionTable> {
-  $$PaymentTransactionTableAnnotationComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  drift.GeneratedColumn<int> get transactionId => $composableBuilder(
-      column: $table.transactionId, builder: (column) => column);
-
-  drift.GeneratedColumn<double> get amountReceived => $composableBuilder(
-      column: $table.amountReceived, builder: (column) => column);
-
-  drift.GeneratedColumn<String> get modeOfPayment => $composableBuilder(
-      column: $table.modeOfPayment, builder: (column) => column);
-
-  drift.GeneratedColumn<DateTime> get paymentDate => $composableBuilder(
-      column: $table.paymentDate, builder: (column) => column);
-
-  drift.Expression<T> invoiceRefs<T extends Object>(
-      drift.Expression<T> Function($$InvoiceTableAnnotationComposer a) f) {
-    final $$InvoiceTableAnnotationComposer composer = $composerBuilder(
-        composer: this,
-        getCurrentColumn: (t) => t.transactionId,
-        referencedTable: $db.invoice,
-        getReferencedColumn: (t) => t.transactionId,
-        builder: (joinBuilder,
-                {$addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer}) =>
-            $$InvoiceTableAnnotationComposer(
-              $db: $db,
-              $table: $db.invoice,
-              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-              joinBuilder: joinBuilder,
-              $removeJoinBuilderFromRootComposer:
-                  $removeJoinBuilderFromRootComposer,
-            ));
-    return f(composer);
-  }
-}
-
-class $$PaymentTransactionTableTableManager extends drift.RootTableManager<
-    _$AppDatabase,
-    $PaymentTransactionTable,
-    PaymentTransactionData,
-    $$PaymentTransactionTableFilterComposer,
-    $$PaymentTransactionTableOrderingComposer,
-    $$PaymentTransactionTableAnnotationComposer,
-    $$PaymentTransactionTableCreateCompanionBuilder,
-    $$PaymentTransactionTableUpdateCompanionBuilder,
-    (PaymentTransactionData, $$PaymentTransactionTableReferences),
-    PaymentTransactionData,
-    drift.PrefetchHooks Function({bool invoiceRefs})> {
-  $$PaymentTransactionTableTableManager(
-      _$AppDatabase db, $PaymentTransactionTable table)
-      : super(drift.TableManagerState(
-          db: db,
-          table: table,
-          createFilteringComposer: () =>
-              $$PaymentTransactionTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () =>
-              $$PaymentTransactionTableOrderingComposer($db: db, $table: table),
-          createComputedFieldComposer: () =>
-              $$PaymentTransactionTableAnnotationComposer(
-                  $db: db, $table: table),
-          updateCompanionCallback: ({
-            drift.Value<int> transactionId = const drift.Value.absent(),
-            drift.Value<double> amountReceived = const drift.Value.absent(),
-            drift.Value<String> modeOfPayment = const drift.Value.absent(),
-            drift.Value<DateTime> paymentDate = const drift.Value.absent(),
-          }) =>
-              PaymentTransactionCompanion(
-            transactionId: transactionId,
-            amountReceived: amountReceived,
-            modeOfPayment: modeOfPayment,
-            paymentDate: paymentDate,
-          ),
-          createCompanionCallback: ({
-            drift.Value<int> transactionId = const drift.Value.absent(),
-            required double amountReceived,
-            required String modeOfPayment,
-            drift.Value<DateTime> paymentDate = const drift.Value.absent(),
-          }) =>
-              PaymentTransactionCompanion.insert(
-            transactionId: transactionId,
-            amountReceived: amountReceived,
-            modeOfPayment: modeOfPayment,
-            paymentDate: paymentDate,
-          ),
-          withReferenceMapper: (p0) => p0
-              .map((e) => (
-                    e.readTable(table),
-                    $$PaymentTransactionTableReferences(db, table, e)
-                  ))
-              .toList(),
-          prefetchHooksCallback: ({invoiceRefs = false}) {
-            return drift.PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [if (invoiceRefs) db.invoice],
-              addJoins: null,
-              getPrefetchedDataCallback: (items) async {
-                return [
-                  if (invoiceRefs)
-                    await drift.$_getPrefetchedData<PaymentTransactionData,
-                            $PaymentTransactionTable, InvoiceData>(
-                        currentTable: table,
-                        referencedTable: $$PaymentTransactionTableReferences
-                            ._invoiceRefsTable(db),
-                        managerFromTypedResult: (p0) =>
-                            $$PaymentTransactionTableReferences(db, table, p0)
-                                .invoiceRefs,
-                        referencedItemsForCurrentItem:
-                            (item, referencedItems) => referencedItems.where(
-                                (e) => e.transactionId == item.transactionId),
-                        typedResults: items)
-                ];
-              },
-            );
-          },
-        ));
-}
-
-typedef $$PaymentTransactionTableProcessedTableManager
-    = drift.ProcessedTableManager<
-        _$AppDatabase,
-        $PaymentTransactionTable,
-        PaymentTransactionData,
-        $$PaymentTransactionTableFilterComposer,
-        $$PaymentTransactionTableOrderingComposer,
-        $$PaymentTransactionTableAnnotationComposer,
-        $$PaymentTransactionTableCreateCompanionBuilder,
-        $$PaymentTransactionTableUpdateCompanionBuilder,
-        (PaymentTransactionData, $$PaymentTransactionTableReferences),
-        PaymentTransactionData,
-        drift.PrefetchHooks Function({bool invoiceRefs})>;
 typedef $$InvoiceTableCreateCompanionBuilder = InvoiceCompanion Function({
   drift.Value<int> invoiceId,
   required int patientId,
-  required int chargeId,
-  required int transactionId,
   drift.Value<DateTime> issuedDate,
   required double totalBalance,
   required String status,
@@ -5825,8 +5302,6 @@ typedef $$InvoiceTableCreateCompanionBuilder = InvoiceCompanion Function({
 typedef $$InvoiceTableUpdateCompanionBuilder = InvoiceCompanion Function({
   drift.Value<int> invoiceId,
   drift.Value<int> patientId,
-  drift.Value<int> chargeId,
-  drift.Value<int> transactionId,
   drift.Value<DateTime> issuedDate,
   drift.Value<double> totalBalance,
   drift.Value<String> status,
@@ -5851,36 +5326,42 @@ final class $$InvoiceTableReferences
         manager.$state.copyWith(prefetchedData: [item]));
   }
 
-  static $ProcedureChargeTable _chargeIdTable(_$AppDatabase db) =>
-      db.procedureCharge.createAlias(drift.$_aliasNameGenerator(
-          db.invoice.chargeId, db.procedureCharge.chargeId));
+  static drift
+      .MultiTypedResultKey<$ProcedureChargeTable, List<ProcedureChargeData>>
+      _procedureChargeRefsTable(_$AppDatabase db) =>
+          drift.MultiTypedResultKey.fromTable(db.procedureCharge,
+              aliasName: drift.$_aliasNameGenerator(
+                  db.invoice.invoiceId, db.procedureCharge.invoiceId));
 
-  $$ProcedureChargeTableProcessedTableManager get chargeId {
-    final $_column = $_itemColumn<int>('charge_id')!;
+  $$ProcedureChargeTableProcessedTableManager get procedureChargeRefs {
+    final manager = $$ProcedureChargeTableTableManager(
+            $_db, $_db.procedureCharge)
+        .filter((f) =>
+            f.invoiceId.invoiceId.sqlEquals($_itemColumn<int>('invoice_id')!));
 
-    final manager =
-        $$ProcedureChargeTableTableManager($_db, $_db.procedureCharge)
-            .filter((f) => f.chargeId.sqlEquals($_column));
-    final item = $_typedResult.readTableOrNull(_chargeIdTable($_db));
-    if (item == null) return manager;
+    final cache =
+        $_typedResult.readTableOrNull(_procedureChargeRefsTable($_db));
     return drift.ProcessedTableManager(
-        manager.$state.copyWith(prefetchedData: [item]));
+        manager.$state.copyWith(prefetchedData: cache));
   }
 
-  static $PaymentTransactionTable _transactionIdTable(_$AppDatabase db) =>
-      db.paymentTransaction.createAlias(drift.$_aliasNameGenerator(
-          db.invoice.transactionId, db.paymentTransaction.transactionId));
+  static drift.MultiTypedResultKey<$PaymentTransactionTable,
+      List<PaymentTransactionData>> _paymentTransactionRefsTable(
+          _$AppDatabase db) =>
+      drift.MultiTypedResultKey.fromTable(db.paymentTransaction,
+          aliasName: drift.$_aliasNameGenerator(
+              db.invoice.invoiceId, db.paymentTransaction.invoiceId));
 
-  $$PaymentTransactionTableProcessedTableManager get transactionId {
-    final $_column = $_itemColumn<int>('transaction_id')!;
+  $$PaymentTransactionTableProcessedTableManager get paymentTransactionRefs {
+    final manager = $$PaymentTransactionTableTableManager(
+            $_db, $_db.paymentTransaction)
+        .filter((f) =>
+            f.invoiceId.invoiceId.sqlEquals($_itemColumn<int>('invoice_id')!));
 
-    final manager =
-        $$PaymentTransactionTableTableManager($_db, $_db.paymentTransaction)
-            .filter((f) => f.transactionId.sqlEquals($_column));
-    final item = $_typedResult.readTableOrNull(_transactionIdTable($_db));
-    if (item == null) return manager;
+    final cache =
+        $_typedResult.readTableOrNull(_paymentTransactionRefsTable($_db));
     return drift.ProcessedTableManager(
-        manager.$state.copyWith(prefetchedData: [item]));
+        manager.$state.copyWith(prefetchedData: cache));
   }
 }
 
@@ -5928,12 +5409,14 @@ class $$InvoiceTableFilterComposer
     return composer;
   }
 
-  $$ProcedureChargeTableFilterComposer get chargeId {
+  drift.Expression<bool> procedureChargeRefs(
+      drift.Expression<bool> Function($$ProcedureChargeTableFilterComposer f)
+          f) {
     final $$ProcedureChargeTableFilterComposer composer = $composerBuilder(
         composer: this,
-        getCurrentColumn: (t) => t.chargeId,
+        getCurrentColumn: (t) => t.invoiceId,
         referencedTable: $db.procedureCharge,
-        getReferencedColumn: (t) => t.chargeId,
+        getReferencedColumn: (t) => t.invoiceId,
         builder: (joinBuilder,
                 {$addJoinBuilderToRootComposer,
                 $removeJoinBuilderFromRootComposer}) =>
@@ -5945,15 +5428,17 @@ class $$InvoiceTableFilterComposer
               $removeJoinBuilderFromRootComposer:
                   $removeJoinBuilderFromRootComposer,
             ));
-    return composer;
+    return f(composer);
   }
 
-  $$PaymentTransactionTableFilterComposer get transactionId {
+  drift.Expression<bool> paymentTransactionRefs(
+      drift.Expression<bool> Function($$PaymentTransactionTableFilterComposer f)
+          f) {
     final $$PaymentTransactionTableFilterComposer composer = $composerBuilder(
         composer: this,
-        getCurrentColumn: (t) => t.transactionId,
+        getCurrentColumn: (t) => t.invoiceId,
         referencedTable: $db.paymentTransaction,
-        getReferencedColumn: (t) => t.transactionId,
+        getReferencedColumn: (t) => t.invoiceId,
         builder: (joinBuilder,
                 {$addJoinBuilderToRootComposer,
                 $removeJoinBuilderFromRootComposer}) =>
@@ -5965,7 +5450,7 @@ class $$InvoiceTableFilterComposer
               $removeJoinBuilderFromRootComposer:
                   $removeJoinBuilderFromRootComposer,
             ));
-    return composer;
+    return f(composer);
   }
 }
 
@@ -6006,46 +5491,6 @@ class $$InvoiceTableOrderingComposer
             $$PatientTableOrderingComposer(
               $db: $db,
               $table: $db.patient,
-              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-              joinBuilder: joinBuilder,
-              $removeJoinBuilderFromRootComposer:
-                  $removeJoinBuilderFromRootComposer,
-            ));
-    return composer;
-  }
-
-  $$ProcedureChargeTableOrderingComposer get chargeId {
-    final $$ProcedureChargeTableOrderingComposer composer = $composerBuilder(
-        composer: this,
-        getCurrentColumn: (t) => t.chargeId,
-        referencedTable: $db.procedureCharge,
-        getReferencedColumn: (t) => t.chargeId,
-        builder: (joinBuilder,
-                {$addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer}) =>
-            $$ProcedureChargeTableOrderingComposer(
-              $db: $db,
-              $table: $db.procedureCharge,
-              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-              joinBuilder: joinBuilder,
-              $removeJoinBuilderFromRootComposer:
-                  $removeJoinBuilderFromRootComposer,
-            ));
-    return composer;
-  }
-
-  $$PaymentTransactionTableOrderingComposer get transactionId {
-    final $$PaymentTransactionTableOrderingComposer composer = $composerBuilder(
-        composer: this,
-        getCurrentColumn: (t) => t.transactionId,
-        referencedTable: $db.paymentTransaction,
-        getReferencedColumn: (t) => t.transactionId,
-        builder: (joinBuilder,
-                {$addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer}) =>
-            $$PaymentTransactionTableOrderingComposer(
-              $db: $db,
-              $table: $db.paymentTransaction,
               $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
               joinBuilder: joinBuilder,
               $removeJoinBuilderFromRootComposer:
@@ -6096,12 +5541,14 @@ class $$InvoiceTableAnnotationComposer
     return composer;
   }
 
-  $$ProcedureChargeTableAnnotationComposer get chargeId {
+  drift.Expression<T> procedureChargeRefs<T extends Object>(
+      drift.Expression<T> Function($$ProcedureChargeTableAnnotationComposer a)
+          f) {
     final $$ProcedureChargeTableAnnotationComposer composer = $composerBuilder(
         composer: this,
-        getCurrentColumn: (t) => t.chargeId,
+        getCurrentColumn: (t) => t.invoiceId,
         referencedTable: $db.procedureCharge,
-        getReferencedColumn: (t) => t.chargeId,
+        getReferencedColumn: (t) => t.invoiceId,
         builder: (joinBuilder,
                 {$addJoinBuilderToRootComposer,
                 $removeJoinBuilderFromRootComposer}) =>
@@ -6113,16 +5560,19 @@ class $$InvoiceTableAnnotationComposer
               $removeJoinBuilderFromRootComposer:
                   $removeJoinBuilderFromRootComposer,
             ));
-    return composer;
+    return f(composer);
   }
 
-  $$PaymentTransactionTableAnnotationComposer get transactionId {
+  drift.Expression<T> paymentTransactionRefs<T extends Object>(
+      drift.Expression<T> Function(
+              $$PaymentTransactionTableAnnotationComposer a)
+          f) {
     final $$PaymentTransactionTableAnnotationComposer composer =
         $composerBuilder(
             composer: this,
-            getCurrentColumn: (t) => t.transactionId,
+            getCurrentColumn: (t) => t.invoiceId,
             referencedTable: $db.paymentTransaction,
-            getReferencedColumn: (t) => t.transactionId,
+            getReferencedColumn: (t) => t.invoiceId,
             builder: (joinBuilder,
                     {$addJoinBuilderToRootComposer,
                     $removeJoinBuilderFromRootComposer}) =>
@@ -6134,7 +5584,7 @@ class $$InvoiceTableAnnotationComposer
                   $removeJoinBuilderFromRootComposer:
                       $removeJoinBuilderFromRootComposer,
                 ));
-    return composer;
+    return f(composer);
   }
 }
 
@@ -6150,7 +5600,9 @@ class $$InvoiceTableTableManager extends drift.RootTableManager<
     (InvoiceData, $$InvoiceTableReferences),
     InvoiceData,
     drift.PrefetchHooks Function(
-        {bool patientId, bool chargeId, bool transactionId})> {
+        {bool patientId,
+        bool procedureChargeRefs,
+        bool paymentTransactionRefs})> {
   $$InvoiceTableTableManager(_$AppDatabase db, $InvoiceTable table)
       : super(drift.TableManagerState(
           db: db,
@@ -6164,8 +5616,6 @@ class $$InvoiceTableTableManager extends drift.RootTableManager<
           updateCompanionCallback: ({
             drift.Value<int> invoiceId = const drift.Value.absent(),
             drift.Value<int> patientId = const drift.Value.absent(),
-            drift.Value<int> chargeId = const drift.Value.absent(),
-            drift.Value<int> transactionId = const drift.Value.absent(),
             drift.Value<DateTime> issuedDate = const drift.Value.absent(),
             drift.Value<double> totalBalance = const drift.Value.absent(),
             drift.Value<String> status = const drift.Value.absent(),
@@ -6173,8 +5623,6 @@ class $$InvoiceTableTableManager extends drift.RootTableManager<
               InvoiceCompanion(
             invoiceId: invoiceId,
             patientId: patientId,
-            chargeId: chargeId,
-            transactionId: transactionId,
             issuedDate: issuedDate,
             totalBalance: totalBalance,
             status: status,
@@ -6182,8 +5630,6 @@ class $$InvoiceTableTableManager extends drift.RootTableManager<
           createCompanionCallback: ({
             drift.Value<int> invoiceId = const drift.Value.absent(),
             required int patientId,
-            required int chargeId,
-            required int transactionId,
             drift.Value<DateTime> issuedDate = const drift.Value.absent(),
             required double totalBalance,
             required String status,
@@ -6191,8 +5637,6 @@ class $$InvoiceTableTableManager extends drift.RootTableManager<
               InvoiceCompanion.insert(
             invoiceId: invoiceId,
             patientId: patientId,
-            chargeId: chargeId,
-            transactionId: transactionId,
             issuedDate: issuedDate,
             totalBalance: totalBalance,
             status: status,
@@ -6202,10 +5646,15 @@ class $$InvoiceTableTableManager extends drift.RootTableManager<
                   (e.readTable(table), $$InvoiceTableReferences(db, table, e)))
               .toList(),
           prefetchHooksCallback: (
-              {patientId = false, chargeId = false, transactionId = false}) {
+              {patientId = false,
+              procedureChargeRefs = false,
+              paymentTransactionRefs = false}) {
             return drift.PrefetchHooks(
               db: db,
-              explicitlyWatchedTables: [],
+              explicitlyWatchedTables: [
+                if (procedureChargeRefs) db.procedureCharge,
+                if (paymentTransactionRefs) db.paymentTransaction
+              ],
               addJoins: <
                   T extends drift.TableManagerState<
                       dynamic,
@@ -6229,32 +5678,38 @@ class $$InvoiceTableTableManager extends drift.RootTableManager<
                         $$InvoiceTableReferences._patientIdTable(db).patientId,
                   ) as T;
                 }
-                if (chargeId) {
-                  state = state.withJoin(
-                    currentTable: table,
-                    currentColumn: table.chargeId,
-                    referencedTable:
-                        $$InvoiceTableReferences._chargeIdTable(db),
-                    referencedColumn:
-                        $$InvoiceTableReferences._chargeIdTable(db).chargeId,
-                  ) as T;
-                }
-                if (transactionId) {
-                  state = state.withJoin(
-                    currentTable: table,
-                    currentColumn: table.transactionId,
-                    referencedTable:
-                        $$InvoiceTableReferences._transactionIdTable(db),
-                    referencedColumn: $$InvoiceTableReferences
-                        ._transactionIdTable(db)
-                        .transactionId,
-                  ) as T;
-                }
 
                 return state;
               },
               getPrefetchedDataCallback: (items) async {
-                return [];
+                return [
+                  if (procedureChargeRefs)
+                    await drift.$_getPrefetchedData<InvoiceData, $InvoiceTable,
+                            ProcedureChargeData>(
+                        currentTable: table,
+                        referencedTable: $$InvoiceTableReferences
+                            ._procedureChargeRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$InvoiceTableReferences(db, table, p0)
+                                .procedureChargeRefs,
+                        referencedItemsForCurrentItem:
+                            (item, referencedItems) => referencedItems
+                                .where((e) => e.invoiceId == item.invoiceId),
+                        typedResults: items),
+                  if (paymentTransactionRefs)
+                    await drift.$_getPrefetchedData<InvoiceData, $InvoiceTable,
+                            PaymentTransactionData>(
+                        currentTable: table,
+                        referencedTable: $$InvoiceTableReferences
+                            ._paymentTransactionRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$InvoiceTableReferences(db, table, p0)
+                                .paymentTransactionRefs,
+                        referencedItemsForCurrentItem:
+                            (item, referencedItems) => referencedItems
+                                .where((e) => e.invoiceId == item.invoiceId),
+                        typedResults: items)
+                ];
               },
             );
           },
@@ -6273,7 +5728,590 @@ typedef $$InvoiceTableProcessedTableManager = drift.ProcessedTableManager<
     (InvoiceData, $$InvoiceTableReferences),
     InvoiceData,
     drift.PrefetchHooks Function(
-        {bool patientId, bool chargeId, bool transactionId})>;
+        {bool patientId,
+        bool procedureChargeRefs,
+        bool paymentTransactionRefs})>;
+typedef $$ProcedureChargeTableCreateCompanionBuilder = ProcedureChargeCompanion
+    Function({
+  drift.Value<int> chargeId,
+  required int invoiceId,
+  required String procedureName,
+  required double procedureCharge,
+  drift.Value<int> quantity,
+  required double totalProcedureCharge,
+});
+typedef $$ProcedureChargeTableUpdateCompanionBuilder = ProcedureChargeCompanion
+    Function({
+  drift.Value<int> chargeId,
+  drift.Value<int> invoiceId,
+  drift.Value<String> procedureName,
+  drift.Value<double> procedureCharge,
+  drift.Value<int> quantity,
+  drift.Value<double> totalProcedureCharge,
+});
+
+final class $$ProcedureChargeTableReferences extends drift
+    .BaseReferences<_$AppDatabase, $ProcedureChargeTable, ProcedureChargeData> {
+  $$ProcedureChargeTableReferences(
+      super.$_db, super.$_table, super.$_typedResult);
+
+  static $InvoiceTable _invoiceIdTable(_$AppDatabase db) =>
+      db.invoice.createAlias(drift.$_aliasNameGenerator(
+          db.procedureCharge.invoiceId, db.invoice.invoiceId));
+
+  $$InvoiceTableProcessedTableManager get invoiceId {
+    final $_column = $_itemColumn<int>('invoice_id')!;
+
+    final manager = $$InvoiceTableTableManager($_db, $_db.invoice)
+        .filter((f) => f.invoiceId.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_invoiceIdTable($_db));
+    if (item == null) return manager;
+    return drift.ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
+}
+
+class $$ProcedureChargeTableFilterComposer
+    extends drift.Composer<_$AppDatabase, $ProcedureChargeTable> {
+  $$ProcedureChargeTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  drift.ColumnFilters<int> get chargeId => $composableBuilder(
+      column: $table.chargeId,
+      builder: (column) => drift.ColumnFilters(column));
+
+  drift.ColumnFilters<String> get procedureName => $composableBuilder(
+      column: $table.procedureName,
+      builder: (column) => drift.ColumnFilters(column));
+
+  drift.ColumnFilters<double> get procedureCharge => $composableBuilder(
+      column: $table.procedureCharge,
+      builder: (column) => drift.ColumnFilters(column));
+
+  drift.ColumnFilters<int> get quantity => $composableBuilder(
+      column: $table.quantity,
+      builder: (column) => drift.ColumnFilters(column));
+
+  drift.ColumnFilters<double> get totalProcedureCharge => $composableBuilder(
+      column: $table.totalProcedureCharge,
+      builder: (column) => drift.ColumnFilters(column));
+
+  $$InvoiceTableFilterComposer get invoiceId {
+    final $$InvoiceTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.invoiceId,
+        referencedTable: $db.invoice,
+        getReferencedColumn: (t) => t.invoiceId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$InvoiceTableFilterComposer(
+              $db: $db,
+              $table: $db.invoice,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$ProcedureChargeTableOrderingComposer
+    extends drift.Composer<_$AppDatabase, $ProcedureChargeTable> {
+  $$ProcedureChargeTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  drift.ColumnOrderings<int> get chargeId => $composableBuilder(
+      column: $table.chargeId,
+      builder: (column) => drift.ColumnOrderings(column));
+
+  drift.ColumnOrderings<String> get procedureName => $composableBuilder(
+      column: $table.procedureName,
+      builder: (column) => drift.ColumnOrderings(column));
+
+  drift.ColumnOrderings<double> get procedureCharge => $composableBuilder(
+      column: $table.procedureCharge,
+      builder: (column) => drift.ColumnOrderings(column));
+
+  drift.ColumnOrderings<int> get quantity => $composableBuilder(
+      column: $table.quantity,
+      builder: (column) => drift.ColumnOrderings(column));
+
+  drift.ColumnOrderings<double> get totalProcedureCharge => $composableBuilder(
+      column: $table.totalProcedureCharge,
+      builder: (column) => drift.ColumnOrderings(column));
+
+  $$InvoiceTableOrderingComposer get invoiceId {
+    final $$InvoiceTableOrderingComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.invoiceId,
+        referencedTable: $db.invoice,
+        getReferencedColumn: (t) => t.invoiceId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$InvoiceTableOrderingComposer(
+              $db: $db,
+              $table: $db.invoice,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$ProcedureChargeTableAnnotationComposer
+    extends drift.Composer<_$AppDatabase, $ProcedureChargeTable> {
+  $$ProcedureChargeTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  drift.GeneratedColumn<int> get chargeId =>
+      $composableBuilder(column: $table.chargeId, builder: (column) => column);
+
+  drift.GeneratedColumn<String> get procedureName => $composableBuilder(
+      column: $table.procedureName, builder: (column) => column);
+
+  drift.GeneratedColumn<double> get procedureCharge => $composableBuilder(
+      column: $table.procedureCharge, builder: (column) => column);
+
+  drift.GeneratedColumn<int> get quantity =>
+      $composableBuilder(column: $table.quantity, builder: (column) => column);
+
+  drift.GeneratedColumn<double> get totalProcedureCharge => $composableBuilder(
+      column: $table.totalProcedureCharge, builder: (column) => column);
+
+  $$InvoiceTableAnnotationComposer get invoiceId {
+    final $$InvoiceTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.invoiceId,
+        referencedTable: $db.invoice,
+        getReferencedColumn: (t) => t.invoiceId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$InvoiceTableAnnotationComposer(
+              $db: $db,
+              $table: $db.invoice,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$ProcedureChargeTableTableManager extends drift.RootTableManager<
+    _$AppDatabase,
+    $ProcedureChargeTable,
+    ProcedureChargeData,
+    $$ProcedureChargeTableFilterComposer,
+    $$ProcedureChargeTableOrderingComposer,
+    $$ProcedureChargeTableAnnotationComposer,
+    $$ProcedureChargeTableCreateCompanionBuilder,
+    $$ProcedureChargeTableUpdateCompanionBuilder,
+    (ProcedureChargeData, $$ProcedureChargeTableReferences),
+    ProcedureChargeData,
+    drift.PrefetchHooks Function({bool invoiceId})> {
+  $$ProcedureChargeTableTableManager(
+      _$AppDatabase db, $ProcedureChargeTable table)
+      : super(drift.TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ProcedureChargeTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ProcedureChargeTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ProcedureChargeTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            drift.Value<int> chargeId = const drift.Value.absent(),
+            drift.Value<int> invoiceId = const drift.Value.absent(),
+            drift.Value<String> procedureName = const drift.Value.absent(),
+            drift.Value<double> procedureCharge = const drift.Value.absent(),
+            drift.Value<int> quantity = const drift.Value.absent(),
+            drift.Value<double> totalProcedureCharge =
+                const drift.Value.absent(),
+          }) =>
+              ProcedureChargeCompanion(
+            chargeId: chargeId,
+            invoiceId: invoiceId,
+            procedureName: procedureName,
+            procedureCharge: procedureCharge,
+            quantity: quantity,
+            totalProcedureCharge: totalProcedureCharge,
+          ),
+          createCompanionCallback: ({
+            drift.Value<int> chargeId = const drift.Value.absent(),
+            required int invoiceId,
+            required String procedureName,
+            required double procedureCharge,
+            drift.Value<int> quantity = const drift.Value.absent(),
+            required double totalProcedureCharge,
+          }) =>
+              ProcedureChargeCompanion.insert(
+            chargeId: chargeId,
+            invoiceId: invoiceId,
+            procedureName: procedureName,
+            procedureCharge: procedureCharge,
+            quantity: quantity,
+            totalProcedureCharge: totalProcedureCharge,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (
+                    e.readTable(table),
+                    $$ProcedureChargeTableReferences(db, table, e)
+                  ))
+              .toList(),
+          prefetchHooksCallback: ({invoiceId = false}) {
+            return drift.PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins: <
+                  T extends drift.TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic>>(state) {
+                if (invoiceId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.invoiceId,
+                    referencedTable:
+                        $$ProcedureChargeTableReferences._invoiceIdTable(db),
+                    referencedColumn: $$ProcedureChargeTableReferences
+                        ._invoiceIdTable(db)
+                        .invoiceId,
+                  ) as T;
+                }
+
+                return state;
+              },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ));
+}
+
+typedef $$ProcedureChargeTableProcessedTableManager
+    = drift.ProcessedTableManager<
+        _$AppDatabase,
+        $ProcedureChargeTable,
+        ProcedureChargeData,
+        $$ProcedureChargeTableFilterComposer,
+        $$ProcedureChargeTableOrderingComposer,
+        $$ProcedureChargeTableAnnotationComposer,
+        $$ProcedureChargeTableCreateCompanionBuilder,
+        $$ProcedureChargeTableUpdateCompanionBuilder,
+        (ProcedureChargeData, $$ProcedureChargeTableReferences),
+        ProcedureChargeData,
+        drift.PrefetchHooks Function({bool invoiceId})>;
+typedef $$PaymentTransactionTableCreateCompanionBuilder
+    = PaymentTransactionCompanion Function({
+  drift.Value<int> transactionId,
+  required int invoiceId,
+  required double amountReceived,
+  required String modeOfPayment,
+  drift.Value<DateTime> paymentDate,
+});
+typedef $$PaymentTransactionTableUpdateCompanionBuilder
+    = PaymentTransactionCompanion Function({
+  drift.Value<int> transactionId,
+  drift.Value<int> invoiceId,
+  drift.Value<double> amountReceived,
+  drift.Value<String> modeOfPayment,
+  drift.Value<DateTime> paymentDate,
+});
+
+final class $$PaymentTransactionTableReferences extends drift.BaseReferences<
+    _$AppDatabase, $PaymentTransactionTable, PaymentTransactionData> {
+  $$PaymentTransactionTableReferences(
+      super.$_db, super.$_table, super.$_typedResult);
+
+  static $InvoiceTable _invoiceIdTable(_$AppDatabase db) =>
+      db.invoice.createAlias(drift.$_aliasNameGenerator(
+          db.paymentTransaction.invoiceId, db.invoice.invoiceId));
+
+  $$InvoiceTableProcessedTableManager get invoiceId {
+    final $_column = $_itemColumn<int>('invoice_id')!;
+
+    final manager = $$InvoiceTableTableManager($_db, $_db.invoice)
+        .filter((f) => f.invoiceId.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_invoiceIdTable($_db));
+    if (item == null) return manager;
+    return drift.ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
+}
+
+class $$PaymentTransactionTableFilterComposer
+    extends drift.Composer<_$AppDatabase, $PaymentTransactionTable> {
+  $$PaymentTransactionTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  drift.ColumnFilters<int> get transactionId => $composableBuilder(
+      column: $table.transactionId,
+      builder: (column) => drift.ColumnFilters(column));
+
+  drift.ColumnFilters<double> get amountReceived => $composableBuilder(
+      column: $table.amountReceived,
+      builder: (column) => drift.ColumnFilters(column));
+
+  drift.ColumnFilters<String> get modeOfPayment => $composableBuilder(
+      column: $table.modeOfPayment,
+      builder: (column) => drift.ColumnFilters(column));
+
+  drift.ColumnFilters<DateTime> get paymentDate => $composableBuilder(
+      column: $table.paymentDate,
+      builder: (column) => drift.ColumnFilters(column));
+
+  $$InvoiceTableFilterComposer get invoiceId {
+    final $$InvoiceTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.invoiceId,
+        referencedTable: $db.invoice,
+        getReferencedColumn: (t) => t.invoiceId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$InvoiceTableFilterComposer(
+              $db: $db,
+              $table: $db.invoice,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$PaymentTransactionTableOrderingComposer
+    extends drift.Composer<_$AppDatabase, $PaymentTransactionTable> {
+  $$PaymentTransactionTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  drift.ColumnOrderings<int> get transactionId => $composableBuilder(
+      column: $table.transactionId,
+      builder: (column) => drift.ColumnOrderings(column));
+
+  drift.ColumnOrderings<double> get amountReceived => $composableBuilder(
+      column: $table.amountReceived,
+      builder: (column) => drift.ColumnOrderings(column));
+
+  drift.ColumnOrderings<String> get modeOfPayment => $composableBuilder(
+      column: $table.modeOfPayment,
+      builder: (column) => drift.ColumnOrderings(column));
+
+  drift.ColumnOrderings<DateTime> get paymentDate => $composableBuilder(
+      column: $table.paymentDate,
+      builder: (column) => drift.ColumnOrderings(column));
+
+  $$InvoiceTableOrderingComposer get invoiceId {
+    final $$InvoiceTableOrderingComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.invoiceId,
+        referencedTable: $db.invoice,
+        getReferencedColumn: (t) => t.invoiceId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$InvoiceTableOrderingComposer(
+              $db: $db,
+              $table: $db.invoice,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$PaymentTransactionTableAnnotationComposer
+    extends drift.Composer<_$AppDatabase, $PaymentTransactionTable> {
+  $$PaymentTransactionTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  drift.GeneratedColumn<int> get transactionId => $composableBuilder(
+      column: $table.transactionId, builder: (column) => column);
+
+  drift.GeneratedColumn<double> get amountReceived => $composableBuilder(
+      column: $table.amountReceived, builder: (column) => column);
+
+  drift.GeneratedColumn<String> get modeOfPayment => $composableBuilder(
+      column: $table.modeOfPayment, builder: (column) => column);
+
+  drift.GeneratedColumn<DateTime> get paymentDate => $composableBuilder(
+      column: $table.paymentDate, builder: (column) => column);
+
+  $$InvoiceTableAnnotationComposer get invoiceId {
+    final $$InvoiceTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.invoiceId,
+        referencedTable: $db.invoice,
+        getReferencedColumn: (t) => t.invoiceId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$InvoiceTableAnnotationComposer(
+              $db: $db,
+              $table: $db.invoice,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$PaymentTransactionTableTableManager extends drift.RootTableManager<
+    _$AppDatabase,
+    $PaymentTransactionTable,
+    PaymentTransactionData,
+    $$PaymentTransactionTableFilterComposer,
+    $$PaymentTransactionTableOrderingComposer,
+    $$PaymentTransactionTableAnnotationComposer,
+    $$PaymentTransactionTableCreateCompanionBuilder,
+    $$PaymentTransactionTableUpdateCompanionBuilder,
+    (PaymentTransactionData, $$PaymentTransactionTableReferences),
+    PaymentTransactionData,
+    drift.PrefetchHooks Function({bool invoiceId})> {
+  $$PaymentTransactionTableTableManager(
+      _$AppDatabase db, $PaymentTransactionTable table)
+      : super(drift.TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$PaymentTransactionTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$PaymentTransactionTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$PaymentTransactionTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            drift.Value<int> transactionId = const drift.Value.absent(),
+            drift.Value<int> invoiceId = const drift.Value.absent(),
+            drift.Value<double> amountReceived = const drift.Value.absent(),
+            drift.Value<String> modeOfPayment = const drift.Value.absent(),
+            drift.Value<DateTime> paymentDate = const drift.Value.absent(),
+          }) =>
+              PaymentTransactionCompanion(
+            transactionId: transactionId,
+            invoiceId: invoiceId,
+            amountReceived: amountReceived,
+            modeOfPayment: modeOfPayment,
+            paymentDate: paymentDate,
+          ),
+          createCompanionCallback: ({
+            drift.Value<int> transactionId = const drift.Value.absent(),
+            required int invoiceId,
+            required double amountReceived,
+            required String modeOfPayment,
+            drift.Value<DateTime> paymentDate = const drift.Value.absent(),
+          }) =>
+              PaymentTransactionCompanion.insert(
+            transactionId: transactionId,
+            invoiceId: invoiceId,
+            amountReceived: amountReceived,
+            modeOfPayment: modeOfPayment,
+            paymentDate: paymentDate,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (
+                    e.readTable(table),
+                    $$PaymentTransactionTableReferences(db, table, e)
+                  ))
+              .toList(),
+          prefetchHooksCallback: ({invoiceId = false}) {
+            return drift.PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins: <
+                  T extends drift.TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic>>(state) {
+                if (invoiceId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.invoiceId,
+                    referencedTable:
+                        $$PaymentTransactionTableReferences._invoiceIdTable(db),
+                    referencedColumn: $$PaymentTransactionTableReferences
+                        ._invoiceIdTable(db)
+                        .invoiceId,
+                  ) as T;
+                }
+
+                return state;
+              },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ));
+}
+
+typedef $$PaymentTransactionTableProcessedTableManager
+    = drift.ProcessedTableManager<
+        _$AppDatabase,
+        $PaymentTransactionTable,
+        PaymentTransactionData,
+        $$PaymentTransactionTableFilterComposer,
+        $$PaymentTransactionTableOrderingComposer,
+        $$PaymentTransactionTableAnnotationComposer,
+        $$PaymentTransactionTableCreateCompanionBuilder,
+        $$PaymentTransactionTableUpdateCompanionBuilder,
+        (PaymentTransactionData, $$PaymentTransactionTableReferences),
+        PaymentTransactionData,
+        drift.PrefetchHooks Function({bool invoiceId})>;
 typedef $$ClinicalRecordTableCreateCompanionBuilder = ClinicalRecordCompanion
     Function({
   drift.Value<int> recordId,
@@ -6788,12 +6826,12 @@ class $AppDatabaseManager {
       $$ClinicalStaffTableTableManager(_db, _db.clinicalStaff);
   $$AppointmentTableTableManager get appointment =>
       $$AppointmentTableTableManager(_db, _db.appointment);
+  $$InvoiceTableTableManager get invoice =>
+      $$InvoiceTableTableManager(_db, _db.invoice);
   $$ProcedureChargeTableTableManager get procedureCharge =>
       $$ProcedureChargeTableTableManager(_db, _db.procedureCharge);
   $$PaymentTransactionTableTableManager get paymentTransaction =>
       $$PaymentTransactionTableTableManager(_db, _db.paymentTransaction);
-  $$InvoiceTableTableManager get invoice =>
-      $$InvoiceTableTableManager(_db, _db.invoice);
   $$ClinicalRecordTableTableManager get clinicalRecord =>
       $$ClinicalRecordTableTableManager(_db, _db.clinicalRecord);
 }

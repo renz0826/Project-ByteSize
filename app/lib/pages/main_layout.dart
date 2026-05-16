@@ -1,3 +1,5 @@
+import 'package:dentcity_management_system/widgets/page_header.dart';
+
 import 'patient_records/patient_dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:sidebarx/sidebarx.dart';
@@ -182,6 +184,8 @@ class _SidebarState extends State<MainLayout> {
                 final pages = [
                   (title: 'Dashboard', screen: DashboardPage()),
                   (title: 'Patient Records', screen: PatientDashboard()),
+
+                  // ! CRITICAL RESTORE BILLING DASHBOARD
                   (title: 'Billings', screen: BillingDashboard()),
                   (title: 'Scheduling', screen: ScheduleDashboard()),
                   (title: 'Settings', screen: ProfilePage())
@@ -194,11 +198,18 @@ class _SidebarState extends State<MainLayout> {
                 }
 
                 return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(child: pages[index].screen),
-                  ],
-                );
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  //only show the header if it's not the patient records
+                  if (_controller.selectedIndex != 1 && _controller.selectedIndex != 2)
+                    PageHeader(
+                      title: pages[index].title,
+                      type: PageHeaderType.plain,
+                    ),
+                  
+                  Expanded(child: pages[index].screen),
+                ],
+              );
               },
             ),
           ),
