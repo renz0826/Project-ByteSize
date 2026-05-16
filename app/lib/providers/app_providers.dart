@@ -24,6 +24,11 @@ final clinicalRecordRepositoryProvider =
   return ClinicalRecordRepository(ref.watch(databaseProvider));
 });
 
+final currentStaffProvider = StreamProvider((ref) {
+  final db = ref.watch(databaseProvider);
+  // Fetches the primary doctor (staffId 1)
+  return (db.select(db.clinicalStaff)..limit(1)).watchSingle();
+});
 // --- DATA MODELS ---
 
 class DashboardQueueItem {

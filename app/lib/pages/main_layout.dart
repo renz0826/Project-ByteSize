@@ -7,6 +7,7 @@ import 'billing/billing_dashboard.dart';
 import 'main_dashboard.dart';
 import 'schedule/schedule_dashboard.dart';
 import '../widgets/horizontal_logo.dart';
+import '../pages/profile/profile_page.dart';
 
 class MainLayout extends StatefulWidget {
   const MainLayout({super.key});
@@ -109,31 +110,67 @@ class _SidebarState extends State<MainLayout> {
                   icon: Icons.calendar_month_rounded, label: 'Scheduling'),
             ],
             footerBuilder: (context, extended) {
-              return Padding(
-                padding: const EdgeInsets.all(16),
-                child: InkWell(
-                  onTap: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const LoginPage()),
-                    );
-                  },
-                  borderRadius: BorderRadius.circular(16),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.logout, color: AppTheme.gray500),
-                      const SizedBox(width: 18),
-                      Text(
-                        'Logout',
-                        style: Theme.of(context)
-                            .textTheme
-                            .labelMedium
-                            ?.copyWith(color: AppTheme.gray500),
+              final isSettingsSelected = _controller.selectedIndex == 4;
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  InkWell(
+                    onTap: () => _controller.selectIndex(4),
+                    borderRadius: BorderRadius.circular(16),
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(16),
+                      decoration: isSettingsSelected
+                      ? BoxDecoration(color: AppTheme.blue200, borderRadius: BorderRadius.circular(16))
+                        : null,
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.settings_outlined, 
+                            size: 24, 
+                            color: isSettingsSelected ? AppTheme.blue500 : AppTheme.gray500,
+                          ),
+                          const SizedBox(width: 18),
+                          if (extended)
+                          Text(
+                            'Settings',
+                            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                              color: isSettingsSelected ? AppTheme.blue500 : AppTheme.gray500
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
-                ),
+                  const SizedBox(height: 8),
+                  InkWell(
+                    onTap: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const LoginPage()),
+                      );
+                    },
+                    borderRadius: BorderRadius.circular(16),
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(16),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.logout, size: 24, color: AppTheme.gray500),
+                          const SizedBox(width: 18),
+                          Text(
+                            'Logout',
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelMedium
+                                ?.copyWith(color: AppTheme.gray500),
+                          ),
+                        ],
+                      ),
+                    )
+                  ),
+                ],
               );
             },
           ),
@@ -147,6 +184,7 @@ class _SidebarState extends State<MainLayout> {
                   (title: 'Patient Records', screen: PatientDashboard()),
                   (title: 'Billings', screen: BillingDashboard()),
                   (title: 'Scheduling', screen: ScheduleDashboard()),
+                  (title: 'Settings', screen: ProfilePage())
                 ];
 
                 final index = _controller.selectedIndex;
