@@ -131,16 +131,22 @@ class _InvoiceFormState extends ConsumerState<InvoiceForm> {
   Future<void> _saveInvoice() async {
     if (!isEditing) {
       if (_selectedPatientName == null || !_patientMap.containsKey(_selectedPatientName)) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Error: Please select a valid Patient.'), backgroundColor: Colors.red)
+        StatusToast.show(
+          context,
+          title: "Error",
+          message: "Please select a valid patient.",
+          isSuccess: false,
         );
         return;
       }
     }
     
     if (_procedures.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Error: Please add at least one procedure.'), backgroundColor: Colors.red)
+      StatusToast.show(
+        context,
+        title: "Error",
+        message: "Failed to create invoice. Please try again.",
+        isSuccess: false,
       );
       return;
     }
@@ -152,8 +158,11 @@ class _InvoiceFormState extends ConsumerState<InvoiceForm> {
       final qty = int.tryParse(row.quantityController.text) ?? 0;
 
       if (name.isEmpty || price <= 0 || qty <= 0) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Error: Procedure name, charge, and quantity must be valid.'), backgroundColor: Colors.red)
+        StatusToast.show(
+          context,
+          title: "Error",
+          message: "Failed to create invoice. Please try again.",
+          isSuccess: false,
         );
         return;
       }
@@ -169,19 +178,38 @@ class _InvoiceFormState extends ConsumerState<InvoiceForm> {
           invoiceId: widget.invoiceToEdit!.invoice.invoiceId,
           procedures: procedures,
         );
+        if (mounted) {
+          StatusToast.show(
+            context,
+            title: "Success",
+            message: "INV-${widget.invoiceToEdit!.invoice.invoiceId.toString().padLeft(3, '0')} has been updated.",
+            isSuccess: true,
+          );
+        }
       } else {
-        await repo.createInvoice(
+        final newInvoiceId = await repo.createInvoice(
           patientId: _patientMap[_selectedPatientName]!.patientId,
           procedures: procedures,
           amountReceived: 0.0,
           modeOfPayment: 'Not Paid',
         );
+        if (mounted) {
+          StatusToast.show(
+            context,
+            title: "Success",
+            message: "INV-${newInvoiceId.toString().padLeft(3, '0')} has been created.",
+            isSuccess: true,
+          );
+        }
       }
       widget.onFinish();
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Database Error: $e'), backgroundColor: Colors.red)
+        StatusToast.show(
+          context,
+          title: "Error",
+          message: "Failed to create invoice. Please try again.",
+          isSuccess: false,
         );
       }
     }
@@ -221,7 +249,10 @@ class _InvoiceFormState extends ConsumerState<InvoiceForm> {
                     if (isEditing)
                       Text(
                         "Patient: ${widget.invoiceToEdit!.patientName}  |  INV-${widget.invoiceToEdit!.invoice.invoiceId.toString().padLeft(3, '0')}",
-                        style: AppTheme.textTheme.bodyMedium?.copyWith(color: AppTheme.gray500),
+                        style: AppTheme.textTheme.bodyMedium?.copyWith(
+                          color: AppTheme.gray500,
+                          fontWeight: FontWeight.normal,
+                        ),
                       ),
                   ],
                 ),
@@ -233,24 +264,39 @@ class _InvoiceFormState extends ConsumerState<InvoiceForm> {
             const SizedBox(height: 32),
 
             if (!isEditing) ...[
-              Text("Select Patient", style: Theme.of(context).textTheme.titleLarge),
+              Text(
+                "Select Patient by Name", 
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
               const SizedBox(height: 12),
               SizedBox(
                 width: 500,
-                child: InputField(
-                  hintText: "Choose a patient...",
-                  label: "Patient Name",
-                  isRequired: true,
-                  variant: InputVariant.dropdown,
-                  dropdownValue: _selectedPatientName,
-                  dropdownItems: _patientMap.keys.toList(),
-                  onDropdownChanged: (value) => setState(() => _selectedPatientName = value),
+                child: Theme(
+                  data: Theme.of(context).copyWith(
+                    textTheme: Theme.of(context).textTheme.copyWith(
+                      bodySmall: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        fontWeight: FontWeight.normal,
+                      ),
+                    ),
+                  ),
+                  child: InputField(
+                    hintText: "Choose a patient...",
+                    label: "Patient Name",
+                    isRequired: true,
+                    variant: InputVariant.dropdown,
+                    dropdownValue: _selectedPatientName,
+                    dropdownItems: _patientMap.keys.toList(),
+                    onDropdownChanged: (value) => setState(() => _selectedPatientName = value),
+                  ),
                 ),
               ),
               const SizedBox(height: 40),
             ],
 
-            Text("Procedure Charge", style: Theme.of(context).textTheme.titleLarge),
+            Text(
+              "Procedure Charge", 
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
             const SizedBox(height: 12),
 
             ...List.generate(_procedures.length, (index) {
@@ -259,7 +305,7 @@ class _InvoiceFormState extends ConsumerState<InvoiceForm> {
                 row: _procedures[index], 
                 hasDiscount: hasDiscount,
                 onRemove: () => _removeProcedure(index),
-                canRemove: _procedures.length > 1, // Only allow removal if there's more than 1 row
+                canRemove: _procedures.length > 1, 
               );
             }),
             
@@ -275,7 +321,6 @@ class _InvoiceFormState extends ConsumerState<InvoiceForm> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  
                   Padding(
                     padding: const EdgeInsets.only(right: 24, bottom: 16),
                     child: Column(
@@ -284,10 +329,9 @@ class _InvoiceFormState extends ConsumerState<InvoiceForm> {
                         Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Text('Subtotal:', style: AppTheme.textTheme.titleLarge?.copyWith(color: AppTheme.gray500)),
+                            Text('Subtotal:', style: AppTheme.textTheme.titleLarge?.copyWith(color: AppTheme.gray500, fontWeight: FontWeight.normal)),
                             const SizedBox(width: 32),
-                            Text('₱ ${rawTotal.toStringAsFixed(2)}', style: AppTheme.textTheme.titleLarge,
-                            )
+                            Text('₱ ${rawTotal.toStringAsFixed(2)}', style: AppTheme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.normal))
                           ],
                         ),
                         if (hasDiscount) ...[
@@ -295,34 +339,36 @@ class _InvoiceFormState extends ConsumerState<InvoiceForm> {
                           Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Text('Discount (20%):', style: AppTheme.textTheme.titleLarge?.copyWith(color: Colors.green.shade700)),
+                              Text('Discount (20%):', style: AppTheme.textTheme.titleLarge?.copyWith(color: Colors.green.shade700, fontWeight: FontWeight.normal)),
                               const SizedBox(width: 32),
-                              Text('-₱ ${discount.toStringAsFixed(2)}', style: AppTheme.textTheme.titleLarge?.copyWith(color: Colors.green.shade700, fontWeight: FontWeight.bold)),
+                              Text('-₱ ${discount.toStringAsFixed(2)}', style: AppTheme.textTheme.titleLarge?.copyWith(color: Colors.green.shade700, fontWeight: FontWeight.normal)),
                             ],
                           ),
                           const SizedBox(height: 8),
-                          Row(mainAxisSize: MainAxisSize.min,
-                            children: [Text('Grand Total:', style: AppTheme.textTheme.titleLarge?.copyWith(color: AppTheme.gray500, fontWeight: FontWeight.bold)),
-                          const SizedBox(width: 32),
-                          Text('₱ ${netTotal.toStringAsFixed(2)}', style: AppTheme.textTheme.titleLarge?.copyWith(color: Colors.black, fontWeight: FontWeight.bold)),],)
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text('Grand Total:', style: AppTheme.textTheme.titleLarge?.copyWith(color: AppTheme.gray500, fontWeight: FontWeight.normal)),
+                              const SizedBox(width: 32),
+                              Text('₱ ${netTotal.toStringAsFixed(2)}', style: AppTheme.textTheme.titleLarge?.copyWith(color: Colors.black, fontWeight: FontWeight.normal)),
+                            ],
+                          )
                         ],
                       ],
                     ),
                   ),
-
-                 
                   const SizedBox(height: 8),
-                  
                   Wrap(
                     spacing: 16,
                     runSpacing: 16,
                     alignment: WrapAlignment.end,
                     children: [
-                      if (!isEditing)
+                      if (!isEditing) ...[
                         SizedBox(
                           width: 100,
                           child: Button(variant: ButtonVariant.secondary, label: "Clear", width: double.infinity, onPressed: _clearForm),
                         ),
+                      ],
                       if (isEditing)
                         Button(
                           variant: ButtonVariant.secondary,
@@ -332,7 +378,7 @@ class _InvoiceFormState extends ConsumerState<InvoiceForm> {
                         ),
                       Button(
                         label: isEditing ? "Update" : "Save Entry",
-                        icon: isEditing ? Icons.save_alt_outlined : Icons.save_alt_outlined,
+                        icon: Icons.save_alt_outlined,
                         iconPlacement: IconPlacement.left,
                         onPressed: _saveInvoice,
                       ),
@@ -441,7 +487,7 @@ class _ProcedureRowWidget extends StatelessWidget {
                         child: TextField(
                           controller: row.priceController,
                           keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                          style: TextStyle(fontWeight: FontWeight.w500),
+                          style: const TextStyle(fontWeight: FontWeight.w500),
                           decoration: const InputDecoration(
                             hintText: '0.00',
                             border: InputBorder.none,
