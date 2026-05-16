@@ -357,7 +357,6 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
                   variant: InputVariant.dropdown,
                   dropdownValue: _selectedSuffix,
                   dropdownItems: const [
-                    "None",
                     "Jr.",
                     "Sr.",
                     "II",
