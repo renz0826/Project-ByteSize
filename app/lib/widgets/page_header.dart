@@ -70,12 +70,7 @@ class PageHeader extends StatelessWidget {
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const ProfilePage()), // go to profile page
-          );
-        },
+        onTap: () {},
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           margin: const EdgeInsets.only(right: 30),
