@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:drift/drift.dart' as drift;
+import 'package:flutter/services.dart'; 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../style/theme.dart';
 import '../../widgets/page_header.dart';
 import '../../widgets/input_field.dart'; 
@@ -41,12 +42,10 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   @override
   void initState() {
     super.initState();
-    // Load the existing profile name into the text fields when the page opens
     _loadExistingProfile();
   }
 
   Future<void> _loadExistingProfile() async {
-    // We delay slightly to ensure ref is available to read
     Future.microtask(() async {
       final db = ref.read(databaseProvider);
       final staff = await (db.select(db.clinicalStaff)..limit(1)).getSingleOrNull();
@@ -81,7 +80,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         _isCurrentPinVerified = true;
         _isPinError = false;
         _pinErrorMessage = '';
-        _currentPinController.clear(); //to clear old PIN
+        _currentPinController.text = entered;
       });
     } else {
       setState(() {
@@ -119,10 +118,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            const PageHeader(
-              title: 'Account Settings',
-              type: PageHeaderType.plain,
-            ),
             Center(
               child: Container(
                 constraints: const BoxConstraints(maxWidth: 1200),
@@ -156,7 +151,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                             variant: ButtonVariant.primary,
                             icon: Icons.check,
                             onPressed: () async {
-                              // 1. Validate
                               if (_firstNameController.text.trim().isEmpty || _lastNameController.text.trim().isEmpty) {
                                 StatusToast.show(context, title: 'Error', message: 'First and Last name are required.', isSuccess: false);
                                 return;
@@ -165,17 +159,14 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                               final db = ref.read(databaseProvider);
                               final existingStaff = await (db.select(db.clinicalStaff)..limit(1)).getSingleOrNull();
 
-                              // 2. Prepare Data (No suffix included here)
                               final companion = ClinicalStaffCompanion(
                                 staffId: drift.Value(existingStaff?.staffId ?? 1),
                                 firstName: drift.Value(_firstNameController.text.trim()),
-                                middleName: drift.Value(_middleNameController.text.trim().isEmpty ? null : _middleNameController.text.trim()), //so the output won't be ""
+                                middleName: drift.Value(_middleNameController.text.trim().isEmpty ? null : _middleNameController.text.trim()), 
                                 lastName: drift.Value(_lastNameController.text.trim()),
-
                                 pin: drift.Value(existingStaff?.pin ?? '0000')
                               );
 
-                              // Insert or Update Database
                               if (existingStaff == null) {
                                 await db.into(db.clinicalStaff).insert(companion);
                               } else {
@@ -184,7 +175,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                                     .write(companion);
                               }
                               
-                              // 4. Success Message
                               if (mounted) {
                                 StatusToast.show(
                                   context, 
@@ -212,13 +202,24 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  InputField(
-                                    label: "Current PIN",
-                                    controller: _currentPinController,
-                                    obscureText: _isCurrentPinObscured,
-                                    suffixIcon: IconButton(
-                                      icon: Icon(_isCurrentPinObscured ? Icons.visibility_off_outlined : Icons.visibility_outlined),
-                                      onPressed: () => setState(() => _isCurrentPinObscured = !_isCurrentPinObscured),
+                                  Opacity(
+                                    opacity: _isCurrentPinVerified ? 0.5 : 1.0,
+                                    child: IgnorePointer(
+                                      ignoring: _isCurrentPinVerified,
+                                      child: InputField(
+                                        label: "Current PIN",
+                                        controller: _currentPinController,
+                                        obscureText: _isCurrentPinObscured,
+                                        keyboardType: TextInputType.number,
+                                        inputFormatters: [
+                                          FilteringTextInputFormatter.digitsOnly,
+                                          LengthLimitingTextInputFormatter(4),
+                                        ],
+                                        suffixIcon: IconButton(
+                                          icon: Icon(_isCurrentPinObscured ? Icons.visibility_off_outlined : Icons.visibility_outlined),
+                                          onPressed: () => setState(() => _isCurrentPinObscured = !_isCurrentPinObscured),
+                                        ),
+                                      ), 
                                     ),
                                   ),
                                   if (_isPinError)...[
@@ -227,7 +228,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                                   ],
                                   if (_isCurrentPinVerified)...[
                                     const SizedBox(height: 6),
-                                    Text('Pin Verified', style: AppTheme.textTheme.bodySmall?.copyWith(color: AppTheme.green300))
+                                    Text('Pin Verified', style: AppTheme.textTheme.bodySmall?.copyWith(color: AppTheme.green300)),
                                   ]
                                 ],
                               )
@@ -242,6 +243,11 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                                     label: "New PIN",
                                     controller: _newPinController,
                                     obscureText: _isNewPinObscured,
+                                    keyboardType: TextInputType.number,
+                                    inputFormatters: [
+                                      FilteringTextInputFormatter.digitsOnly,
+                                      LengthLimitingTextInputFormatter(4),
+                                    ],
                                     suffixIcon: IconButton(
                                       onPressed: () => setState(() => _isNewPinObscured = !_isNewPinObscured), 
                                       icon: Icon(_isNewPinObscured ? Icons.visibility_off_outlined : Icons.visibility_outlined)
@@ -260,6 +266,11 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                                     label: "Confirm New PIN",
                                     controller: _confirmPinController,
                                     obscureText: _isConfirmPinObscured,
+                                    keyboardType: TextInputType.number,
+                                    inputFormatters: [
+                                      FilteringTextInputFormatter.digitsOnly,
+                                      LengthLimitingTextInputFormatter(4),
+                                    ],
                                     suffixIcon: IconButton(
                                       onPressed: () => setState(() => _isConfirmPinObscured = !_isConfirmPinObscured), 
                                       icon: Icon(_isConfirmPinObscured ? Icons.visibility_off_outlined : Icons.visibility_outlined)
@@ -279,13 +290,11 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                             variant: ButtonVariant.primary,
                             icon: Icons.check,
                             onPressed: () async {
-                              // FIX: Separate validation logic!
                               if (_newPinController.text.trim().isEmpty) {
                                 StatusToast.show(context, title: 'Error', message: 'New PIN cannot be empty.', isSuccess: false);
                                 return;
                               }
-                              // FIX: PIN length validation
-                                if (_newPinController.text.trim().length != 4 || 
+                              if (_newPinController.text.trim().length != 4 || 
                                   !RegExp(r'^\d{4}$').hasMatch(_newPinController.text.trim())) {
                                 StatusToast.show(context, title: 'Invalid PIN', message: 'PIN must be exactly 4 digits.', isSuccess: false);
                                 return;
