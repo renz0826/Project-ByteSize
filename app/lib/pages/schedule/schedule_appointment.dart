@@ -17,8 +17,7 @@ class ScheduleAppointmentForm extends ConsumerStatefulWidget {
   final VoidCallback onSave;
   final List<PatientData> activePatients;
   final JoinedAppointment? appointmentToEdit;
-  final PatientData?
-      preSelectedPatient; // added to be used from the viewpatient page
+  final PatientData? preSelectedPatient; 
 
   const ScheduleAppointmentForm({
     super.key,
@@ -44,7 +43,7 @@ class _ScheduleAppointmentFormState
   List<String> _availableTimeSlots = [];
 
   final TextEditingController _reasonController = TextEditingController();
-
+  
   @override
   void initState() {
     super.initState();
@@ -53,10 +52,8 @@ class _ScheduleAppointmentFormState
       final appt = widget.appointmentToEdit!.appointment;
       final patient = widget.appointmentToEdit!.patient;
 
-      _selectedPatient =
-          '${patient.lastName}, ${patient.firstName} ${patient.suffix}'; // display in this format always
-      _selectedMonth = SchedulingService.months[appt.scheduleDateTime.month -
-          1]; // logic if month is less than system month, it will assume that it is booking for next year
+      _selectedPatient = '${patient.lastName}, ${patient.firstName} ${patient.suffix ?? ""}'; 
+      _selectedMonth = SchedulingService.months[appt.scheduleDateTime.month - 1]; 
       _selectedDay = appt.scheduleDateTime.day.toString();
       _selectedTimeSlot = appt.timeSlot;
       _reasonController.text = appt.reasonForVisit;
@@ -65,10 +62,8 @@ class _ScheduleAppointmentFormState
         _availableTimeSlots = [_selectedTimeSlot!];
       }
 
-      _refreshTimeSlots(); // refresh all time slots to remove those that are already booked
-    }
-    // Automatically select the patient if one was passed in
-    else if (widget.preSelectedPatient != null) {
+      _refreshTimeSlots(); 
+    } else if (widget.preSelectedPatient != null) {
       _selectedPatient =
           '${widget.preSelectedPatient!.lastName}, ${widget.preSelectedPatient!.firstName}';
     }
@@ -81,9 +76,7 @@ class _ScheduleAppointmentFormState
   }
 
   Future<void> _refreshTimeSlots() async {
-    // function of refreshing time slots
-    final date =
-        SchedulingService.parseSelectedDate(_selectedMonth, _selectedDay);
+    final date = SchedulingService.parseSelectedDate(_selectedMonth, _selectedDay);
     if (date != null) {
       final repo = AppointmentRepository(ref.read(databaseProvider));
       final booked = await repo.getBookedSlots(date);
@@ -96,13 +89,10 @@ class _ScheduleAppointmentFormState
 
           if (isEditing) {
             final originalAppt = widget.appointmentToEdit!.appointment;
-            final originalMonth = SchedulingService.months[
-                originalAppt.scheduleDateTime.month -
-                    1]; // use schedule_service
+            final originalMonth = SchedulingService.months[originalAppt.scheduleDateTime.month - 1]; 
             final originalDay = originalAppt.scheduleDateTime.day.toString();
 
-            if (_selectedMonth == originalMonth &&
-                _selectedDay == originalDay) {
+            if (_selectedMonth == originalMonth && _selectedDay == originalDay) {
               if (!_availableTimeSlots.contains(originalAppt.timeSlot)) {
                 _availableTimeSlots.add(originalAppt.timeSlot);
                 _availableTimeSlots.sort((a, b) =>
@@ -126,9 +116,33 @@ class _ScheduleAppointmentFormState
     }
   }
 
-// function to save appointments to the database
+  // ✅ UPDATED: Formats the warning dynamically to display the specific date string
+  Future<bool> _showNextYearWarningIfNeeded(DateTime selectedDate) async {
+    final currentYear = DateTime.now().year;
+    
+    if (selectedDate.year > currentYear) {
+      // Formats Month to number if needed, or displays month selection name natively
+      final dateString = "${_selectedMonth} ${_selectedDay}, ${selectedDate.year}";
+
+      final bool? proceed = await showDialog<bool>(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext dialogContext) {
+          return WarningDialog(
+            isCaution: true, 
+            title: "Next Year Schedule Warning",
+            content: "You are booking this appointment for next year on $dateString. Are you sure you want to lock in this date?",
+            secondaryAction: "Review Date",
+            primaryAction: "Proceed Anyway",
+          );
+        },
+      );
+      return proceed ?? false;
+    }
+    return true; 
+  }
+
   Future<void> _saveAppointment() async {
-    // Required Field Validation
     List<String> missing = SchedulingValidator.getMissingAppointmentFields(
       patientName: _selectedPatient,
       month: _selectedMonth,
@@ -142,10 +156,17 @@ class _ScheduleAppointmentFormState
       return;
     }
 
+    final date = SchedulingService.parseSelectedDate(_selectedMonth, _selectedDay);
+
+    if (date != null) {
+      final bool shouldProceed = await _showNextYearWarningIfNeeded(date);
+      if (!shouldProceed) {
+        return; 
+      }
+    }
+
     final db = ref.read(databaseProvider);
     final repo = AppointmentRepository(db);
-    final date =
-        SchedulingService.parseSelectedDate(_selectedMonth, _selectedDay);
 
     final patient = widget.activePatients.firstWhere(
       (p) {
