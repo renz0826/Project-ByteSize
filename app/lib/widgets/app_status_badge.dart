@@ -52,6 +52,8 @@ class AppStatusBadge extends StatelessWidget {
         return AppTheme.green200;
       case BadgeStatus.pending:
         return AppTheme.yellow200;
+      default:
+        return Colors.transparent;
     }
   }
 
