@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:heroicons/heroicons.dart';
-import 'package:dentcity_management_system/pages/billing/billing_dashboard.dart';
 import '/../style/theme.dart';
 import '/../widgets/main_buttons.dart';
 import '/../widgets/page_header.dart';
@@ -13,6 +12,7 @@ import '../../db/database.dart';
 import '../../providers/app_providers.dart';
 import '../../repositories/invoice_repository.dart';
 import '../../widgets/warning_dialog.dart';
+import '../../widgets/input_field.dart'; // Ensure this matches your project's widget path
 
 class ProcessPaymentScreen extends ConsumerStatefulWidget {
   final JoinedInvoice invoiceData;
@@ -78,7 +78,6 @@ class _ProcessPaymentScreenState extends ConsumerState<ProcessPaymentScreen> {
     super.dispose();
   }
 
-  // Dynamic Popup Guard when returning back to listing dashboard view layout frames
   Future<void> _confirmReturnToDashboard() async {
     final bool? shouldDiscard = await showDialog<bool>(
       context: context,
@@ -86,7 +85,7 @@ class _ProcessPaymentScreenState extends ConsumerState<ProcessPaymentScreen> {
         return const WarningDialog(
           isCaution: true,
           title: "Discard Unsaved Changes?",
-          content: "Are you sure you want to return to the invoice? Any unsaved data will be lost.",
+          content: "Are you sure you want to return to the invoice record? Any unsaved data will be lost.",
           secondaryAction: "Keep Editing",
           primaryAction: "Discard",
         );
@@ -172,7 +171,6 @@ class _ProcessPaymentScreenState extends ConsumerState<ProcessPaymentScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        // Cancel Button
         SizedBox(
           width: 110, 
           child: Button(
@@ -181,10 +179,7 @@ class _ProcessPaymentScreenState extends ConsumerState<ProcessPaymentScreen> {
             variant: ButtonVariant.secondary,
           ),
         ),
-
         const SizedBox(width: 10),
-        
-        // Dominant Process Payment Button
         SizedBox(
           width: 220, 
           child: Button(
@@ -311,7 +306,7 @@ class _ProcessPaymentScreenState extends ConsumerState<ProcessPaymentScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text('Invoice Total:', style: textStyle),
+                            Text('Subtotal:', style: textStyle),
                             Text('₱ ${grandTotal.toStringAsFixed(2)}', style: Theme.of(context).textTheme.titleLarge),
                           ],
                         ),
@@ -319,9 +314,7 @@ class _ProcessPaymentScreenState extends ConsumerState<ProcessPaymentScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text('Discount (20%):', style: textStyle?.copyWith(
-                              color: Colors.green.shade700,
-                            )),
+                            Text('Discount (20%):', style: textStyle),
                             Text(
                               '- ₱ ${discountAmount.toStringAsFixed(2)}',
                               style: Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -352,11 +345,7 @@ class _ProcessPaymentScreenState extends ConsumerState<ProcessPaymentScreen> {
                         const SizedBox(height: 8),
                         _buildAmountField(),
                         const SizedBox(height: 16),
-                        Align(
-                            alignment: Alignment.centerLeft,
-                            child: Text("Mode of Payment", style: AppTheme.textTheme.bodySmall)),
-                        const SizedBox(height: 8),
-                        _buildModeDropdown(),
+                        _buildModeDropdown(), // Removed layout label since InputField builds its own label internally
                         const SizedBox(height: 32),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -405,12 +394,18 @@ class _ProcessPaymentScreenState extends ConsumerState<ProcessPaymentScreen> {
     );
   }
 
+  // ✅ Swapped standard dropdown widget out for custom search-disabled InputField variant
   Widget _buildModeDropdown() {
-    return DropdownButtonFormField<String>(
-      value: _selectedMode,
-      decoration: InputDecoration(border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)), contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16)),
-      items: const ["Cash", "G-Cash", "Card"].map((mode) => DropdownMenuItem(value: mode, child: Text(mode))).toList(),
-      onChanged: (val) { if (val != null) setState(() => _selectedMode = val); },
+    return InputField(
+      label: "Mode of Payment",
+      variant: InputVariant.dropdown,
+      dropdownValue: _selectedMode,
+      dropdownItems: const ["Cash", "G-Cash", "Card"],
+      onDropdownChanged: (val) {
+        if (val != null) {
+          setState(() => _selectedMode = val);
+        }
+      },
     );
   }
 }
