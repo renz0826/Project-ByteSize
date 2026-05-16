@@ -6,6 +6,7 @@ class OfflineBackupService {
 
   static Future<void> executeDualBackup() async { // function to clone the database to two places: C Drive and USB
     try {
+      
       // Locate the windows folder
       final localEnvVars = Platform.environment;
       final homeDir = localEnvVars['USERPROFILE'] ?? localEnvVars['HOME'];
@@ -33,6 +34,7 @@ class OfflineBackupService {
       if (!await internalDir.exists()) {
         await internalDir.create(recursive: true);
       }
+      
       // Confirmation Message
       final targetA = File(p.join(internalDir.path, backupName));
       await liveDbFile.copy(targetA.path);

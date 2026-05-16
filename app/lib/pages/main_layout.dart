@@ -109,8 +109,7 @@ class _SidebarState extends State<MainLayout> {
               SidebarXItem(icon: Icons.home_rounded, label: 'Dashboard'),
               SidebarXItem(icon: Icons.group_rounded, label: 'Records'),
               SidebarXItem(icon: Icons.receipt_rounded, label: 'Billings'),
-              SidebarXItem(
-                  icon: Icons.calendar_month_rounded, label: 'Scheduling'),
+              SidebarXItem(icon: Icons.calendar_month_rounded, label: 'Scheduling'),
             ],
             footerBuilder: (context, extended) {
               final isSettingsSelected = _controller.selectedIndex == 4;
@@ -151,8 +150,6 @@ class _SidebarState extends State<MainLayout> {
                           setState(() {
                             _isBackingUp = true;
                           });
-
-
                           // Run the copy function
                           await OfflineBackupService.executeDualBackup();
 
