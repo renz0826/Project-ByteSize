@@ -60,7 +60,8 @@ class InputField extends StatelessWidget {
       this.counterMax = 100,
       this.isHidden = false,
       this.isRequired = false,
-      this.suffixIcon});
+      this.suffixIcon,
+      this.onChanged});
 
   @override
   Widget build(BuildContext context) {

@@ -38,6 +38,7 @@ class AppStatusBadge extends StatelessWidget {
   }
 
   // Background color per variant
+  // Background color per variant
   Color get _backgroundColor {
     switch (status) {
       case BadgeStatus.waiting:
