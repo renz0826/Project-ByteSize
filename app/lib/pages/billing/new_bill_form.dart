@@ -192,7 +192,6 @@ class _InvoiceFormState extends ConsumerState<InvoiceForm> {
       });
     }
 
-    // Only ask for confirmation if editing an existing invoice
     if (isEditing) {
       bool? confirm = await showDialog<bool>(
           context: context,
@@ -334,8 +333,8 @@ class _InvoiceFormState extends ConsumerState<InvoiceForm> {
             ],
 
             Text(
-              "Procedure Charge", 
-              style: Theme.of(context).textTheme.titleLarge,
+                "Procedure Charge", 
+                style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: 12),
 
@@ -362,39 +361,45 @@ class _InvoiceFormState extends ConsumerState<InvoiceForm> {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Padding(
-                    padding: const EdgeInsets.only(right: 24, bottom: 16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text('Subtotal:', style: AppTheme.textTheme.titleLarge?.copyWith(color: AppTheme.gray500, fontWeight: FontWeight.normal)),
-                            const SizedBox(width: 32),
-                            Text('₱ ${rawTotal.toStringAsFixed(2)}', style: AppTheme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.normal))
-                          ],
-                        ),
-                        if (hasDiscount) ...[
-                          const SizedBox(height: 8),
+                    padding: const EdgeInsets.only(right: 24, bottom: 24),
+                    child: SizedBox(
+                      width: 340,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
                           Row(
-                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text('Discount (20%):', style: AppTheme.textTheme.titleLarge?.copyWith(color: Colors.green.shade700, fontWeight: FontWeight.normal)),
-                              const SizedBox(width: 32),
-                              Text('-₱ ${discount.toStringAsFixed(2)}', style: AppTheme.textTheme.titleLarge?.copyWith(color: Colors.green.shade700, fontWeight: FontWeight.normal)),
+                              Text('Subtotal:', style: AppTheme.textTheme.titleLarge?.copyWith(color: AppTheme.gray500, fontWeight: FontWeight.normal)),
+                              Text('₱ ${rawTotal.toStringAsFixed(2)}', style: AppTheme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.normal))
                             ],
                           ),
-                          const SizedBox(height: 8),
+                          if (hasDiscount) ...[
+                            const SizedBox(height: 16),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text('Discount (20%):', style: AppTheme.textTheme.titleLarge?.copyWith(color: Colors.green.shade700, fontWeight: FontWeight.normal)),
+                                Text('-₱ ${discount.toStringAsFixed(2)}', style: AppTheme.textTheme.titleLarge?.copyWith(color: Colors.green.shade700, fontWeight: FontWeight.normal)),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            const Divider(color: AppTheme.gray400),
+                            const SizedBox(height: 12),
+                          ] else ...[
+                            const SizedBox(height: 12),
+                            const Divider(color: AppTheme.gray400),
+                            const SizedBox(height: 12),
+                          ],
                           Row(
-                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text('Grand Total:', style: AppTheme.textTheme.titleLarge?.copyWith(color: AppTheme.gray500, fontWeight: FontWeight.normal)),
-                              const SizedBox(width: 32),
-                              Text('₱ ${netTotal.toStringAsFixed(2)}', style: AppTheme.textTheme.titleLarge?.copyWith(color: Colors.black, fontWeight: FontWeight.normal)),
+                              Text('₱ ${netTotal.toStringAsFixed(2)}', style: AppTheme.textTheme.titleLarge?.copyWith(color: Colors.black, fontWeight: FontWeight.bold)),
                             ],
                           )
                         ],
-                      ],
+                      ),
                     ),
                   ),
                   const SizedBox(height: 8),
