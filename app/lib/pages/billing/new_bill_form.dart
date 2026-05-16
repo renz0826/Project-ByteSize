@@ -159,16 +159,15 @@ class _InvoiceFormState extends ConsumerState<InvoiceForm> {
       final name = row.nameController.text.trim();
       final price = double.tryParse(row.priceController.text) ?? 0.0;
       final qty = int.tryParse(row.quantityController.text) ?? 0;
-      final rowNum = i + 1;
 
       if (name.isEmpty) {
-        formatErrors.add("Row $rowNum: Procedure Description cannot be empty.");
+        formatErrors.add("Procedure Description cannot be empty.");
       }
       if (price <= 0) {
-        formatErrors.add("Row $rowNum: Procedure Charge must be greater than zero.");
+        formatErrors.add("Procedure Charge must be greater than zero.");
       }
       if (qty <= 0) {
-        formatErrors.add("Row $rowNum: Quantity must be 1 or greater.");
+        formatErrors.add("Quantity must be 1 or greater.");
       }
     }
 
@@ -176,7 +175,7 @@ class _InvoiceFormState extends ConsumerState<InvoiceForm> {
       if (mounted) {
         RequirementDialog.show(
           context,
-          "Invalid Entry Layout",
+          "Invalid Input",
           "Please check your itemized entries:",
           formatErrors,
         );
