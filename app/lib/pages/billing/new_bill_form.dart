@@ -323,14 +323,15 @@ class _InvoiceFormState extends ConsumerState<InvoiceForm> {
                           width: 100,
                           child: Button(variant: ButtonVariant.secondary, label: "Clear", width: double.infinity, onPressed: _clearForm),
                         ),
+                      if (isEditing)
+                        Button(
+                          variant: ButtonVariant.secondary,
+                          label: "Cancel",
+                          iconPlacement: IconPlacement.left,
+                          onPressed: widget.onPrevious,
+                        ),
                       Button(
-                        variant: ButtonVariant.secondary,
-                        label: isEditing ? "Cancel" : "Previous",
-                        iconPlacement: IconPlacement.left,
-                        onPressed: widget.onPrevious,
-                      ),
-                      Button(
-                        label: isEditing ? "Update" : "Save",
+                        label: isEditing ? "Update" : "Save Entry",
                         icon: isEditing ? Icons.save_alt_outlined : Icons.save_alt_outlined,
                         iconPlacement: IconPlacement.left,
                         onPressed: _saveInvoice,
