@@ -43,6 +43,19 @@ class _ProcessPaymentScreenState extends ConsumerState<ProcessPaymentScreen> {
   void initState() {
     super.initState();
     _fetchData();
+    _amountController.addListener(_onAmountChanged);
+  }
+
+  void _onAmountChanged() {
+    setState(() {}); // Triggers dynamic calculation blocks in the UI tree instantly
+  }
+
+  @override
+  void dispose() {
+    // Clean up the listener alongside the controller
+    _amountController.removeListener(_onAmountChanged);
+    _amountController.dispose();
+    super.dispose();
   }
 
   Future<void> _fetchData() async {
@@ -70,12 +83,6 @@ class _ProcessPaymentScreenState extends ConsumerState<ProcessPaymentScreen> {
     int age = today.year - p.birthDate.year;
     if (today.month < p.birthDate.month || (today.month == p.birthDate.month && today.day < p.birthDate.day)) age--;
     return age >= 60;
-  }
-
-  @override
-  void dispose() {
-    _amountController.dispose();
-    super.dispose();
   }
 
   Future<void> _confirmReturnToDashboard() async {
@@ -237,8 +244,7 @@ class _ProcessPaymentScreenState extends ConsumerState<ProcessPaymentScreen> {
       ),
     );
   }
-
-  Widget _buildPaymentContent() {
+Widget _buildPaymentContent() {
     final inv = widget.invoiceData.invoice;
     final grandTotal = _procedures.fold(0.0, (sum, p) => sum + p.totalProcedureCharge);
     final hasDiscount = _isDiscountApplicable(_patient);
@@ -247,7 +253,11 @@ class _ProcessPaymentScreenState extends ConsumerState<ProcessPaymentScreen> {
     final totalPaid = _transactions.fold(0.0, (sum, t) => sum + t.amountReceived);
     final remainingBalance = (netTotal - totalPaid).clamp(0.0, double.infinity);
 
-    final amountInput = double.tryParse(_amountController.text.replaceAll(',', '')) ?? 0.0;
+    final cleanAmountText = _amountController.text.replaceAll(',', '').trim();
+    final amountInput = cleanAmountText.isEmpty || cleanAmountText == '.' 
+        ? 0.0 
+        : double.tryParse(cleanAmountText) ?? 0.0;
+        
     final previewBalance = (remainingBalance - amountInput).clamp(0.0, double.infinity);
 
     final textStyle = Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -355,7 +365,7 @@ class _ProcessPaymentScreenState extends ConsumerState<ProcessPaymentScreen> {
                         const SizedBox(height: 8),
                         _buildAmountField(),
                         const SizedBox(height: 16),
-                        _buildModeDropdown(), // Removed layout label since InputField builds its own label internally
+                        _buildModeDropdown(), 
                         const SizedBox(height: 32),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
