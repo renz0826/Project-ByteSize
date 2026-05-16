@@ -184,8 +184,6 @@ class _SidebarState extends State<MainLayout> {
                 final pages = [
                   (title: 'Dashboard', screen: DashboardPage()),
                   (title: 'Patient Records', screen: PatientDashboard()),
-
-                  // ! CRITICAL RESTORE BILLING DASHBOARD
                   (title: 'Billings', screen: BillingDashboard()),
                   (title: 'Scheduling', screen: ScheduleDashboard()),
                   (title: 'Settings', screen: ProfilePage())
@@ -200,8 +198,12 @@ class _SidebarState extends State<MainLayout> {
                 return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  //only show the header if it's not the patient records
-                  if (_controller.selectedIndex != 1 && _controller.selectedIndex != 2)
+                  // Completely disable global headers for index 0 (Dashboard), 2 (Billings), and 3 (Scheduling)
+                  // only show the header if it's not the patient records
+                  if (_controller.selectedIndex != 0 &&
+                      _controller.selectedIndex != 1 && 
+                      _controller.selectedIndex != 2 &&
+                      _controller.selectedIndex != 3)
                     PageHeader(
                       title: pages[index].title,
                       type: PageHeaderType.plain,

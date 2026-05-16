@@ -264,6 +264,9 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     return Scaffold(
         backgroundColor: Colors.transparent,
         body: CustomScrollView(slivers: [
+          SliverToBoxAdapter(
+            child: _buildHeader(),
+          ),
           SliverCrossAxisGroup(
             slivers: [
               // LEFT COLUMN
@@ -489,6 +492,12 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
           ],
         ),
       ),
+    );
+  }
+   Widget _buildHeader() {
+    return const PageHeader(
+      title: 'Dashboard Overview',
+      type: PageHeaderType.plain,
     );
   }
 
