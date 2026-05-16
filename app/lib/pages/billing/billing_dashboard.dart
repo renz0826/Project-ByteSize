@@ -14,6 +14,7 @@ import '../../providers/app_providers.dart';
 import '../../providers/auth_provider.dart';
 import '../../repositories/invoice_repository.dart';
 import '../../db/database.dart';
+import '../../widgets/warning_dialog.dart';
 
 import 'new_bill_form.dart';
 import 'process_payment.dart';
@@ -139,16 +140,20 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
   Future<void> _confirmReturnToDashboard() async {
     final bool? shouldDiscard = await showDialog<bool>(
       context: context,
-      builder: (BuildContext context) => AlertDialog(
-        title: const Text('Discard Changes?'),
-        content: const Text('Are you sure you want to return to the dashboard? Any unsaved data will be lost.'),
-        actions: [
-          TextButton(onPressed: () => Navigator.of(context).pop(false), child: const Text('Cancel')),
-          TextButton(onPressed: () => Navigator.of(context).pop(true), child: const Text('Discard', style: TextStyle(color: Colors.red))),
-        ],
-      ),
+      builder: (BuildContext context) {
+        return const WarningDialog(
+          isCaution: true,
+          title: "Discard Unsaved Changes?",
+          content: "Are you sure you want to return to the records dashboard? Any unsaved data will be lost.",
+          secondaryAction: "Keep Editing",
+          primaryAction: "Discard",
+        );
+      },
     );
-    if (shouldDiscard == true) setState(() => _currentIndex = 0);
+
+    if (shouldDiscard == true && mounted) {
+      setState(() => _currentIndex = 0);
+    }
   }
 
   Future<bool> _verifyPin() async {
@@ -259,6 +264,7 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
     return IndexedStack(
       index: _currentIndex,
       children: [
+        // Index 0: Main Billings Table Overview Dashboard
         Scaffold(
           backgroundColor: AppTheme.gray200,
           body: CustomScrollView(
@@ -271,12 +277,14 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
               ),
               SliverPadding(
                 padding: const EdgeInsets.symmetric(horizontal: 24),
-                sliver: SliverList(
-                  delegate: SliverChildListDelegate([
-                    _buildSearchBar(),
-                    const SizedBox(height: 8),
-                    _buildTableHeader(),
-                  ]),
+                sliver: SliverToBoxAdapter(
+                  child: Column(
+                    children: [
+                      _buildSearchBar(),
+                      const SizedBox(height: 8),
+                      _buildTableHeader(),
+                    ],
+                  ),
                 ),
               ),
               SliverPadding(
@@ -305,16 +313,22 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
             ],
           ),
         ),
+        
+        // Index 1: New Invoice Form Generation Screen View
         SingleChildScrollView(
           child: Column(
             children: [
-              PageHeader(title: 'Back to Billings & Invoices', type: PageHeaderType.withBack, onBack: _confirmReturnToDashboard),
+              PageHeader(
+                title: 'Back to Billings & Invoices', 
+                type: PageHeaderType.withBack, 
+                onBack: _confirmReturnToDashboard,
+              ),
               Transform.translate(
                 offset: const Offset(0, -30),
                 child: InvoiceForm(
                   key: ValueKey(_formSessionId),
                   invoiceToEdit: _currentIndex == 1 && _selectInvoiceToView != null ? _selectInvoiceToView : null,
-                  onPrevious: () => setState(() => _currentIndex = 0),
+                  onPrevious: _confirmReturnToDashboard,
                   onFinish: () {
                     _loadInvoices();
                     setState(() => _currentIndex = 0);
@@ -324,6 +338,8 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
             ],
           ),
         ),
+        
+        // Index 2: Itemized Statement Details View Screen (Header isolated internally)
         SingleChildScrollView(
           child: _selectInvoiceToView == null
               ? const SizedBox.shrink()
@@ -343,6 +359,8 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
                   onEditInvoice: () => _triggerEditInvoice(_selectInvoiceToView!),
                 ),
         ),
+        
+        // Index 3: Ledger Processing Settlement Screen View (Header isolated internally)
         SingleChildScrollView(
           child: _selectInvoiceToView == null
               ? const SizedBox.shrink()

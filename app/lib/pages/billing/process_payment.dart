@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:heroicons/heroicons.dart';
+import 'package:dentcity_management_system/pages/billing/billing_dashboard.dart';
 import '/../style/theme.dart';
 import '/../widgets/main_buttons.dart';
 import '/../widgets/page_header.dart';
@@ -11,6 +12,7 @@ import '/../widgets/status_toast.dart';
 import '../../db/database.dart';
 import '../../providers/app_providers.dart';
 import '../../repositories/invoice_repository.dart';
+import '../../widgets/warning_dialog.dart';
 
 class ProcessPaymentScreen extends ConsumerStatefulWidget {
   final JoinedInvoice invoiceData;
@@ -76,6 +78,26 @@ class _ProcessPaymentScreenState extends ConsumerState<ProcessPaymentScreen> {
     super.dispose();
   }
 
+  // Dynamic Popup Guard when returning back to listing dashboard view layout frames
+  Future<void> _confirmReturnToDashboard() async {
+    final bool? shouldDiscard = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return const WarningDialog(
+          isCaution: true,
+          title: "Discard Unsaved Changes?",
+          content: "Are you sure you want to return to the invoice? Any unsaved data will be lost.",
+          secondaryAction: "Keep Editing",
+          primaryAction: "Discard",
+        );
+      },
+    );
+
+    if (shouldDiscard == true && mounted) {
+      widget.onBack();
+    }
+  }
+
   Future<void> _submitPayment() async {
     final amountText = _amountController.text.replaceAll(',', '').trim();
     final amountPaid = double.tryParse(amountText) ?? 0.0;
@@ -130,9 +152,9 @@ class _ProcessPaymentScreenState extends ConsumerState<ProcessPaymentScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         PageHeader(
-          title: 'Back to View Bill',
+          title: 'Back to Billings & Invoices',
           type: PageHeaderType.withBack,
-          onBack: widget.onBack,
+          onBack: _confirmReturnToDashboard,
         ),
         
         if (_isLoading)
@@ -154,7 +176,7 @@ class _ProcessPaymentScreenState extends ConsumerState<ProcessPaymentScreen> {
         SizedBox(
           width: 110, 
           child: Button(
-            onPressed: widget.onBack,
+            onPressed: _confirmReturnToDashboard,
             label: 'Cancel',
             variant: ButtonVariant.secondary,
           ),
@@ -164,7 +186,7 @@ class _ProcessPaymentScreenState extends ConsumerState<ProcessPaymentScreen> {
         
         // Dominant Process Payment Button
         SizedBox(
-          width: 220, // Expanded to take up most of the 340px column
+          width: 220, 
           child: Button(
             label: _isProcessing ? "Wait..." : "Process Payment",
             variant: ButtonVariant.primary,
@@ -289,7 +311,7 @@ class _ProcessPaymentScreenState extends ConsumerState<ProcessPaymentScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text('Subtotal:', style: textStyle),
+                            Text('Invoice Total:', style: textStyle),
                             Text('₱ ${grandTotal.toStringAsFixed(2)}', style: Theme.of(context).textTheme.titleLarge),
                           ],
                         ),
@@ -297,7 +319,9 @@ class _ProcessPaymentScreenState extends ConsumerState<ProcessPaymentScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text('Discount (20%):', style: textStyle),
+                            Text('Discount (20%):', style: textStyle?.copyWith(
+                              color: Colors.green.shade700,
+                            )),
                             Text(
                               '- ₱ ${discountAmount.toStringAsFixed(2)}',
                               style: Theme.of(context).textTheme.titleLarge?.copyWith(
