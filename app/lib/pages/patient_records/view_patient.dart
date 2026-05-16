@@ -286,7 +286,7 @@ class _ViewPatientScreenState extends State<ViewPatientScreen> {
           SizedBox(
             width: 300,
             child: InputField(
-              label: 'Appointment Schedule',
+              label: 'Day Created',
               variant: InputVariant.dropdown,
               // converted the recordId to formatted date strings
               dropdownItems: _recordLabels,
