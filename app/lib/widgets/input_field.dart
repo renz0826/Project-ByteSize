@@ -142,7 +142,7 @@ class InputField extends StatelessWidget {
           popupProps: PopupProps.menu(
             fit: FlexFit.loose,
             constraints: const BoxConstraints(maxHeight: 208),
-            showSearchBox: false,
+            showSearchBox: true,
             searchFieldProps: TextFieldProps(
               style:
                   theme.textTheme.bodySmall?.copyWith(color: AppTheme.black500),
