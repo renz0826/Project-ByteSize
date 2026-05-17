@@ -107,7 +107,7 @@ class _SidebarState extends State<MainLayout> {
             items: const [
               SidebarXItem(icon: Icons.home_rounded, label: 'Dashboard'),
               SidebarXItem(icon: Icons.group_rounded, label: 'Records'),
-              SidebarXItem(icon: Icons.receipt_rounded, label: 'Billings'),
+              SidebarXItem(icon: Icons.receipt_rounded, label: 'Invoices'),
               SidebarXItem(
                   icon: Icons.calendar_month_rounded, label: 'Scheduling'),
             ],
@@ -198,7 +198,7 @@ class _SidebarState extends State<MainLayout> {
                 return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Completely disable global headers for index 0 (Dashboard), 2 (Billings), and 3 (Scheduling)
+                  // Completely disable global headers for index 0 (Dashboard), 2 (Invoices), and 3 (Scheduling)
                   // only show the header if it's not the patient records
                   if (_controller.selectedIndex != 0 &&
                       _controller.selectedIndex != 1 && 
