@@ -215,27 +215,31 @@ class _ViewBillScreenState extends ConsumerState<ViewBillScreen> {
               ),
             ],
 
-            const SizedBox(height: 12),
-            // Previous Payment Row
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('Previous Payment:', style: valueStyle),
-                Text('- ₱ ${totalPaid.toStringAsFixed(2)}', style: textStyle),
-              ],
-            ),
+            // If totalPaid is 0, don't show on UI
+            if (totalPaid > 0.0) ...[
+              const SizedBox(height: 12),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Previous Payment:', style: valueStyle),
+                  Text('- ₱ ${totalPaid.toStringAsFixed(2)}', style: textStyle),
+                ],
+              ),
+              const SizedBox(height: 12),
+              const Divider(color: AppTheme.gray400),
+              const SizedBox(height: 12),
+            ] else ...[
+              const SizedBox(height: 12),
+              const Divider(color: AppTheme.gray400),
+              const SizedBox(height: 12),
+            ],
 
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 12),
-              child: Divider(color: AppTheme.gray400),
-            ),
-
-            // Final Amount to be Paid
+            // Final calculated column row maps contextually based on ledger transaction length definitions
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Remaining Balance:',
+                  totalPaid > 0.0 ? 'Remaining Balance:' : 'Total Amount Due:',
                   style: valueStyle,
                 ),
                 Text(
