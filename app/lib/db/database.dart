@@ -6,10 +6,10 @@ import 'package:path/path.dart' as p;
 import 'tables.dart';
 import 'package:drift/drift.dart' as drift;
 
-part 'database.g.dart';
+part 'database.g.dart'; // connect database.g.dart here
 
 @DriftDatabase(tables: [Patient, ClinicalStaff, Appointment, Invoice, ProcedureCharge, PaymentTransaction, ClinicalRecord ])
-class AppDatabase extends _$AppDatabase {
+class AppDatabase extends _$AppDatabase { // registers all entity tables and attributes
   AppDatabase() : super(_openConnection());
 
   @override
@@ -34,7 +34,7 @@ class AppDatabase extends _$AppDatabase {
       );
 }
 
-LazyDatabase _openConnection() { // change this to create the file at %appdata% once testing is good
+LazyDatabase _openConnection() { // create the 'dentcity' file in the documents file
   return LazyDatabase(() async {
     final dir = await getApplicationDocumentsDirectory();
     final file = File(p.join(dir.path, 'dentcity.db'));

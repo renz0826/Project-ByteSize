@@ -11,7 +11,7 @@ class AuthController extends StateNotifier<AsyncValue<bool>> {
     _loadPinFromDb();
   }
 
-  Future<void> _loadPinFromDb() async {
+  Future<void> _loadPinFromDb() async { // function to get the PIN from the database
     final db = ref.read(databaseProvider);
     final staff = await (db.select(db.clinicalStaff)..limit(1)).getSingleOrNull();
     if (staff != null) {
@@ -21,7 +21,7 @@ class AuthController extends StateNotifier<AsyncValue<bool>> {
 
 
 
-  Future<void> login(String enteredPin, Function onSuccess) async {
+  Future<void> login(String enteredPin, Function onSuccess) async { // Login function (added lockout function here)
     state = const AsyncValue.loading();
     await Future.delayed(const Duration(milliseconds: 300)); 
     
@@ -47,8 +47,7 @@ class AuthController extends StateNotifier<AsyncValue<bool>> {
     }
 
     // Verify PIN
-    if (enteredPin == staff.pin) {
-      // Success: Reset their failures and tiers
+    if (enteredPin == staff.pin) {// If login was sucessful = reset lockout tiers back to 1
       await (db.update(db.clinicalStaff)..where((t) => t.staffId.equals(staff.staffId))).write(
         const ClinicalStaffCompanion(
           failedAttempts: drift.Value(0),
@@ -60,14 +59,12 @@ class AuthController extends StateNotifier<AsyncValue<bool>> {
       _cachedPin = staff.pin;
       state = const AsyncValue.data(true);
       onSuccess(); 
-    } else {
-      // Failure: Apply penalties to this staff member
+    } else { // If failed in 3 attempts
       int attempts = staff.failedAttempts + 1;
       int tier = staff.lockoutTier;
       DateTime? lockoutTime;
 
-      if (attempts >= 3) {
-        // Escalate timer based on tier
+      if (attempts >= 3) { // Escalate timer based on tier
         int penaltyMinutes = 1; 
         
         if (tier == 1) {
@@ -107,11 +104,11 @@ class AuthController extends StateNotifier<AsyncValue<bool>> {
     }
   }
 
-  bool verifyPin(String pin) {
+  bool verifyPin(String pin) { // function to verify pin if its correct
     return pin == _cachedPin;
   }
 
-  Future<void> updatePin(String newPin) async {
+  Future<void> updatePin(String newPin) async { // function to update PIN
     _cachedPin = newPin;
     final db = ref.read(databaseProvider);
     final existingStaff = await (db.select(db.clinicalStaff)..limit(1)).getSingleOrNull();
@@ -143,13 +140,13 @@ class AuthController extends StateNotifier<AsyncValue<bool>> {
       if (now.isBefore(staff.lockoutUntil!)) {
         return; 
       } else {
-        // Time IS up! Clear the lockout timestamp in the database.
+        // When time is up
         await (db.update(db.clinicalStaff)..where((t) => t.staffId.equals(staff.staffId))).write(
           const ClinicalStaffCompanion(lockoutUntil: drift.Value(null))
         );
       }
     }
-    // Clear the error state, which instantly re-enables the text box!
+    // Remove the error state, then allows the text box to be used again
     state = const AsyncValue.data(false); 
   }
 }

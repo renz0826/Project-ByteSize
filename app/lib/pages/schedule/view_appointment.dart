@@ -17,8 +17,7 @@ class ViewAppointment extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    // Extract data with fallback values
+  Widget build(BuildContext context) {  // Extract data with fallback values
     final data = appointmentData ?? {};
     
     // Initialize First Name, Last Name 
@@ -50,7 +49,7 @@ class ViewAppointment extends StatelessWidget {
     final timeStr = data['time'] ?? '-';
     final reason = data['reason'] ?? '-';
 
-    // Using your SchedulingService for consistent date formatting
+    // Use Schedule Service for date formatting
     final date = data['date'] as DateTime?;
     final dateStr = date != null ? SchedulingService.formatDate(date) : 'N/A';
 

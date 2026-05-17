@@ -40,7 +40,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     });
   }
 
-  void _startTimer(DateTime lockoutUntil) {
+  void _startTimer(DateTime lockoutUntil) { 
     _countdownTimer?.cancel(); // Cancel any existing timer to avoid duplicates
     
     _countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
@@ -262,28 +262,26 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     );
   }
 
-  void _submitPin() {
-    // this function runs when the "enter pin" button is clicked
+  void _submitPin() {// this function runs when the "enter pin" button is clicked
     final enteredPin = _pinController.text.trim();
 
     //to clear any pervious local error before running validation
     setState(() => _localValidationError = null);
 
-    if (enteredPin.isEmpty) {
+    if (enteredPin.isEmpty) { // error handling: if no pin was entered
       setState(() => _localValidationError = 'Please enter your PIN.');
       return;
     }
-    if (enteredPin.length != 4) {
+    if (enteredPin.length != 4) { // error handling: if pin is not 4 digits
       setState(() => _localValidationError = 'PIN must be exactly 4 digits.');
       return;
     }
 
-    ref.read(authControllerProvider.notifier).login(
-        // send pin to auth_controller
+    ref.read(authControllerProvider.notifier).login(// send pin to auth_controller
         enteredPin, () {
       if (mounted) {
         setState(() {
-          _isNavigating = true; // Lock the button in the loading state!
+          _isNavigating = true; // Lock the button in a loading state
         });
         Navigator.pushReplacementNamed(context, '/dashboard');
       }

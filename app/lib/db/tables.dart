@@ -1,7 +1,6 @@
 import 'package:drift/drift.dart';
 
-class Patient extends Table {
-  // Patient Entity
+class Patient extends Table { // Patient Entity
 // Primary Key
   IntColumn get patientId => integer().autoIncrement()();
 
@@ -40,7 +39,7 @@ class Patient extends Table {
   DateTimeColumn get updatedAt => dateTime()();
 }
 
-class ClinicalStaff extends Table {
+class ClinicalStaff extends Table { // Clinical Staff Entity
    
   // Primary Key
   IntColumn get staffId => integer()();
@@ -62,8 +61,7 @@ class ClinicalStaff extends Table {
   DateTimeColumn get lockoutUntil => dateTime().nullable()();
 }
 
-class Appointment extends Table {
-  // Appointment entity
+class Appointment extends Table {// Appointment Entity
 // Primary Key
   IntColumn get appointmentId => integer().autoIncrement()();
 
@@ -85,8 +83,7 @@ class Appointment extends Table {
   TextColumn get timeSlot => text()();
 }
 
-class Invoice extends Table {
-  // Billing Entity
+class Invoice extends Table { // Billing Entity
   // Primary Key
   IntColumn get invoiceId => integer().autoIncrement()();
 
@@ -103,7 +100,7 @@ class Invoice extends Table {
   TextColumn get status => text()();
 }
 
-class ProcedureCharge extends Table {
+class ProcedureCharge extends Table { // Procedure Charge Entity
   // Primary Key
   IntColumn get chargeId => integer().autoIncrement()();
 
@@ -123,7 +120,7 @@ class ProcedureCharge extends Table {
   RealColumn get totalProcedureCharge => real()();
 }
 
-class PaymentTransaction extends Table {
+class PaymentTransaction extends Table { // Payment Transaction Entity
 // Primary Key
   IntColumn get transactionId => integer().autoIncrement()();
 
@@ -141,7 +138,7 @@ class PaymentTransaction extends Table {
       dateTime().withDefault(currentDateAndTime)();
 }
 
-class ClinicalRecord extends Table {
+class ClinicalRecord extends Table { // Clinical Record Entity
   // Primary Key
   IntColumn get recordId => integer().autoIncrement()();
 
@@ -170,11 +167,9 @@ class ClinicalRecord extends Table {
 
   // Tooth Counters (Integers)
   IntColumn get cariesForFilling => integer().withDefault(const Constant(0))();
-  IntColumn get cariesForExtraction =>
-      integer().withDefault(const Constant(0))();
+  IntColumn get cariesForExtraction => integer().withDefault(const Constant(0))();
   IntColumn get rootFragment => integer().withDefault(const Constant(0))();
-  IntColumn get missingDueToCaries =>
-      integer().withDefault(const Constant(0))();
+  IntColumn get missingDueToCaries => integer().withDefault(const Constant(0))();
   IntColumn get filledOrRestored => integer().withDefault(const Constant(0))();
 
   // Doctor's Narrative

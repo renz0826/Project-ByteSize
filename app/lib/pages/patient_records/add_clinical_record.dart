@@ -18,7 +18,7 @@ class AddClinicalRecordForm extends StatefulWidget {
     required this.patientId,
     required this.onFinish,
     required this.onPrevious,
-    this.showPreviousButton = true, // Defaults to true
+    this.showPreviousButton = true, // defaults to true
   });
 
   @override
@@ -149,7 +149,7 @@ class _AddClinicalRecordFormState extends State<AddClinicalRecordForm> {
                         hintText: "Enter patient's past illnesses",
                         controller: _pastIllnessController,
                         inputFormatters: [
-                          FilteringTextInputFormatter.allow(
+                          FilteringTextInputFormatter.allow( // allow only letters to be inputted in this text field
                               RegExp(r'[a-zA-Z\s]'))
                         ],
                       )),
@@ -162,7 +162,7 @@ class _AddClinicalRecordFormState extends State<AddClinicalRecordForm> {
                             _presentIllnessController, // present illness controller
                         inputFormatters: [
                           FilteringTextInputFormatter.allow(
-                              RegExp(r'[a-zA-Z\s]'))
+                              RegExp(r'[a-zA-Z\s]')) // allow only letters to be inputted in this text field
                         ],
                       )),
                     ],
@@ -181,7 +181,7 @@ class _AddClinicalRecordFormState extends State<AddClinicalRecordForm> {
                         controller: _allergiesController, // allergies controller
                         inputFormatters: [
                           FilteringTextInputFormatter.allow(
-                              RegExp(r'[a-zA-Z\s]'))
+                              RegExp(r'[a-zA-Z\s]')) // allow only letters to be inputted in this text field
                         ],
                       )), 
                       const SizedBox(width: 20),
@@ -192,7 +192,7 @@ class _AddClinicalRecordFormState extends State<AddClinicalRecordForm> {
                         controller: _medicationController,
                         inputFormatters: [
                           FilteringTextInputFormatter.allow(
-                              RegExp(r'[a-zA-Z\s]'))
+                              RegExp(r'[a-zA-Z\s]')) // allow only letters to be inputted in this text field
                         ],
                       )),
                     ],
@@ -218,7 +218,7 @@ class _AddClinicalRecordFormState extends State<AddClinicalRecordForm> {
                             RadioGroupField(
                               label: "Presence of Oral Debris",
                               options: const ["Present", "None"],
-                              selectedValue: _hasDebris ? "Present" : "None",
+                              selectedValue: _hasDebris ? "Present" : "None", // change value based on selection
                               onChanged: (value) {
                                 setState(
                                     () => _hasDebris = (value == "Present"));
@@ -228,7 +228,7 @@ class _AddClinicalRecordFormState extends State<AddClinicalRecordForm> {
                             RadioGroupField(
                               label: "Presence of Calculus",
                               options: const ["Present", "None"],
-                              selectedValue: _hasCalculus ? "Present" : "None",
+                              selectedValue: _hasCalculus ? "Present" : "None", // change value based on selection
                               onChanged: (value) {
                                 setState(
                                     () => _hasCalculus = (value == "Present"));
@@ -239,7 +239,7 @@ class _AddClinicalRecordFormState extends State<AddClinicalRecordForm> {
                               label: "Presence of Gingivitis",
                               options: const ["Present", "None"],
                               selectedValue:
-                                  _hasGingivitis ? "Present" : "None",
+                                  _hasGingivitis ? "Present" : "None", // change value based on selection
                               onChanged: (value) {
                                 setState(() =>
                                     _hasGingivitis = (value == "Present"));
@@ -258,7 +258,7 @@ class _AddClinicalRecordFormState extends State<AddClinicalRecordForm> {
                               label: "Presence of Periodontal Pocket",
                               options: const ["Present", "None"],
                               selectedValue:
-                                  _hasPeriodontalPocket ? "Present" : "None",
+                                  _hasPeriodontalPocket ? "Present" : "None", // change value based on selection
                               onChanged: (String value) {
                                 setState(() {
                                   _hasPeriodontalPocket = (value == "Present");
@@ -270,7 +270,7 @@ class _AddClinicalRecordFormState extends State<AddClinicalRecordForm> {
                               label: "Presence of Dentofacial Anomaly",
                               options: const ["Present", "None"],
                               selectedValue:
-                                  _hasDentofacialAnomaly ? "Present" : "None",
+                                  _hasDentofacialAnomaly ? "Present" : "None", // change value based on selection
                               onChanged: (String value) {
                                 setState(() {
                                   _hasDentofacialAnomaly = (value == "Present");
@@ -305,7 +305,7 @@ class _AddClinicalRecordFormState extends State<AddClinicalRecordForm> {
                                 label: "Caries Indicated for Filling",
                                 variant: InputVariant.counter,
                                 counterValue:
-                                    _cariesFilling, // changed to _carriesFilling
+                                    _cariesFilling, // uses a +- counter button to specify the amount of caries needing filling
                                 counterMin: 0,
                                 counterMax: 32,
                                 onCounterChanged: (newValue) {
@@ -321,7 +321,7 @@ class _AddClinicalRecordFormState extends State<AddClinicalRecordForm> {
                                 label: "Caries Indicated for Extraction",
                                 variant: InputVariant.counter,
                                 counterValue:
-                                    _cariesExtraction, 
+                                    _cariesExtraction, // uses a +- counter button to specify how many carries are indicated for extraction
                                 counterMin: 0,
                                 counterMax: 32,
                                 onCounterChanged: (newValue) {
@@ -337,7 +337,7 @@ class _AddClinicalRecordFormState extends State<AddClinicalRecordForm> {
                                 label: "Root Fragment",
                                 variant: InputVariant.counter,
                                 counterValue:
-                                    _rootFragment, 
+                                    _rootFragment, // uses a +- counter button to specify how many root fragments are present in the patient
                                 counterMin: 0,
                                 counterMax: 32,
                                 onCounterChanged: (newValue) {
@@ -363,7 +363,7 @@ class _AddClinicalRecordFormState extends State<AddClinicalRecordForm> {
                                   label: "Missing Due to Caries",
                                   variant: InputVariant.counter,
                                   counterValue:
-                                      _missingDueToCaries, 
+                                      _missingDueToCaries, // uses a +- button to specify how many teeth are missing due to caries 
                                   counterMin: 0,
                                   counterMax: 32,
                                   onCounterChanged: (newValue) {
@@ -379,7 +379,7 @@ class _AddClinicalRecordFormState extends State<AddClinicalRecordForm> {
                                   label: "Filled or Restored",
                                   variant: InputVariant.counter,
                                   counterValue:
-                                      _filledOrRestored, 
+                                      _filledOrRestored, // uses a +- button to specify how much teeth are filled or restored
                                   counterMin: 0,
                                   counterMax: 32,
                                   onCounterChanged: (newValue) {
@@ -399,7 +399,6 @@ class _AddClinicalRecordFormState extends State<AddClinicalRecordForm> {
                   const SizedBox(height: 32),
 
                   // -- TREATMENT PLAN --
-
                   Text("Treatment Plan",
                       style: Theme.of(context).textTheme.titleLarge),
 
