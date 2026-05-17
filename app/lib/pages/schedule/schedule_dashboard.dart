@@ -31,9 +31,9 @@ class ScheduleDashboard extends ConsumerStatefulWidget {
 }
 
 class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
-  List<JoinedAppointment> _allAppointments = []; // list of all appointments
-  List<JoinedAppointment> _filteredRecords = []; // list of filtered records (may be completed or upcoming)
-  List<PatientData> _allPatients = []; // list to get all patients
+  List<JoinedAppointment> _allAppointments = []; 
+  List<JoinedAppointment> _filteredRecords = []; 
+  List<PatientData> _allPatients = []; 
   JoinedAppointment? _selectedAppointment;
   int _currentIndex = 0;
   int _previousIndex = 0; 
@@ -354,42 +354,41 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
     final patient = joinedRecord.patient;
     final appointment = joinedRecord.appointment;
 
-    return GestureDetector(
+    // Gesturedetector remvoed and ontap linked directly to component
+    return ScheduleBar(
+      fullName: '${patient.lastName}, ${patient.firstName} ${patient.suffix ?? ""}'.trim(),
+      date: appointment.scheduleDateTime,
+      time: appointment.timeSlot,
+      procedure: appointment.reasonForVisit,
       onTap: () => setState(() {
         _selectedAppointment = joinedRecord;
         _previousIndex = _currentIndex;
         _currentIndex = 2;
       }),
-      child: ScheduleBar(
-        fullName: '${patient.lastName}, ${patient.firstName} ${patient.suffix ?? ""}'.trim(),
-        date: appointment.scheduleDateTime,
-        time: appointment.timeSlot,
-        procedure: appointment.reasonForVisit,
-        onMenuSelected: (String actionValue) async {
-          switch (actionValue) {
-            case 'view_appointment': 
-              setState(() {
-                _selectedAppointment = joinedRecord;
-                _previousIndex = _currentIndex;
-                _currentIndex = 2;
-              });
-              break;
+      onMenuSelected: (String actionValue) async {
+        switch (actionValue) {
+          case 'view_appointment': 
+            setState(() {
+              _selectedAppointment = joinedRecord;
+              _previousIndex = _currentIndex;
+              _currentIndex = 2;
+            });
+            break;
 
-            case 'edit_appointment':
-              setState(() {
-                _formSessionId++; 
-                _selectedAppointment = joinedRecord;
-                _previousIndex = _currentIndex;
-                _currentIndex = 1;
-              });
-              break;
+          case 'edit_appointment':
+            setState(() {
+              _formSessionId++; 
+              _selectedAppointment = joinedRecord;
+              _previousIndex = _currentIndex;
+              _currentIndex = 1;
+            });
+            break;
 
-            case 'cancel_appointment': 
-              _cancelAppointmentConfirmation(appointment.appointmentId);
-              break;
-          }
-        },
-      ),
+          case 'cancel_appointment': 
+            _cancelAppointmentConfirmation(appointment.appointmentId);
+            break;
+        }
+      },
     );
   }
 
