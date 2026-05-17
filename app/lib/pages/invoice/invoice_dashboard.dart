@@ -307,7 +307,7 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
             slivers: [
               const SliverToBoxAdapter(
                 child: PageHeader(
-                  title: 'Billings',
+                  title: 'Invoice',
                   type: PageHeaderType.plain,
                 ),
               ),
