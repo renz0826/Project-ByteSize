@@ -184,7 +184,7 @@ class _SidebarState extends State<MainLayout> {
                 final pages = [
                   (title: 'Dashboard', screen: DashboardPage()),
                   (title: 'Patient Records', screen: PatientDashboard()),
-                  (title: 'Billings', screen: InvoiceDashboard()),
+                  (title: 'Invoice', screen: InvoiceDashboard()),
                   (title: 'Scheduling', screen: ScheduleDashboard()),
                   (title: 'Settings', screen: ProfilePage())
                 ];
