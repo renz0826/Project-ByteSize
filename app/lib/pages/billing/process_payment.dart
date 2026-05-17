@@ -47,12 +47,11 @@ class _ProcessPaymentScreenState extends ConsumerState<ProcessPaymentScreen> {
   }
 
   void _onAmountChanged() {
-    setState(() {}); // Triggers dynamic calculation blocks in the UI tree instantly
+    setState(() {}); 
   }
 
   @override
   void dispose() {
-    // Clean up the listener alongside the controller
     _amountController.removeListener(_onAmountChanged);
     _amountController.dispose();
     super.dispose();
@@ -244,7 +243,8 @@ class _ProcessPaymentScreenState extends ConsumerState<ProcessPaymentScreen> {
       ),
     );
   }
-Widget _buildPaymentContent() {
+
+  Widget _buildPaymentContent() {
     final inv = widget.invoiceData.invoice;
     final grandTotal = _procedures.fold(0.0, (sum, p) => sum + p.totalProcedureCharge);
     final hasDiscount = _isDiscountApplicable(_patient);
@@ -285,7 +285,7 @@ Widget _buildPaymentContent() {
                       style: Theme.of(context)
                           .textTheme
                           .headlineMedium
-                          ?.copyWith(fontWeight: FontWeight.bold)),
+                          !.copyWith(fontWeight: FontWeight.bold)),
                   const SizedBox(width: 16),
                   if (hasDiscount) const AppStatusBadge(status: BadgeStatus.discount),
                 ],
@@ -313,43 +313,56 @@ Widget _buildPaymentContent() {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
+                        // ─── Subtotal Section (Only if Discount exists) ───
+                        if (hasDiscount) ...[
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text('Subtotal:', style: textStyle),
+                              Text('₱ ${grandTotal.toStringAsFixed(2)}', style: Theme.of(context).textTheme.titleLarge),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text('Discount (20%):', style: textStyle?.copyWith(
+                                color: Colors.green.shade700,
+                              )),
+                              Text(
+                                '- ₱ ${discountAmount.toStringAsFixed(2)}',
+                                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                      color: Colors.green.shade700,
+                                    ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                        ],
+                        
+                        // ─── Previous Payment Section (Only if history exists) ───
+                        if (totalPaid > 0.0) ...[
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text('Previous Payment:', style: textStyle),
+                              Text('- ₱ ${totalPaid.toStringAsFixed(2)}', style: Theme.of(context).textTheme.titleLarge),
+                            ],
+                          ),
+                        ],
+
+                        // ─── ✅ FIXED: CONDITIONAL INTERMEDIATE BREAKDOWN DIVIDER LINE ───
+                        // This divider only pops back into layout space if a discount or previous ledger block exists above it
+                        if (hasDiscount || totalPaid > 0.0) ...[
+                          const SizedBox(height: 8),
+                          const Divider(color: AppTheme.gray400),
+                          const SizedBox(height: 8),
+                        ],
+
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text('Subtotal:', style: textStyle),
-                            Text('₱ ${grandTotal.toStringAsFixed(2)}', style: Theme.of(context).textTheme.titleLarge),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text('Discount (20%):', style: textStyle?.copyWith(
-                              color: Colors.green.shade700,
-                            )),
-                            Text(
-                              '- ₱ ${discountAmount.toStringAsFixed(2)}',
-                              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                    color: Colors.green.shade700,
-                                  ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text('Previous Payment:', style: textStyle),
-                            Text('- ₱ ${totalPaid.toStringAsFixed(2)}', style: Theme.of(context).textTheme.titleLarge),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        const Divider(color: AppTheme.gray400),
-                        const SizedBox(height: 8),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text('Remaining Balance:', style: textStyle),
+                            Text(totalPaid > 0.0 ? 'Remaining Balance:' : 'Total Amount Due:', style: textStyle),
                             Text(
                               '₱ ${remainingBalance.toStringAsFixed(2)}',
                               style: Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -404,7 +417,6 @@ Widget _buildPaymentContent() {
       inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}'))],
       style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
       decoration: InputDecoration(
-        // Using prefixIcon for constantActive
         prefixIcon: const UnconstrainedBox(
           child: Padding(
             padding: EdgeInsets.only(left: 16, right: 4),
