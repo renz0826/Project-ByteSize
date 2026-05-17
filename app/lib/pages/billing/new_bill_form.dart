@@ -368,7 +368,6 @@ class _InvoiceFormState extends ConsumerState<InvoiceForm> {
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           if (hasDiscount) ...[
-                            // Only show Subtotal if a discount calculation is actually happening
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
@@ -388,60 +387,60 @@ class _InvoiceFormState extends ConsumerState<InvoiceForm> {
                             const Divider(color: AppTheme.gray400),
                             const SizedBox(height: 12),
                           ],
-                          // Final row adjusts label dynamically based on whether it is a single total or calculated net total
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(
-                                hasDiscount ? 'Grand Total:' : 'Total Amount:', 
-                                style: AppTheme.textTheme.titleLarge?.copyWith(color: AppTheme.gray500, fontWeight: FontWeight.normal),
-                              ),
-                              Text(
-                                '₱ ${netTotal.toStringAsFixed(2)}', 
-                                style: AppTheme.textTheme.titleLarge?.copyWith(color: Colors.black, fontWeight: FontWeight.bold),
-                              ),
+                              Text(hasDiscount ? 'Grand Total:' : 'Total Amount:', style: AppTheme.textTheme.titleLarge?.copyWith(color: AppTheme.gray500, fontWeight: FontWeight.normal)),
+                              Text('₱ ${netTotal.toStringAsFixed(2)}', style: AppTheme.textTheme.titleLarge?.copyWith(color: Colors.black, fontWeight: FontWeight.bold)),
                             ],
                           )
                         ],
                       ),
                     ),
                   ),
-                ],
-              ),
-            ),
                   const SizedBox(height: 8),
-                  Wrap(
-                    spacing: 16,
-                    runSpacing: 16,
-                    alignment: WrapAlignment.end,
-                    children: [
-                      if (!isEditing) ...[
-                        SizedBox(
-                          width: 100,
-                          child: Button(variant: ButtonVariant.secondary, label: "Clear", width: double.infinity, onPressed: _clearForm),
-                        ),
-                      ],
-                      if (isEditing)
-                        Button(
-                          variant: ButtonVariant.secondary,
-                          label: "Cancel",
-                          iconPlacement: IconPlacement.left,
-                          onPressed: widget.onPrevious,
-                        ),
-                      Button(
-                        label: isEditing ? "Update" : "Save Entry",
-                        icon: Icons.save_alt_outlined,
-                        iconPlacement: IconPlacement.left,
-                        onPressed: _saveInvoice,
+                  
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 24),
+                      child: Wrap(
+                        spacing: 16,
+                        runSpacing: 16,
+                        alignment: WrapAlignment.end,
+                        children: [
+                          if (!isEditing) ...[
+                            SizedBox(
+                              width: 100,
+                              child: Button(variant: ButtonVariant.secondary, label: "Clear", width: double.infinity, onPressed: _clearForm),
+                            ),
+                          ],
+                          if (isEditing)
+                            Button(
+                              variant: ButtonVariant.secondary,
+                              label: "Cancel",
+                              iconPlacement: IconPlacement.left,
+                              onPressed: widget.onPrevious,
+                            ),
+                          Button(
+                            label: isEditing ? "Update" : "Save Entry",
+                            icon: Icons.save_alt_outlined,
+                            iconPlacement: IconPlacement.left,
+                            onPressed: _saveInvoice,
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
                   )
                 ],
               ),
             ),
-        );
-      }
-    }
+          ],
+        ),
+      ),
+    );
+  }
+}
 
 class _ProcedureRow {
   final TextEditingController nameController = TextEditingController();
