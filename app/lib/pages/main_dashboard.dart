@@ -124,7 +124,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     }
   }
 
-  void _goToAddPatient() {
+  void _goToAddPatient() { // add patient function
     setState(() {
       _draftPatient = null;
       _existingPatientId = null;
@@ -133,7 +133,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     });
   }
 
-  void _goToAddClinicalRecord(
+  void _goToAddClinicalRecord( // add clinical record function
       {PatientCompanion? draftPatient,
       int? existingPatientId,
       int returnIndex = 0}) {
@@ -145,7 +145,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     });
   }
 
-  Future<void> _handleSaveClinicalRecord(dynamic clinicalRecordData) async {
+  Future<void> _handleSaveClinicalRecord(dynamic clinicalRecordData) async { // function to handle saving clinical record
     try {
       final db = ref.read(databaseProvider);
 
@@ -172,7 +172,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
           _existingPatientId = null;
         });
 
-        StatusToast.show(
+        StatusToast.show( // toast for confirmation
           context,
           title: 'Record Created',
           message: 'Patient record has been successfully created!',
@@ -181,7 +181,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
       }
     } catch (e) {
       if (mounted) {
-        StatusToast.show(
+        StatusToast.show( // toast for an error
           context,
           title: 'Error',
           message: 'Failed to save record. Please try again.',
@@ -191,7 +191,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     }
   }
 
-  Future<void> _handleReschedule(JoinedAppointment item) async {
+  Future<void> _handleReschedule(JoinedAppointment item) async { // function to handle rescheduling button
     try {
       final db = ref.read(databaseProvider);
       final allPatients = await db.select(db.patient).get();

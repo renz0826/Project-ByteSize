@@ -116,11 +116,12 @@ class _ScheduleAppointmentFormState
     }
   }
 
-  // Formats the warning dynamically to display the specific date string
+  // Function to format a warning for next year bookings
   Future<bool> _showNextYearWarningIfNeeded(DateTime selectedDate) async {
     final currentYear = DateTime.now().year;
     
     if (selectedDate.year > currentYear) {
+      
       // Formats Month to number if needed, or displays month selection name natively
       final dateString = "${_selectedMonth} ${_selectedDay}, ${selectedDate.year}";
 
@@ -130,7 +131,7 @@ class _ScheduleAppointmentFormState
         builder: (BuildContext dialogContext) {
           return WarningDialog(
             isCaution: true, 
-            title: "Next Year Schedule Warning",
+            title: "Next Year Schedule Warning", // warning itself
             content: "You are booking this appointment for next year on $dateString. Are you sure you want to lock in this date?",
             secondaryAction: "Review Date",
             primaryAction: "Proceed Anyway",
@@ -156,7 +157,7 @@ class _ScheduleAppointmentFormState
       return;
     }
 
-    final date = SchedulingService.parseSelectedDate(_selectedMonth, _selectedDay); // use scheduling service to parse selected date
+    final date = SchedulingService.parseSelectedDate(_selectedMonth, _selectedDay); // parse date with scheduling service
 
     if (date != null) {
       final bool shouldProceed = await _showNextYearWarningIfNeeded(date); // check if the appointment is less than current date
@@ -265,8 +266,8 @@ class _ScheduleAppointmentFormState
                         .map((p) => "${p.lastName}, ${p.firstName}") // map the patients by lastName firstName
                         .toList(),
                     onDropdownChanged: (v) =>
-                        setState(() => _selectedPatient = v),
-                  ),
+                        setState(() => _selectedPatient = v), // 
+                  ), 
                 ],
               ),
             Column(
