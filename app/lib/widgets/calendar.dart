@@ -49,6 +49,69 @@ class _AppCalendarState extends State<AppCalendar> {
     });
   }
 
+  // ─── NEW: HELPER METHOD TO BUILD HIGHLY INTERACTIVE GRID CELLS ───
+  Widget _buildInteractiveDayCell(DateTime day, {required bool isSelected, required bool isToday}) {
+    final bool isOutside = day.month != _focusedDay.month;
+    bool isHovered = false;
+
+    return StatefulBuilder(
+      builder: (BuildContext context, StateSetter changeState) {
+        return MouseRegion(
+          cursor: SystemMouseCursors.click,
+          onEnter: (_) => changeState(() => isHovered = true),
+          onExit: (_) => changeState(() => isHovered = false),
+          child: Builder(
+            builder: (context) {
+              // Contextual decoration calculations mapping background frames matching main layout buttons
+              BoxDecoration cellDecoration;
+              TextStyle cellTextStyle = AppTheme.textTheme.bodyMedium ?? const TextStyle();
+
+              if (isSelected) {
+                cellDecoration = const BoxDecoration(
+                  color: AppTheme.blue500,
+                  shape: BoxShape.circle,
+                );
+                cellTextStyle = cellTextStyle.copyWith(color: AppTheme.white500, fontWeight: FontWeight.bold);
+              } else if (isHovered) {
+                cellDecoration = BoxDecoration(
+                  // Replaced standard Material grey with a dynamic opacity of your design token AppTheme.gray400
+                  color: AppTheme.gray400.withOpacity(0.3), 
+                  shape: BoxShape.circle,
+                );
+                cellTextStyle = cellTextStyle.copyWith(
+                  color: isOutside ? AppTheme.gray400 : AppTheme.black500,
+                  fontWeight: FontWeight.bold,
+                );
+              } else if (isToday) {
+                cellDecoration = BoxDecoration(
+                  border: Border.all(color: AppTheme.blue500, width: 1.5),
+                  shape: BoxShape.circle,
+                );
+                cellTextStyle = cellTextStyle.copyWith(color: AppTheme.blue500, fontWeight: FontWeight.bold);
+              } else {
+                cellDecoration = const BoxDecoration(shape: BoxShape.circle);
+                cellTextStyle = cellTextStyle.copyWith(
+                  color: isOutside ? AppTheme.gray400 : AppTheme.black500,
+                );
+              }
+
+              return AnimatedContainer(
+                duration: const Duration(milliseconds: 100),
+                margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+                alignment: Alignment.center,
+                decoration: cellDecoration,
+                child: Text(
+                  '${day.day}',
+                  style: cellTextStyle,
+                ),
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -119,21 +182,23 @@ class _AppCalendarState extends State<AppCalendar> {
                 weekdayStyle: AppTheme.textTheme.bodyMedium!.copyWith(fontWeight: FontWeight.bold),
                 weekendStyle: AppTheme.textTheme.bodyMedium!.copyWith(fontWeight: FontWeight.bold),
               ),
-              calendarStyle: CalendarStyle(
-                selectedDecoration: const BoxDecoration(
-                  color: AppTheme.blue500,
-                  shape: BoxShape.circle,
-                ),
-                todayDecoration: BoxDecoration(
-                  border: Border.all(color: AppTheme.blue500, width: 1.5),
-                  shape: BoxShape.circle,
-                ),
-                todayTextStyle: const TextStyle(
-                  color: AppTheme.blue500,
-                  fontWeight: FontWeight.bold,
-                ),
-                outsideDaysVisible: false,
-                cellMargin: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+              calendarBuilders: CalendarBuilders(
+                // Interactive handler for standard weekday text blocks
+                defaultBuilder: (context, day, focusedDay) {
+                  return _buildInteractiveDayCell(day, isSelected: false, isToday: isSameDay(day, DateTime.now()));
+                },
+                // Interactive handler for selected days (Blue Circle)
+                selectedBuilder: (context, day, focusedDay) {
+                  return _buildInteractiveDayCell(day, isSelected: true, isToday: isSameDay(day, DateTime.now()));
+                },
+                // Interactive handler for current system timestamp day cells
+                todayBuilder: (context, day, focusedDay) {
+                  return _buildInteractiveDayCell(day, isSelected: isSameDay(day, _selectedDay), isToday: true);
+                },
+                // Interactive handler for grayed-out trailing grid boxes outside target month intervals
+                outsideBuilder: (context, day, focusedDay) {
+                  return _buildInteractiveDayCell(day, isSelected: false, isToday: false);
+                },
               ),
             ),
           ),
