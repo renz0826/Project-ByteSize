@@ -725,11 +725,11 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
                   switch (value) {
                     case 'Name (A-Z)':
                       _filteredRecords
-                          .sort((a, b) => a.firstName.compareTo(b.lastName));
+                          .sort((a, b) => a.lastName.compareTo(b.lastName));
                       break;
                     case 'Name (Z-A)':
                       _filteredRecords
-                          .sort((a, b) => b.firstName.compareTo(a.lastName));
+                          .sort((a, b) => b.lastName.compareTo(a.lastName));
                       break;
                     case 'Oldest First':
                       _filteredRecords
@@ -805,7 +805,7 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
   }
 
   Widget _buildTableRow(PatientData patient) {
-    // ─── ✅ FIXED: GESTUREDETECTOR STRIPPED AND ONTAP LINKED DIRECTLY INTO COMPONENT ───
+    
     return PatientRecordBar(
       fullName: '${patient.lastName}, ${patient.firstName} ${patient.suffix ?? ""}'.trim(),
       sex: patient.sex,
