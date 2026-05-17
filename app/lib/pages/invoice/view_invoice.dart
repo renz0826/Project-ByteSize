@@ -86,7 +86,7 @@ class _ViewInvoiceScreenState extends ConsumerState<ViewInvoiceScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         PageHeader(
-          title: 'Back to Invoices and Invoices',
+          title: 'Back to Invoices',
           type: PageHeaderType.withBack,
           onBack: widget.onBack,
         ),
@@ -123,6 +123,7 @@ class _ViewInvoiceScreenState extends ConsumerState<ViewInvoiceScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              const SizedBox(height: 32),
               _buildTopStatusBar(invoiceIdString, formattedDate, inv.status, isPaid),
               const SizedBox(height: 24),
               Container(
