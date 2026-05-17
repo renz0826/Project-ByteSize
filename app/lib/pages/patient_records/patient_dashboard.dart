@@ -53,6 +53,7 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
   int _currentPage = 1;
   final int _recordsPerPage = 8;
   String _selectedStatus = 'Active';
+  String _selectedSort = 'Name (A-Z)';
   int _formSessionId = 0;
 
   @override
@@ -419,11 +420,13 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
   }
 
   // Centralized filter logic applied to real data
+// Centralized filter logic applied to real data
   void _applyFilters() {
-    final query = _searchController.text.toLowerCase();
+    final query = _searchController.text.toLowerCase().trim();
 
-    _filteredRecords = _allPatients.where((p) {
-      final fullName = '${p.firstName}${p.lastName}'.toLowerCase();
+    // 1. Filter records by text search and status
+    List<PatientData> records = _allPatients.where((p) {
+      final fullName = '${p.firstName} ${p.lastName}'.toLowerCase();
       final matchesSearch = fullName.contains(query);
 
       bool matchesStatus = true;
@@ -435,6 +438,28 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
 
       return matchesSearch && matchesStatus;
     }).toList();
+
+    switch (_selectedSort) {
+      case 'Name (A-Z)':
+        records.sort((a, b) => a.lastName.toLowerCase().compareTo(b.lastName.toLowerCase()));
+        break;
+      case 'Name (Z-A)':
+        records.sort((a, b) => b.lastName.toLowerCase().compareTo(a.lastName.toLowerCase()));
+        break;
+      case 'Oldest First':
+        records.sort((a, b) => a.birthDate.compareTo(b.birthDate));
+        break;
+      case 'Youngest First':
+        records.sort((a, b) => b.birthDate.compareTo(a.birthDate));
+        break;
+      case 'Female':
+      case 'Male':
+        records = records.where((p) => p.sex == _selectedSort).toList();
+        break;
+    }
+
+    // 3. Assign the final array back to state safely
+    _filteredRecords = records;
   }
 
   @override
