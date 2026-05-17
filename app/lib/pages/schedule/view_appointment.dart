@@ -7,7 +7,7 @@ import '../../services/scheduling_service.dart';
 class ViewAppointment extends StatelessWidget {
   final Map<String, dynamic>? appointmentData;
   final VoidCallback onEdit;
-  final VoidCallback onCancel; // Added for dashboard integration
+  final VoidCallback onCancel; // added to dashboard integration
 
   const ViewAppointment({
     super.key,
@@ -20,7 +20,33 @@ class ViewAppointment extends StatelessWidget {
   Widget build(BuildContext context) {
     // Extract data with fallback values
     final data = appointmentData ?? {};
-    final patientName = data['patientName'] ?? 'Unknown Patient';
+    
+    // Initialize First Name, Last Name 
+    String firstName = 'Unknown';
+    String lastName = 'Patient';
+
+    // Map the first name and last name to these variables
+    if (data.containsKey('firstName') || data.containsKey('lastName')) {
+      firstName = data['firstName'] ?? 'Unknown';
+      lastName = data['lastName'] ?? 'Patient';
+    } else if (data.containsKey('patientName')) {
+      final rawName = data['patientName'] as String? ?? '';
+      
+      if (rawName.contains(',')) {
+        final parts = rawName.split(',');
+        lastName = parts[0].trim();
+        firstName = parts.length > 1 ? parts[1].trim() : 'Unknown';
+      } else {
+        //
+        final parts = rawName.trim().split(' ');
+        if (parts.isNotEmpty) {
+          firstName = parts.first;
+          lastName = parts.length > 1 ? parts.sublist(1).join(' ') : 'Patient';
+        }
+      }
+    }
+
+    final patientFullName = "$firstName $lastName";
     final timeStr = data['time'] ?? '-';
     final reason = data['reason'] ?? '-';
 
@@ -46,7 +72,7 @@ class ViewAppointment extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    "$patientName's Appointment",
+                    "$patientFullName's Appointment",
                     style: Theme.of(context).textTheme.headlineLarge,
                   ),
                   Row(
