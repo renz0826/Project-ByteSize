@@ -1,4 +1,4 @@
-import 'package:dentcity_management_system/pages/billing/view_bill.dart';
+import 'package:dentcity_management_system/pages/invoice/view_invoice.dart';
 import 'package:dentcity_management_system/widgets/app_status_badge.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; 
@@ -16,18 +16,18 @@ import '../../repositories/invoice_repository.dart';
 import '../../db/database.dart';
 import '../../widgets/warning_dialog.dart';
 
-import 'new_bill_form.dart';
+import 'invoice_entry.dart';
 import 'process_payment.dart';
 import '/../widgets/app_info_bar.dart';
 
-class BillingDashboard extends ConsumerStatefulWidget {
-  const BillingDashboard({super.key});
+class InvoiceDashboard extends ConsumerStatefulWidget {
+  const InvoiceDashboard({super.key});
 
   @override
-  ConsumerState<BillingDashboard> createState() => _BillingDashboardState();
+  ConsumerState<InvoiceDashboard> createState() => _InvoiceDashboardState();
 }
 
-class _BillingDashboardState extends ConsumerState<BillingDashboard> {
+class _InvoiceDashboardState extends ConsumerState<InvoiceDashboard> {
   late InvoiceRepository _repository;
 
   List<JoinedInvoice> _allInvoices = [];
@@ -129,7 +129,7 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
     });
   }
 
-  void _goToAddBill() {
+  void _goToAddInvoice() {
     setState(() {
       _selectInvoiceToView = null; 
       _formSessionId++;
@@ -300,7 +300,7 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
     return IndexedStack(
       index: _currentIndex,
       children: [
-        // Index 0: Main Billings Table Overview Dashboard
+        // Index 0: Main invoice Table Overview Dashboard
         Scaffold(
           backgroundColor: AppTheme.gray200,
           body: CustomScrollView(
@@ -355,7 +355,7 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
           child: Column(
             children: [
               PageHeader(
-                title: 'Back to Billings & Invoices', 
+                title: 'Back to Invoices', 
                 type: PageHeaderType.withBack, 
                 onBack: _confirmReturnToDashboard,
               ),
@@ -379,7 +379,7 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
         SingleChildScrollView(
           child: _selectInvoiceToView == null
               ? const SizedBox.shrink()
-              : ViewBillScreen(
+              : ViewInvoiceScreen(
                   key: ValueKey('view-${_selectInvoiceToView!.invoice.invoiceId}-$_viewSessionId'),
                   invoiceData: _selectInvoiceToView!,
                   onBack: () {
@@ -440,10 +440,10 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
                       style: ElevatedButton.styleFrom(padding: EdgeInsets.zero)),
                 ),
                 child: Button(
-                  label: 'Add New Bill',
+                  label: 'Add New Invoice',
                   variant: ButtonVariant.primary,
                   heroIcon: HeroIcons.documentPlus,
-                  onPressed: _goToAddBill,
+                  onPressed: _goToAddInvoice,
                 ),
               ),
             )
@@ -529,7 +529,7 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
     final badgeStatus = isFullyPaid ? BadgeStatus.paid : BadgeStatus.pending;
     final displayAmount = inv.totalBalance;
 
-    return BillingBar(
+    return InvoiceBar(
       invoiceId: 'INV-${inv.invoiceId.toString().padLeft(3, '0')}',
       fullName: invoiceInfo.patientName,
       procedure: invoiceInfo.procedureNames,
@@ -553,7 +553,7 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
             if (action == 'process_payment') {
               _paymentSessionId++;
               _currentIndex = 3;
-            } else if (action == 'view_bill') {
+            } else if (action == 'view_Invoice') {
               _viewSessionId++;
               _currentIndex = 2;
             }

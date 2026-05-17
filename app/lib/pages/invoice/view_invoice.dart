@@ -10,13 +10,13 @@ import '../../db/database.dart';
 import '../../providers/app_providers.dart';
 import '../../repositories/invoice_repository.dart';
 
-class ViewBillScreen extends ConsumerStatefulWidget {
+class ViewInvoiceScreen extends ConsumerStatefulWidget {
   final JoinedInvoice invoiceData;
   final VoidCallback onBack;
   final VoidCallback onProcessPayment;
   final VoidCallback onEditInvoice;
 
-  const ViewBillScreen({
+  const ViewInvoiceScreen({
     super.key,
     required this.invoiceData,
     required this.onBack,
@@ -25,10 +25,10 @@ class ViewBillScreen extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<ViewBillScreen> createState() => _ViewBillScreenState();
+  ConsumerState<ViewInvoiceScreen> createState() => _ViewInvoiceScreenState();
 }
 
-class _ViewBillScreenState extends ConsumerState<ViewBillScreen> {
+class _ViewInvoiceScreenState extends ConsumerState<ViewInvoiceScreen> {
   List<ProcedureChargeData> _procedures = [];
   List<PaymentTransactionData> _transactions = [];
   bool _isLoading = true;
@@ -86,7 +86,7 @@ class _ViewBillScreenState extends ConsumerState<ViewBillScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         PageHeader(
-          title: 'Back to Billings and Invoices',
+          title: 'Back to Invoices and Invoices',
           type: PageHeaderType.withBack,
           onBack: widget.onBack,
         ),
@@ -96,12 +96,12 @@ class _ViewBillScreenState extends ConsumerState<ViewBillScreen> {
             child: Center(child: CircularProgressIndicator()),
           )
         else
-          _buildBillContent(),
+          _buildInvoiceContent(),
       ],
     );
   }
 
-  Widget _buildBillContent() {
+  Widget _buildInvoiceContent() {
     final inv = widget.invoiceData.invoice;
     final invoiceIdString = 'INV-${inv.invoiceId.toString().padLeft(3, '0')}';
     final formattedDate = _formatDate(inv.issuedDate);
@@ -136,7 +136,7 @@ class _ViewBillScreenState extends ConsumerState<ViewBillScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildPatientBillHeader(hasDiscount),
+                    _buildPatientInvoiceHeader(hasDiscount),
                     const SizedBox(height: 32),
                     Text("Itemized Charges",
                     style: Theme.of(context)
@@ -150,7 +150,7 @@ class _ViewBillScreenState extends ConsumerState<ViewBillScreen> {
                     const SizedBox(height: 48),
                     
                     // Summary aligned to the right
-                    _buildBillingSummary(rawTotal, discount, netTotal, totalPaid, hasDiscount),
+                    _buildInvoiceSummary(rawTotal, discount, netTotal, totalPaid, hasDiscount),
 
                     // Transaction History correctly nested inside the Column
                     if (_transactions.isNotEmpty) ...[
@@ -176,7 +176,7 @@ class _ViewBillScreenState extends ConsumerState<ViewBillScreen> {
     );
   }
 
-  Widget _buildBillingSummary(double rawTotal, double discount, double netTotal, double totalPaid, bool hasDiscount) {
+  Widget _buildInvoiceSummary(double rawTotal, double discount, double netTotal, double totalPaid, bool hasDiscount) {
     final valueStyle = Theme.of(context).textTheme.titleLarge?.copyWith(
       color: AppTheme.gray500,
       fontWeight: FontWeight.w500,
@@ -302,10 +302,10 @@ class _ViewBillScreenState extends ConsumerState<ViewBillScreen> {
     );
   }
 
-  Widget _buildPatientBillHeader(bool hasDiscount) {
+  Widget _buildPatientInvoiceHeader(bool hasDiscount) {
     return Row(
       children: [
-        Text("${widget.invoiceData.patientNameReverse}’s Bill", style: Theme.of(context).textTheme.titleLarge),
+        Text("${widget.invoiceData.patientNameReverse}’s Invoice", style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(width: 16),
         if (hasDiscount) const AppStatusBadge(status: BadgeStatus.discount),
       ],

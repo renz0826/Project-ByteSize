@@ -136,7 +136,7 @@ class _InvoiceFormState extends ConsumerState<InvoiceForm> {
         RequirementDialog.show(
           context,
           "Missing Information",
-          "Please select a valid patient profile before attempting to generate a billing entry statement.",
+          "Please select a valid patient profile before attempting to generate a Invoice entry statement.",
           [],
         );
         return;
@@ -284,7 +284,7 @@ class _InvoiceFormState extends ConsumerState<InvoiceForm> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(isEditing ? "Edit Invoice" : "Billing Entry", style: Theme.of(context).textTheme.headlineLarge),
+                    Text(isEditing ? "Edit Invoice" : "Invoice Entry", style: Theme.of(context).textTheme.headlineLarge),
                     if (isEditing)
                       Text(
                         "Patient: ${widget.invoiceToEdit!.patientName}  |  INV-${widget.invoiceToEdit!.invoice.invoiceId.toString().padLeft(3, '0')}",

@@ -334,7 +334,7 @@ class PatientRecordBar extends StatelessWidget {
   }
 }
 
-class BillingBar extends StatelessWidget {
+class InvoiceBar extends StatelessWidget {
   final String invoiceId;
   final String fullName;
   final String procedure;
@@ -345,7 +345,7 @@ class BillingBar extends StatelessWidget {
   final bool isPaid;
   final VoidCallback? onTap; // Clickable requirement
 
-  const BillingBar({
+  const InvoiceBar({
     super.key,
     required this.invoiceId,
     required this.fullName,

@@ -157,7 +157,7 @@ class _ProcessPaymentScreenState extends ConsumerState<ProcessPaymentScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         PageHeader(
-          title: 'Back to Billings & Invoices',
+          title: 'Back to Invoices',
           type: PageHeaderType.withBack,
           onBack: _confirmReturnToDashboard,
         ),

@@ -5,11 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:sidebarx/sidebarx.dart';
 import '../style/theme.dart';
 import '../pages/login_page.dart';
-import 'billing/billing_dashboard.dart';
+import 'invoice/invoice_dashboard.dart';
 import 'main_dashboard.dart';
 import 'schedule/schedule_dashboard.dart';
 import '../widgets/horizontal_logo.dart';
-import '../pages/profile/profile_page.dart';
+import 'account_setting/account_settings.dart';
 
 class MainLayout extends StatefulWidget {
   const MainLayout({super.key});
@@ -184,7 +184,7 @@ class _SidebarState extends State<MainLayout> {
                 final pages = [
                   (title: 'Dashboard', screen: DashboardPage()),
                   (title: 'Patient Records', screen: PatientDashboard()),
-                  (title: 'Billings', screen: BillingDashboard()),
+                  (title: 'Billings', screen: InvoiceDashboard()),
                   (title: 'Scheduling', screen: ScheduleDashboard()),
                   (title: 'Settings', screen: ProfilePage())
                 ];
