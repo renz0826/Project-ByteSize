@@ -378,6 +378,8 @@ class _AddPatientFormState extends ConsumerState<AddPatientForm> {
           Text("Demographic", style: Theme.of(context).textTheme.titleLarge),
           if (!isEditing) ...[
             const SizedBox(height: 12),
+            Text("Date of Birth", style: Theme.of (context).textTheme.bodySmall?.copyWith(color: AppTheme.black500)),
+            const SizedBox(height: 12),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
