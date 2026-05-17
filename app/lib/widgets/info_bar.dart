@@ -217,6 +217,7 @@ class AppointmentBar extends StatelessWidget {
                         icon: HeroIcons.pencilSquare,
                         label: 'Reschedule Patient'),
                   ]
+                // Menu for IN PROGRESS patients
                 : [
                     const BarMenuItem(
                         value: 'send_back',

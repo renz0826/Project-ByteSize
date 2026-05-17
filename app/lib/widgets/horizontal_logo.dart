@@ -21,7 +21,7 @@ class HorizontalLogo extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Image.asset('assets/images/logo.png', height: logoHeight),
+        Image.asset('assets/images/app_logo.png', height: logoHeight),
         SizedBox(width: 16),
         Text("DENTCITY", style: textStyle ?? defaultStyle),
       ],
