@@ -51,7 +51,7 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
     _loadAppointments();
   }
 
-  Future<void> _loadAppointments() async {
+  Future<void> _loadAppointments() async { // load all appointments from the database
     final db = ref.read(databaseProvider);
     final patients = await db.select(db.patient).get();
 
@@ -76,7 +76,7 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
     });
   }
 
-  void _applyFilters() {
+  void _applyFilters() { // function to apply filters
     final query = _searchController.text.toLowerCase();
     
     // Snaps today's current point timestamp to midnight boundary for rolling cycle evaluations
@@ -90,14 +90,12 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
       final matchesSearch = fullName.contains(query);
 
       final bool matchesDate;
-      if (_selectedStatus == 'All') {
-        // Includes everything scheduled for today, tomorrow, and moving forward indefinitely
+      if (_selectedStatus == 'All') { // Includes everything scheduled for today, tomorrow, and moving forward indefinitely
         matchesDate = a.scheduleDateTime.isAfter(todayMidnight) || 
                       (a.scheduleDateTime.year == todayMidnight.year &&
                        a.scheduleDateTime.month == todayMidnight.month &&
                        a.scheduleDateTime.day == todayMidnight.day);
-      } else {
-        // Isolate strictly to the calendar day selection for traditional filter segments
+      } else { // Isolate strictly to the calendar day selection for traditional filter segments
         matchesDate = a.scheduleDateTime.year == _selectedDate.year &&
             a.scheduleDateTime.month == _selectedDate.month &&
             a.scheduleDateTime.day == _selectedDate.day;
@@ -119,15 +117,14 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
         } else {
           matchesStatus = dbStatus == _selectedStatus.toLowerCase();
         }
-      } else {
-        // All overview state outputs everything except manually cancelled records
+      } else {// All overview state outputs everything except manually cancelled records
         matchesStatus = dbStatus != 'cancelled';
       }
 
       return matchesSearch && matchesDate && matchesStatus;
     }).toList();
 
-    // Sorts chronologically by calendar date first, then cross-examines time-slot strings minutes
+    // Sorts by earliest time first
     filtered.sort((a, b) {
       final dateCompare = a.appointment.scheduleDateTime.compareTo(b.appointment.scheduleDateTime);
       if (dateCompare != 0) return dateCompare;
@@ -142,17 +139,17 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
     });
   }
 
-  void _goBackToMain() async {
+  void _goBackToMain() async { // function to go back to main
     await _loadAppointments();
 
     if (mounted) {
       setState(() {
-        _currentIndex = 0;
+        _currentIndex = 0; // this is main
       });
     }
   }
 
-  Future<void> _confirmReturnToPrevious({int targetIndex = 0}) async {
+  Future<void> _confirmReturnToPrevious({int targetIndex = 0}) async { // fucntion to return to the appointment dashboard
     final bool? shouldDiscard = await showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
@@ -177,11 +174,11 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
     }
   }
 
-  Future<void> _cancelAppointmentConfirmation(int appointmentId) async {
+  Future<void> _cancelAppointmentConfirmation(int appointmentId) async { // function to cancel appointment
     final bool? shouldCancel = await showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
-        return const WarningDialog(
+        return const WarningDialog( // bring up a warning dialogue if needed
             isCaution: false,
             title: 'Cancel Appointment?',
             content:
@@ -191,11 +188,11 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
       },
     );
 
-    if (shouldCancel == true) {
+    if (shouldCancel == true) { 
       final repo = ref.read(appointmentRepositoryProvider);
-      await repo.updateAppointmentStatus(appointmentId, 'Cancelled'); 
+      await repo.updateAppointmentStatus(appointmentId, 'Cancelled');  
 
-      if (mounted) {
+      if (mounted) { // popup to confirm that the appointment has been cancelled
         StatusToast.show(
           context,
           title: "Appointment Cancelled",
@@ -203,7 +200,7 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
           isSuccess: true,
         ); 
       }
-      _goBackToMain(); 
+      _goBackToMain(); // send user back to main
     }
   }
 
@@ -307,7 +304,7 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
                                     width: double.infinity,
                                     onPressed: () {
                                       setState(() {
-                                        _formSessionId++;
+                                        _formSessionId++; // once schedule appointment is clicked, create a new form
                                         _selectedAppointment = null; 
                                         _previousIndex = _currentIndex;
                                         _currentIndex = 1;
@@ -335,14 +332,14 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
 
   int get _totalPages => (_filteredRecords.length / _recordsPerPage).ceil();
 
-  void _onSearch(String query) {
+  void _onSearch(String query) { // search function
     setState(() {
       _currentPage = 1;
       _applyFilters();
     });
   }
 
-  void _onFilter(String status) {
+  void _onFilter(String status) { // filter function
     setState(() {
       _currentPage = 1;
       _selectedStatus = status;
@@ -354,7 +351,6 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
     final patient = joinedRecord.patient;
     final appointment = joinedRecord.appointment;
 
-    // Gesturedetector remvoed and ontap linked directly to component
     return ScheduleBar(
       fullName: '${patient.lastName}, ${patient.firstName} ${patient.suffix ?? ""}'.trim(),
       date: appointment.scheduleDateTime,
@@ -377,7 +373,7 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
 
           case 'edit_appointment':
             setState(() {
-              _formSessionId++; 
+              _formSessionId++;  // create a new form 
               _selectedAppointment = joinedRecord;
               _previousIndex = _currentIndex;
               _currentIndex = 1;
@@ -435,8 +431,8 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
             child: ViewAppointment(
               key: ValueKey(_selectedAppointment!.appointment.appointmentId),
               appointmentData: {
-                'patientName':
-                    '${_selectedAppointment?.patient.lastName}, ${_selectedAppointment?.patient.firstName}',
+                'patientName': // assign patientName to firstName lastName format
+                    '${_selectedAppointment?.patient.firstName}, ${_selectedAppointment?.patient.lastName}',
                 'date': _selectedAppointment?.appointment.scheduleDateTime,
                 'time': _selectedAppointment?.appointment.timeSlot,
                 'reason': _selectedAppointment?.appointment.reasonForVisit,
@@ -458,7 +454,7 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
     );
   }
 
-  Widget _buildSearchBar() {
+  Widget _buildSearchBar() { // widget to build search bar
     return AppSearchBar(
       controller: _searchController,
       onChanged: _onSearch,
@@ -467,7 +463,7 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
     );
   }
 
-  Widget _buildFilterChips() {
+  Widget _buildFilterChips() { // build filter chips
     final filters = ['All', 'Upcoming', 'Completed'];
     return Row(
       mainAxisSize: MainAxisSize.min,
