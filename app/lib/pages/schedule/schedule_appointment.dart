@@ -116,11 +116,12 @@ class _ScheduleAppointmentFormState
     }
   }
 
-  // ✅ UPDATED: Formats the warning dynamically to display the specific date string
+  // Function to format a warning for next year bookings
   Future<bool> _showNextYearWarningIfNeeded(DateTime selectedDate) async {
     final currentYear = DateTime.now().year;
     
     if (selectedDate.year > currentYear) {
+      
       // Formats Month to number if needed, or displays month selection name natively
       final dateString = "${_selectedMonth} ${_selectedDay}, ${selectedDate.year}";
 
@@ -130,7 +131,7 @@ class _ScheduleAppointmentFormState
         builder: (BuildContext dialogContext) {
           return WarningDialog(
             isCaution: true, 
-            title: "Next Year Schedule Warning",
+            title: "Next Year Schedule Warning", // warning itself
             content: "You are booking this appointment for next year on $dateString. Are you sure you want to lock in this date?",
             secondaryAction: "Review Date",
             primaryAction: "Proceed Anyway",
@@ -142,7 +143,7 @@ class _ScheduleAppointmentFormState
     return true; 
   }
 
-  Future<void> _saveAppointment() async {
+  Future<void> _saveAppointment() async { // save appointment function
     List<String> missing = SchedulingValidator.getMissingAppointmentFields(
       patientName: _selectedPatient,
       month: _selectedMonth,
@@ -156,7 +157,7 @@ class _ScheduleAppointmentFormState
       return;
     }
 
-    final date = SchedulingService.parseSelectedDate(_selectedMonth, _selectedDay);
+    final date = SchedulingService.parseSelectedDate(_selectedMonth, _selectedDay); // parse date with scheduling service
 
     if (date != null) {
       final bool shouldProceed = await _showNextYearWarningIfNeeded(date);
@@ -243,7 +244,7 @@ class _ScheduleAppointmentFormState
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-                isEditing
+                isEditing 
                     ? "Edit ${widget.appointmentToEdit?.patient.firstName} ${widget.appointmentToEdit?.patient.lastName}'s Schedule"
                     : "Schedule An Appointment",
                 style: Theme.of(context).textTheme.headlineLarge),
@@ -262,11 +263,11 @@ class _ScheduleAppointmentFormState
                     dropdownValue: _selectedPatient,
                     isRequired: true,
                     dropdownItems: widget.activePatients
-                        .map((p) => "${p.lastName}, ${p.firstName}")
+                        .map((p) => "${p.lastName}, ${p.firstName}") // display patient names
                         .toList(),
                     onDropdownChanged: (v) =>
-                        setState(() => _selectedPatient = v),
-                  ),
+                        setState(() => _selectedPatient = v), // 
+                  ), 
                 ],
               ),
             Column(

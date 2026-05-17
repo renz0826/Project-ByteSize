@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart'; // Added Riverpod
 import '../style/theme.dart';
-import '../pages/profile/profile_page.dart';
 import '../providers/app_providers.dart'; // Added providers to listen to DB
 
 // VARIANTS (PageHeaderType):

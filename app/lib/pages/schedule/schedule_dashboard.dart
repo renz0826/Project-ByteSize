@@ -32,8 +32,7 @@ class ScheduleDashboard extends ConsumerStatefulWidget {
 
 class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
   List<JoinedAppointment> _allAppointments = []; // list of all appointments
-  List<JoinedAppointment> _filteredRecords =
-      []; // list of filtered records (may be completed or upcoming)
+  List<JoinedAppointment> _filteredRecords = []; // list of filtered records (may be completed or upcoming)
   List<PatientData> _allPatients = []; // list to ge tall patients
   JoinedAppointment? _selectedAppointment;
   int _currentIndex = 0;
@@ -52,14 +51,12 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
     _loadAppointments();
   }
 
-  Future<void> _loadAppointments() async {
-    // use repository to load appointment data from the database
+  Future<void> _loadAppointments() async { // use repository to load appointment data from the database
     final db = ref.read(databaseProvider);
     final patients = await db.select(db.patient).get();
 
     final query = db.select(db.appointment).join([
-      drift.innerJoin(
-          // use inner join here
+      drift.innerJoin( // use inner join here
           db.patient,
           db.patient.patientId.equalsExp(db.appointment.patientId)),
     ]);
@@ -94,7 +91,7 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
 
       bool matchesStatus = false;
 
-      // THE FIX: Prevent null crashes by defaulting to 'waiting'
+      // if null = default wall into waiting
       final dbStatus = (a.status).trim().toLowerCase();
 
       if (_selectedStatus  != 'All') {
@@ -147,8 +144,7 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
         return WarningDialog(
             isCaution: false,
             title: "Discard Unsaved Changes?",
-            content:
-                "Are you sure you want to return to the appointment dashboard? Any unsaved data will be lost.",
+            content: "Are you sure you want to return to the appointment dashboard? Any unsaved data will be lost.",
             secondaryAction: "Keep Editing",
             primaryAction: "Discard");
       },
@@ -160,13 +156,12 @@ class _ScheduleDashboardState extends ConsumerState<ScheduleDashboard> {
         if (_previousIndex == 0) {
           _selectedAppointment = null;
         }
-        _currentIndex = _previousIndex; // Dynamically go back!
+        _currentIndex = _previousIndex; // Go back dynamically
       });
     }
   }
 
-  Future<void> _cancelAppointmentConfirmation(int appointmentId) async {
-    // function for the cancellation of appointments
+  Future<void> _cancelAppointmentConfirmation(int appointmentId) async { // function for the cancellation of appointments
     final bool? shouldCancel = await showDialog<bool>(
       context: context,
       builder: (BuildContext context) {

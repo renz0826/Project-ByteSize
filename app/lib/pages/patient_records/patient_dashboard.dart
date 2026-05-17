@@ -77,7 +77,7 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
     setState(() {
       _draftPatient = null;
       _existingPatientId = null;
-      _patientToEditMap = null; // Ensure we are NOT in edit mode
+      _patientToEditMap = null; // This variable makes sure we are not in edit mode
       _currentIndex = 1;
     });
   }
@@ -90,7 +90,7 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
     setState(() {
       _draftPatient = draftPatient;
       _existingPatientId = existingPatientId;
-      _returnIndex = returnIndex; // Remembers where we came from
+      _returnIndex = returnIndex; // remembers where we would return to (view or dashboard)
       _currentIndex = 2;
     });
   }

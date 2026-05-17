@@ -4,7 +4,7 @@ import 'package:path/path.dart' as p;
 class OfflineBackupService {
   static const String _dbFileName = 'dentcity.db'; // exact file name of the database
 
-  static Future<void> executeDualBackup() async { // function to clone the database to two places: C Drive and USB
+  static Future<void> executeDualBackup() async { // function to clone the database to two places: C-Drive and USB
     try {
       
       // Locate the windows folder
@@ -38,7 +38,7 @@ class OfflineBackupService {
       // Confirmation Message
       final targetA = File(p.join(internalDir.path, backupName));
       await liveDbFile.copy(targetA.path);
-      print(' Target A Secured Internally: ${targetA.path}');
+      print(' Target A Secured Internally: ${targetA.path}'); // print in terminal (for testing purposes)
 
       // find the folder path in the USB
       final usbDrivePath = 'D:\\DentCity_USB_Backups'; 
@@ -50,11 +50,11 @@ class OfflineBackupService {
         await liveDbFile.copy(targetB.path);
         print('Target B Secured to USB Drive: ${targetB.path}');
       } else {
-        print('External backup skipped: USB Flash Drive (D:\\) was not detected.');
+        print('External backup skipped: USB Flash Drive (D:\\) was not detected.'); // print in terminal (for testing purposes)
       }
 
     } catch (e) {
-      print('❌ Critical Error during offline data backup: $e');
+      print('Critical Error during offline data backup: $e');
     }
   }
 }

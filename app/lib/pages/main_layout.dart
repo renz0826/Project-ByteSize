@@ -24,14 +24,12 @@ class _SidebarState extends State<MainLayout> {
 
   @override
   void initState() {
-    super.initState();
-// Initialize controller state
+    super.initState(); // Initialize controller state
     _controller = SidebarXController(selectedIndex: 0, extended: true);
   }
 
   @override
-  void dispose() {
-    // Dispose widget to prevent memory leaks
+  void dispose() { // Dispose widget to prevent memory leaks
     _controller.dispose();
     super.dispose();
   }
@@ -210,8 +208,7 @@ class _SidebarState extends State<MainLayout> {
                   (title: 'Settings', screen: ProfilePage())
                 ];
 
-                final index = _controller.selectedIndex;
-                // Handle out-of-range index (e.g., when no item is selected)
+                final index = _controller.selectedIndex; // Handle out-of-range index (e.g., when no item is selected)
                 if (index >= pages.length) {
                   return const Center(child: Text('Not Found'));
                 }
@@ -219,9 +216,7 @@ class _SidebarState extends State<MainLayout> {
                 return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Completely disable global headers for index 0 (Dashboard), 2 (Billings), and 3 (Scheduling)
-                  // only show the header if it's not the patient records
-                  if (_controller.selectedIndex != 0 &&
+                  if (_controller.selectedIndex != 0 && // bugfix: remove these specific headers
                       _controller.selectedIndex != 1 && 
                       _controller.selectedIndex != 2 &&
                       _controller.selectedIndex != 3)

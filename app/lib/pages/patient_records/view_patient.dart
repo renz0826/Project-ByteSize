@@ -281,16 +281,13 @@ class _ViewPatientScreenState extends State<ViewPatientScreen> {
       title: 'Clinical Record',
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Appointment Schedule dropdown
+        children: [ // Appointment Schedule dropdown
           SizedBox(
             width: 300,
             child: InputField(
               label: 'Day Created',
-              variant: InputVariant.dropdown,
-              // converted the recordId to formatted date strings
-              dropdownItems: _recordLabels,
-              // show the formatted date of the selected record
+              variant: InputVariant.dropdown, // converted the recordId to formatted date strings
+              dropdownItems: _recordLabels, // show the formatted date of the selected record
               dropdownValue: _selectedRecordId != null
                   ? _recordLabels[_recordIds.indexOf(_selectedRecordId!)]
                   : null,
