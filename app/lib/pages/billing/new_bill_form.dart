@@ -367,14 +367,15 @@ class _InvoiceFormState extends ConsumerState<InvoiceForm> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text('Subtotal:', style: AppTheme.textTheme.titleLarge?.copyWith(color: AppTheme.gray500, fontWeight: FontWeight.normal)),
-                              Text('₱ ${rawTotal.toStringAsFixed(2)}', style: AppTheme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.normal))
-                            ],
-                          ),
                           if (hasDiscount) ...[
+                            // Only show Subtotal if a discount calculation is actually happening
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text('Subtotal:', style: AppTheme.textTheme.titleLarge?.copyWith(color: AppTheme.gray500, fontWeight: FontWeight.normal)),
+                                Text('₱ ${rawTotal.toStringAsFixed(2)}', style: AppTheme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.normal))
+                              ],
+                            ),
                             const SizedBox(height: 16),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -386,22 +387,28 @@ class _InvoiceFormState extends ConsumerState<InvoiceForm> {
                             const SizedBox(height: 12),
                             const Divider(color: AppTheme.gray400),
                             const SizedBox(height: 12),
-                          ] else ...[
-                            const SizedBox(height: 12),
-                            const Divider(color: AppTheme.gray400),
-                            const SizedBox(height: 12),
                           ],
+                          // Final row adjusts label dynamically based on whether it is a single total or calculated net total
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text('Grand Total:', style: AppTheme.textTheme.titleLarge?.copyWith(color: AppTheme.gray500, fontWeight: FontWeight.normal)),
-                              Text('₱ ${netTotal.toStringAsFixed(2)}', style: AppTheme.textTheme.titleLarge?.copyWith(color: Colors.black, fontWeight: FontWeight.bold)),
+                              Text(
+                                hasDiscount ? 'Grand Total:' : 'Total Amount:', 
+                                style: AppTheme.textTheme.titleLarge?.copyWith(color: AppTheme.gray500, fontWeight: FontWeight.normal),
+                              ),
+                              Text(
+                                '₱ ${netTotal.toStringAsFixed(2)}', 
+                                style: AppTheme.textTheme.titleLarge?.copyWith(color: Colors.black, fontWeight: FontWeight.bold),
+                              ),
                             ],
                           )
                         ],
                       ),
                     ),
                   ),
+                ],
+              ),
+            ),
                   const SizedBox(height: 8),
                   Wrap(
                     spacing: 16,
@@ -432,12 +439,9 @@ class _InvoiceFormState extends ConsumerState<InvoiceForm> {
                 ],
               ),
             ),
-          ],
-        ),
-      ),
-    );
-  }
-}
+        );
+      }
+    }
 
 class _ProcedureRow {
   final TextEditingController nameController = TextEditingController();
