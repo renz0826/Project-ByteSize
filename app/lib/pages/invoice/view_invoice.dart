@@ -1,4 +1,4 @@
-import 'package:dentcity_management_system/widgets/app_status_badge.dart';
+import 'package:dentcity_management_system/widgets/status_badge.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:heroicons/heroicons.dart';

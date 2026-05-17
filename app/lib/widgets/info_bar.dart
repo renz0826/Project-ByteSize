@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../style/theme.dart';
-import './app_status_badge.dart';
+import 'status_badge.dart';
 import 'package:heroicons/heroicons.dart';
 import './icon_buttons.dart';
 

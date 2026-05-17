@@ -5,7 +5,7 @@ import 'package:heroicons/heroicons.dart';
 import '/../style/theme.dart';
 import '/../widgets/main_buttons.dart';
 import '/../widgets/page_header.dart';
-import '/../widgets/app_status_badge.dart';
+import '../../widgets/status_badge.dart';
 import '/../widgets/attribute_read_view.dart';
 import '/../widgets/status_toast.dart';
 import '../../db/database.dart';

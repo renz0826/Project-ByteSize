@@ -1,11 +1,11 @@
 import 'package:dentcity_management_system/pages/invoice/view_invoice.dart';
-import 'package:dentcity_management_system/widgets/app_status_badge.dart';
+import 'package:dentcity_management_system/widgets/status_badge.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '/../style/theme.dart';
 import '/../widgets/search_bar.dart';
-import '/../widgets/app_pagination.dart';
+import '../../widgets/pagination.dart';
 import '/../widgets/main_buttons.dart';
 import '/../widgets/page_header.dart';
 import 'package:heroicons/heroicons.dart';
@@ -18,7 +18,7 @@ import '../../widgets/warning_dialog.dart';
 
 import 'invoice_entry.dart';
 import 'process_payment.dart';
-import '/../widgets/app_info_bar.dart';
+import '../../widgets/info_bar.dart';
 
 class InvoiceDashboard extends ConsumerStatefulWidget {
   const InvoiceDashboard({super.key});

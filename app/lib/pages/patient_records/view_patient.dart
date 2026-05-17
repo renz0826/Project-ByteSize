@@ -2,7 +2,7 @@ import '../../widgets/attribute_read_view.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:heroicons/heroicons.dart';
-import '../../widgets/app_info_bar.dart';
+import '../../widgets/info_bar.dart';
 import '/../style/theme.dart';
 import '/../db/database.dart';
 import '../../widgets/input_field.dart';
