@@ -9,8 +9,8 @@ import 'main_dashboard.dart';
 import 'schedule/schedule_dashboard.dart';
 import '../widgets/horizontal_logo.dart';
 import 'account_setting/account_settings.dart';
-import '../pages/profile/profile_page.dart';
 import '../services/offline_backup_service.dart';
+
 
 class MainLayout extends StatefulWidget {
   const MainLayout({super.key});
