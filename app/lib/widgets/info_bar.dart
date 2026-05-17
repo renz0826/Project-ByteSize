@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../style/theme.dart';
-import './app_status_badge.dart';
+import 'status_badge.dart';
 import 'package:heroicons/heroicons.dart';
 import './icon_buttons.dart';
 
@@ -63,6 +63,8 @@ class _BarContainer extends StatelessWidget {
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
           onTap: onTap,
+          // Explicitly added native mouseCursor tracking to InkWell to force the hand pointer pointer
+          mouseCursor: onTap != null ? SystemMouseCursors.click : SystemMouseCursors.basic,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             child: SizedBox(
@@ -102,29 +104,29 @@ class _MoreOptions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return PopupMenuButton<String>(
-      constraints: const BoxConstraints(),
-      color: AppTheme.white500,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+    // Use MouseRegion envelope to bypass version constraints cleanly on PopupMenuButton
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: PopupMenuButton<String>(
+        constraints: const BoxConstraints(),
+        color: AppTheme.white500,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        padding: EdgeInsetsGeometry.zero,
+        icon: const HeroIcon(HeroIcons.ellipsisHorizontal,
+            color: AppTheme.gray500, size: 30),
+        onSelected: onSelected,
+        itemBuilder: (_) => items.map(_buildItem).toList(),
       ),
-      padding: EdgeInsetsGeometry.zero,
-      icon: const HeroIcon(HeroIcons.ellipsisHorizontal,
-          color: AppTheme.gray500, size: 30),
-      onSelected: onSelected,
-      itemBuilder: (_) => items.map(_buildItem).toList(),
     );
   }
 
   PopupMenuItem<String> _buildItem(BarMenuItem item) {
-    final contentColor = item.enable
-        ? (item.color ?? AppTheme.black500)
-        : AppTheme.gray400;
-
     return PopupMenuItem<String>(
       value: item.value,
       height: 35,
-      padding: EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
         children: [
           Row(
@@ -160,6 +162,7 @@ class AppointmentBar extends StatelessWidget {
   final VoidCallback?
       onPrimaryAction; // action depends on status (e.g. cancel / done)
   final ValueChanged<String>? onMenuSelected;
+  final VoidCallback? onTap; 
 
   const AppointmentBar({
     super.key,
@@ -169,6 +172,7 @@ class AppointmentBar extends StatelessWidget {
     required this.status,
     this.onPrimaryAction,
     this.onMenuSelected,
+    this.onTap,
   });
 
   Widget _actionButton() {
@@ -184,17 +188,11 @@ class AppointmentBar extends StatelessWidget {
     final isWaiting =
         status == BadgeStatus.waiting || status == BadgeStatus.pending;
     return _BarContainer(
+      onTap: onTap, 
       children: [
-        _BarText(
-          fullName,
-          flex: 3,
-          ellipsis: true,
-        ), // name
-        _BarText(
-          time,
-          flex: 2,
-        ), // time
-        _BarText(reason, flex: 2, ellipsis: true), // reason
+        _BarText(fullName, flex: 3, ellipsis: true), 
+        _BarText(time, flex: 2), 
+        _BarText(reason, flex: 2, ellipsis: true), 
         Expanded(
           flex: 2,
           child: Align(
@@ -209,23 +207,23 @@ class AppointmentBar extends StatelessWidget {
             items: isWaiting
                 // Menu for WAITING patients
                 ? [
-                    BarMenuItem(
+                    const BarMenuItem(
                       value: 'admit',
                       icon: HeroIcons.arrowRight,
                       label: 'Admit Patient',
                     ),
-                    BarMenuItem(
+                    const BarMenuItem(
                         value: 'reschedule',
                         icon: HeroIcons.pencilSquare,
                         label: 'Reschedule Patient'),
                   ]
                 // Menu for IN PROGRESS patients
                 : [
-                    BarMenuItem(
+                    const BarMenuItem(
                         value: 'send_back',
                         icon: HeroIcons.arrowLeft,
                         label: 'Send back to Waiting'),
-                    BarMenuItem(
+                    const BarMenuItem(
                         value: 'reschedule',
                         icon: HeroIcons.pencilSquare,
                         label: 'Reschedule Patient'),
@@ -240,16 +238,19 @@ class AppointmentBar extends StatelessWidget {
 class PatientsTreatedBar extends StatelessWidget {
   final String fullName;
   final String procedure;
+  final VoidCallback? onTap; 
 
   const PatientsTreatedBar({
     super.key,
     required this.fullName,
     required this.procedure,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     return _BarContainer(
+      onTap: onTap, 
       children: [
         _BarText(fullName, flex: 3, ellipsis: true),
         _BarText(procedure),
@@ -266,6 +267,7 @@ class PatientRecordBar extends StatelessWidget {
   final String contact;
   final ValueChanged<String>? onMenuSelected;
   final bool isArchived;
+  final VoidCallback? onTap; 
 
   const PatientRecordBar({
     super.key,
@@ -276,11 +278,13 @@ class PatientRecordBar extends StatelessWidget {
     required this.contact,
     required this.isArchived,
     this.onMenuSelected,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     return _BarContainer(
+      onTap: onTap, 
       children: [
         _BarText(fullName, flex: 3, ellipsis: true),
         _BarText(sex, flex: 2),
@@ -294,33 +298,33 @@ class PatientRecordBar extends StatelessWidget {
             onSelected: onMenuSelected,
             items: [
               if (isArchived) ...[
-                BarMenuItem(
+                const BarMenuItem(
                     value: 'view_record',
                     icon: HeroIcons.eye,
                     label: 'View Record'),
-                BarMenuItem(
+                const BarMenuItem(
                     value: 'unarchive',
                     icon: HeroIcons.arrowPath,
                     label: 'Restore Record',
                     color: AppTheme.blue500),
               ] else ...[
-                BarMenuItem(
+                const BarMenuItem(
                     value: 'add_clinical_record',
                     icon: HeroIcons.documentPlus,
                     label: 'Add New Clinical Record'),
-                BarMenuItem(
+                const BarMenuItem(
                     value: 'add_schedule',
                     icon: HeroIcons.calendar,
                     label: 'Add Schedule'),
-                BarMenuItem(
+                const BarMenuItem(
                     value: 'view_record',
                     icon: HeroIcons.eye,
                     label: 'View Record'),
-                BarMenuItem(
+                const BarMenuItem(
                     value: 'edit_details',
                     icon: HeroIcons.pencilSquare,
                     label: 'Edit Personal Details'),
-                BarMenuItem(
+                const BarMenuItem(
                     value: 'archive',
                     icon: HeroIcons.archiveBoxXMark,
                     label: 'Archive Record',
@@ -334,7 +338,7 @@ class PatientRecordBar extends StatelessWidget {
   }
 }
 
-class BillingBar extends StatelessWidget {
+class InvoiceBar extends StatelessWidget {
   final String invoiceId;
   final String fullName;
   final String procedure;
@@ -343,9 +347,9 @@ class BillingBar extends StatelessWidget {
   final BadgeStatus status;
   final ValueChanged<String>? onMenuSelected;
   final bool isPaid;
-  final VoidCallback? onTap; // Clickable requirement
+  final VoidCallback? onTap; 
 
-  const BillingBar({
+  const InvoiceBar({
     super.key,
     required this.invoiceId,
     required this.fullName,
@@ -383,8 +387,6 @@ class BillingBar extends StatelessWidget {
             child: AppStatusBadge(status: status),
           ),
         ),
-
-        // More Options 
         Expanded(
           flex: 1,
           child: _MoreOptions(
@@ -407,8 +409,8 @@ class ScheduleBar extends StatelessWidget {
   final String time;
   final String procedure;
   final ValueChanged<String>? onMenuSelected;
+  final VoidCallback? onTap; 
 
-  // Constructor fixed: added parameters to actually assign the variables
   const ScheduleBar({
     super.key,
     required this.fullName,
@@ -416,11 +418,13 @@ class ScheduleBar extends StatelessWidget {
     required this.time,
     required this.procedure,
     this.onMenuSelected,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     return _BarContainer(
+      onTap: onTap, 
       children: [
         _BarText(fullName, flex: 3, ellipsis: true),
         _BarText(formatDate(date)),

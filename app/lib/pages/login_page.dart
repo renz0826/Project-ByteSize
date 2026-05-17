@@ -22,6 +22,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   bool _isNavigating = false;
   String? _localValidationError; // add local error variable
 
+  // Visibility state matching your security account settings cards
+  bool _isPinObscured = true;
+
   // Timer Variable
   Timer? _countdownTimer;
   int _secondsRemaining = 0;
@@ -37,7 +40,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     });
   }
 
-  void _startTimer(DateTime lockoutUntil) {
+  void _startTimer(DateTime lockoutUntil) { 
     _countdownTimer?.cancel(); // Cancel any existing timer to avoid duplicates
     
     _countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
@@ -185,7 +188,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
                         TextField(
                           controller: _pinController,
-                          obscureText: true,
+                          // Controlled via your dynamic local state token parameter
+                          obscureText: _isPinObscured,
                           enabled: !isLockedOut, // Completely disables typing when locked out
                           keyboardType: TextInputType.number,
                           textAlign: TextAlign.center,
@@ -197,7 +201,19 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                             filled: isLockedOut, 
                             fillColor: isLockedOut ? Colors.grey.shade200 : Colors.white,
                             contentPadding:
-                                const EdgeInsets.symmetric(vertical: 16.0),
+                                const EdgeInsets.only(top: 16.0, bottom: 16.0, left: 48.0), // Extra left padding added to center digits properly while keeping icon aligned
+                            // ─── ✅ NEW: INJECTED VISIBILITY ICON HANDLER PATH WITH SPACING ───
+                            suffixIcon: Padding(
+                              padding: const EdgeInsets.only(right: 8.0),
+                              child: MouseRegion(
+                                cursor: SystemMouseCursors.click,
+                                child: IconButton(
+                                  icon: Icon(_isPinObscured ? Icons.visibility_off_outlined : Icons.visibility_outlined),
+                                  color: const Color(0xFFB5B5B5),
+                                  onPressed: () => setState(() => _isPinObscured = !_isPinObscured),
+                                ),
+                              ),
+                            ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(30),
                               borderSide:
@@ -246,28 +262,26 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     );
   }
 
-  void _submitPin() {
-    // this function runs when the "enter pin" button is clicked
+  void _submitPin() {// this function runs when the "enter pin" button is clicked
     final enteredPin = _pinController.text.trim();
 
     //to clear any pervious local error before running validation
     setState(() => _localValidationError = null);
 
-    if (enteredPin.isEmpty) {
+    if (enteredPin.isEmpty) { // error handling: if no pin was entered
       setState(() => _localValidationError = 'Please enter your PIN.');
       return;
     }
-    if (enteredPin.length != 4) {
+    if (enteredPin.length != 4) { // error handling: if pin is not 4 digits
       setState(() => _localValidationError = 'PIN must be exactly 4 digits.');
       return;
     }
 
-    ref.read(authControllerProvider.notifier).login(
-        // send pin to auth_controller
+    ref.read(authControllerProvider.notifier).login(// send pin to auth_controller
         enteredPin, () {
       if (mounted) {
         setState(() {
-          _isNavigating = true; // Lock the button in the loading state!
+          _isNavigating = true; // Lock the button in a loading state
         });
         Navigator.pushReplacementNamed(context, '/dashboard');
       }

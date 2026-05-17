@@ -1,4 +1,4 @@
-import 'package:dentcity_management_system/widgets/app_status_badge.dart';
+import 'package:dentcity_management_system/widgets/status_badge.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:heroicons/heroicons.dart';
@@ -10,13 +10,13 @@ import '../../db/database.dart';
 import '../../providers/app_providers.dart';
 import '../../repositories/invoice_repository.dart';
 
-class ViewBillScreen extends ConsumerStatefulWidget {
+class ViewInvoiceScreen extends ConsumerStatefulWidget {
   final JoinedInvoice invoiceData;
   final VoidCallback onBack;
   final VoidCallback onProcessPayment;
   final VoidCallback onEditInvoice;
 
-  const ViewBillScreen({
+  const ViewInvoiceScreen({
     super.key,
     required this.invoiceData,
     required this.onBack,
@@ -25,10 +25,10 @@ class ViewBillScreen extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<ViewBillScreen> createState() => _ViewBillScreenState();
+  ConsumerState<ViewInvoiceScreen> createState() => _ViewInvoiceScreenState();
 }
 
-class _ViewBillScreenState extends ConsumerState<ViewBillScreen> {
+class _ViewInvoiceScreenState extends ConsumerState<ViewInvoiceScreen> {
   List<ProcedureChargeData> _procedures = [];
   List<PaymentTransactionData> _transactions = [];
   bool _isLoading = true;
@@ -86,7 +86,7 @@ class _ViewBillScreenState extends ConsumerState<ViewBillScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         PageHeader(
-          title: 'Back to Billings and Invoices',
+          title: 'Back to Invoices',
           type: PageHeaderType.withBack,
           onBack: widget.onBack,
         ),
@@ -96,12 +96,12 @@ class _ViewBillScreenState extends ConsumerState<ViewBillScreen> {
             child: Center(child: CircularProgressIndicator()),
           )
         else
-          _buildBillContent(),
+          _buildInvoiceContent(),
       ],
     );
   }
 
-  Widget _buildBillContent() {
+  Widget _buildInvoiceContent() {
     final inv = widget.invoiceData.invoice;
     final invoiceIdString = 'INV-${inv.invoiceId.toString().padLeft(3, '0')}';
     final formattedDate = _formatDate(inv.issuedDate);
@@ -123,6 +123,7 @@ class _ViewBillScreenState extends ConsumerState<ViewBillScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              const SizedBox(height: 32),
               _buildTopStatusBar(invoiceIdString, formattedDate, inv.status, isPaid),
               const SizedBox(height: 24),
               Container(
@@ -136,7 +137,7 @@ class _ViewBillScreenState extends ConsumerState<ViewBillScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildPatientBillHeader(hasDiscount),
+                    _buildPatientInvoiceHeader(hasDiscount),
                     const SizedBox(height: 32),
                     Text("Itemized Charges",
                     style: Theme.of(context)
@@ -150,7 +151,7 @@ class _ViewBillScreenState extends ConsumerState<ViewBillScreen> {
                     const SizedBox(height: 48),
                     
                     // Summary aligned to the right
-                    _buildBillingSummary(rawTotal, discount, netTotal, totalPaid, hasDiscount),
+                    _buildInvoiceSummary(rawTotal, discount, netTotal, totalPaid, hasDiscount),
 
                     // Transaction History correctly nested inside the Column
                     if (_transactions.isNotEmpty) ...[
@@ -176,7 +177,7 @@ class _ViewBillScreenState extends ConsumerState<ViewBillScreen> {
     );
   }
 
-  Widget _buildBillingSummary(double rawTotal, double discount, double netTotal, double totalPaid, bool hasDiscount) {
+  Widget _buildInvoiceSummary(double rawTotal, double discount, double netTotal, double totalPaid, bool hasDiscount) {
     final valueStyle = Theme.of(context).textTheme.titleLarge?.copyWith(
       color: AppTheme.gray500,
       fontWeight: FontWeight.w500,
@@ -192,14 +193,17 @@ class _ViewBillScreenState extends ConsumerState<ViewBillScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            // Subtotal Row
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('Subtotal:', style: valueStyle),
-                Text('₱ ${rawTotal.toStringAsFixed(2)}', style: textStyle),
-              ],
-            ),
+            // ─── ✅ FIXED: CONDITIONAL DISPLAY MATRIX FOR BALANCES ───
+            // Subtotal Row only shows up if there is a modification line layout above the final balance
+            if (hasDiscount || totalPaid > 0.0) ...[
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Subtotal:', style: valueStyle),
+                  Text('₱ ${rawTotal.toStringAsFixed(2)}', style: textStyle),
+                ],
+              ),
+            ],
             
             if (hasDiscount) ...[
               const SizedBox(height: 12),
@@ -215,27 +219,33 @@ class _ViewBillScreenState extends ConsumerState<ViewBillScreen> {
               ),
             ],
 
-            const SizedBox(height: 12),
-            // Previous Payment Row
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('Previous Payment:', style: valueStyle),
-                Text('- ₱ ${totalPaid.toStringAsFixed(2)}', style: textStyle),
-              ],
-            ),
+            if (totalPaid > 0.0) ...[
+              const SizedBox(height: 12),
+              // Previous Payment Row
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Previous Payment:', style: valueStyle),
+                  Text('- ₱ ${totalPaid.toStringAsFixed(2)}', style: textStyle),
+                ],
+              ),
+            ],
 
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 12),
-              child: Divider(color: AppTheme.gray400),
-            ),
+            // ─── ✅ FIXED: CONDITIONAL DIVIDER LINE ───
+            // Only insert the intermediate layout boundary lines if modifications exist above it
+            if (hasDiscount || totalPaid > 0.0) ...[
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 12),
+                child: Divider(color: AppTheme.gray400),
+              ),
+            ],
 
-            // Final Amount to be Paid
+            // Final calculated column row maps text label titles contextually
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Remaining Balance:',
+                  totalPaid > 0.0 ? 'Remaining Balance:' : 'Total Amount Due:',
                   style: valueStyle,
                 ),
                 Text(
@@ -293,10 +303,10 @@ class _ViewBillScreenState extends ConsumerState<ViewBillScreen> {
     );
   }
 
-  Widget _buildPatientBillHeader(bool hasDiscount) {
+  Widget _buildPatientInvoiceHeader(bool hasDiscount) {
     return Row(
       children: [
-        Text("${widget.invoiceData.patientNameReverse}’s Bill", style: Theme.of(context).textTheme.titleLarge),
+        Text("${widget.invoiceData.patientNameReverse}’s Invoice", style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(width: 16),
         if (hasDiscount) const AppStatusBadge(status: BadgeStatus.discount),
       ],

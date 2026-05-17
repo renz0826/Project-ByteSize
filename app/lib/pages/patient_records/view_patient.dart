@@ -2,7 +2,7 @@ import '../../widgets/attribute_read_view.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:heroicons/heroicons.dart';
-import '../../widgets/app_info_bar.dart';
+import '../../widgets/info_bar.dart';
 import '/../style/theme.dart';
 import '/../db/database.dart';
 import '../../widgets/input_field.dart';
@@ -13,7 +13,7 @@ class ViewPatientScreen extends StatefulWidget {
   final VoidCallback onBack;
   final ValueChanged<String> onMenuAction;
 
-  const ViewPatientScreen({
+  const ViewPatientScreen({ // constructor
     super.key,
     required this.patient,
     required this.clinicalRecords,
@@ -28,14 +28,13 @@ class ViewPatientScreen extends StatefulWidget {
 class _ViewPatientScreenState extends State<ViewPatientScreen> {
   int? _selectedRecordId;
 
-  List<int> get _recordIds =>
-      widget.clinicalRecords.map((r) => r.recordId).toList();
+  List<int> get _recordIds => widget.clinicalRecords.map((r) => r.recordId).toList(); // creates a list of record IDs
 
   List<String> get _recordLabels => widget.clinicalRecords
-      .map((r) => _formatAppointment(r.createdAt))
+      .map((r) => _formatAppointment(r.createdAt)) // converts record dates into labels for the dropdown
       .toList();
 
-  ClinicalRecordData? get _selectedRecord => widget.clinicalRecords
+  ClinicalRecordData? get _selectedRecord => widget.clinicalRecords // gets the full data of the currently selected
       .where((r) => r.recordId == _selectedRecordId)
       .firstOrNull;
 
@@ -312,13 +311,13 @@ class _ViewPatientScreenState extends State<ViewPatientScreen> {
               children: [
                 Expanded(
                   child: AttributeReadView(
-                    label: 'Past Illnesses',
+                    label: 'Past Illnesses', // shows the past illnesses
                     content: _selectedRecord!.pastIllness ?? 'None',
                   ),
                 ),
                 Expanded(
                   child: AttributeReadView(
-                    label: 'Present Illnesses',
+                    label: 'Present Illnesses', // shows the present illnesses
                     content: _selectedRecord!.presentIllness ?? 'None',
                   ),
                 ),
@@ -329,13 +328,13 @@ class _ViewPatientScreenState extends State<ViewPatientScreen> {
               children: [
                 Expanded(
                   child: AttributeReadView(
-                    label: 'Allergies',
+                    label: 'Allergies', // shows the allergies
                     content: _selectedRecord!.allergies ?? 'None',
                   ),
                 ),
                 Expanded(
                   child: AttributeReadView(
-                    label: 'Current Medication',
+                    label: 'Current Medication', // shows the current medication 
                     content: _selectedRecord!.currentMedication ?? 'None',
                   ),
                 ),
@@ -413,7 +412,7 @@ class _ViewPatientScreenState extends State<ViewPatientScreen> {
               children: [
                 Expanded(
                   child: AttributeReadView(
-                    label: 'Caries Indicated for Filling',
+                    label: 'Caries Indicated for Filling', // shows the number of caries indicated for filling
                     content: _selectedRecord!.cariesForFilling > 0
                         ? '${_selectedRecord!.cariesForFilling}'
                         : 'None',
@@ -422,7 +421,7 @@ class _ViewPatientScreenState extends State<ViewPatientScreen> {
                 ),
                 Expanded(
                   child: AttributeReadView(
-                    label: 'Caries Indicated for Extraction',
+                    label: 'Caries Indicated for Extraction', // shows the number of caries indicated for extraction
                     content: _selectedRecord!.cariesForExtraction > 0
                         ? '${_selectedRecord!.cariesForExtraction}'
                         : 'None',
@@ -431,7 +430,7 @@ class _ViewPatientScreenState extends State<ViewPatientScreen> {
                 ),
                 Expanded(
                   child: AttributeReadView(
-                    label: 'Root Fragment',
+                    label: 'Root Fragment', // shows the number of root fragments
                     content: _selectedRecord!.rootFragment > 0
                         ? '${_selectedRecord!.rootFragment}'
                         : 'None',
@@ -447,7 +446,7 @@ class _ViewPatientScreenState extends State<ViewPatientScreen> {
               children: [
                 Expanded(
                   child: AttributeReadView(
-                    label: 'Missing Due to Caries',
+                    label: 'Missing Due to Caries', // shows the number of "Missing Due to Caries"
                     content: _selectedRecord!.missingDueToCaries > 0
                         ? '${_selectedRecord!.missingDueToCaries}'
                         : 'None',
@@ -456,7 +455,7 @@ class _ViewPatientScreenState extends State<ViewPatientScreen> {
                 ),
                 Expanded(
                   child: AttributeReadView(
-                    label: 'Filled or Restored',
+                    label: 'Filled or Restored', // shows the number of "Filled or Restored" 
                     content: _selectedRecord!.filledOrRestored > 0
                         ? '${_selectedRecord!.filledOrRestored}'
                         : 'None',
@@ -480,7 +479,7 @@ class _ViewPatientScreenState extends State<ViewPatientScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              _selectedRecord!.clinicalNotes ?? 'No notes provided.',
+              _selectedRecord!.clinicalNotes ?? 'No notes provided.', // show this in case no notes were given
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     color: AppTheme.black500,
                     height: 1.6,

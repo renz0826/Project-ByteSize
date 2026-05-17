@@ -47,6 +47,12 @@ class AppPagination extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // ✅ FIXED: Hide pagination completely if there's only 1 page of data or less.
+    // It will only render on screen when there are at least 2 pages.
+    if (totalPages <= 1) {
+      return const SizedBox.shrink();
+    }
+
     final pageItems = _buildPageItems();
 
     return Row(
@@ -94,7 +100,6 @@ class AppPagination extends StatelessWidget {
                 height: 36,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  // TODO: add light blue background color and adjust the null
                   // Selected: light blue bg, unselected: transparent
                   color: isSelected ? AppTheme.blue200 : Colors.transparent,
                   borderRadius: BorderRadius.circular(8),
@@ -131,7 +136,6 @@ class AppPagination extends StatelessWidget {
 }
 
 // Arrow button
-
 class _PageArrow extends StatelessWidget {
   final IconData icon;
   final bool enabled;

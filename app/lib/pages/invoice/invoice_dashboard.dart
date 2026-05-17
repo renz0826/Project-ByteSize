@@ -1,11 +1,11 @@
-import 'package:dentcity_management_system/pages/billing/view_bill.dart';
-import 'package:dentcity_management_system/widgets/app_status_badge.dart';
+import 'package:dentcity_management_system/pages/invoice/view_invoice.dart';
+import 'package:dentcity_management_system/widgets/status_badge.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart'; 
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '/../style/theme.dart';
 import '/../widgets/search_bar.dart';
-import '/../widgets/app_pagination.dart';
+import '../../widgets/pagination.dart';
 import '/../widgets/main_buttons.dart';
 import '/../widgets/page_header.dart';
 import 'package:heroicons/heroicons.dart';
@@ -16,18 +16,18 @@ import '../../repositories/invoice_repository.dart';
 import '../../db/database.dart';
 import '../../widgets/warning_dialog.dart';
 
-import 'new_bill_form.dart';
+import 'invoice_entry.dart';
 import 'process_payment.dart';
-import '/../widgets/app_info_bar.dart';
+import '../../widgets/info_bar.dart';
 
-class BillingDashboard extends ConsumerStatefulWidget {
-  const BillingDashboard({super.key});
+class InvoiceDashboard extends ConsumerStatefulWidget {
+  const InvoiceDashboard({super.key});
 
   @override
-  ConsumerState<BillingDashboard> createState() => _BillingDashboardState();
+  ConsumerState<InvoiceDashboard> createState() => _InvoiceDashboardState();
 }
 
-class _BillingDashboardState extends ConsumerState<BillingDashboard> {
+class _InvoiceDashboardState extends ConsumerState<InvoiceDashboard> {
   late InvoiceRepository _repository;
 
   List<JoinedInvoice> _allInvoices = [];
@@ -39,11 +39,11 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
   int _currentPage = 1;
   final int _recordsPerPage = 8;
   String _selectedStatus = 'All';
-  
+
   int _formSessionId = 0;
-  int _paymentSessionId = 0; 
-  int _viewSessionId = 0; 
-  
+  int _paymentSessionId = 0;
+  int _viewSessionId = 0;
+
   JoinedInvoice? _selectInvoiceToView;
 
   @override
@@ -56,10 +56,12 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
 
   bool _isDiscountApplicable(PatientData? p) {
     if (p == null) return false;
-    if (p.isSeniorOrPWD) return true; 
+    if (p.isSeniorOrPWD) return true;
     final today = DateTime.now();
     int age = today.year - p.birthDate.year;
-    if (today.month < p.birthDate.month || (today.month == p.birthDate.month && today.day < p.birthDate.day)) age--;
+    if (today.month < p.birthDate.month ||
+        (today.month == p.birthDate.month && today.day < p.birthDate.day))
+      age--;
     return age >= 60;
   }
 
@@ -70,14 +72,10 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
       _patientMap = {for (var p in patients) p.patientId: p};
 
       final invoices = await _repository.getAllInvoices();
-      
+
+      // Sorts the invoice in a descending order (newest first, oldest last)
       invoices.sort((a, b) {
-        final dateA = a.invoice.issuedDate;
-        final dateB = b.invoice.issuedDate;
-        if (dateA == null && dateB == null) return 0;
-        if (dateA == null) return 1;
-        if (dateB == null) return -1;
-        return dateB.compareTo(dateA); 
+        return b.invoice.invoiceId.compareTo(a.invoice.invoiceId);
       });
 
       if (mounted) {
@@ -85,21 +83,21 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
           _allInvoices = invoices;
           _filteredRecords = invoices;
           _applyFilters();
-          
+
           if (_selectInvoiceToView != null) {
             try {
-              _selectInvoiceToView = invoices.firstWhere(
-                (inv) => inv.invoice.invoiceId == _selectInvoiceToView!.invoice.invoiceId
-              );
-            } catch (e) {} 
+              _selectInvoiceToView = invoices.firstWhere((inv) =>
+                  inv.invoice.invoiceId ==
+                  _selectInvoiceToView!.invoice.invoiceId);
+            } catch (e) {}
           }
         });
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Dashboard Load Error: $e'), backgroundColor: Colors.red)
-        );
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text('Dashboard Load Error: $e'),
+            backgroundColor: Colors.red));
       }
     }
   }
@@ -129,9 +127,9 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
     });
   }
 
-  void _goToAddBill() {
+  void _goToAddInvoice() {
     setState(() {
-      _selectInvoiceToView = null; 
+      _selectInvoiceToView = null;
       _formSessionId++;
       _currentIndex = 1;
     });
@@ -144,7 +142,8 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
         return const WarningDialog(
           isCaution: false,
           title: "Discard Unsaved Changes?",
-          content: "Are you sure you want to return to the records dashboard? Any unsaved data will be lost.",
+          content:
+              "Are you sure you want to return to the records dashboard? Any unsaved data will be lost.",
           secondaryAction: "Keep Editing",
           primaryAction: "Discard",
         );
@@ -155,6 +154,7 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
       setState(() => _currentIndex = 0);
     }
   }
+
   Future<bool> _verifyPin() async {
     final TextEditingController pinController = TextEditingController();
     final theme = Theme.of(context);
@@ -186,11 +186,9 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
-                      'Enter your 4-digit PIN to edit this invoice.',
-                      textAlign: TextAlign.center,
-                      style: theme.textTheme.bodyMedium
-                    ),
+                    Text('Enter your 4-digit PIN to edit this invoice.',
+                        textAlign: TextAlign.center,
+                        style: theme.textTheme.bodyMedium),
                     const SizedBox(height: 24),
                     SizedBox(
                       width: 340,
@@ -208,15 +206,18 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
                           letterSpacing: 8,
                         ),
                         decoration: InputDecoration(
-                          counterText: "", 
-                          contentPadding: const EdgeInsets.symmetric(vertical: 16.0),
+                          counterText: "",
+                          contentPadding:
+                              const EdgeInsets.symmetric(vertical: 16.0),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(color: AppTheme.gray400, width: 1),
+                            borderSide: const BorderSide(
+                                color: AppTheme.gray400, width: 1),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(color: AppTheme.blue500, width: 1),
+                            borderSide: const BorderSide(
+                                color: AppTheme.blue500, width: 1),
                           ),
                         ),
                       ),
@@ -250,20 +251,22 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
 
                           if (enteredPin.length != 4) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('PIN must be exactly 4 digits.'))
-                            );
+                                const SnackBar(
+                                    content:
+                                        Text('PIN must be exactly 4 digits.')));
                             return;
                           }
 
-                          final isValid = ref.read(authControllerProvider.notifier).verifyPin(enteredPin);
+                          final isValid = ref
+                              .read(authControllerProvider.notifier)
+                              .verifyPin(enteredPin);
 
                           if (isValid) {
                             pinController.dispose();
                             Navigator.of(dialogContext).pop(true);
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Incorrect PIN'))
-                            );
+                                const SnackBar(content: Text('Incorrect PIN')));
                           }
                         },
                       ),
@@ -273,15 +276,16 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
               ],
             );
           },
-        ) ?? false;
-      }
+        ) ??
+        false;
+  }
 
   void _triggerEditInvoice(JoinedInvoice invoice) async {
     bool isAuthorized = await _verifyPin();
     if (isAuthorized) {
       setState(() {
         _selectInvoiceToView = invoice;
-        _formSessionId++; 
+        _formSessionId++;
         _currentIndex = 1;
       });
     }
@@ -300,14 +304,14 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
     return IndexedStack(
       index: _currentIndex,
       children: [
-        // Index 0: Main Billings Table Overview Dashboard
+        // Index 0: Main invoice Table Overview Dashboard
         Scaffold(
           backgroundColor: AppTheme.gray200,
           body: CustomScrollView(
             slivers: [
               const SliverToBoxAdapter(
                 child: PageHeader(
-                  title: 'Billings',
+                  title: 'Invoice',
                   type: PageHeaderType.plain,
                 ),
               ),
@@ -329,41 +333,47 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
                     ? SliverToBoxAdapter(child: _buildEmptyState())
                     : SliverList(
                         delegate: SliverChildBuilderDelegate(
-                          (context, index) => _buildTableRow(_currentPageRecords[index]),
+                          (context, index) =>
+                              _buildTableRow(_currentPageRecords[index]),
                           childCount: _currentPageRecords.length,
                         ),
                       ),
               ),
               SliverPadding(
-                padding: const EdgeInsets.only(left: 24, right: 24, bottom: 24, top: 16),
+                padding: const EdgeInsets.only(
+                    left: 24, right: 24, bottom: 24, top: 16),
                 sliver: SliverToBoxAdapter(
                   child: _filteredRecords.isEmpty
                       ? const SizedBox.shrink()
                       : AppPagination(
                           currentPage: _currentPage,
                           totalPages: _totalPages,
-                          onPageChanged: (newPage) => setState(() => _currentPage = newPage),
+                          onPageChanged: (newPage) =>
+                              setState(() => _currentPage = newPage),
                         ),
                 ),
               ),
             ],
           ),
         ),
-        
+
         // Index 1: New Invoice Form Generation Screen View
         SingleChildScrollView(
           child: Column(
             children: [
               PageHeader(
-                title: 'Back to Billings & Invoices', 
-                type: PageHeaderType.withBack, 
+                title: 'Back to Invoices',
+                type: PageHeaderType.withBack,
                 onBack: _confirmReturnToDashboard,
               ),
               Transform.translate(
                 offset: const Offset(0, -30),
                 child: InvoiceForm(
                   key: ValueKey(_formSessionId),
-                  invoiceToEdit: _currentIndex == 1 && _selectInvoiceToView != null ? _selectInvoiceToView : null,
+                  invoiceToEdit:
+                      _currentIndex == 1 && _selectInvoiceToView != null
+                          ? _selectInvoiceToView
+                          : null,
                   onPrevious: _confirmReturnToDashboard,
                   onFinish: () {
                     _loadInvoices();
@@ -374,13 +384,14 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
             ],
           ),
         ),
-        
+
         // Index 2: Itemized Statement Details View Screen (Header isolated internally)
         SingleChildScrollView(
           child: _selectInvoiceToView == null
               ? const SizedBox.shrink()
-              : ViewBillScreen(
-                  key: ValueKey('view-${_selectInvoiceToView!.invoice.invoiceId}-$_viewSessionId'),
+              : ViewInvoiceScreen(
+                  key: ValueKey(
+                      'view-${_selectInvoiceToView!.invoice.invoiceId}-$_viewSessionId'),
                   invoiceData: _selectInvoiceToView!,
                   onBack: () {
                     _loadInvoices();
@@ -392,22 +403,24 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
                       _currentIndex = 3;
                     });
                   },
-                  onEditInvoice: () => _triggerEditInvoice(_selectInvoiceToView!),
+                  onEditInvoice: () =>
+                      _triggerEditInvoice(_selectInvoiceToView!),
                 ),
         ),
-        
+
         // Index 3: Ledger Processing Settlement Screen View (Header isolated internally)
         SingleChildScrollView(
           child: _selectInvoiceToView == null
               ? const SizedBox.shrink()
               : ProcessPaymentScreen(
-                  key: ValueKey('pay-${_selectInvoiceToView!.invoice.invoiceId}-$_paymentSessionId'),
+                  key: ValueKey(
+                      'pay-${_selectInvoiceToView!.invoice.invoiceId}-$_paymentSessionId'),
                   invoiceData: _selectInvoiceToView!,
                   onBack: () {
                     _loadInvoices().then((_) {
                       setState(() {
-                        _viewSessionId++; 
-                        _currentIndex = 2; 
+                        _viewSessionId++;
+                        _currentIndex = 2;
                       });
                     });
                   },
@@ -437,13 +450,14 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
               child: Theme(
                 data: Theme.of(context).copyWith(
                   elevatedButtonTheme: ElevatedButtonThemeData(
-                      style: ElevatedButton.styleFrom(padding: EdgeInsets.zero)),
+                      style:
+                          ElevatedButton.styleFrom(padding: EdgeInsets.zero)),
                 ),
                 child: Button(
-                  label: 'Add New Bill',
+                  label: 'Add New Invoice',
                   variant: ButtonVariant.primary,
                   heroIcon: HeroIcons.documentPlus,
-                  onPressed: _goToAddBill,
+                  onPressed: _goToAddInvoice,
                 ),
               ),
             )
@@ -491,19 +505,34 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
   };
 
   Widget _buildTableHeader() {
-    final headerStyle = AppTheme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold);
-    
+    final headerStyle =
+        AppTheme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold);
+
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12), 
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Row(
         children: [
-          Expanded(flex: _columnFlex['id']!, child: Text('Invoice ID', style: headerStyle)),
-          Expanded(flex: _columnFlex['patient']!, child: Text('Patient', style: headerStyle)),
-          Expanded(flex: _columnFlex['procedure']!, child: Text('Procedure', style: headerStyle)),
-          Expanded(flex: _columnFlex['amount']!, child: Text('Amount', style: headerStyle)),
-          Expanded(flex: _columnFlex['date']!, child: Text('Date', style: headerStyle)),
-          Expanded(flex: _columnFlex['status']!, child: Text('Status', style: headerStyle)),
-          Expanded(flex: _columnFlex['actions']!, child: Center(child: Text('Actions', style: headerStyle))),
+          Expanded(
+              flex: _columnFlex['id']!,
+              child: Text('Invoice ID', style: headerStyle)),
+          Expanded(
+              flex: _columnFlex['patient']!,
+              child: Text('Patient', style: headerStyle)),
+          Expanded(
+              flex: _columnFlex['procedure']!,
+              child: Text('Procedure', style: headerStyle)),
+          Expanded(
+              flex: _columnFlex['amount']!,
+              child: Text('Amount', style: headerStyle)),
+          Expanded(
+              flex: _columnFlex['date']!,
+              child: Text('Date', style: headerStyle)),
+          Expanded(
+              flex: _columnFlex['status']!,
+              child: Text('Status', style: headerStyle)),
+          Expanded(
+              flex: _columnFlex['actions']!,
+              child: Center(child: Text('Actions', style: headerStyle))),
         ],
       ),
     );
@@ -517,7 +546,8 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
           _searchController.text.isNotEmpty
               ? "Sorry, We couldn't find anything that matches '${_searchController.text}'"
               : 'No records found',
-          style: AppTheme.textTheme.bodyMedium?.copyWith(color: AppTheme.gray400),
+          style:
+              AppTheme.textTheme.bodyMedium?.copyWith(color: AppTheme.gray400),
         ),
       ),
     );
@@ -529,19 +559,19 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
     final badgeStatus = isFullyPaid ? BadgeStatus.paid : BadgeStatus.pending;
     final displayAmount = inv.totalBalance;
 
-    return BillingBar(
+    return InvoiceBar(
       invoiceId: 'INV-${inv.invoiceId.toString().padLeft(3, '0')}',
       fullName: invoiceInfo.patientName,
       procedure: invoiceInfo.procedureNames,
       amount: displayAmount,
-      isPaid: isFullyPaid, 
-      date: inv.issuedDate, 
+      isPaid: isFullyPaid,
+      date: inv.issuedDate,
       status: badgeStatus,
       onTap: () {
         setState(() {
           _selectInvoiceToView = invoiceInfo;
           _viewSessionId++;
-          _currentIndex = 2; 
+          _currentIndex = 2;
         });
       },
       onMenuSelected: (action) {
@@ -553,7 +583,7 @@ class _BillingDashboardState extends ConsumerState<BillingDashboard> {
             if (action == 'process_payment') {
               _paymentSessionId++;
               _currentIndex = 3;
-            } else if (action == 'view_bill') {
+            } else if (action == 'view_Invoice') {
               _viewSessionId++;
               _currentIndex = 2;
             }

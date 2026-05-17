@@ -4,11 +4,11 @@ import 'package:drift/drift.dart' as drift;
 import 'package:heroicons/heroicons.dart';
 import '/../style/theme.dart';
 import '/../widgets/search_bar.dart';
-import '/../widgets/app_pagination.dart';
+import '../../widgets/pagination.dart';
 import '/../widgets/main_buttons.dart';
 import '/../widgets/filter_dropdown.dart';
 import '/../widgets/page_header.dart';
-import '/../widgets/app_info_bar.dart';
+import '../../widgets/info_bar.dart';
 import '../../widgets/status_toast.dart';
 import '../../db/database.dart';
 import '../../services/patient_service.dart';
@@ -193,7 +193,6 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
     }
   }
 
-  //
   Future<void> _unarchivePatient(PatientData patient) async {
     final confirm = await showDialog<bool>(
       context: context,
@@ -605,7 +604,6 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
                     } else if (value == 'archive') {
                       _archivePatient(_patientToView!);
                     } else if (value == 'unarchive') {
-                      // ---> NEW: Restore action
                       _unarchivePatient(_patientToView!);
                     }
                   },
@@ -762,7 +760,6 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
     );
   }
 
-  //table header
   Widget _buildTableHeader() {
     final headerStyle = AppTheme.textTheme.bodyLarge;
 
@@ -782,37 +779,35 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
     );
   }
 
-  //
   Widget _buildTableRow(PatientData patient) {
-    return GestureDetector(
+    // ─── ✅ FIXED: GESTUREDETECTOR STRIPPED AND ONTAP LINKED DIRECTLY INTO COMPONENT ───
+    return PatientRecordBar(
+      fullName: '${patient.lastName}, ${patient.firstName} ${patient.suffix ?? ""}'.trim(),
+      sex: patient.sex,
+      age: DateHelper.calculateAge(patient.birthDate),
+      address: '${patient.province}, ${patient.cityMunicipality}',
+      contact: patient.contactNumber,
+      isArchived: patient.isArchived,
       onTap: () => _goToViewPatient(patient),
-      child: PatientRecordBar(
-        fullName: '${patient.lastName}, ${patient.firstName} ${patient.suffix}',
-        sex: patient.sex,
-        age: DateHelper.calculateAge(patient.birthDate),
-        address: '${patient.province}, ${patient.cityMunicipality}',
-        contact: patient.contactNumber,
-        isArchived: patient.isArchived,
-        onMenuSelected: (value) {
-          if (value == 'add_clinical_record') {
-            setState(() {
-              _formSessionId++;
-            });
-            _goToAddClinicalRecord(
-                existingPatientId: patient.patientId, returnIndex: 0);
-          } else if (value == 'schedule_appointment') {
-            _goToScheduleAppointment(patient, returnIndex: 0);
-          } else if (value == 'view_record') {
-            _goToViewPatient(patient);
-          } else if (value == 'archive') {
-            _archivePatient(patient);
-          } else if (value == 'unarchive') {
-            _unarchivePatient(patient);
-          } else if (value == 'edit_details') {
-            _goToEditPatient(patient);
-          }
-        },
-      ),
+      onMenuSelected: (value) {
+        if (value == 'add_clinical_record') {
+          setState(() {
+            _formSessionId++;
+          });
+          _goToAddClinicalRecord(
+              existingPatientId: patient.patientId, returnIndex: 0);
+        } else if (value == 'schedule_appointment') {
+          _goToScheduleAppointment(patient, returnIndex: 0);
+        } else if (value == 'view_record') {
+          _goToViewPatient(patient);
+        } else if (value == 'archive') {
+          _archivePatient(patient);
+        } else if (value == 'unarchive') {
+          _unarchivePatient(patient);
+        } else if (value == 'edit_details') {
+          _goToEditPatient(patient);
+        }
+      },
     );
   }
 

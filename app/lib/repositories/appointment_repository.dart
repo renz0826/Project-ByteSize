@@ -91,7 +91,7 @@ class AppointmentRepository {
 
         return DashboardQueueItem(
           appointmentId: appt.appointmentId,
-          patientName: '${pt.lastName}, ${pt.firstName}',
+          patientName: '${pt.firstName}, ${pt.lastName}',
           reason: appt.reasonForVisit ?? '',
           timeSlot: appt.timeSlot ?? '',
           status: appt.status ?? 'Waiting',

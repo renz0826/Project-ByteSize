@@ -64,11 +64,12 @@ class Button extends StatelessWidget {
     Widget buttonContent = Row(
       mainAxisAlignment:
           isTextVariant ? MainAxisAlignment.start : MainAxisAlignment.center,
+      // ✅ FIXED: Using MainAxisSize instead of MainAxisAlignment to prevent compilation errors
       mainAxisSize: isTextVariant ? MainAxisSize.max : MainAxisSize.min,
       children: [
         // Loading state of button
         if (isLoading) ...[
-          SizedBox(
+          const SizedBox(
             width: 20,
             height: 20,
             child: CircularProgressIndicator(
@@ -106,6 +107,14 @@ class Button extends StatelessWidget {
 
     // Disables the button if it's loading.
     final action = isLoading ? null : onPressed;
+    final bool isClickable = action != null;
+
+    // ─── ✅ FIXED INNER LAYOUT MATRIX: WRAPPED DIRECTLY AT THE DEEPEST CHILD LAYER ───
+    final Widget interactiveContent = MouseRegion(
+      cursor: isClickable ? SystemMouseCursors.click : SystemMouseCursors.forbidden,
+      child: buttonContent,
+    );
+
     Widget buttonWidget;
 
     switch (variant) {
@@ -121,7 +130,7 @@ class Button extends StatelessWidget {
                     const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(24))),
-            child: buttonContent);
+            child: interactiveContent);
         break;
 
       // Secondary Button
@@ -137,7 +146,7 @@ class Button extends StatelessWidget {
                     const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(24))),
-            child: buttonContent);
+            child: interactiveContent);
         break;
 
       // Small Primary Button
@@ -154,7 +163,7 @@ class Button extends StatelessWidget {
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(24))),
-            child: buttonContent);
+            child: interactiveContent);
         break;
 
       // Small Secondary Button
@@ -172,7 +181,7 @@ class Button extends StatelessWidget {
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(24))),
-            child: buttonContent);
+            child: interactiveContent);
         break;
 
       // Danger Button
@@ -187,7 +196,7 @@ class Button extends StatelessWidget {
                     const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(24))),
-            child: buttonContent);
+            child: interactiveContent);
         break;
 
       // Secondary Button
@@ -203,7 +212,7 @@ class Button extends StatelessWidget {
                     const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(24))),
-            child: buttonContent);
+            child: interactiveContent);
         break;
 
       // Revert Button
@@ -219,7 +228,7 @@ class Button extends StatelessWidget {
                     const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(24))),
-            child: buttonContent);
+            child: interactiveContent);
         break;
 
       // Text Button
@@ -232,7 +241,7 @@ class Button extends StatelessWidget {
               elevation: 0,
               padding: const EdgeInsets.all(0),
             ),
-            child: buttonContent);
+            child: interactiveContent);
         break;
 
       // Danger Text Button
@@ -244,7 +253,7 @@ class Button extends StatelessWidget {
                 foregroundColor: AppTheme.red600,
                 elevation: 0,
                 padding: const EdgeInsets.all(0)),
-            child: buttonContent);
+            child: interactiveContent);
     }
 
     return width == 0

@@ -151,7 +151,7 @@ class _ScheduleAppointmentFormState
       timeSlot: _selectedTimeSlot,
       reason: _reasonController.text,
     );
-    if (missing.isNotEmpty) {
+    if (missing.isNotEmpty) { // popup to show missing information from required fields
       RequirementDialog.show(context, "Missing Information",
           "Please provide the following details.", missing);
       return;
@@ -160,13 +160,13 @@ class _ScheduleAppointmentFormState
     final date = SchedulingService.parseSelectedDate(_selectedMonth, _selectedDay); // parse date with scheduling service
 
     if (date != null) {
-      final bool shouldProceed = await _showNextYearWarningIfNeeded(date);
+      final bool shouldProceed = await _showNextYearWarningIfNeeded(date); // check if the appointment is less than current date
       if (!shouldProceed) {
         return; 
       }
     }
 
-    final db = ref.read(databaseProvider);
+    final db = ref.read(databaseProvider); // set db variables
     final repo = AppointmentRepository(db);
 
     final patient = widget.activePatients.firstWhere(
@@ -180,7 +180,7 @@ class _ScheduleAppointmentFormState
       orElse: () => widget.activePatients.first, 
     );
 
-    final companion = AppointmentCompanion(
+    final companion = AppointmentCompanion( // create companion and prepare to send to the database
       patientId: drift.Value(patient.patientId),
       scheduleDateTime: drift.Value(date!),
       timeSlot: drift.Value(_selectedTimeSlot!),
@@ -198,7 +198,7 @@ class _ScheduleAppointmentFormState
                   .equals(widget.appointmentToEdit!.appointment.appointmentId)))
             .write(companion);
 
-        if (mounted) {
+        if (mounted) { // show toast that patient appointment has been updated successfully
           StatusToast.show(context,
               isSuccess: true,
               title: "Appointment Updated",
@@ -207,7 +207,7 @@ class _ScheduleAppointmentFormState
       } else {
         await repo.addAppointment(companion);
 
-        if (mounted) {
+        if (mounted) { // show toast that patient appointment has been successfully created
           StatusToast.show(context,
               isSuccess: true,
               title: "Appointment Scheduled",
@@ -217,7 +217,7 @@ class _ScheduleAppointmentFormState
 
       widget.onSave();
     } catch (e) {
-      if (mounted) {
+      if (mounted) { // show an error message
         StatusToast.show(context,
             isSuccess: false,
             title: "Error",
@@ -244,7 +244,7 @@ class _ScheduleAppointmentFormState
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-                isEditing 
+                isEditing // edit state
                     ? "Edit ${widget.appointmentToEdit?.patient.firstName} ${widget.appointmentToEdit?.patient.lastName}'s Schedule"
                     : "Schedule An Appointment",
                 style: Theme.of(context).textTheme.headlineLarge),
@@ -263,7 +263,7 @@ class _ScheduleAppointmentFormState
                     dropdownValue: _selectedPatient,
                     isRequired: true,
                     dropdownItems: widget.activePatients
-                        .map((p) => "${p.lastName}, ${p.firstName}") // display patient names
+                        .map((p) => "${p.lastName}, ${p.firstName}") // map the patients by lastName firstName
                         .toList(),
                     onDropdownChanged: (v) =>
                         setState(() => _selectedPatient = v), // 
@@ -274,7 +274,7 @@ class _ScheduleAppointmentFormState
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Appointment Schedule",
+                  "Appointment Schedule", 
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
                 const SizedBox(height: 12),
@@ -289,7 +289,7 @@ class _ScheduleAppointmentFormState
                             variant: InputVariant.dropdown,
                             dropdownValue: _selectedMonth,
                             isRequired: true,
-                            dropdownItems: SchedulingService.months,
+                            dropdownItems: SchedulingService.months, // use scheduling service here again
                             onDropdownChanged: (v) {
                               setState(() {
                                 _selectedMonth = v;
@@ -299,7 +299,7 @@ class _ScheduleAppointmentFormState
                             })),
                     Expanded(
                         child: InputField(
-                            key: ValueKey(
+                            key: ValueKey( // use get inferred year to adjust based on month selected
                                 '$_selectedMonth-${SchedulingService.getInferredYear(_selectedMonth)}'),
                             label: "Day",
                             hintText: "Select day",
@@ -317,7 +317,7 @@ class _ScheduleAppointmentFormState
                     Expanded(
                         child: InputField(
                             key: ValueKey('$_selectedMonth-$_selectedDay'),
-                            label: "Time Slot",
+                            label: "Time Slot", // choose time slot (8-5)
                             hintText: "Select time",
                             variant: InputVariant.dropdown,
                             dropdownValue: _selectedTimeSlot,
@@ -335,7 +335,7 @@ class _ScheduleAppointmentFormState
                     Expanded(
                       flex: 2,
                       child: InputField(
-                        label: "Reason for visit",
+                        label: "Reason for visit", // enter the reason of visit here
                         hintText: "Enter reason for visit",
                         controller: _reasonController,
                         isRequired: true,
