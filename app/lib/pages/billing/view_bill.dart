@@ -192,14 +192,17 @@ class _ViewBillScreenState extends ConsumerState<ViewBillScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            // Subtotal Row
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('Subtotal:', style: valueStyle),
-                Text('₱ ${rawTotal.toStringAsFixed(2)}', style: textStyle),
-              ],
-            ),
+            // ─── ✅ FIXED: CONDITIONAL DISPLAY MATRIX FOR BALANCES ───
+            // Subtotal Row only shows up if there is a modification line layout above the final balance
+            if (hasDiscount || totalPaid > 0.0) ...[
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Subtotal:', style: valueStyle),
+                  Text('₱ ${rawTotal.toStringAsFixed(2)}', style: textStyle),
+                ],
+              ),
+            ],
             
             if (hasDiscount) ...[
               const SizedBox(height: 12),
@@ -215,9 +218,9 @@ class _ViewBillScreenState extends ConsumerState<ViewBillScreen> {
               ),
             ],
 
-            // If totalPaid is 0, don't show on UI
             if (totalPaid > 0.0) ...[
               const SizedBox(height: 12),
+              // Previous Payment Row
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -225,16 +228,18 @@ class _ViewBillScreenState extends ConsumerState<ViewBillScreen> {
                   Text('- ₱ ${totalPaid.toStringAsFixed(2)}', style: textStyle),
                 ],
               ),
-              const SizedBox(height: 12),
-              const Divider(color: AppTheme.gray400),
-              const SizedBox(height: 12),
-            ] else ...[
-              const SizedBox(height: 12),
-              const Divider(color: AppTheme.gray400),
-              const SizedBox(height: 12),
             ],
 
-            // Final calculated column row maps contextually based on ledger transaction length definitions
+            // ─── ✅ FIXED: CONDITIONAL DIVIDER LINE ───
+            // Only insert the intermediate layout boundary lines if modifications exist above it
+            if (hasDiscount || totalPaid > 0.0) ...[
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 12),
+                child: Divider(color: AppTheme.gray400),
+              ),
+            ],
+
+            // Final calculated column row maps text label titles contextually
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
